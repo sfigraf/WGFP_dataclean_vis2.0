@@ -150,9 +150,8 @@ WGFP_Encounter_FUN= function(Stationary, Mobile, Biomark, Release, Recaptures){
     rename(TAG = TagID) %>%
     mutate(TAG = str_trim(TAG),
            Date = mdy(Date),
-           #when you get that error message outlined beliw, check and see if strings are really parsed as NA's. Usually not. But if you go to csv and format the time oumn as a time and in military time, there shouldn't be any issue
-           Time1 = case_when(str_length(Time) > 5 ~ (hms(Time)),
-                             str_length(Time) <= 5 ~ (hm(Time))), #warning message: problem with mutate(time1, some strings failed to parse); same with recaps # fixed by changing to hms() newest release file 20211229 has times with seconds
+           Time1 = case_when(str_length(Time) > 5 ~ as_datetime(hms(Time)),
+                             str_length(Time) <= 5 ~ as_datetime(hm(Time))), #warning message: problem with mutate(time1, some strings failed to parse); same with recaps # fixed by changing to hms() newest release file 20211229 has times with seconds 
            Time2 = str_sub(Time1, start = 11, end = -1),
            DateTime = ymd_hms(paste(Date, Time2))) %>%
     select(RS_Num,River,ReleaseSite,Date, Time2, DateTime,UTM_X,UTM_Y,Species,Length,Weight,TAG,TagSize,Ant,Event) %>%
