@@ -456,6 +456,15 @@ ui <- fluidPage(
                                                   `actions-box` = TRUE #this makes the "select/deselect all" option
                                                 )
                                     ), #end of picker 10 
+                                    
+                                    sliderInput("slider10", "Fish Release Length",
+                                                min = min(Movements_df$Release_Length, na.rm = TRUE),
+                                                max = max(Movements_df$Release_Length, na.rm = TRUE),  
+                                                value = c(min(Movements_df$Release_Length, na.rm = TRUE),max(Movements_df$Release_Length, na.rm = TRUE)),
+                                                step = 1,
+                                                
+                                    ), #end of slider8
+                                    
                                       # radioButtons(inputId = "radiobuttons1",
                                       #              label = "Select Data Frequency",
                                       #              choices = c("days", "weeks"),
@@ -468,7 +477,7 @@ ui <- fluidPage(
                                                   value = c(min(df_list$All_Events$Date -1),max(df_list$All_Events$Date +1)),
                                                   step = 1,
                                                   timeFormat = "%d %b %y",
-                                                  animate = animationOptions(interval = 500, loop = FALSE)
+                                                  #animate = animationOptions(interval = 500, loop = FALSE)
                                       ),
                                     
                                     sliderInput("slider9", "Total distance travelled (m)",
@@ -918,8 +927,8 @@ server <- function(input, output, session) {
       if(input$textinput3 != ''){
         movements_data1 <- Movements_df %>%
           filter(TAG %in% c(input$textinput3),
+                 Release_Length >= input$slider10[1] & Release_Length <= input$slider10[2],
                  Date >= input$slider2[1] & Date <= input$slider2[2],
-                 #Date == input$slider2,
                  movement_only %in% c(input$picker6),
                  det_type %in% c(input$picker7),
                  Species %in% c(input$picker10),
@@ -936,6 +945,7 @@ server <- function(input, output, session) {
       } else {
         movements_data1 <- Movements_df  %>% #initial_states_data_list()$Movements
           filter(
+            Release_Length >= input$slider10[1] & Release_Length <= input$slider10[2],
             Date >= input$slider2[1] & Date <= input$slider2[2],
             movement_only %in% c(input$picker6),
             det_type %in% c(input$picker7),

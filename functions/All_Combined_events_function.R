@@ -62,7 +62,7 @@ WGFP_Encounter_FUN= function(Stationary, Mobile, Biomark, Release, Recaptures){
     
     # mutate(TAG = case_when(str_detect(TAG, "^900") ~ str_sub(TAG, 4,-1),
     #                        str_detect(TAG, "!^900") ~ TAG)) %>%
-    
+    # assigning UTM's are important because they are plotted later when getting stations file in GIS
     mutate(UTM_X =case_when(SCD == "RB1" | SCD == "RB2" ~ "412489",
                             SCD == "HP3" | SCD == "HP4" ~ "414375",
                             SCD == "CF5" | SCD == "CF6" ~ "416965"),
@@ -85,11 +85,12 @@ WGFP_Encounter_FUN= function(Stationary, Mobile, Biomark, Release, Recaptures){
              ) %>%
     filter(!TAG %in% c("900230000102751", "900226001581072", "999000000007586", "999000000007585", "999000000007601", "999000000007602" )) %>%
     
-    # from gis: B1 416127.3, 4440146
+    # from gis: B1 416026, 4440196
     #B2: 420727.9, 4437221
-    mutate(UTM_X =case_when(Reader.ID == "B3" ~ "416127",
+    # b3 is wg, b4 is kaibab
+    mutate(UTM_X =case_when(Reader.ID == "B3" ~ "416026",
                             Reader.ID == "B4" ~ "420728"),
-           UTM_Y = case_when(Reader.ID == "B3" ~ "4440146",
+           UTM_Y = case_when(Reader.ID == "B3" ~ "4440196",
                              Reader.ID == "B4" ~ "4437221")) %>%
     distinct()
   
@@ -164,7 +165,9 @@ WGFP_Encounter_FUN= function(Stationary, Mobile, Biomark, Release, Recaptures){
     filter(!Date %in% c("", " ", NA)) %>%
     mutate(TAG = str_trim(TAG),
            Date = mdy(Date),
-           Time1 = as_datetime(hm(Time)),
+           # added in like I did the release file, functionality for when the time contains just HH:mm and hh:mm:ss
+           Time1 = case_when(str_length(Time) > 5 ~ as_datetime(hms(Time)),
+                             str_length(Time) <= 5 ~ as_datetime(hm(Time))),
            Time2 = str_sub(Time1, start = 11, end = -1),
            DateTime = ymd_hms(paste(Date, Time2))) %>%
     select(RS_Num,River,RecaptureSite,DateTime,Date,Time2,UTM_X,UTM_Y,Species,Length,Weight,TAG,TagSize,Ant,Event) %>%

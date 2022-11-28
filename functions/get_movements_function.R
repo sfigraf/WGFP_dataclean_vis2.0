@@ -39,12 +39,13 @@ get_movements_function <- function(combined_events_stations) {
            Y = as.numeric(UTM_Y)
     ) #end of mutate
     
-  
+  # assigning projection to ready df lat/longs for plotting
   attr(movement_table_notrans, "zone") = "13"
   attr(movement_table_notrans, "projection") = "UTM"
   attr(movement_table_notrans, "datum") = "GRS80"
   
   # need a column that has x and Y for this 
+  # converts lutms to lat/long
   movement_table_notrans <- convUL(movement_table_notrans, km=FALSE, southern=NULL)
   #as of now, movement table still has rows reminiscent from first_last etc which are helpful when you want to know where it ended the day and stuff.
   #but if you want to know concise movments, then this will eliminate uneeded rows
@@ -55,6 +56,7 @@ get_movements_function <- function(combined_events_stations) {
     select(Date, Datetime, TAG, movement_only, det_type, dist_moved, sum_dist, ET_STATION, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, UTM_X, UTM_Y, X, Y, marker_color, icon_color)
   
   #giving id column to make map proxy easier
+  # actually the id column needs to be remade every time a filter is applied. See the movements_df_reactives 
   #movement_table_notrans1$id <- seq.int(nrow(movement_table_notrans1))
   
   end_time <- Sys.time()
