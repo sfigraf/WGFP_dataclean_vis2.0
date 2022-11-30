@@ -33,13 +33,13 @@ Biomark <- read.csv("Biomark_Raw_20221102A.csv", dec = ",")
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
 Release <- read.csv("WGFP_ReleaseData_Master1.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",8) ))
 Recaptures <- read.csv("WGFP_RecaptureData_Master.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
-Stationdata1 <- read_csv("EncounterHistory_AllData_wStations_20220602.csv", 
-                         col_types = cols(
-                           #OBJECTID = col_skip(), Join_Count = col_skip(), TARGET_FID = col_skip(), 
-                           TAG = col_character(), Release_Length = col_number(), 
-                           UTM_X = col_character(), UTM_Y = col_character(),
-                           #Date_ = col_date(format = "%m/%d/%Y"),
-                           Release_Weight = col_number()))
+# Stationdata1 <- read_csv("EncounterHistory_AllData_wStations_20220602.csv", 
+#                          col_types = cols(
+#                            #OBJECTID = col_skip(), Join_Count = col_skip(), TARGET_FID = col_skip(), 
+#                            TAG = col_character(), Release_Length = col_number(), 
+#                            UTM_X = col_character(), UTM_Y = col_character(),
+#                            #Date_ = col_date(format = "%m/%d/%Y"),
+#                            Release_Weight = col_number()))
 
 
 # Date Wrangling ----------------------------------------------------------
@@ -65,6 +65,7 @@ Recaptures_05 <- Recaptures %>%
   mutate(Date = as.character(mdy(Date)))
 #functions
 source("functions/All_Combined_events_function.R")
+source("functions/Spatial_join_function.R")
 source("functions/Combine_events_stations_function.R")
 source("functions/enc_hist_wide_summary_function.R")
 source("functions/get_movements_function.R")
@@ -77,6 +78,10 @@ df_list <- WGFP_Encounter_FUN(Stationary = Stationary, Mobile = Mobile, Release 
 All_events <- df_list$All_Events
 recaps_and_detections <- df_list$Recaps_detections
 Marker_tags <- df_list$Marker_Tag_data
+
+#spatially joins point (detection) data to lines (station) data based on nearest feature. 
+#simplestatoins is from plygon_readins
+Stationdata1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
 
 combined_events_stations <- combine_events_and_stations(All_events, Stationdata1)
 

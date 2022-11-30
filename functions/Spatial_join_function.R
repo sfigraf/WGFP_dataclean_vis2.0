@@ -5,7 +5,10 @@
 # condesned_events has UTMs for coordinates 
 #simplestations is a sptial lines dataframe brought in with map_polygon_readins 
 spatial_join_stations_detections <- function(condensed_events, simple_stations) {
-  ### getting lat/longs instead of UTM's
+  
+  start_time <- Sys.time()
+  
+  ### converting to lat/longs instead of UTM's
   condensed_events <- condensed_events %>%
     
     mutate(
@@ -35,12 +38,17 @@ spatial_join_stations_detections <- function(condensed_events, simple_stations) 
   stations_sf <- st_as_sf(simple_stations)
   
   joined <- st_join(detections_sf, stations_sf, st_nearest_feature)
+  #need to convert class sf object back to dataframe so that it goes faster in combine_events_stations_function
+  station_data <- as.data.frame(station_data1)
+  
+  end_time <- Sys.time()
+  print(paste("Spatial Join Function took", round(end_time-start_time,2), "Seconds"))
   
   return(joined)
   
 }
 
-# test1 <- spatial_join_stations_detections(allevents_2022_11_02_condensed, simple_stations2)
+#test1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
 # test <- test %>%
 #   mutate(sames = (ET_STATION.x == ET_STATION.y))
 # small_sample <- allevents_2022_11_02_condensed %>%

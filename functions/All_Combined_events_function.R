@@ -223,8 +223,24 @@ WGFP_Encounter_FUN= function(Stationary, Mobile, Biomark, Release, Recaptures){
     distinct(Datetime,TAG, Event,  .keep_all = TRUE) %>%
     replace_na(list(Species = "No Info", ReleaseSite = "No Info"))
   
+  ### This is getting the events dataframe to only the data relevant for joining with stations
+  
+  all_events_relevant_to_stations <- filled_in_release_rows_condensed %>%
+    #this part is for making sure the sequence of events will make sense
+    # if there's no tag input then have to group_by TAG as well
+        group_by(Date, TAG) %>% 
+          mutate(first_last = case_when(Datetime == min(Datetime) ~ "First_of_day",
+                                        Datetime == max(Datetime) ~ "Last_of_day",
+                                        Datetime != min(Datetime) & Datetime != max(Datetime) ~ "0")
+          ) %>%
+          ungroup() %>%
+          distinct(TAG, Event, Date, first_last,  UTM_X, UTM_Y, .keep_all = TRUE) %>%
+          arrange(Datetime) %>%
+          select(-first_last) 
+  
 
   df_list <- list( "WGFP_Clean" = WGFP_Clean, "All_Detections" = All_detections2, 
+                   "All_Events_most_relevant" = all_events_relevant_to_stations,
                   "All_Events" = filled_in_release_rows_condensed, "Marker_Tag_data" = Markers_only2, "Recaps_detections" = recaps_detections)
   
   end_time <- Sys.time()

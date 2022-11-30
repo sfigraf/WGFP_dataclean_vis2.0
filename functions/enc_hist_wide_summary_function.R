@@ -1,10 +1,10 @@
 #### ENC HIST summary table function
 # recaps_and_all_detections <- df_list$Recaps_detections
 # release_data <- Release
-# all_events_condensed_with_stations <- combined_events_stations #resulting df from combined_events and stations function
+# combined_events_stations <- combined_events_stations #resulting df from combined_events and stations function
 
 #recaps and all detreitons comes from WGFP ENC_hist_function, release data is a read_in csv, all_events_condensed with stations comes from combine_stations_events function
-enc_hist_wide_summary_function <- function(recaps_and_all_detections, release_data, all_events_condensed_with_stations){
+enc_hist_wide_summary_function <- function(recaps_and_all_detections, release_data, combined_events_stations){
   
   start_time <- Sys.time()
   
@@ -102,7 +102,7 @@ enc_hist_wide_summary_function <- function(recaps_and_all_detections, release_da
   #therefore when the columns join, it doesn't make a column called "release above dam" (should I cahnge to subset by number instead of column name?)
   
   
-  above_below_counts <- all_events_condensed_with_stations %>%
+  above_below_counts <- combined_events_stations %>%
     count(TAG, det_type, above_below, name = "Encounters") %>%
     mutate(combined_event = paste(det_type, above_below),
            EncountersTF = ifelse(Encounters > 0, 
@@ -129,7 +129,7 @@ enc_hist_wide_summary_function <- function(recaps_and_all_detections, release_da
     select(TAG, 1:ncol(ENC_Release4))
   ###joining on column with sum data
   #same code appears in movements function
-  sum_dist1 <- all_events_condensed_with_stations %>%
+  sum_dist1 <- combined_events_stations %>%
     group_by(TAG) %>%
     arrange(Datetime) %>%
     mutate(dist_moved = ET_STATION - lag(ET_STATION, order_by = Datetime),

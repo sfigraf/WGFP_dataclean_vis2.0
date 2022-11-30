@@ -4,6 +4,9 @@
 # # #all_events is needed in this dataset because the returning df has station data from all pertinent events
 # All_events <- df_list$All_Events #comes from WFGFP encounter histories function.
 
+# station data comes from spatial join function
+#station_data1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
+#station_data <- as.data.frame(station_data1)
 
 combine_events_and_stations <- function(All_events, station_data){
   
@@ -15,14 +18,14 @@ combine_events_and_stations <- function(All_events, station_data){
   # this part exists 
   #just getting distinct rows makes joining easier; all we need from this df is stations
   stations <- station_data %>%
-    rename(
-      Datetime = Datetime_,
-      Time = Time_) %>%
-    mutate(
-      Date = mdy(Date_)
-    ) %>%
-    distinct(UTM_X, UTM_Y, .keep_all = TRUE) %>% #can't do it by ET_station because Sherriff ranch upper field and fraser river ranch the same station initially
-    select(-Date_)
+    # rename(
+    #   Datetime = Datetime_,
+    #   Time = Time_) %>%
+    # mutate(
+    #   Date = mdy(Date_)
+    # ) %>%
+    distinct(UTM_X, UTM_Y, .keep_all = TRUE)  #can't do it by ET_station because Sherriff ranch upper field and fraser river ranch the same station initially
+    # select(-Date_)
   
   
   #massive datafrmae occurs when there are multiple rows in B for which the key columns (same-name columns by default) match the same, single row in A
@@ -146,4 +149,4 @@ combine_events_and_stations <- function(All_events, station_data){
   return(All_events_days1)
 }
 
-#combined_events_stations <- combine_events_and_stations(All_events, Stationdata1)
+#combined_events_stations <- combine_events_and_stations(All_events, station_data)
