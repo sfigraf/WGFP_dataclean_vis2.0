@@ -2,7 +2,7 @@
 library(tidyverse)
 # Create Function
 
-WGFP_Encounter_FUN= function(Stationary, Mobile, Biomark, Release, Recaptures){
+All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, Recaptures){
   
   start_time <- Sys.time()
   

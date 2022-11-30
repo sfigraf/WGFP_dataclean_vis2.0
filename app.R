@@ -74,7 +74,8 @@ source("functions/Get_states_function.R")
 #mapping
 source("map_polygon_readins.R")
 
-df_list <- WGFP_Encounter_FUN(Stationary = Stationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
+#putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
+df_list <- All_combined_events_function(Stationary = Stationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
 All_events <- df_list$All_Events
 recaps_and_detections <- df_list$Recaps_detections
 Marker_tags <- df_list$Marker_Tag_data

@@ -39,12 +39,12 @@ spatial_join_stations_detections <- function(condensed_events, simple_stations) 
   
   joined <- st_join(detections_sf, stations_sf, st_nearest_feature)
   #need to convert class sf object back to dataframe so that it goes faster in combine_events_stations_function
-  station_data <- as.data.frame(station_data1)
+  station_data <- as.data.frame(joined)
   
   end_time <- Sys.time()
   print(paste("Spatial Join Function took", round(end_time-start_time,2), "Seconds"))
   
-  return(joined)
+  return(station_data)
   
 }
 

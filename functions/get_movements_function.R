@@ -60,7 +60,7 @@ get_movements_function <- function(combined_events_stations) {
   #movement_table_notrans1$id <- seq.int(nrow(movement_table_notrans1))
   
   end_time <- Sys.time()
-  print(paste("Movements Function took", round(end_time-start_time,2)))
+  print(paste("Movements Function took", round(end_time-start_time,2), "Seconds"))
   
   return(movement_table_notrans1)
 }
