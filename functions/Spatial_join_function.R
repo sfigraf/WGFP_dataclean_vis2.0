@@ -1,0 +1,51 @@
+### connect station data to detection data
+#this is the detection data filtered on distinct 
+#allevents_2022_11_02_condensed <- read_csv("spatial_join/allevents_2022-11-02_condensed.csv")
+#condensed_events is the detection data filtered on distinct stuff from all_events
+# condesned_events has UTMs for coordinates 
+#simplestations is a sptial lines dataframe brought in with map_polygon_readins 
+spatial_join_stations_detections <- function(condensed_events, simple_stations) {
+  ### getting lat/longs instead of UTM's
+  condensed_events <- condensed_events %>%
+    
+    mutate(
+      X = as.numeric(UTM_X),
+      Y = as.numeric(UTM_Y)
+    ) #end of mutate
+  
+  # assigning projection to ready df lat/longs for plotting
+  attr(condensed_events, "zone") = "13"
+  attr(condensed_events, "projection") = "UTM"
+  attr(condensed_events, "datum") = "GRS80"
+  
+  # need a column that has x and Y for this 
+  # converts lutms to lat/long
+  condensed_events <- convUL(condensed_events, km=FALSE, southern=NULL)
+  
+  #converting lat/long entries to spatial points dataframe
+  # needs to have a df of just coordinates (xy)
+  xy <- condensed_events %>%
+    select(X, Y)
+  
+  spdf <- SpatialPointsDataFrame(coords = xy, data = condensed_events,
+                                 proj4string = CRS("+init=epsg:4326"))
+  
+  ## making sf objects
+  detections_sf <- st_as_sf(spdf)
+  stations_sf <- st_as_sf(simple_stations)
+  
+  joined <- st_join(detections_sf, stations_sf, st_nearest_feature)
+  
+  return(joined)
+  
+}
+
+# test1 <- spatial_join_stations_detections(allevents_2022_11_02_condensed, simple_stations2)
+# test <- test %>%
+#   mutate(sames = (ET_STATION.x == ET_STATION.y))
+# small_sample <- allevents_2022_11_02_condensed %>%
+#   slice_sample(n = 30)
+
+
+# class(joined)
+# class(allevents_2022_11_02_condensed)

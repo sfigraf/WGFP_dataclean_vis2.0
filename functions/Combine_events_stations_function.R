@@ -7,8 +7,12 @@
 
 combine_events_and_stations <- function(All_events, station_data){
   
+  # the file takes a condensed verson of all_events filtered on distinct()
+  
   start_time <- Sys.time()
   # Combining stations into all_events dataset ------------------------------
+  # takes awhile to join data... what if we gave it hte distinct()) smaller file then added it 
+  # this part exists 
   #just getting distinct rows makes joining easier; all we need from this df is stations
   stations <- station_data %>%
     rename(
