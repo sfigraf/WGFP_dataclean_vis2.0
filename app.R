@@ -507,7 +507,8 @@ ui <- fluidPage(
                          hr(),
                          downloadButton(outputId = "download6", label = "Save movements data as CSV"),
                          hr(),
-                         plotlyOutput("plot1")
+                         plotlyOutput("plot1"),
+                         plotlyOutput("plot6")
                          # withSpinner(leafletOutput("map1",height=600)),
                          # withSpinner(DT::dataTableOutput("movements1"))
                          
@@ -1403,6 +1404,7 @@ server <- function(input, output, session) {
 
 # Movement Plot Output ----------------------------------------------------
 
+    #daily
     output$plot1 <- renderPlotly({
       plot <- filtered_movements_data() %>%
         ggplot(aes(x = Date, fill = movement_only,
@@ -1420,6 +1422,42 @@ server <- function(input, output, session) {
       
       plotly1 <- ggplotly(p = plot)
       plotly1
+    })    
+    
+    #seasonally
+    output$plot6 <- renderPlotly({
+      
+      seasonal_movts <- filtered_movements_data() %>%
+        group_by(month(Date), day(Date), movement_only) %>%
+        summarise(total_events = n())
+      
+      plot <- seasonal_movts %>%
+        mutate(merged = (parse_date_time(paste(`month(Date)`, `day(Date)`), "md"))) %>%
+        ggplot(aes(x = merged, y = total_events, fill = movement_only)) +
+        geom_bar(stat = "identity") +
+        theme_classic() +
+        labs(title = "Seasonal Daily Movements", x = "Month", y = "Events") +
+        scale_x_datetime(date_labels = "%b")
+      
+      ggplotly(plot)
+      
+      # plot <- filtered_movements_data() %>%
+      #   
+      #   ggplot(aes(x = Date, fill = movement_only,
+      #              text = paste('Date: ', as.character(Date), '\n'))
+      #   ) +
+      #   geom_bar(stat = "count", position = "dodge") +
+      #   theme_classic() +
+      #   labs(title="Fish Movement by Day",
+      #        x ="Date", y = "Count") +
+      #   scale_fill_manual(values = c("Downstream Movement" = "red",
+      #                                "Upstream Movement" = "chartreuse3",
+      #                                "No Movement" = "black",
+      #                                "Initial Release" = "darkorange"))
+      # 
+      # 
+      # plotly1 <- ggplotly(p = plot)
+      # plotly1
     })    
 
  
