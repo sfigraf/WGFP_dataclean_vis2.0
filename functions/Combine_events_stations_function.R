@@ -13,6 +13,7 @@ combine_events_and_stations <- function(All_events, station_data){
   # the file takes a condensed verson of all_events filtered on distinct()
   
   start_time <- Sys.time()
+  print("Running Combine_events_and_stations function: Combining all events with station data.")
   # Combining stations into all_events dataset ------------------------------
   # takes awhile to join data... what if we gave it hte distinct()) smaller file then added it 
   # this part exists 
@@ -144,7 +145,7 @@ combine_events_and_stations <- function(All_events, station_data){
   
   
   end_time <- Sys.time()
-  print(paste("Combine Events and Stations Function took", round(end_time-start_time,2)))
+  print(paste("Combine Events and Stations Function took", round(end_time-start_time,2), "Seconds"))
   
   return(All_events_days1)
 }

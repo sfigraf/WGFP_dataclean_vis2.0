@@ -3,7 +3,7 @@
 
 get_movements_function <- function(combined_events_stations) {
   start_time <- Sys.time()
-  
+  print("Running get_movements_function: Calculates movements of fish based off a change in station.")
   
   movement_table_notrans <- combined_events_stations %>%
     select(Date, Datetime, TAG, det_type, Event, ET_STATION, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, UTM_X, UTM_Y) %>%

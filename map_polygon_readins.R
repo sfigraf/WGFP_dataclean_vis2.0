@@ -1,5 +1,6 @@
 
 start_time <- Sys.time()
+print("Reading in Map Files.")
 
 layer_location <- file.path("./gis/")
 

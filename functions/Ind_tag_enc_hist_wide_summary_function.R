@@ -4,9 +4,10 @@
 # combined_events_stations <- combined_events_stations #resulting df from combined_events and stations function
 
 #recaps and all detreitons comes from WGFP ENC_hist_function, release data is a read_in csv, all_events_condensed with stations comes from combine_stations_events function
-enc_hist_wide_summary_function <- function(recaps_and_all_detections, release_data, combined_events_stations){
+Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, release_data, combined_events_stations){
   
   start_time <- Sys.time()
+  print("Running Ind_tag_enc_hist_wide_summary_function: Summarizes detection and movement data from each released Tag.")
   
   all_enc12 <- recaps_and_all_detections %>%
     count(TAG, Event, name = "Encounters") 

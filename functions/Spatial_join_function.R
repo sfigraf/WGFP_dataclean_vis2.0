@@ -1,13 +1,11 @@
 ### connect station data to detection data
-#this is the detection data filtered on distinct 
-#allevents_2022_11_02_condensed <- read_csv("spatial_join/allevents_2022-11-02_condensed.csv")
 #condensed_events is the detection data filtered on distinct stuff from all_events
 # condesned_events has UTMs for coordinates 
 #simplestations is a sptial lines dataframe brought in with map_polygon_readins 
 spatial_join_stations_detections <- function(condensed_events, simple_stations) {
   
   start_time <- Sys.time()
-  
+  print("Running spatial_join_stations_detections function: Joining detections and events to stations shapefile.")
   ### converting to lat/longs instead of UTM's
   condensed_events <- condensed_events %>%
     
@@ -42,18 +40,11 @@ spatial_join_stations_detections <- function(condensed_events, simple_stations) 
   station_data <- as.data.frame(joined)
   
   end_time <- Sys.time()
-  print(paste("Spatial Join Function took", round(end_time-start_time,2), "Seconds"))
+  print(paste("Spatial_join_stations_detections took", round(end_time-start_time,2), "Seconds"))
   
   return(station_data)
   
 }
 
 #test1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
-# test <- test %>%
-#   mutate(sames = (ET_STATION.x == ET_STATION.y))
-# small_sample <- allevents_2022_11_02_condensed %>%
-#   slice_sample(n = 30)
 
-
-# class(joined)
-# class(allevents_2022_11_02_condensed)

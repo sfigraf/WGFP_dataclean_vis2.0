@@ -4,6 +4,7 @@ library(tidyverse) #error has occ
 library(lubridate)
 library(leaflet)
 library(PBSmapping)
+library(sf)
 library(plotly) #for turning maps to plotly
 library(rgdal)
 library(DT)
@@ -20,8 +21,8 @@ library(bslib)
 # had "application failed to start" error and fixed both times with above command. both times because packages in local environment (tidyverse and lubridate) weren't called with library() command 
 
 # Data Read Ins -----------------------------------------------------------
-
-#stationary1 <- read.csv(paste0("WGFP_Raw_20211130.csv"))
+start_time <- Sys.time()
+print("Reading in Stationary, Mobile, Biomark, Release, and Recapture csv files.")
 
 # if column names change in any of these read-ins, might require some modification to code to get them to combine
 # also if you change read.csv to read_csv, it should read in quicker but column names will change
@@ -29,18 +30,12 @@ library(bslib)
 Stationary <- read.csv(paste0("WGFP_Raw_20221102.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
 Mobile <- read.csv("WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
 Biomark <- read.csv("Biomark_Raw_20221102A.csv", dec = ",")
-#Release <- read_csv("WGFP_ReleaseData_Master.csv")
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
 Release <- read.csv("WGFP_ReleaseData_Master1.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",8) ))
 Recaptures <- read.csv("WGFP_RecaptureData_Master.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
-# Stationdata1 <- read_csv("EncounterHistory_AllData_wStations_20220602.csv", 
-#                          col_types = cols(
-#                            #OBJECTID = col_skip(), Join_Count = col_skip(), TARGET_FID = col_skip(), 
-#                            TAG = col_character(), Release_Length = col_number(), 
-#                            UTM_X = col_character(), UTM_Y = col_character(),
-#                            #Date_ = col_date(format = "%m/%d/%Y"),
-#                            Release_Weight = col_number()))
 
+end_time = Sys.time()
+print(paste("Reading in files took", round(end_time-start_time,2), "Seconds"))
 
 # Date Wrangling ----------------------------------------------------------
 
@@ -67,7 +62,7 @@ Recaptures_05 <- Recaptures %>%
 source("functions/All_Combined_events_function.R")
 source("functions/Spatial_join_function.R")
 source("functions/Combine_events_stations_function.R")
-source("functions/enc_hist_wide_summary_function.R")
+source("functions/Ind_tag_enc_hist_wide_summary_function.R")
 source("functions/get_movements_function.R")
 source("functions/Get_states_function.R")
 
@@ -84,11 +79,13 @@ Marker_tags <- df_list$Marker_Tag_data
 #simplestatoins is from plygon_readins
 Stationdata1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
 
+#appplies cobine_events_stations function
 combined_events_stations <- combine_events_and_stations(All_events, Stationdata1)
-
-enc_hist_wide_list <- enc_hist_wide_summary_function(recaps_and_detections, Release, combined_events_stations)
+# aplies enc_hist_summary wide function
+enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(recaps_and_detections, Release, combined_events_stations)
 unknown_tags <- enc_hist_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
+# applies get_movements_function
 Movements_df <- get_movements_function(combined_events_stations)
 
 # Mx <- Movements_df %>%
@@ -1380,7 +1377,7 @@ server <- function(input, output, session) {
                      label = simple_stations2@data$ET_STATION,
                      labelOptions = labelOptions(noHide = T, textOnly = TRUE, style = label_style),
                      group = "Stations (m)") %>%
-        addLayersControl(overlayGroups = c("Antennas", "Detections", "Release Sites", "Stream Centerlines", "Stations (m)", "Mobile Reaches")) %>%
+        addLayersControl(overlayGroups = c("Detections", "Antennas", "Release Sites", "Stream Centerlines", "Stations (m)", "Mobile Reaches")) %>%
         hideGroup(c("Stream Centerlines", "Stations (m)", "Antennas", "Release Sites", "Mobile Reaches"))
       
       

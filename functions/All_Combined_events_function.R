@@ -5,6 +5,7 @@ library(tidyverse)
 All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, Recaptures){
   
   start_time <- Sys.time()
+  print("Running All_combined_events_function: Combining and cleaning Stationary, Mobile, Biomark, Release, and Recapture csv inputs.")
   
   library(tidyverse)
   library(lubridate)
@@ -244,7 +245,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
                   "All_Events" = filled_in_release_rows_condensed, "Marker_Tag_data" = Markers_only2, "Recaps_detections" = recaps_detections)
   
   end_time <- Sys.time()
-  print(paste("All Events Clean Function took", round(end_time-start_time,2), "Seconds"))
+  print(paste("All_combined_events_function took", round((end_time-start_time)/60,2), "Minutes"))
   
   return(df_list)
 }
