@@ -11,6 +11,9 @@
 
 #station_data1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
 #station_data <- as.data.frame(station_data1)
+#stations
+# dam is listed at 8330
+#b3 is 8190
 
 combine_events_and_stations <- function(All_events, station_data){
   
@@ -150,7 +153,7 @@ combine_events_and_stations <- function(All_events, station_data){
                            TRUE ~ Event),
       above_below = case_when(
         ET_STATION >= 8330 ~ "Above the Dam",
-        ET_STATION< 8330 ~ "Below the Dam"
+        ET_STATION < 8330 ~ "Below the Dam"
       )
       
     ) %>%

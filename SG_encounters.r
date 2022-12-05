@@ -1801,4 +1801,121 @@ All_events_stations_3 <- all_events_stations_2 %>%
   
   select(Date, Time, Datetime, TAG, Event, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, Recap_Length, Recap_Weight, UTM_X, UTM_Y, ET_STATION)
 
+# updated_states ----------------------------------------------------------
+All_events_stations_combined <- combined_events_stations
+# this gives all states
+states1 <- All_events_stations_combined %>%
+  # no need to group_by date until states will be consolidated
+  # need to group_by tag though so that the Lag(Date) will get the last date that that fish was detected
+  # some movements weren't being recorded correctly because it was grouping by both date and Tag
+  #don't need this part bc not even doing any lag stuff
+  # group_by(TAG) %>%
+  # arrange(Datetime) %>%
+  mutate(
+    state1 = case_when(str_detect(Event, "CD7|CD8|CD9|CD10|CU11|CU12") ~ "C",
+                       ET_STATION <= 8330 ~ "A",
+                       ET_STATION > 8330 ~ "B")
+  )
 
+states2 <- states1 %>%
+  #filter(!is.na(teststate_11)) %>%
+  group_by(Date, TAG) %>%
+  #arranging my datetime ensures that all states will be recorded in the correct order
+  arrange(Datetime) %>%
+  mutate(
+    teststate_2 = paste(state1, collapse = ""),
+    teststate_3 = gsub('([[:alpha:]])\\1+', '\\1', teststate_2), #removes consecutive letters
+  )
+
+states_final <- states2 %>%
+  distinct(Date, TAG, teststate_3, .keep_all = TRUE) %>%
+  select(Date, TAG, teststate_3, det_type, ReleaseSite, Species, Release_Length, Release_Weight, c_number_of_detections, daily_unique_events, days_since, UTM_X, UTM_Y) %>%
+  rename(State = teststate_3)
+## pivot wider
+days <- data.frame(days_since = 1:max(states_final$days_since))
+
+days_and_states <- full_join(days, states_final, by = "days_since")
+
+
+days_and_states_wide <- pivot_wider(days_and_states, id_cols = TAG, names_from = days_since, values_from = State)
+
+days_and_states_wide <- days_and_states_wide %>%
+  select(TAG, `0`, 2:ncol(days_and_states_wide))
+
+# unknown_movements <- states1 %>%
+#   filter(
+#     #!ReleaseSite %in% c("Pool Above Red Barn Antenna"),
+#     str_detect(TAG, c("^230")) | str_detect(TAG, c("^226")),
+#     #!is.na(previous_event), #don't want entries 
+#     is.na(movement)
+#   )
+  
+  mutate(
+    det_type = case_when(str_detect(Event, "RB1|RB2") ~ "Red Barn Stationary Antenna",
+                         str_detect(Event, "HP3|HP4") ~ "Hitching Post Stationary Antenna",
+                         str_detect(Event, "CF5|CF6") ~ "Confluence Stationary Antenna",
+                         str_detect(Event, "B3") ~ "Windy Gap Dam Biomark Antenna",
+                         str_detect(Event, "B4") ~ "Kaibab Park Biomark Antenna",
+                         str_detect(Event, "M1|M2") ~ "Mobile Run",
+                         Event == "Recapture" ~ "Recapture",
+                         TRUE ~ Event),
+    
+    current_event_vals = case_when(Event == "RB1" ~ 11.9,
+                                   Event == "RB2" ~ 11.1,
+                                   Event == "HP3" ~ 7.9,
+                                   Event == "HP4" ~ 7.1,
+                                   Event == "CF5" ~ 4.9,
+                                   Event == "CF6" ~ 4.1,
+                                   Event == "B3" ~ 6,
+                                   Event == "B4" ~ .9, #this ensures that kaibab park release to dtecitons will get a slight upstream move
+                                   
+                                   Event == "Recapture" & RecaptureSite == "Lower River Run" ~ 4,
+                                   Event == "Recapture" & RecaptureSite == "Fraser River Ranch" ~ 2,
+                                   Event == "Recapture" & RecaptureSite == "Kaibab Park" ~ 1,
+                                   Event == "Recapture" & RecaptureSite == "Upper River Run" ~ 3,
+                                   Event == "Recapture" & RecaptureSite == "Below Confluence Antenna" ~ 5,
+                                   Event == "Recapture" & RecaptureSite == "Windy Gap Dam" ~ 6,
+                                   Event == "Recapture" & RecaptureSite == "Hitching Post" ~ 7,
+                                   Event == "Recapture" & RecaptureSite == "Chimney Rock Above Island" ~ 8,
+                                   Event == "Recapture" & RecaptureSite == "Chimney Rock Below Island" ~ 9,
+                                   Event == "Recapture" & RecaptureSite == "Upper Red Barn Fry Site" ~ 10,
+                                   Event == "Recapture" & RecaptureSite == "Pool Above Red Barn Antenna" ~ 11,
+                                   Event == "Recapture" & RecaptureSite == "Lower Red Barn Fry Site" ~ 12,
+                                   Event == "Recapture" & RecaptureSite == "Below Red Barn Diversion #1" ~ 13,
+                                   Event == "Recapture" & RecaptureSite == "Below Red Barn Diversion #2" ~ 14,
+                                   Event == "Recapture" & RecaptureSite == "Kinney Creek" ~ 15,
+                                   Event == "Recapture" & RecaptureSite == "Dark Timber Above Railroad" ~ 16,
+                                   Event == "Recapture" & RecaptureSite == "Sheriff Ranch Upper Field" ~ 17,
+                                   Event == "Recapture" & RecaptureSite == "Shefiff Ranch Middle Field" ~ 18,
+                                   Event == "Recapture" & RecaptureSite == "Sheriff Ranch Fry Site" ~ 19
+                                   
+    ))
+
+# above below station 8330
+## make current event vals just -1 and 1: 
+# could also just see ET station > x is above the damn
+  # look at through_dam function in combine_statoins events
+
+  
+  x <- All_events %>%
+    filter(TAG == "230000228314") %>%
+    arrange(Datetime)
+View(x)  
+# df of multiple states in one day to check avian predation
+
+checking <- states_final %>%
+  group_by(TAG) %>%
+  arrange(Date) %>%
+  mutate(through_dam1 = case_when(det_type == "Release" ~ "Initial Release",
+                                  str_sub(State,-1,-1) == "A" & lag(str_sub(State,-1,-1) %in% c("B", "C"), order_by = Date) ~ "Went Below Dam",
+                                  str_sub(State,-1,-1) == "B" & lag(str_sub(State,-1,-1) %in% c("A", "C"), order_by = Date) ~ "Went Above Dam",
+                                  State %in% c("BA", "CA", "BCA") ~ "Went Below Dam",
+                                  State %in% c("AB", "CB", "ACB") ~ "Went Above Dam",
+                                  State == lag(str_sub(State,-1,-1), order_by = Date) ~ "No state change",
+                                  # TRUE ~ NA
+      
+                                  )
+         )
+
+unknown_states <- checking %>%
+  filter(is.na(through_dam1) & !det_type %in% c("Release", "Recapture and Release", "Recapture"))

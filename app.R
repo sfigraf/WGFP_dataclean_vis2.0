@@ -30,7 +30,7 @@ print("Reading in Stationary, Mobile, Biomark, Release, and Recapture csv files.
 # could be a later task
 Stationary <- read.csv(paste0("WGFP_Raw_20221102.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
 Mobile <- read.csv("WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
-Biomark <- read.csv("Biomark_Raw_20221102wg.csv", dec = ",") # need to update to correct file
+Biomark <- read.csv("Biomark_Raw_20221102.csv", dec = ",") # need to update to correct file
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
 Release <- read.csv("WGFP_ReleaseData_Master1.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",8) ))
 Recaptures <- read.csv("WGFP_RecaptureData_Master.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
@@ -71,7 +71,7 @@ source("functions/Spatial_join_function.R")
 source("functions/Combine_events_stations_function.R")
 source("functions/Ind_tag_enc_hist_wide_summary_function.R")
 source("functions/get_movements_function.R")
-source("functions/Get_states_function.R")
+source("functions/Get_states_function2.R")
 
 #mapping
 source("map_polygon_readins.R")
@@ -81,6 +81,8 @@ df_list <- All_combined_events_function(Stationary = Stationary, Mobile = Mobile
 All_events <- df_list$All_Events
 recaps_and_detections <- df_list$Recaps_detections
 Marker_tags <- df_list$Marker_Tag_data
+WGFP_Clean_1 <- df_list$WGFP_Clean
+unknown_tags_1 <-df_list$Unknown_Tags
 
 #spatially joins point (detection) data to lines (station) data based on nearest feature. 
 #simplestatoins is from plygon_readins
@@ -103,13 +105,14 @@ Movements_df <- get_movements_function(combined_events_stations)
 
 #statesdf_list <- Get_states_function(combined_events_stations)
 
-WGFP_Clean_1 <- df_list$WGFP_Clean
-unknown_tags_1 <-df_list$Unknown_Tags
+
 
 Enc_release_data <- enc_hist_wide_df %>%
     mutate(Date = ifelse(str_detect(Date, "/"),
                          as.character(mdy(Date)),
                          Date))
+
+
 most_recent_date <- max(df_list$All_Events$Date)  
 
 #want to put this in the function when ready
@@ -855,7 +858,7 @@ server <- function(input, output, session) {
     #want it so that when the first button4 is pressed, the whole dataset is made
     #then after that i want to render the table with button5 along with filters
     initial_states_data_list <- eventReactive(input$button4,{
-      states_data1_list <- Get_states_function(combined_events_stations)
+      states_data1_list <- states_function(combined_events_stations)
       
       
       return(states_data1_list)
@@ -870,14 +873,14 @@ server <- function(input, output, session) {
                  daily_unique_events %in% input$picker4,
                  State %in% input$picker5
                  )%>%
-          arrange(Datetime)
+          arrange(Date)
       } else { 
         states_data1 <- initial_states_data_list()$All_States %>%
           filter(
             daily_unique_events %in% input$picker4,
             State %in% input$picker5
           )%>%
-          arrange(Datetime)      
+          arrange(Date)      
         }
 
       
@@ -1129,9 +1132,9 @@ server <- function(input, output, session) {
     output$unknownstates1 <- renderDT({
       
       
-      datatable(initial_states_data_list()$Unaccounted_Movements,
+      datatable(initial_states_data_list()$Flagged_movements,
                 rownames = FALSE,
-                caption = "this hopefully should be pretty small...filled with tags with detections before official 'Release' such as in in May 2021 and tags without release info. Mainly tags without an idea where they came from. But if a Tag shows up where release info is known, might have to go into the get_states_function.R code to make another case_when entry to account for the new state. All in all, this is a check to see how well the get_states_function is working",
+                caption = "this hopefully should be pretty small...filled with tags with detections before official 'Release' such as in in May 2021 and tags without release info.",
                 filter = 'top',
                 options = list(
                   pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
