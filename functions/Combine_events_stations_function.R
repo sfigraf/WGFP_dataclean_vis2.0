@@ -1,10 +1,14 @@
 ###station data is originally made in GIS from the all_events dataset that has been filtered on distinct TAG, Event, UTM_X, UTM_Y, and Date
 
-# station_data <- Stationdata1
+### this function is up to date with the new antennas
 # # #all_events is needed in this dataset because the returning df has station data from all pertinent events
-# All_events <- df_list$All_Events #comes from WFGFP encounter histories function.
+#All_events <- df_list$All_Events #comes from WFGFP encounter histories function.
 
 # station data comes from spatial join function
+#you can get station info for all antennas from this file, since it's the result of the spatial join
+# stations are manually assigned later just in case so that's why this is important
+#station_data <- Stationdata1
+
 #station_data1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
 #station_data <- as.data.frame(station_data1)
 
@@ -67,24 +71,29 @@ combine_events_and_stations <- function(All_events, station_data){
         (Event %in% c("RB1", "RB2")) ~ "Colorado River", # there is no is.na here because RB UTM
         (Event %in% c("HP3", "HP4")) ~ "Colorado River",
         (Event %in% c("CF5", "CF6")) ~ "Colorado River",
-        (Event %in% c("B3")) ~ "Colorado River",
-        (Event %in% c("B4")) ~ "Fraser River",
+        (Event %in% c("CD7", "CD8", "CD9", "CD10", "CU11", "CU12")) ~ "Connectivity Channel",
+        (Event %in% c("B3", "B5")) ~ "Colorado River",
+        (Event %in% c("B4", "B6")) ~ "Fraser River",
         TRUE ~ River
       ),
-      #this fills in the NA rows so therefore accounts for new stationary and biomark detections that weren't captured when stationdata was made
+      #this fills in the NA rows so therefore accounts for new stationary and biomark detections that weren't captured when stationdata was made 12/1/22 note: there shouldn't be na rows since i changed the way the left_join above was performed and also now spatial join happens within the app everytime it's ran.
       
       #if UTM's were correctly assigned initially and stationdata is up to date, this part is unnesseccary because this will all already be done with the left_join
-      
+       # 12/1/22 i don't actually think it's needed anymore since the UTM's ARE all correct, but it's a good rdundant safeguard to have in place
+      # just need to change this if a 
+      ### NEED TO STILL ASIGN STATIONS FOR NEW ANTENNAS, aswell as deal with how to handle moving around the channels
       ET_STATION = case_when(
         (Event %in% c("RB1", "RB2")) ~ 4150, # there is no is.na here because RB UTM
         is.na(ET_STATION) & (Event %in% c("HP3", "HP4")) ~ 6340,
         is.na(ET_STATION) & (Event %in% c("CF5", "CF6")) ~ 9550,
-        is.na(ET_STATION) & (Event %in% c("B3")) ~ 8290,
+        is.na(ET_STATION) & (Event %in% c("B3")) ~ 8190,
         is.na(ET_STATION) & (Event %in% c("B4")) ~ 6050,
         !is.na(ET_STATION) & (!Event %in% c("RB1", "RB2")) ~ ET_STATION),
-      
+      # this part is needed because stations are assigned from 0 up the fraser river starting at the confluence
+      #new antennas weren't showing up because I didn't include connectivity channel to to river
       ET_STATION = case_when(River %in% "Fraser River" ~ ET_STATION + 9566, #9566 is above Fraser River Confluence
-                             River %in% "Colorado River" ~ ET_STATION)
+                             River %in% c("Colorado River", "Connectivity Channel") ~ ET_STATION,
+                             TRUE ~ ET_STATION)
     ) %>%
     
     # mutate(
@@ -92,7 +101,7 @@ combine_events_and_stations <- function(All_events, station_data){
     #                          River %in% "Colorado River" ~ ET_STATION)
     # )
     # this line just makes the df smaller if htere are duplicates; usually doesn't change anything since All_events has a line that does this also in the WGFP ENC hist_function
-    distinct(Datetime, Event, TAG, .keep_all =TRUE) %>%
+    distinct(Datetime, Event, TAG, .keep_all = TRUE) %>%
     
     select(Date, Time, Datetime, TAG, Event, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, Recap_Length, Recap_Weight, UTM_X, UTM_Y, ET_STATION)
   
@@ -105,6 +114,7 @@ combine_events_and_stations <- function(All_events, station_data){
     )
   
   #getting all_events down to most essential info: how a unique fish/Tag began the day, how it ended the day, and if there were events different than that in between
+  # this gets put into get_movements_function, ind_tag_enc_hist_summary_wide, and get_states
   All_events_days1 <- All_events_days %>%
     
     group_by(Date, TAG) %>%
@@ -129,8 +139,12 @@ combine_events_and_stations <- function(All_events, station_data){
       det_type = case_when(str_detect(Event, "RB1|RB2") ~ "Red Barn Stationary Antenna",
                            str_detect(Event, "HP3|HP4") ~ "Hitching Post Stationary Antenna",
                            str_detect(Event, "CF5|CF6") ~ "Confluence Stationary Antenna",
+                           str_detect(Event, "CD7|CD8|CD9|CD10") ~ "Connectivity Channel Downstream Stationary Antenna", #Caused by error in `"CD7|CD8" | "CD9"`: solved because quotation marks in the worng places
+                           str_detect(Event, "CU11|CU12") ~ "Connectivity Channel Upstream Stationary Antenna",
                            str_detect(Event, "B3") ~ "Windy Gap Dam Biomark Antenna",
                            str_detect(Event, "B4") ~ "Kaibab Park Biomark Antenna",
+                           str_detect(Event, "B5") ~ "River Run Biomark Antenna",
+                           str_detect(Event, "B6") ~ "Fraser River Canyon Biomark Antenna",
                            str_detect(Event, "M1|M2") ~ "Mobile Run",
                            Event == "Recapture" ~ "Recapture",
                            TRUE ~ Event),

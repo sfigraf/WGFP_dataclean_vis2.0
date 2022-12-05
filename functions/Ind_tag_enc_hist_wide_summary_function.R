@@ -1,7 +1,7 @@
 #### ENC HIST summary table function
-# recaps_and_all_detections <- df_list$Recaps_detections
-# release_data <- Release
-# combined_events_stations <- combined_events_stations #resulting df from combined_events and stations function
+recaps_and_all_detections <- df_list$Recaps_detections
+release_data <- Release
+combined_events_stations <- combined_events_stations #resulting df from combined_events and stations function
 
 #recaps and all detreitons comes from WGFP ENC_hist_function, release data is a read_in csv, all_events_condensed with stations comes from combine_stations_events function
 Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, release_data, combined_events_stations){
@@ -18,6 +18,7 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
     replace_na(list(Species = "No Info", ReleaseSite = "No Info"))
   
   #all_enc12[is.na(all_enc12)]=0
+  #### NEED To make this compatible with new antennas!!
   
   ENC_ALL <- all_enc12 %>%
     rename(RB1_n = RB1,
@@ -26,13 +27,21 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
            HP4_n = HP4,
            CF5_n = CF5,
            CF6_n = CF6,
+           CD7_n = CD7,
+           CD8_n = CD8,
+           CD9_n = CD9,
+           CD10_n = CD10,
+           CU11_n = CU11,
+           CU12_n = CU12,
            M1_n = M1,
            M2_n = M2,
            B3_n = B3,
            B4_n = B4,
+           B5_n = B5,
+           B6_n = B6,
            Recap_n = Recapture
     ) %>%
-    select(TAG, RB1_n,RB2_n,HP3_n, HP4_n, CF5_n, CF6_n, M1_n, M2_n, B3_n, B4_n, Recap_n)
+    select(TAG, RB1_n,RB2_n,HP3_n, HP4_n, CF5_n, CF6_n, CD7_n, CD8_n, CD9_n, CD10_n, CU11_n, CU12_n, M1_n, M2_n, B3_n, B4_n, B5_n, B6_n, Recap_n)
   
   
   #### Combine Release data ###
@@ -63,10 +72,18 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
            HP4 = (HP4_n >0),
            CF5 = (CF5_n >0),
            CF6 = (CF6_n >0),
+           CD7 = (CD7_n >0),
+           CD8 = (CD8_n >0),
+           CD9 = (CD9_n >0),
+           CD10 = (CD10_n >0),
+           CU11 = (CU11_n >0),
+           CU12 = (CU12_n >0),
            M1 = (M1_n >0),
            M2 = (M2_n >0),
            B3 = (B3_n >0),
            B4 = (B4_n>0),
+           B5 = (B5_n >0),
+           B6 = (B6_n>0),
            Recapture = (Recap_n > 0))
   
   
@@ -78,22 +95,27 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
   ENC_Release2 <- ENC_Release1 %>%
     #counts number of TRUE across specified rows. -SG
     # need to have parentheses (totalcols-1) that's why i was getting bad numbers on biomark T/F initially
+    #added 8 new columns for new antennas
     mutate(
-      TotalEncounters = rowSums(ENC_Release1[(totalcols-10):totalcols] == TRUE),
+      TotalEncounters = rowSums(ENC_Release1[(totalcols-18):totalcols] == TRUE),
       
-      TotalAntennas1 = rowSums(ENC_Release1[(totalcols-10):(totalcols-1)] == TRUE),
-      TotalStationary = rowSums(ENC_Release1[(totalcols-10):(totalcols-5)] == TRUE),
-      TotalMobile = rowSums(ENC_Release1[(totalcols-4):(totalcols-3)] == TRUE),
-      TotalBiomark = rowSums(ENC_Release1[(totalcols-2):(totalcols-1)] == TRUE),
-      TotalRB = rowSums(ENC_Release1[(totalcols-10):(totalcols-9)] == TRUE),
-      TotalHP = rowSums(ENC_Release1[(totalcols-8):(totalcols-7)] == TRUE),
-      TotalCf = rowSums(ENC_Release1[(totalcols-6):(totalcols-5)] == TRUE)
+      TotalAntennas1 = rowSums(ENC_Release1[(totalcols-18):(totalcols-1)] == TRUE),
+      TotalStationary = rowSums(ENC_Release1[(totalcols-18):(totalcols-7)] == TRUE),
+      TotalMobile = rowSums(ENC_Release1[(totalcols-6):(totalcols-5)] == TRUE),
+      TotalBiomark = rowSums(ENC_Release1[(totalcols-4):(totalcols-1)] == TRUE),
+      TotalRB = rowSums(ENC_Release1[(totalcols-18):(totalcols-17)] == TRUE),
+      TotalHP = rowSums(ENC_Release1[(totalcols-16):(totalcols-15)] == TRUE),
+      TotalCF = rowSums(ENC_Release1[(totalcols-14):(totalcols-13)] == TRUE),
+      TotalCD = rowSums(ENC_Release1[(totalcols-12):(totalcols-9)] == TRUE),
+      TotalCU = rowSums(ENC_Release1[(totalcols-8):(totalcols-7)] == TRUE),
     ) %>%
     # just says if the fish was ever detected at these sites
     mutate(RB = (RB1_n > 0 | RB2_n >0),
            HP = (HP3_n > 0 | HP4_n >0),
            CF = (CF5_n > 0 | CF6_n >0),
-           Biomark = (B3_n > 0 | B4_n >0),
+           CD = (CD7_n > 0 | CD8_n >0 | CD9_n > 0 | CD10_n >0),
+           CU = (CU11_n > 0 | CU12_n >0),
+           Biomark = (B3_n > 0 | B4_n >0 | B5_n > 0 | B6_n >0),
            Mobile = (M1_n > 0 | M2_n >0)) %>%
     filter(!UTM_X %in% c(0, NA)) # one way to filter out tags that don't have any sort of release data; usually if they're entered in release file then they have UTM's
   
@@ -117,12 +139,12 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
   above_below_counts2[is.na(above_below_counts2)] = FALSE
 
   ENC_Release3 <- left_join(ENC_Release2, above_below_counts2, by = "TAG")
-  
+  ### need to figure out how connectivity channel fits into this part?
   ENC_Release4 <- ENC_Release3 %>%
     mutate(through_dam = case_when(
-      (RB1|RB2|HP3|HP4|B3|`Release Below the Dam`|`Recapture Below the Dam`|`Recapture and Release Below the Dam`|`Mobile Run Below the Dam`) == TRUE & (CF5|CF6|B4|`Release Above the Dam`|`Recapture Above the Dam`|`Recapture and Release Above the Dam`|`Mobile Run Above the Dam`) == TRUE ~ "Went through dam",
-      (RB1|RB2|HP3|HP4|B3|`Release Below the Dam`|`Recapture Below the Dam`|`Recapture and Release Below the Dam`|`Mobile Run Below the Dam`) == TRUE & (CF5&CF6&B4&`Release Above the Dam`&`Recapture Above the Dam`&`Recapture and Release Above the Dam`&`Mobile Run Above the Dam`) == FALSE ~ "Stayed Below the Dam",
-      (RB1&RB2&HP3&HP4&B3&`Release Below the Dam`&`Recapture Below the Dam`&`Recapture and Release Below the Dam`&`Mobile Run Below the Dam`) == FALSE & (CF5|CF6|B4|`Release Above the Dam`|`Recapture Above the Dam`|`Recapture and Release Above the Dam`|`Mobile Run Above the Dam`) == TRUE ~ "Stayed Above the Dam",
+      (RB1|RB2|HP3|HP4|B3|`Release Below the Dam`|`Recapture Below the Dam`|`Recapture and Release Below the Dam`|`Mobile Run Below the Dam`) == TRUE & (CF5|CF6|B4|B5|B6|`Release Above the Dam`|`Recapture Above the Dam`|`Recapture and Release Above the Dam`|`Mobile Run Above the Dam`) == TRUE ~ "Went through dam",
+      (RB1|RB2|HP3|HP4|B3|`Release Below the Dam`|`Recapture Below the Dam`|`Recapture and Release Below the Dam`|`Mobile Run Below the Dam`) == TRUE & (CF5&CF6&B4&B5&B6&`Release Above the Dam`&`Recapture Above the Dam`&`Recapture and Release Above the Dam`&`Mobile Run Above the Dam`) == FALSE ~ "Stayed Below the Dam",
+      (RB1&RB2&HP3&HP4&B3&`Release Below the Dam`&`Recapture Below the Dam`&`Recapture and Release Below the Dam`&`Mobile Run Below the Dam`) == FALSE & (CF5|CF6|B4|B5|B6|`Release Above the Dam`|`Recapture Above the Dam`|`Recapture and Release Above the Dam`|`Mobile Run Above the Dam`) == TRUE ~ "Stayed Above the Dam",
       
     ))
   #rearranging so that Tag is first column shown

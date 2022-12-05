@@ -1,6 +1,8 @@
 ### connect station data to detection data
-#condensed_events is the detection data filtered on distinct stuff from all_events
+#condensed_events is the detection data filtered on distinct stuff from all_events. comes from all_combined_events function
 # condesned_events has UTMs for coordinates 
+# condensed_events = df_list$All_Events_most_relevant
+# simple_stations = simple_stations2
 #simplestations is a sptial lines dataframe brought in with map_polygon_readins 
 spatial_join_stations_detections <- function(condensed_events, simple_stations) {
   
@@ -45,6 +47,7 @@ spatial_join_stations_detections <- function(condensed_events, simple_stations) 
   return(station_data)
   
 }
+
 
 #test1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
 

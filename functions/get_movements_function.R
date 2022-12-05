@@ -10,6 +10,8 @@ get_movements_function <- function(combined_events_stations) {
     #grouping by TAG and arranging by datetime makes sure that total distance moved is totalled and summed in order
     group_by(TAG) %>%
     arrange(Datetime) %>%
+    #dist_moved would be the place to fenagle new movements based on previous event...ie hitting wg biomark followed by connectivity channel = add 300 m
+    #trickier but doable for mobile runs
     mutate(dist_moved = ET_STATION - lag(ET_STATION, order_by = Datetime),
            sum_dist = (sum(abs(diff(ET_STATION, na.rm = TRUE)))),
            
@@ -52,7 +54,6 @@ get_movements_function <- function(combined_events_stations) {
   #example: 230000142723
   movement_table_notrans1 <- movement_table_notrans %>%
     distinct(Date, TAG, det_type, movement_only, UTM_X, UTM_Y, .keep_all = TRUE) %>%
-    
     select(Date, Datetime, TAG, movement_only, det_type, dist_moved, sum_dist, ET_STATION, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, UTM_X, UTM_Y, X, Y, marker_color, icon_color)
   
   #giving id column to make map proxy easier

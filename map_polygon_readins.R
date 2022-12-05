@@ -5,8 +5,10 @@ print("Reading in Map Files.")
 layer_location <- file.path("./gis/")
 
 
-stationary_antennas <- readOGR(dsn = layer_location, layer = "stationary_points")
-stationary_antennas <- sp::spTransform(stationary_antennas, CRS("+init=epsg:4326"))
+# stationary_antennas <- readOGR(dsn = layer_location, layer = "stationary_points")
+# stationary_antennas <- sp::spTransform(stationary_antennas, CRS("+init=epsg:4326"))
+antenna_sites <- readOGR(dsn = layer_location, layer = "antenna_sites1")
+antenna_sites <- sp::spTransform(antenna_sites, CRS("+init=epsg:4326"))
 
 stream_centerline <- readOGR(dsn = layer_location, layer = "stream_centerline")
 stream_centerline <- sp::spTransform(stream_centerline, CRS("+init=epsg:4326"))

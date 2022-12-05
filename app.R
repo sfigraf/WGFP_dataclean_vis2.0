@@ -12,6 +12,7 @@ library(shinyWidgets) # for pickerinput
 library(shinythemes)
 library(bslib)
 #biomark test tags: 999000000007601, 999000000007602
+# to do: put qaqc stuff from combine files app in this file as well
 
 #Biomark is temporarily labelled as B3 and B4 to make data filtering easier
 # tieh the site_code %in% picker1 line, because B1 and B2 are technically "in" RB1 and Rb2, it would include them to be part of it 
@@ -29,13 +30,19 @@ print("Reading in Stationary, Mobile, Biomark, Release, and Recapture csv files.
 # could be a later task
 Stationary <- read.csv(paste0("WGFP_Raw_20221102.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
 Mobile <- read.csv("WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
-Biomark <- read.csv("Biomark_Raw_20221102A.csv", dec = ",")
+Biomark <- read.csv("Biomark_Raw_20221102wg.csv", dec = ",") # need to update to correct file
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
 Release <- read.csv("WGFP_ReleaseData_Master1.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",8) ))
 Recaptures <- read.csv("WGFP_RecaptureData_Master.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
 
 end_time = Sys.time()
-print(paste("Reading in files took", round(end_time-start_time,2), "Seconds"))
+print(paste("Reading in files took", round((end_time-start_time),2)))
+#### This part was for checking if new antennas to be put in will work
+source("functions/dummy_rows.R")
+dummy_rows_list <- add_dummy_rows(stationary = Stationary, biomark = Biomark, release1 = Release)
+Stationary <- dummy_rows_list$Stationary
+Biomark <- dummy_rows_list$Biomark
+Release <- dummy_rows_list$Release
 
 # Date Wrangling ----------------------------------------------------------
 
@@ -168,18 +175,13 @@ ui <- fluidPage(
                                  withSpinner(DT::dataTableOutput("recaps1"))),
                         tabPanel("Release",
                                  withSpinner(DT::dataTableOutput("release1")))
-                        
                           ) #end of sidebarlayout: incldes sidebar panel and mainpanel
                         ) #end of individual datasets tabset panel
                       )#end of individual datasets Mainpanel)
-               
                     ),#end of Individual data tab panel
-             
              # new Tab "Encounter Histories"
-
 # Encounter Histories UI --------------------------------------------------
 
-             
              tabPanel("Encounter Histories",
                       tabsetPanel(
                         tabPanel("Encounter Release History Summary Wide",
@@ -194,9 +196,7 @@ ui <- fluidPage(
                                                  options = list(
                                                    `actions-box` = TRUE #this makes the "select/deselect all" option
                                                  ),
-                                                 
                                      ), #end of picker 11 input
-                                     
                                      sliderInput("slider4", "Fish Length (mm)",
                                                  min = min(Enc_release_data$Length, na.rm = TRUE),
                                                  max = max(Enc_release_data$Length, na.rm = TRUE),  
@@ -205,7 +205,6 @@ ui <- fluidPage(
                                                  #timeFormat = "%T",
                                                  #animate = animationOptions(interval = 500, loop = FALSE)
                                      ),
-                                     
                                      sliderInput("slider5", "Fish Weight (grams)",
                                                  min = min(Enc_release_data$Weight, na.rm = TRUE),
                                                  max = max(Enc_release_data$Weight, na.rm = TRUE),  
@@ -214,7 +213,6 @@ ui <- fluidPage(
                                                  #timeFormat = "%T",
                                                  #animate = animationOptions(interval = 500, loop = FALSE)
                                      ),
-                                     
                                      pickerInput(inputId = "picker12",
                                                  label = "Select Release Site:",
                                                  choices = sort(unique(Enc_release_data$ReleaseSite)),
@@ -233,15 +231,12 @@ ui <- fluidPage(
                                                    `actions-box` = TRUE #this makes the "select/deselect all" option
                                                  )
                                      ), #end of picker 14 input
-                                     
                                      sliderInput("slider8", "Total distance travelled (m)",
                                                  min = min(Enc_release_data$sum_dist, na.rm = TRUE),
                                                  max = max(Enc_release_data$sum_dist, na.rm = TRUE),  
                                                  value = c(min(Enc_release_data$sum_dist, na.rm = TRUE),max(Enc_release_data$sum_dist, na.rm = TRUE)),
                                                  step = 1,
-                                                 
                                      ), #end of slider8
-                                     
                                      pickerInput(inputId = "picker13",
                                                  label = "Above/Below/Through the Dam:",
                                                  choices = sort(unique(Enc_release_data$through_dam)),
@@ -252,7 +247,6 @@ ui <- fluidPage(
                                                  )
                                      ), #end of picker 13 input
                                      actionButton("button6", label = "Render Table/Data", width = "100%")
-                                     
                                    ), #end of sidebar panel for enc_release wide_summary
                                    mainPanel(hr(),
                                              downloadButton(outputId = "download1", label = "Save this data as CSV"),
@@ -260,7 +254,6 @@ ui <- fluidPage(
                                              withSpinner(DT::dataTableOutput("enc_release1")),
                                              )#end of mainpanel for enc_hist_wide
                                  ),#end of enc_hist_wide sidebar_layout
-                                   
                         ),#end of tabset panel for enc_release_wide summary
                         tabPanel("All Events and Plot",
                                  sidebarLayout(
@@ -269,7 +262,6 @@ ui <- fluidPage(
                                      dateRangeInput("drangeinput2", "Select a Date Range:",
                                                     start = "2020-08-01", 
                                                     end = max(df_list$All_Events$Date) + 1), #end of date range input
-                                     
                                      sliderInput("slider1", "Hour of Day",
                                                  min = min(hour(All_events$Datetime)),
                                                  max = max(hour(All_events$Datetime)),  
@@ -286,9 +278,7 @@ ui <- fluidPage(
                                                  options = list(
                                                    `actions-box` = TRUE #this makes the "select/deselect all" option
                                                  ),
-                                                 
                                      ), #end of picker input
-                                     
                                      pickerInput(inputId = "picker2",
                                                  label = "Select Fish Species:",
                                                  choices = sort(unique(df_list$All_Events$Species)),
@@ -297,23 +287,19 @@ ui <- fluidPage(
                                                  options = list(
                                                    `actions-box` = TRUE #this makes the "select/deselect all" option
                                                  ),
-                                                 
                                      ), #end of picker 2 input
-                                     
                                      sliderInput("slider6", "Fish Release Length (mm)",
                                                  min = min(df_list$All_Events$Release_Length, na.rm = TRUE),
                                                  max = max(df_list$All_Events$Release_Length, na.rm = TRUE),
                                                  value = c(min(df_list$All_Events$Release_Length, na.rm = TRUE),max(df_list$All_Events$Release_Length, na.rm = TRUE)),
                                                  step = 1,
                                      ),
-
                                      sliderInput("slider7", "Fish Release Weight (grams)",
                                                  min = min(df_list$All_Events$Release_Weight, na.rm = TRUE),
                                                  max = max(df_list$All_Events$Release_Weight, na.rm = TRUE),
                                                  value = c(min(df_list$All_Events$Release_Weight, na.rm = TRUE),max(df_list$All_Events$Release_Weight, na.rm = TRUE)),
                                                  step = 1,
                                      ),
-
                                      pickerInput(inputId = "picker3",
                                                  label = "Select Release Site:",
                                                  choices = sort(unique(df_list$All_Events$ReleaseSite)),
@@ -322,7 +308,6 @@ ui <- fluidPage(
                                                  options = list(
                                                    `actions-box` = TRUE #this makes the "select/deselect all" option
                                                  )
-                                                 
                                      ), #end of picker 3 input
                                      
                                      checkboxInput("checkbox1", "Remove Duplicate Days, TAGs, Events and UTMs"),
@@ -347,15 +332,10 @@ ui <- fluidPage(
                                      )#end of tabset panel
                                    )#end of all events and plot mainpanel
                                  ),# end of all events and plot sidebarLayout
-                                 
                                  ) #end of tab panel for all events and plot
                       ), #end of tabset panel containing enc_hist-wide summary and all_events/plot tabs
-                  
              ), #end of Encounter Histories Tab
-
-
 # States UI -----------------------------------------------------
-
 
             tabPanel("Daily States",
                      sidebarLayout(
@@ -373,10 +353,7 @@ ui <- fluidPage(
                                                       options = list(
                                                         `actions-box` = TRUE #this makes the "select/deselect all" option
                                                       )
-                                                      
-                                                      
                                           ), #end of picker 4 input 
-                                          
                                           pickerInput(inputId = "picker5",
                                                       label = "States:",
                                                       choices = c(LETTERS[1:12]), #will need to be updated later on for uniqueness
@@ -385,14 +362,9 @@ ui <- fluidPage(
                                                       options = list(
                                                         `actions-box` = TRUE #this makes the "select/deselect all" option
                                                       )
-                                                      
-                                                      
                                           ), #end of picker 5 input 
-                                          
-                                          
                                           actionButton("button5", label = "Render Table/Data", width = "100%")
                                           ) #end of conditional panel
-                         
                        ),#end of sidebar panel
                        mainPanel(tabsetPanel(
                          tabPanel("States Dataframe",
@@ -406,19 +378,14 @@ ui <- fluidPage(
                                   hr(),
                                   verbatimTextOutput("text1"),
                                   withSpinner(DT::dataTableOutput("states2"))),
-                         
                          tabPanel("Unknown States",
                                   hr(),
                                   withSpinner(DT::dataTableOutput("unknownstates1")),
                          ) #end of tabpanel
-                         
-                         
-                         
                         )#end of tabsetPanel
                       )#end of mainPanel
                      )#end of sidebarLayout including sidebarPanel and Mainpanel
-                     
-                     ),#end of States and movements ui Tab
+                    ),#end of States and movements ui Tab
 
 # Movements and Map UI Tab --------------------------------------------------------------
 
@@ -490,32 +457,28 @@ ui <- fluidPage(
                                                 step = 1,
                                                 
                                     ), #end of slider8
-        
-                            
                                       actionButton("button7", label = "Render Map and Data"), 
                                       hr(),
-                                    #plotlyOutput("plot1")
-                                      
-
                        ),#end of sidebar panel
                        mainPanel(width = 10,
-                         splitLayout(cellWidths = c("40%", "60%"),
-                                     
-                                     withSpinner(DT::dataTableOutput("movements1")),
-                                                 withSpinner(leafletOutput("map1", height = 600))
-                         ), #end of splitLayout
-                         hr(),
-                         downloadButton(outputId = "download6", label = "Save movements data as CSV"),
-                         hr(),
-                         plotlyOutput("plot1"),
-                         plotlyOutput("plot6")
-                         # withSpinner(leafletOutput("map1",height=600)),
-                         # withSpinner(DT::dataTableOutput("movements1"))
-                         
-                         
+                                 tabsetPanel(
+                                   tabPanel("Map and Table",
+                                            splitLayout(cellWidths = c("40%", "60%"),
+                                                        withSpinner(DT::dataTableOutput("movements1")),
+                                                        withSpinner(leafletOutput("map1", height = 600))
+                                            ), #end of splitLayout
+                                            hr(),
+                                            downloadButton(outputId = "download6", label = "Save movements data as CSV"),
+                                            hr(),
+                                    ), # end of Map and table tabPanel
+                                   tabPanel("Movement Graphs",
+                                            withSpinner(plotlyOutput("plot1")),
+                                            withSpinner(plotlyOutput("plot6")),
+                                            verbatimTextOutput("text2"),
+                                            ), #end of movement graphs tabpanel
+                                 ), # end of tabset panel
                        )#end of mainPanel
                      )#end of sidebarLayout including sidebarPanel and Mainpanel
-            
             ),#end of Map ui Tab
 
 # QAQC UI tab -------------------------------------------------------------
@@ -1344,12 +1307,12 @@ server <- function(input, output, session) {
           ) %>%
         
         ###polylines and points: obtained from GISdb from this study
-        addAwesomeMarkers(data = stationary_antennas@coords,
+        addAwesomeMarkers(data = antenna_sites@coords,
                           icon = Station_icons,
                           clusterOptions = markerClusterOptions(),
-                          label = paste(stationary_antennas@data$SiteLabel),
-                          popup = paste(stationary_antennas@data$SiteName, "<br>",
-                                        "Channel Width:", stationary_antennas@data$ChannelWid, "feet"),
+                          label = paste(antenna_sites@data$SiteLabel),
+                          popup = paste(antenna_sites@data$SiteName, "<br>",
+                                        "Channel Width:", antenna_sites@data$ChannelWid, "feet"),
                           group = "Antennas") %>% # error: don't know jow to get path Data from x....solved by specifying coordinate location with @ within data
         addPolylines(data = stream_centerline@lines[[1]], 
                      color = "blue",
@@ -1402,7 +1365,7 @@ server <- function(input, output, session) {
     })
     
 
-# Movement Plot Output ----------------------------------------------------
+# Movement Plots Output ----------------------------------------------------
 
     #daily
     output$plot1 <- renderPlotly({
@@ -1434,31 +1397,23 @@ server <- function(input, output, session) {
       plot <- seasonal_movts %>%
         mutate(merged = (parse_date_time(paste(`month(Date)`, `day(Date)`), "md"))) %>%
         ggplot(aes(x = merged, y = total_events, fill = movement_only)) +
-        geom_bar(stat = "identity") +
+        geom_bar(stat = "identity", position = "dodge") +
         theme_classic() +
-        labs(title = "Seasonal Daily Movements", x = "Month", y = "Events") +
-        scale_x_datetime(date_labels = "%b")
+        labs(title = "Seasonal Daily Movements", x = "Day", y = "Counts",
+             caption = "Currently No download option for this data.") +
+        scale_x_datetime(date_labels = "%b") +
+        scale_fill_manual(values = c("Downstream Movement" = "red",
+                                     "Upstream Movement" = "chartreuse3",
+                                     "No Movement" = "black",
+                                     "Initial Release" = "darkorange"))
       
       ggplotly(plot)
-      
-      # plot <- filtered_movements_data() %>%
-      #   
-      #   ggplot(aes(x = Date, fill = movement_only,
-      #              text = paste('Date: ', as.character(Date), '\n'))
-      #   ) +
-      #   geom_bar(stat = "count", position = "dodge") +
-      #   theme_classic() +
-      #   labs(title="Fish Movement by Day",
-      #        x ="Date", y = "Count") +
-      #   scale_fill_manual(values = c("Downstream Movement" = "red",
-      #                                "Upstream Movement" = "chartreuse3",
-      #                                "No Movement" = "black",
-      #                                "Initial Release" = "darkorange"))
-      # 
-      # 
-      # plotly1 <- ggplotly(p = plot)
-      # plotly1
-    })    
+    })  
+    
+    output$text2 <- renderPrint({
+      "'Fish Movement by Day' plot renders table data shown in the 'map and table' tab. 
+      There currently isn't an option to download data grouped data displayed on 'Seasonal Daily Movements' graph."
+    })
 
  
     

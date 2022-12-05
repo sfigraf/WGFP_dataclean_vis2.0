@@ -1,7 +1,7 @@
 
 library(tidyverse)
 # Create Function
-
+## this function is up to date for new antennas 
 All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, Recaptures){
   
   start_time <- Sys.time()
@@ -66,18 +66,24 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     # assigning UTM's are important because they are plotted later when getting stations file in GIS
     mutate(UTM_X =case_when(SCD == "RB1" | SCD == "RB2" ~ "412489",
                             SCD == "HP3" | SCD == "HP4" ~ "414375",
-                            SCD == "CF5" | SCD == "CF6" ~ "416965"),
+                            SCD == "CF5" | SCD == "CF6" ~ "416965",
+                            SCD == "CD7" | SCD == "CD8" | SCD == "CD9" | SCD == "CD10" ~ "415789",
+                            SCD == "CU11" | SCD == "CU12" ~ "416806"),
            UTM_Y = case_when(SCD == "RB1" | SCD == "RB2" ~ "4439413",
                              SCD == "HP3" | SCD == "HP4" ~ "4440241",
-                             SCD == "CF5" | SCD == "CF6" ~ "4439369")) %>%
+                             SCD == "CF5" | SCD == "CF6" ~ "4439369",
+                             SCD == "CD7" | SCD == "CD8" | SCD == "CD9" | SCD == "CD10" ~ "4439897",
+                             SCD == "CU11" | SCD == "CU12" ~ "4439489")) %>%
     distinct()
   
   # biomark cleaning, getting dates into uniform format, 
   biomark2 <- Biomark %>%
     mutate(TAG = str_replace(DEC.Tag.ID, "\\.", ""),
-           Reader.ID = case_when(Reader.ID == "A1" ~ "B3",
-                                 Reader.ID == "A2" ~ "B4",
-                                 str_detect(Reader.ID, "A1|A2") == FALSE ~ Reader.ID),
+           Reader.ID = case_when(Reader.ID == "A1" | Reader.ID == "B1" ~ "B3",
+                                 Reader.ID == "A2" | Reader.ID == "B2" ~ "B4",
+                                 Reader.ID == "A3" ~ "B5",
+                                 Reader.ID == "A4" ~ "B6",
+                                 TRUE ~ Reader.ID),
            #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy 
            # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
            Scan.Date = ifelse(str_detect(Scan.Date, "/"), 
@@ -89,10 +95,16 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     # from gis: B1 416026, 4440196
     #B2: 420727.9, 4437221
     # b3 is wg, b4 is kaibab
+    # b5 is river run
+    # b6 is fraser river canyon
     mutate(UTM_X =case_when(Reader.ID == "B3" ~ "416026",
-                            Reader.ID == "B4" ~ "420728"),
+                            Reader.ID == "B4" ~ "420728",
+                            Reader.ID == "B5" ~ "419210",
+                            Reader.ID == "B6" ~ "424543"),
            UTM_Y = case_when(Reader.ID == "B3" ~ "4440196",
-                             Reader.ID == "B4" ~ "4437221")) %>%
+                             Reader.ID == "B4" ~ "4437221",
+                             Reader.ID == "B5" ~ "4439961",
+                             Reader.ID == "B6" ~ "4435559")) %>%
     distinct()
   
   ###Create one big clean dataset
