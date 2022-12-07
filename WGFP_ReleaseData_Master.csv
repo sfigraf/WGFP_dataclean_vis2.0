@@ -530,43 +530,43 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 1,Fraser River,Kaibab Park,9/2/2020,12:00:00,420566,4437167,LOC,151,41,HA,230000228322,,32,Handheld,Release,left pelvic + adp,0,
 1,Fraser River,Kaibab Park,9/2/2020,12:00:00,420566,4437167,LOC,142,28,HA,230000228323,,32,Handheld,Release,left pelvic + adp,1,
 1,Fraser River,Kaibab Park,9/2/2020,12:00:00,420566,4437167,LOC,128,23,HA,230000228324,pass,32,Handheld,Release,left pelvic + adp,1,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,125,33.2,HA,226001581501,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,125,33,HA,226001581501,,12,Handheld,Release,left pelvic,0,
 5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,82,8,HA,226001581507,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,116,24.7,HA,226001581508,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,135,41.2,HA,226001581514,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,124,30.2,HA,226001581515,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,128,30.3,HA,226001581518,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,126,37.7,HA,226001581523,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,125,33.4,HA,226001581528,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,118,27.7,HA,226001581530,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,116,26.6,HA,226001581537,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,129,34.4,HA,226001581538,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,125,27.9,HA,226001581543,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,132,34.1,HA,226001581545,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,128,35.8,HA,226001581552,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,120,25.9,HA,226001581594,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,122,30.5,HA,226001581598,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,142,46.9,HA,226001581601,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,116,25,HA,226001581508,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,135,41,HA,226001581514,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,124,30,HA,226001581515,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,128,30,HA,226001581518,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,126,38,HA,226001581523,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,125,33,HA,226001581528,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,118,28,HA,226001581530,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,116,27,HA,226001581537,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,129,34,HA,226001581538,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,125,28,HA,226001581543,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,132,34,HA,226001581545,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,128,36,HA,226001581552,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,120,26,HA,226001581594,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,122,31,HA,226001581598,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,142,47,HA,226001581601,,12,Handheld,Release,left pelvic,0,
 5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,119,27,HA,226001581608,,12,Handheld,Release,left pelvic,0,
 5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,123,26,HA,226001581612,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,113,25.3,HA,226001581613,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,121,32.3,HA,226001581622,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,84,9.1,HA,226001581623,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,124,32.1,HA,226001581638,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,122,28.3,HA,226001581651,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,78,8.2,HA,226001581653,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,113,25,HA,226001581613,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,121,32,HA,226001581622,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,84,9,HA,226001581623,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,124,32,HA,226001581638,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,122,28,HA,226001581651,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,78,8,HA,226001581653,,12,Handheld,Release,left pelvic,0,
 5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,112,22,HA,226001581663,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,127,34.6,HA,226001581664,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,129,38.8,HA,226001581673,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,127,35,HA,226001581664,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,129,39,HA,226001581673,,12,Handheld,Release,left pelvic,0,
 5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,89,11,HA,226001581679,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,114,26.8,HA,226001581689,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,83,7.9,HA,226001581692,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,113,25.1,HA,226001581704,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,129,33.8,HA,226001581713,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,88,10.2,HA,226001581726,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,101,14.8,HA,226001581729,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,98,13.8,HA,226001581748,,12,Handheld,Release,left pelvic,0,
-5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,78,6.6,HA,226001581749,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,114,27,HA,226001581689,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,83,8,HA,226001581692,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,113,25,HA,226001581704,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,129,34,HA,226001581713,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,88,10,HA,226001581726,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,101,15,HA,226001581729,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,98,14,HA,226001581748,,12,Handheld,Release,left pelvic,0,
+5,Colorado River,Below Confluence Antenna,9/21/2020,15:45:00,416908,4439467,MTS,78,7,HA,226001581749,,12,Handheld,Release,left pelvic,0,
 3,Colorado River,Upper River Run,10/5/2020,17:00:00,418835,4439975,MTS,124,28,HA,226001581250,,12,Handheld,Release,right pelvic,0,
 3,Colorado River,Upper River Run,10/5/2020,17:00:00,418835,4439975,MTS,130,30,HA,226001581255,,12,Handheld,Release,right pelvic,0,
 4,Colorado River,Lower River Run,10/5/2020,11:20:00,418178,4440020,MTS,117,24,HA,226001581258,,12,Handheld,Release,right pelvic,0,
@@ -3446,7 +3446,7 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,155,34,HA,230000142756,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,318,322,HA,230000142757,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,290,205,HA,230000142758,pass,32,Handheld,Release,adp,0,
-7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,301,235,HA,230000142759,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,301,235,HA,230000142759,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,257,179,HA,230000142760,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,353,403,HA,230000142761,,32,Handheld,Release,adp,0,Green Female
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,329,342,HA,230000142762,,32,Handheld,Release,adp,0,
@@ -3457,14 +3457,14 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,323,332,HA,230000142767,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,243,133,HA,230000142768,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,299,261,HA,230000142769,,32,Handheld,Release,adp,0,
-7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,347,365,HA,230000142770,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,347,365,HA,230000142770,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,286,250,HA,230000142771,,32,Handheld,Release,adp,0,Ripe Male
-7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,314,238,HA,230000142772,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
-7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,377,415,HA,230000142773,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
-7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,297,229,HA,230000142774,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,314,238,HA,230000142772,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,377,415,HA,230000142773,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,297,229,HA,230000142774,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,214,85,HA,230000142775,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,448,787,HA,230000142776,,32,Handheld,Release,adp,0,Ripe Male
-7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,341,279,HA,230000142777,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,341,279,HA,230000142777,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,198,52,HA,230000142778,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,327,305,HA,230000142779,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,254,143,HA,230000142780,,32,Handheld,Release,adp,0,
@@ -3483,11 +3483,11 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,334,270,HA,230000142793,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,390,538,HA,230000142794,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,393,522,HA,230000142795,,32,Handheld,Release,adp,0,
-7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,333,299,HA,230000142796,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,333,299,HA,230000142796,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,369,458,HA,230000142797,pass,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,287,189,HA,230000142798,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,330,328,HA,230000142799,pass,32,Handheld,Release,adp,0,
-7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,394,466,HA,230000142800,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,394,466,HA,230000142800,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,254,138,HA,230000142801,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,208,78,HA,230000142802,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,270,175,HA,230000142803,,32,Handheld,Release,adp,0,
@@ -3516,9 +3516,9 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,361,505,HA,230000142826,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,384,340,HA,230000142827,pass,32,Handheld,Release,adp,0,
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,327,346,HA,230000142828,pass,32,Handheld,Release,adp,0,
-15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,348,471,HA,230000142829,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,348,471,HA,230000142829,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,295,281,HA,230000142830,,32,Handheld,Release,adp,0,
-15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,330,330,HA,230000142831,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,330,330,HA,230000142831,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,306,300,HA,230000142832,,32,Handheld,Release,adp,0,
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,354,452,HA,230000142833,,32,Handheld,Release,adp,0,
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,311,311,HA,230000142834,,32,Handheld,Release,adp,0,
@@ -3549,7 +3549,7 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,285,202,HA,230000142859,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,291,235,HA,230000142860,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,325,350,HA,230000142863,,32,Handheld,Release,adp,0,
-7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,394,525,HA,230000142864,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,394,525,HA,230000142864,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,312,265,HA,230000142865,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,338,350,HA,230000142866,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,310,270,HA,230000142867,,32,Handheld,Release,adp,0,
@@ -3571,10 +3571,10 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,385,565,HA,230000142883,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,367,402,HA,230000142884,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,312,247,HA,230000142885,pass,32,Handheld,Release,adp,0,
-7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,369,369,HA,230000142886,,32,Handheld,Recapture and Release,adp,0,"Ot Loss, NT"
+7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,369,369,HA,230000142886,pass,32,Handheld,Recapture and Release,adp,0,"Ot Loss, NT"
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,332,314,HA,230000142887,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,389,432,HA,230000142888,,32,Handheld,Release,adp,0,
-7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,373,426,HA,230000142889,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,373,426,HA,230000142889,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,249,136,HA,230000142890,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,307,290,HA,230000142892,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,244,145,HA,230000142892,,32,Handheld,Release,adp,0,
@@ -3587,7 +3587,7 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,243,120,HA,230000142899,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,357,418,HA,230000142900,,32,Handheld,Release,adp,0,Ripe Male
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,344,449,HA,230000142901,pass,32,Handheld,Release,adp,0,
-7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,377,390,HA,230000142902,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,377,390,HA,230000142902,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,294,217,HA,230000142903,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,RBT,337,334,HA,230000142904,,32,Handheld,Release,adp,0,
 7,Colorado River,Hitching Post,5/2/2022,14:15:00,414476,4440260,LOC,331,296,HA,230000142905,,32,Handheld,Release,adp,0,
@@ -3628,7 +3628,7 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,346,377,HA,230000143417,,32,Handheld,Release,adp,0,
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,347,407,HA,230000143418,,32,Handheld,Release,adp,0,
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,360,404,HA,230000143419,,32,Handheld,Release,adp,0,
-15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,366,437,HA,230000143420,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,366,437,HA,230000143420,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,306,280,HA,230000143421,,32,Handheld,Release,adp,0,
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,337,336,HA,230000143422,,32,Handheld,Release,adp,0,
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,236,144,HA,230000143423,,32,Handheld,Release,adp,0,
@@ -3639,13 +3639,13 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,243,141,HA,230000143428,,32,Handheld,Release,adp,0,
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,245,138,HA,230000143429,pass,32,Handheld,Release,adp,0,
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,402,633,HA,230000143430,,32,Handheld,Release,adp,0,
-15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,343,378,HA,230000143431,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,343,378,HA,230000143431,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,RBT,286,243,HA,230000143432,,32,Handheld,Release,adp,0,
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,RBT,294,251,HA,230000143433,,32,Handheld,Release,adp,0,
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,366,425,HA,230000143434,,32,Handheld,Release,adp,0,
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,362,399,HA,230000143435,pass,32,Handheld,Release,adp,0,
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,339,387,HA,230000143436,,32,Handheld,Release,adp,0,
-15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,RBT,383,462,HA,230000143437,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,RBT,383,462,HA,230000143437,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,408,650,HA,230000143438,,32,Handheld,Release,adp,0,
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,RBT,359,409,HA,230000143439,,32,Handheld,Release,adp,0,
 15,Colorado River,Kinney Creek,5/2/2022,18:00:00,411432,4438897,LOC,364,448,HA,230000143440,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
@@ -3707,18 +3707,18 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,RBT,250,169,HA,230000143252,,32,Handheld,Release,adp,0,Ripe Male
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,347,399,HA,230000143254,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,447,743,HA,230000143255,,32,Handheld,Release,adp,0,
-10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,386,525,HA,230000143256,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,386,525,HA,230000143256,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,383,534,HA,230000143257,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,381,462,HA,230000143258,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,397,557,HA,230000143259,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,305,274,HA,230000143260,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,344,376,HA,230000143261,pass,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,237,126,HA,230000143262,,32,Handheld,Release,adp,0,
-10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,347,349,HA,230000143264,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,347,349,HA,230000143264,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,402,572,HA,230000143265,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,349,366,HA,230000143266,,32,Handheld,Release,adp,0,
-10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,415,684,HA,230000143267,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
-10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,406,586,HA,230000143268,,32,Handheld,Release,adp,0,
+10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,415,684,HA,230000143267,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,406,586,HA,230000143268,fail,32,Handheld,Recapture and Release,adp,0,"Changed event to Recapture + Release, added comment: OT loss, NT"
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,246,139,HA,230000143269,pass,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,373,444,HA,230000143270,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,393,543,HA,230000143271,,32,Handheld,Release,adp,0,
@@ -3733,7 +3733,7 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,312,276,HA,230000143291,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,317,272,HA,230000143292,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,246,134,HA,230000143293,pass,32,Handheld,Release,adp,0,
-10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,410,562,HA,230000143294,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,410,562,HA,230000143294,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,365,472,HA,230000143295,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,314,277,HA,230000143296,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,336,375,HA,230000143297,pass,32,Handheld,Release,adp,0,
@@ -3787,14 +3787,14 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,RBT,306,320,HA,230000143357,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,413,706,HA,230000143358,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,344,364,HA,230000143359,,32,Handheld,Release,adp,0,
-10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,372,507,HA,230000143360,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
-10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,402,597,HA,230000143361,,32,Handheld,Release,adp,0,
+10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,372,507,HA,230000143360,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,402,597,HA,230000143361,fail,32,Handheld,Recapture and Release,adp,0,"changed event to recapture + release, added comment: OT loss, NT"
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,330,306,HA,230000143362,pass,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,419,665,HA,230000143363,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,267,194,HA,230000143364,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,318,293,HA,230000143365,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,RBT,234,125,HA,230000143366,pass,32,Handheld,Release,adp,0,
-10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,379,427,HA,230000143367,,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
+10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,379,427,HA,230000143367,pass,32,Handheld,Recapture and Release,adp,0,"OT Loss, NT"
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,384,519,HA,230000143368,pass,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,238,138,HA,230000143369,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,RBT,236,148,HA,230000143370,,32,Handheld,Release,adp,0,
@@ -3831,16 +3831,12 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,294,243,HA,230000143406,pass,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,RBT,250,179,HA,230000143407,,32,Handheld,Release,adp,0,
 10,Colorado River,Upper Red Barn Fry Site,5/5/2022,14:30:00,412728,4439665,LOC,263,173,HA,230000143408,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,277,206,HA,230000224326,pass,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,301,275,HA,230000143247,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,368,552,HA,230000143246,,32,Handheld,Release,adp,1,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,575,1399,HA,230000224359,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,322,333,HA,230000143245,,32,Handheld,Release,adp,1,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,241,146,HA,230000143244,,32,Handheld,Release,adp,1,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,327,359,HA,230000143243,,32,Handheld,Release,adp,1,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,418,686,HA,230000224305,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,368,497,HA,230000143242,,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,352,485,HA,230000224383,pass,32,Handheld,Release,adp,0,
+2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,368,497,HA,230000143242,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,326,344,HA,230000143241,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,272,175,HA,230000143240,,32,Handheld,Release,adp,1,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,235,146,HA,230000143239,,32,Handheld,Release,adp,0,
@@ -3852,7 +3848,6 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,178,61,HA,230000143233,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,361,516,HA,230000143232,pass,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,295,249,HA,230000143231,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,307,288,HA,230000224362,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,257,162,HA,230000143230,,32,Handheld,Release,adp,1,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,224,118,HA,230000143229,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,204,85,HA,230000143228,,32,Handheld,Release,adp,0,
@@ -3861,30 +3856,26 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,444,910,HA,230000228045,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,336,367,HA,230000143225,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,324,355,HA,230000143224,pass,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,417,663,HA,230000224363,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,269,199,HA,230000143223,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,241,139,HA,230000143222,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,270,180,HA,230000143221,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,230,134,HA,230000143220,,32,Handheld,Release,adp,1,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,319,336,HA,230000143219,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,399,558,HA,230000143218,,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,361,484,HA,230000143217,,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,293,255,HA,230000143216,,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
+2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,399,558,HA,230000143218,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
+2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,361,484,HA,230000143217,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
+2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,293,255,HA,230000143216,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,216,106,HA,230000143215,pass,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,177,57,HA,230000143214,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,222,122,HA,230000143213,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,356,489,HA,230000143212,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,187,70,HA,230000143211,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,344,380,HA,230000143210,,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,424,697,HA,230000228026,,32,Handheld,Release,adp,0,
+2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,344,380,HA,230000143210,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,231,133,HA,230000143209,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,214,96,HA,230000143208,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,192,77,HA,230000143207,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,364,421,HA,230000143206,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,383,544,HA,230000228010,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,363,486,HA,230000143205,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,214,93,HA,230000143204,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,393,668,HA,230000228063,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,258,181,HA,230000143203,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,351,447,HA,230000143140,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,302,270,HA,230000143141,,32,Handheld,Release,adp,0,
@@ -3894,25 +3885,16 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,200,86,HA,230000143145,,32,Handheld,Release,adp,1,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,224,119,HA,230000143146,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,377,489,HA,230000143147,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,327,365,HA,230000224393,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,404,670,HA,230000143148,,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
+2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,404,670,HA,230000143148,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,393,576,HA,230000143149,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,198,81,HA,230000143150,,32,Handheld,Release,adp,1,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,409,662,HA,230000143151,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,327,334,HA,230000224344,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,362,466,HA,230000228122,pass,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,363,476,HA,230000224302,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,490,1060,HA,230000224358,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,352,536,HA,230000272798,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,330,373,HA,230000143152,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,MTS,102,8,HA,226001581232,,12,Handheld,Release,right pelvic,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,156,30,HA,230000143153,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,209,108,HA,230000143154,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,189,63,HA,230000143155,,32,Handheld,Release,adp,1,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,194,67,HA,230000143156,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,343,443,HA,230000224340,pass,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,427,729,HA,230000224361,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,465,912,HA,230000228141,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,420,837,HA,230000143157,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,326,347,HA,230000143158,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,369,501,HA,230000143159,,32,Handheld,Release,adp,0,
@@ -3931,40 +3913,29 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,144,65,HA,230000143169,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,204,83,HA,230000143170,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,MTS,108,17,HA,226001581189,pass,12,Handheld,Release,right pelvic,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,363,454,HA,230000224343,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,217,121,HA,230000143175,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,319,366,HA,230000224339,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,331,388,HA,230000224335,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,209,91,HA,230000143176,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,310,275,HA,230000143177,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,339,398,HA,230000224329,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,217,110,HA,230000143178,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,282,255,HA,230000143179,,32,Handheld,Release,adp,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,MTS,112,18,HA,226001581253,pass,12,Handheld,Release,right pelvic,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,MTS,122,27,HA,226001581206,,12,Handheld,Release,right pelvic,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,MTS,127,31,HA,226001581073,,12,Handheld,Release,right pelvic,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,MTS,113,20,HA,226001581173,,12,Handheld,Release,right pelvic,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,MTS,106,14,HA,226001581040,,12,Handheld,Release,right pelvic,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,MTS,112,18,HA,226001581131,,12,Handheld,Release,right pelvic,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,MTS,111,13,HA,226001581142,,12,Handheld,Release,right pelvic,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,335,348,HA,230000224392,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,402,628,HA,230000143173,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,RBT,197,79,HA,230000143174,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,MTS,108,14,HA,226001581168,pass,12,Handheld,Release,right pelvic,0,
-2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,409,688,HA,230000224352,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,361,469,HA,230000143171,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,LOC,319,329,HA,230000143172,,32,Handheld,Release,adp,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,MTS,112,18,HA,226001581154,,12,Handheld,Release,right pelvic,0,
 2,Fraser River,Fraser River Ranch,8/30/2022,12:00:00,417231,4438604,MTS,112,18,HA,226001581134,,12,Handheld,Release,right pelvic,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,281,242,HA,230000228294,pass,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,237,128,HA,230000224530,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,172,55,HA,230000143185,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,173,56,HA,230000143184,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,166,48,HA,230000143183,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,173,59,HA,230000143182,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,156,42,HA,230000143181,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,281,229,HA,230000228279,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,231,121,HA,230000224274,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,199,86,HA,230000143180,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,172,58,HA,230000143113,pass,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,163,45,HA,230000143114,,32,Handheld,Release,adp,0,
@@ -3976,7 +3947,6 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,184,65,HA,230000143118,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,167,49,HA,230000143119,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,148,33,HA,230000143120,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,245,148,HA,230000228198,pass,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,114,21,HA,226001581172,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,109,18,HA,226001581227,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,99,13,HA,226001581207,,12,Handheld,Release,right pelvic,0,
@@ -3984,7 +3954,6 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,97,13,HA,226001581244,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,91,11,HA,226001581027,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,82,8,HA,226001581194,,12,Handheld,Release,right pelvic,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,263,179,HA,230000225418,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,RBT,181,66,HA,230000143121,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,164,42,HA,230000143122,pass,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,178,52,HA,230000143123,,32,Handheld,Release,adp,0,
@@ -3997,17 +3966,10 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,87,9,HA,226001581209,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,87,10,HA,226001581082,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,99,11,HA,226001581220,pass,12,Handheld,Release,right pelvic,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,112,19,HA,226001581665,,12,Handheld,Release,right pelvic,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,101,15,HA,226001581418,,12,Handheld,Release,right pelvic,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,271,193,HA,230000228284,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,280,249,HA,230000228280,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,92,11,HA,226001581003,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,232,122,HA,230000143127,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,252,161,HA,230000143128,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,244,132,HA,230000143129,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,103,15,HA,226001581278,,12,Handheld,Release,right pelvic,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,243,143,HA,230000224523,fail,32,Handheld,Release,adp,0,tag number was incorrectly recorded as 230000225523
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,261,162,HA,230000228236,pass,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,105,14,HA,226001581152,pass,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,96,11,HA,226001581238,pass,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,177,50,HA,230000143130,pass,32,Handheld,Release,adp,0,
@@ -4015,14 +3977,11 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,167,48,HA,230000143132,pass,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,180,58,HA,230000143133,pass,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,168,48,HA,230000143134,pass,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,109,20,HA,226001581674,pass,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,180,57,HA,230000143135,pass,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,159,36,HA,230000143136,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,163,47,HA,230000143137,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,152,36,HA,230000143138,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,94,11,HA,226001581293,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,148,35,HA,230000143139,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,290,231,HA,230000228108,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,294,223,HA,230000143253,,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,242,140,HA,230000143275,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,228,119,HA,230000224528,,32,Handheld,Release,adp,0,Double Tag; 230000143276
@@ -4030,36 +3989,24 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,177,59,HA,230000143278,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,174,59,HA,230000143279,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,RBT,313,257,HA,230000143280,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,248,161,HA,230000224413,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,324,353,HA,230000228217,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,347,396,HA,230000224258,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,226,140,HA,230000224534,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,224,113,HA,230000224281,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,184,66,HA,230000143281,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,183,62,HA,230000143282,pass,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,162,40,HA,230000143283,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,166,47,HA,230000143284,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,97,13,HA,226001581074,,12,Handheld,Release,right pelvic,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,327,327,HA,230000228160,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,234,125,HA,230000224522,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,230,125,HA,230000224282,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,106,14,HA,226001581083,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,300,306,HA,230000143285,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,257,169,HA,230000143331,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,185,63,HA,230000143330,fail,32,Handheld,Release,adp,0,tag number was incorrectly recorded as 230000014330
+1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,185,63,HA,230000143330,fail,32,Handheld,Release,adp,0,tag number was incorrectly entered as 230000014330
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,158,40,HA,230000143329,pass,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,183,60,HA,230000143328,pass,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,RBT,192,69,HA,230000143327,pass,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,284,270,HA,230000224414,pass,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,221,106,HA,230000143326,pass,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,158,43,HA,230000143325,pass,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,166,48,HA,230000143324,pass,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,163,44,HA,230000143323,pass,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,157,40,HA,230000143322,pass,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,78,7,HA,226001581242,pass,12,Handheld,Release,right pelvic,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,251,156,HA,230000224285,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,228,124,HA,230000224537,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,210,97,HA,230000224532,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,271,182,HA,230000143321,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,322,319,HA,230000143320,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,178,62,HA,230000143202,,32,Handheld,Release,adp,0,
@@ -4069,19 +4016,13 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,150,38,HA,230000143198,pass,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,93,11,HA,226001581196,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,94,12,HA,226001581115,,12,Handheld,Release,right pelvic,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,RBT,272,179,HA,230000143197,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,258,179,HA,230000224272,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,257,159,HA,230000224299,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,205,89,HA,230000224540,,32,Handheld,Release,adp,0,
+1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,RBT,272,179,HA,230000143197,fail,32,Handheld,Recapture and Release,adp,0,"Changed event to Recapture + Release, added comment: OT loss, NT"
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,169,61,HA,230000143196,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,278,229,HA,230000143195,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,108,24,HA,226001581241,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,98,12,HA,226001581126,pass,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,82,8,HA,226001581182,,12,Handheld,Release,right pelvic,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,326,349,HA,230000228173,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,272,185,HA,230000143194,,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,280,228,HA,230000228178,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,281,214,HA,230000228271,,32,Handheld,Release,adp,0,"PRETTY SURE THIS SHOULD BE A RECAP, DOUBLECHECK"
+1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,272,185,HA,230000143194,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,214,88,HA,230000143193,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,200,76,HA,230000143192,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,167,50,HA,230000143191,,32,Handheld,Release,adp,0,
@@ -4093,7 +4034,6 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,97,13,HA,226001581149,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,111,18,HA,226001581237,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,85,8,HA,226001581164,,12,Handheld,Release,right pelvic,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,98,14,HA,226001581322,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,79,7,HA,226001581029,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,86,9,HA,226001581133,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,96,12,HA,226001581091,pass,12,Handheld,Release,right pelvic,0,
@@ -4121,24 +4061,20 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,80,7,HA,226001581249,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,83,7,HA,226001581177,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,MTS,82,9,HA,226001581030,,12,Handheld,Release,right pelvic,0,
-1,Fraser River,Kaibab Park,8/31/2022,12:00:00,420566,4437167,LOC,300,259,HA,230000228161,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,301,264,HA,230000143249,pass,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,323,313,HA,230000143111,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,369,535,HA,230000143110,,32,Handheld,Release,adp,0,Ripe female
-4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,447,913,HA,230000228316,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,264,182,HA,230000143048,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,201,77,HA,230000143109,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,267,176,HA,230000143108,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,296,246,HA,230000143047,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,RBT,370,513,HA,230000143107,,32,Handheld,Release,adp,0,
-4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,247,156,HA,230000224160,,32,Handheld,Release,adp,1,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,206,86,HA,230000143106,pass,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,228,88,HA,230000143046,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,147,31,HA,230000143105,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,560,1894,HA,230000143104,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,245,150,HA,230000143045,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,162,40,HA,230000143103,,32,Handheld,Release,adp,0,
-4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,372,480,HA,230000224135,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,260,166,HA,230000143044,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,276,225,HA,230000143102,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,345,422,HA,230000143043,,32,Handheld,Release,adp,0,
@@ -4147,8 +4083,6 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,170,74,HA,230000143042,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,167,46,HA,230000143094,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,RBT,292,206,HA,230000143040,,32,Handheld,Release,adp,0,
-4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,MTS,130,36,HA,226001581487,,12,Handheld,Release,right pelvic,0,
-4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,374,482,HA,230000228413,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,276,210,HA,230000143039,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,455,922,HA,230000143098,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,216,94,HA,230000143038,,32,Handheld,Release,adp,0,
@@ -4156,8 +4090,8 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,206,88,HA,230000143037,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,235,138,HA,230000143096,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,182,54,HA,230000143036,,32,Handheld,Release,adp,0,
-4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,352,422,HA,230000143035,,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
-4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,174,196,HA,230000143034,,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
+4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,352,422,HA,230000143035,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
+4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,174,196,HA,230000143034,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,RBT,368,385,HA,230000143095,,32,Handheld,Release,adp,0,GL
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,227,122,HA,230000143033,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,313,294,HA,230000143032,,32,Handheld,Release,adp,0,
@@ -4169,14 +4103,12 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,185,62,HA,230000143029,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,171,50,HA,230000143091,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,174,49,HA,230000143090,,32,Handheld,Release,adp,0,
-4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,391,531,HA,230000228246,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,357,440,HA,230000143028,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,247,147,HA,230000143089,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,177,58,HA,230000143027,pass,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,177,70,HA,230000143088,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,174,60,HA,230000143026,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,203,82,HA,230000143087,,32,Handheld,Release,adp,0,
-4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,342,381,HA,230000228360,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,372,482,HA,230000143025,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,330,333,HA,230000143086,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,424,737,HA,230000143085,,32,Handheld,Release,adp,0,
@@ -4203,11 +4135,7 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,177,57,HA,230000143073,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,186,58,HA,230000143015,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,177,51,HA,230000143072,pass,32,Handheld,Release,adp,0,
-4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,MTS,137,32,HA,226001581308,,12,Handheld,Release,right pelvic,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,156,30,HA,230000143014,,32,Handheld,Release,adp,0,
-4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,MTS,131,34,HA,226001581359,,32,Handheld,Release,right pelvic,0,
-4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,367,462,HA,230000228389,,32,Handheld,Release,adp,0,
-4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,347,392,HA,230000224110,,32,Handheld,Release,right pelvic,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,437,732,HA,230000143071,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,257,166,HA,230000143013,,32,Handheld,Release,right pelvic,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,496,1420,HA,230000143070,,32,Handheld,Release,adp,0,
@@ -4232,16 +4160,13 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,277,191,HA,230000143056,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,244,130,HA,230000143055,,32,Handheld,Release,adp,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,237,130,HA,230000143054,,32,Handheld,Release,adp,0,
-4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,MTS,128,30,HA,226001581426,pass,12,Handheld,Release,right pelvic,0,
-4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,341,331,HA,230000143053,,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
-4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,324,344,HA,230000228370,,32,Handheld,Release,adp,0,
-4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,256,156,HA,230000143052,,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
+4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,341,331,HA,230000143053,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
+4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,LOC,256,156,HA,230000143052,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,MTS,124,22,HA,226001546904,,12,Handheld,Release,right pelvic,0,
 4,Colorado River,Lower River Run,10/4/2022,12:00:00,418178,4440020,MTS,91,14,HA,226001546944,,12,Handheld,Release,right pelvic,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,147,30,HA,230000143557,pass,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,286,272,HA,230000143051,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,295,268,HA,230000143556,,32,Handheld,Release,adp,0,
-3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,379,566,HA,230000224201,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,275,204,HA,230000143050,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,258,183,HA,230000143555,,32,Handheld,Release,adp,0,Black tail
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,290,249,HA,230000143554,,32,Handheld,Release,adp,0,
@@ -4260,9 +4185,8 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,171,48,HA,230000143546,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,385,586,HA,230000143007,pass,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,179,55,HA,230000143545,,32,Handheld,Release,adp,0,
-3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,348,476,HA,230000228585,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,294,234,HA,230000143545,,32,Handheld,Release,adp,0,
-3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,409,632,HA,230000143008,,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
+3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,409,632,HA,230000143008,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,266,192,HA,230000143543,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,396,597,HA,230000143542,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,332,362,HA,230000143528,,32,Handheld,Release,adp,0,
@@ -4273,10 +4197,9 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,382,541,HA,230000143539,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,365,514,HA,230000143525,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,290,222,HA,230000143538,,32,Handheld,Release,adp,0,
-3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,361,484,HA,230000224232,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,350,449,HA,230000143537,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,290,250,HA,230000143524,,32,Handheld,Release,adp,0,
-3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,401,638,HA,230000143536,,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
+3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,401,638,HA,230000143536,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,268,197,HA,230000143535,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,397,641,HA,230000143534,pass,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,354,426,HA,230000143523,,32,Handheld,Release,adp,0,
@@ -4308,9 +4231,7 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,267,186,HA,230000143571,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,304,294,HA,230000143509,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,194,82,HA,230000143570,,32,Handheld,Release,adp,0,
-3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,307,320,HA,230000228348,pass,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,423,664,HA,230000143569,,32,Handheld,Release,adp,0,
-3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,402,624,HA,230000224253,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,157,44,HA,230000143510,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,167,53,HA,230000143568,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,203,86,HA,230000143567,,32,Handheld,Release,adp,0,
@@ -4321,9 +4242,8 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,302,264,HA,230000143513,pass,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,383,541,HA,230000143564,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,270,204,HA,230000143514,,32,Handheld,Release,adp,0,
-3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,449,818,HA,230000143563,,32,Handheld,Recapture and Release,right pelvic + adp,0,"OT loss, NT"
+3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,449,818,HA,230000143563,pass,32,Handheld,Recapture and Release,right pelvic + adp,0,"OT loss, NT"
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,215,116,HA,230000143515,,32,Handheld,Release,adp,1,
-3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,414,706,HA,230000228495,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,166,52,HA,230000143562,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,274,242,HA,230000143516,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,380,505,HA,230000143561,,32,Handheld,Release,adp,0,
@@ -4332,11 +4252,8 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,277,242,HA,230000143518,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,408,665,HA,230000143559,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,353,378,HA,230000143529,,32,Handheld,Release,adp,0,
-3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,364,476,HA,230000224248,,32,Handheld,Release,adp,0,"***double check tag #, all other new tags are 230000143"
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,MTS,111,20,HA,226001546780,,12,Handheld,Release,right pelvic,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,MTS,110,18,HA,226001546831,,12,Handheld,Release,right pelvic,0,
-3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,366,528,HA,230000224230,,32,Handheld,Release,adp,0,
-3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,436,444,HA,230000228456,,32,Handheld,Release,right pelvic + adp,0,RP
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,192,68,HA,230000143501,,32,Handheld,Release,adp,0,
 3,Colorado River,Upper River Run,10/4/2022,16:50:00,418835,4439975,LOC,427,806,HA,230000143500,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,341,356,HA,230000143579,pass,32,Handheld,Release,adp,0,
@@ -4346,19 +4263,16 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,282,170,HA,230000143621,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,288,204,HA,230000143582,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,312,338,HA,230000143583,,32,Handheld,Release,adp,0,
-6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,418,625,HA,230000143622,,32,Handheld,Recapture and Release,adp,0,"OT loss, NT. Ripe female"
+6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,418,625,HA,230000143622,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT. Ripe female"
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,317,316,HA,230000143584,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,329,307,HA,230000143623,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,220,98,HA,230000143585,pass,32,Handheld,Release,adp,0,
-6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,383,529,HA,230000272464,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,389,582,HA,230000143586,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,307,249,HA,230000143625,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,404,606,HA,230000143587,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,306,267,HA,230000143626,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,364,456,HA,230000143627,,32,Handheld,Release,adp,0,Green female
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,317,302,HA,230000143588,,32,Handheld,Release,adp,0,
-6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,404,641,HA,230000224034,,32,Handheld,Release,adp,0,
-6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,321,296,HA,230000224042,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,386,558,HA,230000143589,pass,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,363,467,HA,230000143629,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,255,146,HA,230000143590,,32,Handheld,Release,adp,0,
@@ -4366,16 +4280,13 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,312,290,HA,230000143592,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,314,306,HA,230000143594,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,204,74,HA,230000143633,,32,Handheld,Release,adp,0,
-6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,510,946,HA,230000224081,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,200,84,HA,230000143595,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,204,66,HA,230000143635,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,260,158,HA,230000143596,pass,32,Handheld,Release,adp,1,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,344,346,HA,230000143597,,32,Handheld,Release,adp,0,
-6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,282,211,HA,230000142916,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,255,162,HA,230000143598,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,356,426,HA,230000143638,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,340,390,HA,230000143599,,32,Handheld,Release,adp,0,
-6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,427,700,HA,230000228535,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,299,258,HA,230000143640,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,242,134,HA,230000143600,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,300,259,HA,230000143642,,32,Handheld,Release,adp,0,
@@ -4399,7 +4310,6 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,412,679,HA,230000143688,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,558,1088,HA,230000143612,,32,Handheld,Release,adp,0,Spent female
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,270,194,HA,230000143613,,32,Handheld,Release,adp,0,
-6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,352,459,HA,230000224015,pass,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,261,144,HA,230000143686,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,259,166,HA,230000143614,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,222,100,HA,230000143615,,32,Handheld,Release,adp,0,
@@ -4414,10 +4324,9 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,352,390,HA,230000143679,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,309,277,HA,230000143678,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,258,164,HA,230000143652,,32,Handheld,Release,adp,0,
-6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,466,839,HA,230000143677,,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
+6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,466,839,HA,230000143677,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,346,416,HA,230000143653,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,257,146,HA,230000143654,,32,Handheld,Release,adp,0,
-6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,404,612,HA,230000224072,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,234,120,HA,230000143655,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,250,148,HA,230000143656,pass,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,196,65,HA,230000143674,,32,Handheld,Release,adp,0,
@@ -4431,7 +4340,6 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,380,492,HA,230000143661,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,364,494,HA,230000143697,pass,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,325,296,HA,230000143662,,32,Handheld,Release,adp,0,
-6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,377,509,HA,230000272282,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,271,172,HA,230000143699,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,349,376,HA,230000143700,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/5/2022,12:00:00,416101,4440146,LOC,291,248,HA,230000143663,,32,Handheld,Release,adp,0,

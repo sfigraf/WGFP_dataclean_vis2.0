@@ -28,12 +28,13 @@ print("Reading in Stationary, Mobile, Biomark, Release, and Recapture csv files.
 # if column names change in any of these read-ins, might require some modification to code to get them to combine
 # also if you change read.csv to read_csv, it should read in quicker but column names will change
 # could be a later task
-Stationary <- read.csv(paste0("WGFP_Raw_20221102.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
+Stationary <- read.csv(paste0("WGFP_Raw_20221206.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
 Mobile <- read.csv("WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
 Biomark <- read.csv("Biomark_Raw_20221102.csv", dec = ",") # need to update to correct file
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
-Release <- read.csv("WGFP_ReleaseData_Master1.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",8) ))
+Release <- read.csv("WGFP_ReleaseData_Master.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",8) ))
 Recaptures <- read.csv("WGFP_RecaptureData_Master.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
+#ghost tag df
 
 end_time = Sys.time()
 print(paste("Reading in files took", round((end_time-start_time),2)))
@@ -43,6 +44,7 @@ dummy_rows_list <- add_dummy_rows(stationary = Stationary, biomark = Biomark, re
 Stationary <- dummy_rows_list$Stationary
 Biomark <- dummy_rows_list$Biomark
 Release <- dummy_rows_list$Release
+ghost_tag_df <- dummy_rows_list$Ghost_tags #date column is named "Ghost_date" and is a date type
 
 # Date Wrangling ----------------------------------------------------------
 
@@ -340,16 +342,16 @@ ui <- fluidPage(
              ), #end of Encounter Histories Tab
 # States UI -----------------------------------------------------
 
-            tabPanel("Daily States",
+            tabPanel("Weekly States",
                      sidebarLayout(
                        sidebarPanel(
-                         actionButton("button4", label = "Get States: Takes ~ 2 min", width = "100%",
+                         actionButton("button4", label = "Get Weekly States: Takes ~ 10 sec", width = "100%",
                                       onclick = "var $btn=$(this); setTimeout(function(){$btn.remove();},0);"),
                          hr(),
                          conditionalPanel(condition = "input.button4 == true",
                                           textInput("textinput2", label = "Filter by TAG"),
                                           pickerInput(inputId = "picker4",
-                                                      label = "Select number of daily unique events:",
+                                                      label = "Select number of weekly unique events:",
                                                       choices = c(1:6), #will need to be updated later on for uniqueness
                                                       selected = c(1:5),
                                                       multiple = TRUE,
@@ -375,7 +377,7 @@ ui <- fluidPage(
                                   downloadButton(outputId = "download4", label = "Save this data as CSV"),
                                   hr(),
                                   withSpinner(DT::dataTableOutput("states1"))),
-                         tabPanel("States and Days Wide",
+                         tabPanel("States and Weeks Wide",
                                   hr(),
                                   downloadButton(outputId = "download5", label = "Save this data as CSV"),
                                   hr(),
@@ -603,8 +605,8 @@ server <- function(input, output, session) {
   #when button to make States DF list is pressed, update these picker options
   observeEvent(input$button4,{
     updatePickerInput(session, "picker4",
-                      choices = sort(unique(initial_states_data_list()$All_States$daily_unique_events)),
-                      selected = unique(initial_states_data_list()$All_States$daily_unique_events)
+                      choices = sort(unique(initial_states_data_list()$All_States$weekly_unique_events)),
+                      selected = unique(initial_states_data_list()$All_States$weekly_unique_events)
     )
     
     updatePickerInput(session, "picker5",
@@ -858,7 +860,7 @@ server <- function(input, output, session) {
     #want it so that when the first button4 is pressed, the whole dataset is made
     #then after that i want to render the table with button5 along with filters
     initial_states_data_list <- eventReactive(input$button4,{
-      states_data1_list <- states_function(combined_events_stations)
+      states_data1_list <- states_function(combined_events_stations, ghost_tag_df)
       
       
       return(states_data1_list)
@@ -870,14 +872,14 @@ server <- function(input, output, session) {
       if(input$textinput2 != ''){ 
         states_data1 <- initial_states_data_list()$All_States %>%
           filter(TAG %in% c(input$textinput2),
-                 daily_unique_events %in% input$picker4,
+                 weekly_unique_events %in% input$picker4,
                  State %in% input$picker5
                  )%>%
           arrange(Date)
       } else { 
         states_data1 <- initial_states_data_list()$All_States %>%
           filter(
-            daily_unique_events %in% input$picker4,
+            weekly_unique_events %in% input$picker4,
             State %in% input$picker5
           )%>%
           arrange(Date)      
@@ -1113,7 +1115,7 @@ server <- function(input, output, session) {
     output$states2 <- renderDT({
       
       
-      datatable(initial_states_data_list()$Days_and_states_wide,
+      datatable(initial_states_data_list()$Weeks_and_states_wide,
                 rownames = FALSE,
                 
                 filter = 'top',
@@ -1524,7 +1526,7 @@ server <- function(input, output, session) {
         }
       ,
       content = function(file) {
-        write_csv(initial_states_data_list()$Days_and_states_wide, file)
+        write_csv(initial_states_data_list()$Weeks_and_states_wide, file)
         
         
       }

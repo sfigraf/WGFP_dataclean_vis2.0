@@ -9,8 +9,8 @@
 # stations are manually assigned later just in case so that's why this is important
 #station_data <- Stationdata1
 
-#station_data1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
-#station_data <- as.data.frame(station_data1)
+# station_data1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
+# station_data <- as.data.frame(station_data1)
 #stations
 # dam is listed at 8330
 #b3 is 8190
@@ -111,9 +111,10 @@ combine_events_and_stations <- function(All_events, station_data){
   
   # Days_since and Prev_event -----------------------------------------------
   
-  # making these columns prepares the data for making states and pivoting wider to days
+  # making these columns prepares the data for making states and pivoting wider to days/weeks
   All_events_days <- All_events_stations_3 %>%
-    mutate(days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days")))
+    mutate(days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
+           weeks_since = as.numeric(ceiling(difftime(Date, min(Date), units = "weeks")))
     )
   
   #getting all_events down to most essential info: how a unique fish/Tag began the day, how it ended the day, and if there were events different than that in between
@@ -136,7 +137,7 @@ combine_events_and_stations <- function(All_events, station_data){
     
     group_by(TAG) %>%
     mutate(
-      #this is used in getting states
+      #this is used in getting states; not sure if needed anymore
       previous_event = lag(Event, order_by = Datetime),
       #this part is used in movemnets map
       det_type = case_when(str_detect(Event, "RB1|RB2") ~ "Red Barn Stationary Antenna",
@@ -158,7 +159,7 @@ combine_events_and_stations <- function(All_events, station_data){
       
     ) %>%
     
-    select(Date, Datetime, TAG, Event, det_type, ReleaseSite,Species, Release_Length, Release_Weight, Release_Date, RecaptureSite, River, days_since, first_last, previous_event,  c_number_of_detections, daily_unique_events, ET_STATION, above_below, UTM_X, UTM_Y) #next_event, next_event_2, same_day_next_events,
+    select(Date, Datetime, TAG, Event, det_type, ReleaseSite,Species, Release_Length, Release_Weight, Release_Date, RecaptureSite, River, days_since, weeks_since, first_last, previous_event,  c_number_of_detections, daily_unique_events, ET_STATION, above_below, UTM_X, UTM_Y) #next_event, next_event_2, same_day_next_events,
   
   
   end_time <- Sys.time()

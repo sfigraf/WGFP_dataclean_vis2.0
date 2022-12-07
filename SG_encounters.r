@@ -1919,3 +1919,24 @@ checking <- states_final %>%
 
 unknown_states <- checking %>%
   filter(is.na(through_dam1) & !det_type %in% c("Release", "Recapture and Release", "Recapture"))
+
+
+# Ghost tag and aviation predation "States" -------------------------------
+# states <- states_function(combined_events_stations)
+# states <- states$All_States
+ghost_dummy <- data.frame(TAG = c("230000228444"), Ghost_date = as.Date(c("2021-06-03")))
+
+# want to have all detectoins starting on this date "G" state
+wg_date <- left_join(combined_events_stations, ghost_dummy, by = c("TAG"))
+states1 <- wg_date %>%
+  mutate(
+    test = Date >= Ghost_date,
+    #the case_whens also are a priority list, so important not to rearange these
+    state1 = case_when(Date >= Ghost_date ~ "G",
+                       str_detect(Event, "CD7|CD8|CD9|CD10|CU11|CU12") ~ "C",
+                       ET_STATION <= 8330 ~ "A",
+                       ET_STATION > 8330 ~ "B")
+  )
+
+test <- states1 %>%
+  filter(TAG == "230000228444")
