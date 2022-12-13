@@ -13,6 +13,12 @@ library(shinythemes)
 library(bslib)
 #biomark test tags: 999000000007601, 999000000007602
 # to do: put qaqc stuff from combine files app in this file as well
+# incorporate aviation predation and ghost tag files in
+#continue with how-to
+# incporrate states right into the main app and make the wide file be based off filters
+# figure out why the states aren't filtering correclty (not showing up when filtering only for G)
+# add in new stations and utm
+# add download button for data on movements graph even though there isn't an accompanying dt to show
 
 #Biomark is temporarily labelled as B3 and B4 to make data filtering easier
 # tieh the site_code %in% picker1 line, because B1 and B2 are technically "in" RB1 and Rb2, it would include them to be part of it 
@@ -98,6 +104,11 @@ unknown_tags <- enc_hist_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
 # applies get_movements_function
 Movements_df <- get_movements_function(combined_events_stations)
+# states
+states_data_list <- states_function(combined_events_stations, ghost_tag_df)
+#this is used in states_data reactives; but we always want a 0 for weeks
+# 
+weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
 
 # Mx <- Movements_df %>%
 #   filter(is.na(marker_color))
@@ -344,32 +355,27 @@ ui <- fluidPage(
 
             tabPanel("Weekly States",
                      sidebarLayout(
-                       sidebarPanel(
-                         actionButton("button4", label = "Get Weekly States: Takes ~ 10 sec", width = "100%",
-                                      onclick = "var $btn=$(this); setTimeout(function(){$btn.remove();},0);"),
-                         hr(),
-                         conditionalPanel(condition = "input.button4 == true",
-                                          textInput("textinput2", label = "Filter by TAG"),
-                                          pickerInput(inputId = "picker4",
-                                                      label = "Select number of weekly unique events:",
-                                                      choices = c(1:6), #will need to be updated later on for uniqueness
-                                                      selected = c(1:5),
-                                                      multiple = TRUE,
-                                                      options = list(
-                                                        `actions-box` = TRUE #this makes the "select/deselect all" option
-                                                      )
-                                          ), #end of picker 4 input 
-                                          pickerInput(inputId = "picker5",
-                                                      label = "States:",
-                                                      choices = c(LETTERS[1:12]), #will need to be updated later on for uniqueness
-                                                      selected = c(LETTERS[1:12]),
-                                                      multiple = TRUE,
-                                                      options = list(
-                                                        `actions-box` = TRUE #this makes the "select/deselect all" option
-                                                      )
-                                          ), #end of picker 5 input 
-                                          actionButton("button5", label = "Render Table/Data", width = "100%")
-                                          ) #end of conditional panel
+                       sidebarPanel(      
+                          textInput("textinput2", label = "Filter by TAG"),
+                          pickerInput(inputId = "picker4",
+                                      label = "Select number of weekly unique events:",
+                                      choices = sort(unique(states_data_list$All_States$weekly_unique_events)), #will need to be updated later on for uniqueness
+                                      selected = unique(states_data_list$All_States$weekly_unique_events),
+                                      multiple = TRUE,
+                                      options = list(
+                                        `actions-box` = TRUE #this makes the "select/deselect all" option
+                                      )
+                          ), #end of picker 4 input 
+                          pickerInput(inputId = "picker5",
+                                      label = "States:",
+                                      choices = sort(unique(states_data_list$All_States$State)), #will need to be updated later on for uniqueness
+                                      selected = unique(states_data_list$All_States$State),
+                                      multiple = TRUE,
+                                      options = list(
+                                        `actions-box` = TRUE #this makes the "select/deselect all" option
+                                      )
+                          ), #end of picker 5 input 
+                          actionButton("button5", label = "Render Table/Data", width = "100%")
                        ),#end of sidebar panel
                        mainPanel(tabsetPanel(
                          tabPanel("States Dataframe",
@@ -603,15 +609,15 @@ server <- function(input, output, session) {
   }) #end of reset 
   
   #when button to make States DF list is pressed, update these picker options
-  observeEvent(input$button4,{
+  observeEvent(input$button5,{
     updatePickerInput(session, "picker4",
-                      choices = sort(unique(initial_states_data_list()$All_States$weekly_unique_events)),
-                      selected = unique(initial_states_data_list()$All_States$weekly_unique_events)
+                      choices = sort(unique(filtered_states_data()$All_States$weekly_unique_events)),
+                      selected = unique(filtered_states_data()$All_States$weekly_unique_events)
     )
     
     updatePickerInput(session, "picker5",
-                      choices = sort(unique(initial_states_data_list()$All_States$State)),
-                      selected = unique(initial_states_data_list()$All_States$State)
+                      choices = sort(unique(filtered_states_data()$All_States$State)),
+                      selected = unique(filtered_states_data()$All_States$State)
     )
    
   })
@@ -859,34 +865,45 @@ server <- function(input, output, session) {
 
     #want it so that when the first button4 is pressed, the whole dataset is made
     #then after that i want to render the table with button5 along with filters
-    initial_states_data_list <- eventReactive(input$button4,{
-      states_data1_list <- states_function(combined_events_stations, ghost_tag_df)
-      
-      
-      return(states_data1_list)
-        
-    })
+    # initial_states_data_list <- eventReactive(input$button4,{
+    #   states_data1_list <- states_function(combined_events_stations, ghost_tag_df)
+    #   
+    #   
+    #   return(states_data1_list)
+    #     
+    # })
     
     filtered_states_data <- eventReactive(input$button5,{
       
       if(input$textinput2 != ''){ 
-        states_data1 <- initial_states_data_list()$All_States %>%
+        states_data1 <- states_data_list$All_States %>%
           filter(TAG %in% c(input$textinput2),
                  weekly_unique_events %in% input$picker4,
                  State %in% input$picker5
                  )%>%
           arrange(Date)
       } else { 
-        states_data1 <- initial_states_data_list()$All_States %>%
+        states_data1 <- states_data_list$All_States %>%
           filter(
             weekly_unique_events %in% input$picker4,
             State %in% input$picker5
           )%>%
-          arrange(Date)      
-        }
-
+          arrange(Date)
+      }
       
-      return(states_data1)
+      #weeks <- data.frame(weeks_since = 1:max(states_data1$weeks_since))
+      weeks_and_states <- full_join(weeks, states_data1, by = "weeks_since")
+      
+      weeks_and_states_wide <- pivot_wider(weeks_and_states, id_cols = TAG, names_from = weeks_since, values_from = State)
+      #need to change this part if we decide to start at week 1 instead of 0
+      weeks_and_states_wide <- weeks_and_states_wide %>%
+        select(TAG, `0`, 2:ncol(weeks_and_states_wide))
+      
+      #putting all together in a list
+      
+      states_data_list <- list("filtered_states" = states_data1, "filtered_wide" =  weeks_and_states_wide)
+      
+      return(states_data_list)
     }) 
 
 # Movement Data Reactives -------------------------------------------------
@@ -915,7 +932,7 @@ server <- function(input, output, session) {
         movements_data1$id <- seq.int(nrow(movements_data1))
         
       } else {
-        movements_data1 <- Movements_df  %>% #initial_states_data_list()$Movements
+        movements_data1 <- Movements_df  %>% 
           filter(
             Release_Length >= input$slider10[1] & Release_Length <= input$slider10[2],
             Date >= input$slider2[1] & Date <= input$slider2[2],
@@ -1084,9 +1101,9 @@ server <- function(input, output, session) {
 
     output$states1 <- renderDT({
       
-      input$button5
+      #input$button5
       
-        datatable(filtered_states_data(), #initial_states_data_list()$All_States
+        datatable(filtered_states_data()$filtered_states, #initial_states_data_list()$All_States
                   rownames = FALSE,
                   #extensions = c('Buttons'),
                   #for slider filter instead of text input
@@ -1100,7 +1117,7 @@ server <- function(input, output, session) {
                   )
         ) %>%
           formatStyle(
-            columns = c(1:ncol(initial_states_data_list()$All_States))
+            columns = c(1:ncol(filtered_states_data()$filtered_states))
             
           )
       
@@ -1113,9 +1130,9 @@ server <- function(input, output, session) {
     })
     
     output$states2 <- renderDT({
+      #input$button5
       
-      
-      datatable(initial_states_data_list()$Weeks_and_states_wide,
+      datatable(filtered_states_data()$filtered_wide,
                 rownames = FALSE,
                 
                 filter = 'top',
@@ -1134,7 +1151,7 @@ server <- function(input, output, session) {
     output$unknownstates1 <- renderDT({
       
       
-      datatable(initial_states_data_list()$Flagged_movements,
+      datatable(states_data_list$Flagged_movements,
                 rownames = FALSE,
                 caption = "this hopefully should be pretty small...filled with tags with detections before official 'Release' such as in in May 2021 and tags without release info.",
                 filter = 'top',
@@ -1513,7 +1530,7 @@ server <- function(input, output, session) {
         }
       ,
       content = function(file) {
-        write_csv(filtered_states_data(), file)
+        write_csv(filtered_states_data()$filtered_states, file)
         
         
       }
@@ -1526,7 +1543,7 @@ server <- function(input, output, session) {
         }
       ,
       content = function(file) {
-        write_csv(initial_states_data_list()$Weeks_and_states_wide, file)
+        write_csv(filtered_states_data()$filtered_wide, file)
         
         
       }

@@ -2,7 +2,7 @@
 #x <- states_function(combined_events_stations)
 states_function <- function(combined_events_stations, ghost_tag_df) {
   start_time = Sys.time()
-  print("Running States Function")
+  print("Running States Function: Assigns letters A, B, C, or G based on position relative to dam, or Ghost/predated tag.")
   
   wghost_date <- left_join(combined_events_stations, ghost_tag_df, by = c("TAG"))
   

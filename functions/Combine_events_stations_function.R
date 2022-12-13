@@ -113,8 +113,12 @@ combine_events_and_stations <- function(All_events, station_data){
   
   # making these columns prepares the data for making states and pivoting wider to days/weeks
   All_events_days <- All_events_stations_3 %>%
-    mutate(days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
-           weeks_since = as.numeric(ceiling(difftime(Date, min(Date), units = "weeks")))
+    mutate(
+      days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
+      #makes sense to use floor not cieling with weeks because then there are are more fish in week 0
+      # if you want to start at week 1 instead of week 0, add +1 to the end of expression
+      # when you change this too, it changes the number of entries in the states dataframe
+           weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks")))
     )
   
   #getting all_events down to most essential info: how a unique fish/Tag began the day, how it ended the day, and if there were events different than that in between
