@@ -15,10 +15,9 @@ library(bslib)
 # to do: put qaqc stuff from combine files app in this file as well
 # incorporate aviation predation and ghost tag files in
 #continue with how-to
-# incporrate states right into the main app and make the wide file be based off filters
-# figure out why the states aren't filtering correclty (not showing up when filtering only for G)
-# add in new stations and utm
-# add download button for data on movements graph even though there isn't an accompanying dt to show
+# account for distance moved between fraser/colorado rivers
+# add in new stations and updated utms
+#make "varaibels" file with station info of antennas based off spatial join, point of fraser river/CO river confluence, windy gap dam, antenna UTM's, 
 
 #Biomark is temporarily labelled as B3 and B4 to make data filtering easier
 # tieh the site_code %in% picker1 line, because B1 and B2 are technically "in" RB1 and Rb2, it would include them to be part of it 
@@ -106,8 +105,8 @@ enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
 Movements_df <- get_movements_function(combined_events_stations)
 # states
 states_data_list <- states_function(combined_events_stations, ghost_tag_df)
+
 #this is used in states_data reactives; but we always want a 0 for weeks
-# 
 weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
 
 # Mx <- Movements_df %>%
@@ -485,6 +484,9 @@ ui <- fluidPage(
                                    tabPanel("Movement Graphs",
                                             withSpinner(plotlyOutput("plot1")),
                                             withSpinner(plotlyOutput("plot6")),
+                                            hr(),
+                                            downloadButton(outputId = "download8", label = "Save seasonal plot data as CSV"),
+                                            hr(),
                                             verbatimTextOutput("text2"),
                                             ), #end of movement graphs tabpanel
                                  ), # end of tabset panel
@@ -1409,14 +1411,18 @@ server <- function(input, output, session) {
       plotly1
     })    
     
+    
+    
+    
     #seasonally
+    seasonal_movts <- reactive({filtered_movements_data() %>%
+      group_by(month(Date), day(Date), movement_only) %>%
+      summarise(total_events = n())
+    })
+    
     output$plot6 <- renderPlotly({
-      
-      seasonal_movts <- filtered_movements_data() %>%
-        group_by(month(Date), day(Date), movement_only) %>%
-        summarise(total_events = n())
-      
-      plot <- seasonal_movts %>%
+
+      plot <- seasonal_movts() %>%
         mutate(merged = (parse_date_time(paste(`month(Date)`, `day(Date)`), "md"))) %>%
         ggplot(aes(x = merged, y = total_events, fill = movement_only)) +
         geom_bar(stat = "identity", position = "dodge") +
@@ -1434,7 +1440,7 @@ server <- function(input, output, session) {
     
     output$text2 <- renderPrint({
       "'Fish Movement by Day' plot renders table data shown in the 'map and table' tab. 
-      There currently isn't an option to download data grouped data displayed on 'Seasonal Daily Movements' graph."
+      'Seasonal Daily Movements' graph data can be downloaded below."
     })
 
  
@@ -1574,6 +1580,16 @@ server <- function(input, output, session) {
         
       }
     ) #end of download7
+    
+    output$download8 <- downloadHandler(
+      filename = 
+        function() {
+          paste0("SeasonalDailyMovements_",most_recent_date,".csv")
+        },
+      content = function(file) {
+        write_csv(seasonal_movts(), file)
+      }
+    ) #end of download8
 }
 
 # Run the application 

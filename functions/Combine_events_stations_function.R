@@ -85,27 +85,25 @@ combine_events_and_stations <- function(All_events, station_data){
        # 12/1/22 i don't actually think it's needed anymore since the UTM's ARE all correct, but it's a good rdundant safeguard to have in place
       # just need to change this if a 
       ### NEED TO STILL ASIGN STATIONS FOR NEW ANTENNAS, aswell as deal with how to handle moving around the channels
-      ET_STATION = case_when(
-        (Event %in% c("RB1", "RB2")) ~ 4150, # there is no is.na here because RB UTM
-        is.na(ET_STATION) & (Event %in% c("HP3", "HP4")) ~ 6340,
-        is.na(ET_STATION) & (Event %in% c("CF5", "CF6")) ~ 9550,
-        is.na(ET_STATION) & (Event %in% c("B3")) ~ 8190,
-        is.na(ET_STATION) & (Event %in% c("B4")) ~ 6050,
-        !is.na(ET_STATION) & (!Event %in% c("RB1", "RB2")) ~ ET_STATION),
+      # ET_STATION = case_when(
+      #   (Event %in% c("RB1", "RB2")) ~ 4150, # there is no is.na here because RB UTM
+      #   is.na(ET_STATION) & (Event %in% c("HP3", "HP4")) ~ 6340,
+      #   is.na(ET_STATION) & (Event %in% c("CF5", "CF6")) ~ 10100,
+      #   is.na(ET_STATION) & (Event %in% c("CD7", "CD8", "CD9", "CD10")) ~ 8380,
+      #   is.na(ET_STATION) & (Event %in% c("CU11", "CU12")) ~ 9860,
+      #   is.na(ET_STATION) & (Event %in% c("B3")) ~ 8070,
+      #   is.na(ET_STATION) & (Event %in% c("B4")) ~ 6050,
+      #   is.na(ET_STATION) & (Event %in% c("B5")) ~ 12920,
+      #   is.na(ET_STATION) & (Event %in% c("B6")) ~ 12140,
+      #   !is.na(ET_STATION) & (!Event %in% c("RB1", "RB2")) ~ ET_STATION),
       # this part is needed because stations are assigned from 0 up the fraser river starting at the confluence
       #new antennas weren't showing up because I didn't include connectivity channel to to river
-      ET_STATION = case_when(River %in% "Fraser River" ~ ET_STATION + 9566, #9566 is above Fraser River Confluence
+      ET_STATION = case_when(River %in% "Fraser River" ~ ET_STATION + 10120, #10120 is above Fraser River Confluence; pre-construciton was 9566
                              River %in% c("Colorado River", "Connectivity Channel") ~ ET_STATION,
                              TRUE ~ ET_STATION)
     ) %>%
-    
-    # mutate(
-    #   ET_STATION = case_when(River %in% "Fraser River" ~ ET_STATION + 9566, #9566 is above Fraser River Confluence
-    #                          River %in% "Colorado River" ~ ET_STATION)
-    # )
     # this line just makes the df smaller if htere are duplicates; usually doesn't change anything since All_events has a line that does this also in the WGFP ENC hist_function
     distinct(Datetime, Event, TAG, .keep_all = TRUE) %>%
-    
     select(Date, Time, Datetime, TAG, Event, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, Recap_Length, Recap_Weight, UTM_X, UTM_Y, ET_STATION)
   
   

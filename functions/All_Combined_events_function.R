@@ -67,13 +67,13 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     mutate(UTM_X =case_when(SCD == "RB1" | SCD == "RB2" ~ "412489",
                             SCD == "HP3" | SCD == "HP4" ~ "414375",
                             SCD == "CF5" | SCD == "CF6" ~ "416965",
-                            SCD == "CD7" | SCD == "CD8" | SCD == "CD9" | SCD == "CD10" ~ "415789",
-                            SCD == "CU11" | SCD == "CU12" ~ "416806"),
+                            SCD == "CD7" | SCD == "CD8" | SCD == "CD9" | SCD == "CD10" ~ "415801",
+                            SCD == "CU11" | SCD == "CU12" ~ "416802"),
            UTM_Y = case_when(SCD == "RB1" | SCD == "RB2" ~ "4439413",
                              SCD == "HP3" | SCD == "HP4" ~ "4440241",
                              SCD == "CF5" | SCD == "CF6" ~ "4439369",
-                             SCD == "CD7" | SCD == "CD8" | SCD == "CD9" | SCD == "CD10" ~ "4439897",
-                             SCD == "CU11" | SCD == "CU12" ~ "4439489")) %>%
+                             SCD == "CD7" | SCD == "CD8" | SCD == "CD9" | SCD == "CD10" ~ "4439899",
+                             SCD == "CU11" | SCD == "CU12" ~ "4439507")) %>%
     distinct()
   
   # biomark cleaning, getting dates into uniform format, 

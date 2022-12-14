@@ -10,7 +10,7 @@ layer_location <- file.path("./gis/")
 antenna_sites <- readOGR(dsn = layer_location, layer = "antenna_sites1")
 antenna_sites <- sp::spTransform(antenna_sites, CRS("+init=epsg:4326"))
 
-stream_centerline <- readOGR(dsn = layer_location, layer = "stream_centerline")
+stream_centerline <- readOGR(dsn = layer_location, layer = "Stream_Centerline_Post")
 stream_centerline <- sp::spTransform(stream_centerline, CRS("+init=epsg:4326"))
 
 releasesites <- readOGR(dsn = layer_location, layer = "ReleaseSites2021")
@@ -22,7 +22,7 @@ mobile_reaches <- sp::spTransform(mobile_reaches, CRS("+init=epsg:4326"))
 
 ###no need to change files other than stations to .rds becuase the others aren't slow to bring in and convert to correct coordinate system
 
-simple_stations2 <- read_rds(file.path("./gis/simple_stations.rds"))
+simple_stations2 <- read_rds(file.path("./gis/simple_stations2.rds"))
 
 Station_icons <- awesomeIcons(
   icon = 'add',
@@ -45,6 +45,13 @@ label_style <- list(
   "font-size" = "12px",
   "border-color" = "black"
 )
+
+#### this part if how to simplify a complex polygon layer that takes forever to read
+# simple_stations2 <- readOGR(dsn = layer_location, layer = "Stations_10m_Post")
+# simple_stations2 <- sp::spTransform(simple_stations2, CRS("+init=epsg:4326"))
+# library(rmapshaper)
+# simple_stations3 <- ms_simplify(simple_stations2, keep = .1)
+# write_rds(simple_stations3, file = file.path(paste0(layer_location,"/simple_stations2.rds")))
 
 
 end_time <- Sys.time()
