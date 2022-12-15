@@ -1,5 +1,5 @@
 
-library(tidyverse)
+
 # Create Function
 ## this function is up to date for new antennas 
 All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, Recaptures){
@@ -7,8 +7,6 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   start_time <- Sys.time()
   print("Running All_combined_events_function: Combining and cleaning Stationary, Mobile, Biomark, Release, and Recapture csv inputs.")
   
-  library(tidyverse)
-  library(lubridate)
   
   WGFP_NoMarkers <- Stationary %>%
     mutate(TAG = str_replace(str_trim(TAG), "\\_", "")) %>%
@@ -57,6 +55,11 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   # also takes out duplicate rows
   WGFP_Clean <- WGFP_Clean %>%
     mutate(TAG = ifelse(str_detect(TAG, "^900"), str_sub(TAG, 4,-1), TAG),
+           SCD = case_when(SCD == "CD7" & ANT == "A1" ~ "CD7",
+                           SCD == "CD7" & ANT == "A2" ~ "CD8",
+                           SCD == "CD7" & ANT == "A3" ~ "CD9",
+                           SCD == "CD7" & ANT == "A4" ~ "CD10",
+                           TRUE ~ SCD),
            DTY = ifelse(str_detect(DTY, "/"), 
                          as.character(mdy(DTY)), 
                          DTY)) %>%

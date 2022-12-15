@@ -154,6 +154,7 @@ combine_events_and_stations <- function(All_events, station_data){
                            str_detect(Event, "M1|M2") ~ "Mobile Run",
                            Event == "Recapture" ~ "Recapture",
                            TRUE ~ Event),
+      #need to check this function out given new stationing and connectivity channel
       above_below = case_when(
         ET_STATION >= 8330 ~ "Above the Dam",
         ET_STATION < 8330 ~ "Below the Dam"

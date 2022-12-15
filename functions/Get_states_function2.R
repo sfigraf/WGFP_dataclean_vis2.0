@@ -1,17 +1,39 @@
 ### new states function
+# AvianPredation <- AvianPredation %>%
+#   mutate(PredationDate = mdy(PredationDate))
+# 
+# GhostTags <- GhostTags %>%
+#   mutate(GhostDate = mdy(GhostDate)) 
 #x <- states_function(combined_events_stations)
-states_function <- function(combined_events_stations, ghost_tag_df) {
+states_function <- function(combined_events_stations, GhostTags, AvianPredation) {
   start_time = Sys.time()
   print("Running States Function: Assigns letters A, B, C, or G based on position relative to dam, or Ghost/predated tag.")
+  # these dates are cleaned before they go into this function
+  ghost_tag_df <- GhostTags %>%
+    rename(TAG = TagID) %>%
+    select(TAG, GhostDate) 
   
+  av_pred_df <- AvianPredation %>%
+    rename(TAG = TagID) %>%
+    select(TAG, PredationDate)
+    
+  #joining with ghost tag df
   wghost_date <- left_join(combined_events_stations, ghost_tag_df, by = c("TAG"))
+  # joining with avian predation
+  #Shouldn't matter really, but this just cuts down unnecesary rows. left_joining creates more rows than df1 if there are duplicate values in the key_col of df1 (in this case TAG)
+  #some new rows are created then when joining to the ghost tag df because many of the ghost tags have multiple detections after the ghost date in the combined_df
+  # Im'm just cutting out these excess rows but I think they would get cut down anyway later in this function. As long as each ghost tag gains a row with ghost date or predation date, that's all that matters
+  wghost_av <- left_join(wghost_date, av_pred_df, by = c("TAG")) %>%
+    distinct(TAG, Event, Datetime, UTM_X, UTM_Y, first_last, .keep_all = TRUE)
+  
   
   #daily_unique_events = length(unique(Event))
-  states1 <- wghost_date %>%
+  states1 <- wghost_av %>%
     #group_by(weeks_since) %>%
     mutate(
       #the case_whens also are a priority list, so important not to rearange these 
-      state1 = case_when(Date >= Ghost_date ~ "G",
+      state1 = case_when(Date >= GhostDate ~ "G",
+                         Date >= PredationDate ~ "P",
                          str_detect(Event, "CD7|CD8|CD9|CD10|CU11|CU12") ~ "C",
                          ET_STATION <= 8330 ~ "A",
                          ET_STATION > 8330 ~ "B")
@@ -34,7 +56,7 @@ states_function <- function(combined_events_stations, ghost_tag_df) {
     rename(State = teststate_3)
   ## pivot wider
   #days <- data.frame(days_since = 1:max(states_final$days_since))
-  weeks <- data.frame(weeks_since = 1:max(states_final$weeks_since))
+  #weeks <- data.frame(weeks_since = 1:max(states_final$weeks_since))
   
 # Pivot Wide --------------------------------------------------------------
 
@@ -47,13 +69,13 @@ states_function <- function(combined_events_stations, ghost_tag_df) {
   # days_and_states_wide <- days_and_states_wide %>%
   #   select(TAG, `0`, 2:ncol(days_and_states_wide))
   
-  weeks_and_states <- full_join(weeks, states_final, by = "weeks_since")
-  
-  
-  weeks_and_states_wide <- pivot_wider(weeks_and_states, id_cols = TAG, names_from = weeks_since, values_from = State)
-  
-  weeks_and_states_wide <- weeks_and_states_wide %>%
-    select(TAG, `0`, 2:ncol(weeks_and_states_wide))
+  # weeks_and_states <- full_join(weeks, states_final, by = "weeks_since")
+  # 
+  # 
+  # weeks_and_states_wide <- pivot_wider(weeks_and_states, id_cols = TAG, names_from = weeks_since, values_from = State)
+  # 
+  # weeks_and_states_wide <- weeks_and_states_wide %>%
+  #   select(TAG, `0`, 2:ncol(weeks_and_states_wide))
   
 
 # Flagged Tags ------------------------------------------------------------
@@ -76,7 +98,7 @@ states_function <- function(combined_events_stations, ghost_tag_df) {
   unknown_states <- checking %>%
     filter(is.na(through_dam1) & !det_type %in% c("Release", "Recapture and Release", "Recapture"))  
   
-  states_df_list <- list("All_States" = states_final, "Weeks_and_states_wide" = weeks_and_states_wide, "Flagged_movements" = unknown_states)
+  states_df_list <- list("All_States" = states_final, "Flagged_movements" = unknown_states)
   end_time <- Sys.time()
   print(paste("States Function took", round(end_time-start_time,2)))
   

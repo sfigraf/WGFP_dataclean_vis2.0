@@ -12,11 +12,12 @@ library(shinyWidgets) # for pickerinput
 library(shinythemes)
 library(bslib)
 #biomark test tags: 999000000007601, 999000000007602
-# to do: put qaqc stuff from combine files app in this file as well
+# to do: put qaqc stuff from combine files app in this file as well to see when biomark shits the bed
 # incorporate aviation predation and ghost tag files in
 #continue with how-to
 # account for distance moved between fraser/colorado rivers
-# add in new stations and updated utms
+
+# 
 #make "varaibels" file with station info of antennas based off spatial join, point of fraser river/CO river confluence, windy gap dam, antenna UTM's, 
 
 #Biomark is temporarily labelled as B3 and B4 to make data filtering easier
@@ -40,6 +41,11 @@ Biomark <- read.csv("Biomark_Raw_20221102.csv", dec = ",") # need to update to c
 Release <- read.csv("WGFP_ReleaseData_Master.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",8) ))
 Recaptures <- read.csv("WGFP_RecaptureData_Master.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
 #ghost tag df
+#avitaion predation
+AvianPredation <- read_csv("WGFP_AvianPredation.csv", col_types = cols(TagID = col_character(),Comments = col_character()))
+GhostTags <- read_csv("WGFP_GhostTags.csv", 
+                           col_types = cols(TagID = col_character()))
+
 
 end_time = Sys.time()
 print(paste("Reading in files took", round((end_time-start_time),2)))
@@ -49,7 +55,7 @@ dummy_rows_list <- add_dummy_rows(stationary = Stationary, biomark = Biomark, re
 Stationary <- dummy_rows_list$Stationary
 Biomark <- dummy_rows_list$Biomark
 Release <- dummy_rows_list$Release
-ghost_tag_df <- dummy_rows_list$Ghost_tags #date column is named "Ghost_date" and is a date type
+#ghost_tag_df <- dummy_rows_list$Ghost_tags #date column is named "Ghost_date" and is a date type
 
 # Date Wrangling ----------------------------------------------------------
 
@@ -72,6 +78,16 @@ Release_05 <- Release %>%
 
 Recaptures_05 <- Recaptures %>%
   mutate(Date = as.character(mdy(Date)))
+
+AvianPredation <- AvianPredation %>%
+  mutate(PredationDate = mdy(PredationDate))
+
+GhostTags <- GhostTags %>%
+  mutate(GhostDate = mdy(GhostDate)) 
+
+# Functions Read-in -------------------------------------------------------
+
+
 #functions
 source("functions/All_Combined_events_function.R")
 source("functions/Spatial_join_function.R")
@@ -104,7 +120,7 @@ enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
 # applies get_movements_function
 Movements_df <- get_movements_function(combined_events_stations)
 # states
-states_data_list <- states_function(combined_events_stations, ghost_tag_df)
+states_data_list <- states_function(combined_events_stations, GhostTags, AvianPredation)
 
 #this is used in states_data reactives; but we always want a 0 for weeks
 weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
@@ -189,7 +205,11 @@ ui <- fluidPage(
                         tabPanel("Recaptures",
                                  withSpinner(DT::dataTableOutput("recaps1"))),
                         tabPanel("Release",
-                                 withSpinner(DT::dataTableOutput("release1")))
+                                 withSpinner(DT::dataTableOutput("release1"))),
+                        tabPanel("Ghost Tags",
+                                 withSpinner(DT::dataTableOutput("ghost1"))),
+                        tabPanel("Aviation Predation Tags",
+                                 withSpinner(DT::dataTableOutput("av_pred1")))
                           ) #end of sidebarlayout: incldes sidebar panel and mainpanel
                         ) #end of individual datasets tabset panel
                       )#end of individual datasets Mainpanel)
@@ -315,6 +335,9 @@ ui <- fluidPage(
                                                  value = c(min(df_list$All_Events$Release_Weight, na.rm = TRUE),max(df_list$All_Events$Release_Weight, na.rm = TRUE)),
                                                  step = 1,
                                      ),
+                                     dateRangeInput("drangeinput3", "Release Date Range:",
+                                                    start = min(df_list$All_Events$Release_Date, na.rm = TRUE) - 1, 
+                                                    end = max(df_list$All_Events$Release_Date, na.rm = TRUE) + 1), #end of date range input
                                      pickerInput(inputId = "picker3",
                                                  label = "Select Release Site:",
                                                  choices = sort(unique(df_list$All_Events$ReleaseSite)),
@@ -483,6 +506,7 @@ ui <- fluidPage(
                                     ), # end of Map and table tabPanel
                                    tabPanel("Movement Graphs",
                                             withSpinner(plotlyOutput("plot1")),
+                                            hr(),
                                             withSpinner(plotlyOutput("plot6")),
                                             hr(),
                                             downloadButton(outputId = "download8", label = "Save seasonal plot data as CSV"),
@@ -674,13 +698,21 @@ server <- function(input, output, session) {
       release_filtered <- Release_05 %>%
         filter(Date >= input$drangeinput1[1] & Date <= input$drangeinput1[2])
       
+      ghost_filtered <- GhostTags %>%
+        filter(GhostDate >= input$drangeinput1[1] & GhostDate <= input$drangeinput1[2])
+      
+      av_filtered <- AvianPredation %>%
+        filter(PredationDate >= input$drangeinput1[1] & PredationDate <= input$drangeinput1[2])
+      
       
       indiv_d_list <- list(
         "stationarycleandata" = stationary_filtered,
         "biomarkdata" = biomark_filtered,
         "mobiledata" = mobile_filtered,
         "recapdata" = recaps_filtered,
-        "releasedata" = release_filtered
+        "releasedata" = release_filtered,
+        "ghostdata" = ghost_filtered,
+        "avian_preddata" = av_filtered
         
       )
       
@@ -749,7 +781,8 @@ server <- function(input, output, session) {
             Species %in% input$picker2,
             Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
             Release_Weight >= input$slider7[1] & Release_Weight <= input$slider7[2],
-            ReleaseSite %in% input$picker3
+            ReleaseSite %in% input$picker3,
+            Release_Date >= input$drangeinput3[1] & Release_Date <= input$drangeinput3[2]
           ) %>%
           arrange(Datetime)
         
@@ -764,7 +797,8 @@ server <- function(input, output, session) {
             Species %in% input$picker2,
             Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
             Release_Weight >= input$slider7[1] & Release_Weight <= input$slider7[2],
-            ReleaseSite %in% input$picker3
+            ReleaseSite %in% input$picker3,
+            Release_Date >= input$drangeinput3[1] & Release_Date <= input$drangeinput3[2]
           )%>%
           arrange(Datetime)
         
@@ -791,7 +825,8 @@ server <- function(input, output, session) {
                  Species %in% input$picker2,
                  ReleaseSite %in% input$picker3,
             Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
-            Release_Weight >= input$slider7[1] & Release_Weight <= input$slider7[2]
+            Release_Weight >= input$slider7[1] & Release_Weight <= input$slider7[2],
+            Release_Date >= input$drangeinput3[1] & Release_Date <= input$drangeinput3[2]
             ) %>%
           #this part is for making sure the sequence of events will make sense sequentially: tells where a fish started and ended the day and keeps other unique entries in between
           group_by(Date) %>%
@@ -820,6 +855,7 @@ server <- function(input, output, session) {
               Species %in% input$picker2,
               Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
               Release_Weight >= input$slider7[1] & Release_Weight <= input$slider7[2],
+              Release_Date >= input$drangeinput3[1] & Release_Date <= input$drangeinput3[2],
               ReleaseSite %in% input$picker3) %>%
             #this part is for making sure the sequence of events will make sense
             # if there's no tag input then have to group_by TAG as well
@@ -850,6 +886,7 @@ server <- function(input, output, session) {
                    Species %in% input$picker2,
                    Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
                    Release_Weight >= input$slider7[1] & Release_Weight <= input$slider7[2],
+                   Release_Date >= input$drangeinput3[1] & Release_Date <= input$drangeinput3[2],
                    ReleaseSite %in% input$picker3) %>%
             arrange(Datetime) %>%
             #need to have distinct() at the end of the expression
@@ -1060,6 +1097,36 @@ server <- function(input, output, session) {
       )
     )
     
+    output$ghost1 <- renderDataTable(
+      
+      indiv_datasets_list()$ghostdata,
+      rownames = FALSE,
+      caption = ("Date filter applies to Ghost Date"),
+      filter = 'top',
+      options = list(
+        pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
+        dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
+        language = list(emptyTable = "Enter inputs and press Render Table")
+        
+        #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
+      )
+    )
+    
+    output$av_pred1 <- renderDataTable(
+      
+      indiv_datasets_list()$avian_preddata,
+      rownames = FALSE,
+      caption = ("Date filter applies to Predation Date"),
+      filter = 'top',
+      options = list(
+        pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
+        dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
+        language = list(emptyTable = "Enter inputs and press Render Table")
+        
+        #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
+      )
+    )
+    
     # Dt 
     
     output$enc_release1 <- renderDataTable(
@@ -1128,7 +1195,7 @@ server <- function(input, output, session) {
     })
     
     output$text1 <- renderPrint({
-      "Sidebar filters don't work on Wide Data"
+      "Sidebar filters now work on Wide Data"
     })
     
     output$states2 <- renderDT({
@@ -1404,7 +1471,8 @@ server <- function(input, output, session) {
         scale_fill_manual(values = c("Downstream Movement" = "red",
                                      "Upstream Movement" = "chartreuse3",
                                      "No Movement" = "black",
-                                     "Initial Release" = "darkorange"))
+                                     "Initial Release" = "darkorange",
+                                     "Changed Rivers" = "purple"))
       
       
       plotly1 <- ggplotly(p = plot)
@@ -1433,7 +1501,8 @@ server <- function(input, output, session) {
         scale_fill_manual(values = c("Downstream Movement" = "red",
                                      "Upstream Movement" = "chartreuse3",
                                      "No Movement" = "black",
-                                     "Initial Release" = "darkorange"))
+                                     "Initial Release" = "darkorange",
+                                     "Changed Rivers" = "purple"))
       
       ggplotly(plot)
     })  
