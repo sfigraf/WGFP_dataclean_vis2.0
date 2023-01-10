@@ -32,6 +32,7 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
     #group_by(weeks_since) %>%
     mutate(
       #the case_whens also are a priority list, so important not to rearange these 
+      #might have to readjust 8330 stationing
       state1 = case_when(Date >= GhostDate ~ "G",
                          Date >= PredationDate ~ "P",
                          str_detect(Event, "CD7|CD8|CD9|CD10|CU11|CU12") ~ "C",
@@ -48,36 +49,32 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
       teststate_3 = gsub('([[:alpha:]])\\1+', '\\1', teststate_2), #removes consecutive letters
       weekly_unique_events = length(unique(Event))
     )
+ 
   
   #this is now a weekly chart
   states_final <- states2 %>%
     distinct(weeks_since, TAG, teststate_3, .keep_all = TRUE) %>%
     select(Date, weeks_since, TAG, teststate_3, det_type, ReleaseSite, Species, Release_Length, Release_Weight, c_number_of_detections, weekly_unique_events, days_since, UTM_X, UTM_Y) %>%
     rename(State = teststate_3)
-  ## pivot wider
-  #days <- data.frame(days_since = 1:max(states_final$days_since))
-  #weeks <- data.frame(weeks_since = 1:max(states_final$weeks_since))
   
-# Pivot Wide --------------------------------------------------------------
-
+  # this makes some columns from all states of fish 
+  states_summarized <- states1 %>%
+    group_by(TAG) %>%
+    arrange(Datetime) %>%
+    mutate(teststate_2 = paste(state1, collapse = ""),
+           teststate_3 = gsub('([[:alpha:]])\\1+', '\\1', teststate_2), #removes consecutive letters
+           #new columns to sa yif fish stayed above or below?
+           went_above_dam_noChannel = str_detect(teststate_3, "AB"),
+           went_below_dam_noChannel = str_detect(teststate_3, "BA"),
+           went_below_dam_throughChannel = str_detect(teststate_3, "BCA"),
+           went_above_dam_throughChannel = str_detect(teststate_3, "ACB"),
+           entered_channel_from_DS = str_detect(teststate_3, "AC"),
+           entered_channel_from_US = str_detect(teststate_3, "BC"),
+           
+    ) %>%
+    select(TAG, went_above_dam_noChannel, went_below_dam_noChannel,went_below_dam_throughChannel,went_above_dam_throughChannel,entered_channel_from_DS,entered_channel_from_US) %>%
+    distinct(TAG, .keep_all = TRUE)
   
-  # days_and_states <- full_join(days, states_final, by = "days_since")
-  # 
-  # 
-  # days_and_states_wide <- pivot_wider(days_and_states, id_cols = TAG, names_from = days_since, values_from = State)
-  # 
-  # days_and_states_wide <- days_and_states_wide %>%
-  #   select(TAG, `0`, 2:ncol(days_and_states_wide))
-  
-  # weeks_and_states <- full_join(weeks, states_final, by = "weeks_since")
-  # 
-  # 
-  # weeks_and_states_wide <- pivot_wider(weeks_and_states, id_cols = TAG, names_from = weeks_since, values_from = State)
-  # 
-  # weeks_and_states_wide <- weeks_and_states_wide %>%
-  #   select(TAG, `0`, 2:ncol(weeks_and_states_wide))
-  
-
 # Flagged Tags ------------------------------------------------------------
 
   #should we put states in this that have multiple letters?
@@ -98,7 +95,7 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
   unknown_states <- checking %>%
     filter(is.na(through_dam1) & !det_type %in% c("Release", "Recapture and Release", "Recapture"))  
   
-  states_df_list <- list("All_States" = states_final, "Flagged_movements" = unknown_states)
+  states_df_list <- list("All_States" = states_final, "Flagged_movements" = unknown_states, "States_summarized" = states_summarized)
   end_time <- Sys.time()
   print(paste("States Function took", round(end_time-start_time,2)))
   

@@ -11,11 +11,12 @@ library(DT)
 library(shinyWidgets) # for pickerinput
 library(shinythemes)
 library(bslib)
+library(mapview)
 #biomark test tags: 999000000007601, 999000000007602
 # to do: put qaqc stuff from combine files app in this file as well to see when biomark shits the bed
 # incorporate aviation predation and ghost tag files in
 #continue with how-to
-# account for distance moved between fraser/colorado rivers
+
 
 # 
 #make "varaibels" file with station info of antennas based off spatial join, point of fraser river/CO river confluence, windy gap dam, antenna UTM's, 
@@ -34,7 +35,7 @@ print("Reading in Stationary, Mobile, Biomark, Release, and Recapture csv files.
 # if column names change in any of these read-ins, might require some modification to code to get them to combine
 # also if you change read.csv to read_csv, it should read in quicker but column names will change
 # could be a later task
-Stationary <- read.csv(paste0("WGFP_Raw_20221206.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
+Stationary <- read.csv(paste0("WGFP_Raw_20221227.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
 Mobile <- read.csv("WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
 Biomark <- read.csv("Biomark_Raw_20221102.csv", dec = ",") # need to update to correct file
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
@@ -113,28 +114,21 @@ Stationdata1 <- spatial_join_stations_detections(df_list$All_Events_most_relevan
 
 #appplies cobine_events_stations function
 combined_events_stations <- combine_events_and_stations(All_events, Stationdata1)
+
+# states
+states_data_list <- states_function(combined_events_stations, GhostTags, AvianPredation)
+States_summarized <- states_data_list$States_summarized
 # aplies enc_hist_summary wide function
-enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(recaps_and_detections, Release, combined_events_stations)
+enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(recaps_and_detections, Release, combined_events_stations, States_summarized)
 unknown_tags <- enc_hist_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
 # applies get_movements_function
 Movements_df <- get_movements_function(combined_events_stations)
-# states
-states_data_list <- states_function(combined_events_stations, GhostTags, AvianPredation)
 
 #this is used in states_data reactives; but we always want a 0 for weeks
 weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
 
-# Mx <- Movements_df %>%
-#   filter(is.na(marker_color))
-
-
-
-
-#statesdf_list <- Get_states_function(combined_events_stations)
-
-
-
+#more formatting
 Enc_release_data <- enc_hist_wide_df %>%
     mutate(Date = ifelse(str_detect(Date, "/"),
                          as.character(mdy(Date)),
@@ -205,7 +199,19 @@ ui <- fluidPage(
                         tabPanel("Recaptures",
                                  withSpinner(DT::dataTableOutput("recaps1"))),
                         tabPanel("Release",
-                                 withSpinner(DT::dataTableOutput("release1"))),
+                                 withSpinner(DT::dataTableOutput("release1")),
+                                 sliderInput("slider11", "Length Binwidth",
+                                             min = 0, 
+                                             max = max(Release_05$Length, na.rm = TRUE),
+                                             value = 20),
+                                 withSpinner(plotlyOutput("plot10")),
+                                 hr(),
+                                 sliderInput("slider12", "Weight Binwidth",
+                                             min = 0, 
+                                             max = max(Release_05$Weight, na.rm = TRUE), 
+                                             value = 100),
+                                 withSpinner(plotlyOutput("plot11")),
+                                 hr(),),
                         tabPanel("Ghost Tags",
                                  withSpinner(DT::dataTableOutput("ghost1"))),
                         tabPanel("Aviation Predation Tags",
@@ -508,9 +514,15 @@ ui <- fluidPage(
                                             withSpinner(plotlyOutput("plot1")),
                                             hr(),
                                             withSpinner(plotlyOutput("plot6")),
-                                            hr(),
                                             downloadButton(outputId = "download8", label = "Save seasonal plot data as CSV"),
                                             hr(),
+                                            withSpinner(plotlyOutput("plot7")),
+                                            hr(),
+                                            withSpinner(plotlyOutput("plot8")),
+                                            hr(),
+                                            withSpinner(plotlyOutput("plot9")),
+                                            hr(),
+                                            
                                             verbatimTextOutput("text2"),
                                             ), #end of movement graphs tabpanel
                                  ), # end of tabset panel
@@ -1097,6 +1109,22 @@ server <- function(input, output, session) {
       )
     )
     
+    output$plot10 <- renderPlotly({
+      indiv_datasets_list()$releasedata %>%
+        ggplot(aes(x = Length, fill = Species) ) +
+        geom_histogram(binwidth = input$slider11)+
+        theme_classic() +
+        labs(title = "Released Fish by Length", caption = "Binwidth = 20mm")
+    })
+    
+    output$plot11 <- renderPlotly({
+      indiv_datasets_list()$releasedata %>%
+        ggplot(aes(x = Weight, fill = Species) ) +
+        geom_histogram(binwidth = input$slider12)+
+        theme_classic() +
+        labs(title = "Released Fish by Weight", caption = "Binwidth = 100g")
+    })
+    
     output$ghost1 <- renderDataTable(
       
       indiv_datasets_list()$ghostdata,
@@ -1222,7 +1250,7 @@ server <- function(input, output, session) {
       
       datatable(states_data_list$Flagged_movements,
                 rownames = FALSE,
-                caption = "this hopefully should be pretty small...filled with tags with detections before official 'Release' such as in in May 2021 and tags without release info.",
+                caption = "2022-12-16: 'unknown'states df needs some work so don't pay too much atantion to this. -SG. this hopefully should be pretty small...filled with tags with detections before official 'Release' such as in in May 2021 and tags without release info.",
                 filter = 'top',
                 options = list(
                   pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
@@ -1505,6 +1533,44 @@ server <- function(input, output, session) {
                                      "Changed Rivers" = "purple"))
       
       ggplotly(plot)
+    })  
+    
+    # Total movements
+    output$plot7 <- renderPlotly({
+      plot <- filtered_movements_data() %>%
+        filter(
+          !dist_moved %in% c(0)) %>%
+        ggplot(aes(x = dist_moved)) +
+        geom_histogram(binwidth = 50) +
+        theme_classic() +
+        labs(title = "Each movement detected: ('No movements' excluded)", subtitle = "Groupings are 50 m")
+      ggplotly(plot)
+      
+      plotly1 <- ggplotly(p = plot)
+      plotly1
+    })  
+    
+    #cumulative movement
+    output$plot8 <- renderPlotly({
+      plot <- filtered_movements_data() %>%
+        ggplot(aes(x = sum_dist)) +
+        geom_histogram(binwidth = 300) +
+        theme_classic() +
+        labs(title = "Cumulative movement", subtitle = "Groupings are 300 m")
+      plotly1 <- ggplotly(p = plot)
+      plotly1
+      
+    })  
+    
+    output$plot9 <- renderPlotly({
+      plot <- filtered_movements_data() %>%
+        ggplot(aes(x = hour(Datetime), fill = movement_only)) +
+        geom_histogram(binwidth = 1) +
+        theme_classic() +
+        labs(title = "Detections by Hour") 
+      plotly1 <- ggplotly(p = plot)
+      plotly1
+      
     })  
     
     output$text2 <- renderPrint({

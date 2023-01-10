@@ -12,6 +12,7 @@ get_movements_function <- function(combined_events_stations) {
     arrange(Datetime) %>%
     #dist_moved would be the place to fenagle new movements based on previous event...ie hitting wg biomark followed by connectivity channel = add 300 m
     #trickier but doable for mobile runs
+    ### accounting for FRASER?/UPPER COLROADO MOVEMENTS
     #if previous station is above the confluence and current station is above the confluence and you changed rivers, 
     #then take the previous station and subtract the confluence station to get distance travelled to the confluence (A), then subtract the new station minus confluence station to get distance travelled up the new river (B). Then add A + B to get total distance
     # otherwise, just subtract current station from previous

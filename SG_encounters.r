@@ -1940,3 +1940,96 @@ states1 <- wg_date %>%
 
 test <- states1 %>%
   filter(TAG == "230000228444")
+
+# states_wide <- states_data_list$Weeks_and_states_wide
+# states_ <- states_data_list$All_States
+# 
+# DailyStates_2022_12_09 <- read_csv("DailyStates_2022-12-09.csv", 
+#                                    col_types = cols(TAG = col_character(),
+#                                                     UTM_X = col_character(), UTM_Y = col_character())) 
+# x <- anti_join(DailyStates_2022_12_09, states_)
+# y <- anti_join(states_, DailyStates_2022_12_09)
+# z <- anti_join(y, x)
+
+x <- All_events %>%
+  mutate(x1 = as.character(Release_Date))
+min(x$x1, na.rm = TRUE)
+yy <- c("2020-04-04", "2022-04-04")
+max(yy)
+
+
+# Movements graphs --------------------------------------------------------
+
+plot <- Movements_df %>%
+  filter(
+    !dist_moved %in% c(0)) %>%
+  ggplot(aes(x = dist_moved)) +
+  geom_histogram(binwidth = 50) +
+  theme_classic() +
+  labs(title = "Each movement detected: ('No movements' excluded)", subtitle = "Groupings are 50 m")
+ggplotly(plot)
+
+plot <- Movements_df %>%
+  ggplot(aes(x = sum_dist)) +
+  geom_histogram(binwidth = 300) +
+  theme_classic() +
+  labs(title = "Cumulative movement", subtitle = "Groupings are 300 m")
+ggplotly(plot)
+
+plot <- Movements_df %>%
+  filter(!det_type %in% c("Mobile Run", "Release"),
+         ) %>%
+  # group_by(hour(Datetime)) %>%
+  # summarize(x1 = n()) %>%
+  ggplot(aes(x = hour(Datetime), fill = movement_only)) +
+  geom_histogram(binwidth = 1) +
+  theme_classic() +
+  labs(title = "Detections by Hour") 
+ggplotly(plot)  
+
+x <- Movements_df %>%
+  mutate(x1 = str_sub(Datetime, 11, -1))
+
+
+# release summaries -------------------------------------------------------
+
+Release1 <- Release %>%
+  count(Species)
+
+Release %>%
+  count(Species) %>%
+  ggplot(aes(x = Species, y = n)) +
+  geom_bar(stat = "identity") +
+  theme_classic() +
+  labs(title = "Released Fish by Species")
+
+Release %>%
+  ggplot(aes(x = Length, fill = Species) ) +
+  geom_histogram(binwidth = 20)+
+  theme_classic() +
+  labs(title = "Released Fish by Length", caption = "Binwidth = 20mm")
+
+Release %>%
+  ggplot(aes(x = Weight, fill = Species) ) +
+  geom_histogram(binwidth = 100)+
+  theme_classic() +
+  labs(title = "Released Fish by Weight", caption = "Binwidth = 100g")
+
+# map saving --------------------------------------------------------------
+
+
+library(leaflet)
+library(htmlwidgets)
+
+map1 <- leaflet() %>% #Warning: Error in UseMethod: no applicable method for 'metaData' applied to an object of class "NULL"  solved becuase leaflet() needs an arg leaflet(x)
+  addProviderTiles(providers$Esri.WorldImagery,
+                   options = providerTileOptions(maxZoom = 19.5)
+  )
+html_fl = tempfile(fileext = ".html")
+png_fl = tempfile(fileext = ".png")
+
+saveWidget(map1, "temp.html", selfcontained=TRUE)
+webshot("temp.html", file="Rplot.png", cliprect="viewport")
+
+
+mapshot(map1, file = "rrplot.png")

@@ -83,8 +83,7 @@ combine_events_and_stations <- function(All_events, station_data){
       
       #if UTM's were correctly assigned initially and stationdata is up to date, this part is unnesseccary because this will all already be done with the left_join
        # 12/1/22 i don't actually think it's needed anymore since the UTM's ARE all correct, but it's a good rdundant safeguard to have in place
-      # just need to change this if a 
-      ### NEED TO STILL ASIGN STATIONS FOR NEW ANTENNAS, aswell as deal with how to handle moving around the channels
+      
       # ET_STATION = case_when(
       #   (Event %in% c("RB1", "RB2")) ~ 4150, # there is no is.na here because RB UTM
       #   is.na(ET_STATION) & (Event %in% c("HP3", "HP4")) ~ 6340,
@@ -98,6 +97,7 @@ combine_events_and_stations <- function(All_events, station_data){
       #   !is.na(ET_STATION) & (!Event %in% c("RB1", "RB2")) ~ ET_STATION),
       # this part is needed because stations are assigned from 0 up the fraser river starting at the confluence
       #new antennas weren't showing up because I didn't include connectivity channel to to river
+      # this assigns a station, then in the get_movements function the distance moved is calculated
       ET_STATION = case_when(River %in% "Fraser River" ~ ET_STATION + 10120, #10120 is above Fraser River Confluence; pre-construciton was 9566
                              River %in% c("Colorado River", "Connectivity Channel") ~ ET_STATION,
                              TRUE ~ ET_STATION)

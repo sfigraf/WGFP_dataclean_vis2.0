@@ -2,9 +2,9 @@
 # recaps_and_all_detections <- df_list$Recaps_detections
 # release_data <- Release
 # combined_events_stations <- combined_events_stations #resulting df from combined_events and stations function
-
+#States_summarized <- states_summarized
 #recaps and all detreitons comes from WGFP ENC_hist_function, release data is a read_in csv, all_events_condensed with stations comes from combine_stations_events function
-Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, release_data, combined_events_stations){
+Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, release_data, combined_events_stations, States_summarized){
   
   start_time <- Sys.time()
   print("Running Ind_tag_enc_hist_wide_summary_function: Summarizes detection and movement data from each released Tag.")
@@ -124,6 +124,8 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
   # it can't match up 23000088888 to 2.3E+11; so release site gets put in as "no info", and
   #therefore when the columns join, it doesn't make a column called "release above dam" (should I cahnge to subset by number instead of column name?)
   
+  # trying to go based on movements
+  ### thinking of disbanding this and doing the same process but with the states in order to say if fish went above/below
   
   above_below_counts <- combined_events_stations %>%
     count(TAG, det_type, above_below, name = "Encounters") %>%
@@ -147,9 +149,11 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
       (RB1&RB2&HP3&HP4&B3&`Release Below the Dam`&`Recapture Below the Dam`&`Recapture and Release Below the Dam`&`Mobile Run Below the Dam`) == FALSE & (CF5|CF6|B4|B5|B6|`Release Above the Dam`|`Recapture Above the Dam`|`Recapture and Release Above the Dam`|`Mobile Run Above the Dam`) == TRUE ~ "Stayed Above the Dam",
       
     ))
+  # left joining states summary to enc_release
+  ENC_Release5 <- left_join(ENC_Release4, States_summarized, by = "TAG")
   #rearranging so that Tag is first column shown
-  ENC_Release4<- ENC_Release4 %>%
-    select(TAG, 1:ncol(ENC_Release4))
+  ENC_Release5<- ENC_Release5 %>%
+    select(TAG, 1:ncol(ENC_Release5))
   ###joining on column with sum data
   #same code appears in movements function
   sum_dist1 <- combined_events_stations %>%
@@ -161,7 +165,7 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
     distinct(TAG, .keep_all = TRUE) %>%
     select(TAG, sum_dist)
   
-  ENC_Release5 <- ENC_Release4 %>%
+  ENC_Release6 <- ENC_Release5 %>%
     left_join(sum_dist1, by = "TAG")
   
   
@@ -169,7 +173,7 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
   
   
   enc_wide_list <- list(
-    "ENC_Release_wide_summary" = ENC_Release5, "Unknown_Tags" = unknown_tags
+    "ENC_Release_wide_summary" = ENC_Release6, "Unknown_Tags" = unknown_tags
   )
   
   end_time <- Sys.time()
