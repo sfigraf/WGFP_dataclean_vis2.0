@@ -29,7 +29,7 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
   
   #daily_unique_events = length(unique(Event))
   states1 <- wghost_av %>%
-    #group_by(weeks_since) %>%
+    filter(!TAG %in% c('230000999999')) %>%
     mutate(
       #the case_whens also are a priority list, so important not to rearange these 
       #might have to readjust 8330 stationing

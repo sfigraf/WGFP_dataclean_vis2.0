@@ -168,6 +168,9 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
   ENC_Release6 <- ENC_Release5 %>%
     left_join(sum_dist1, by = "TAG")
   
+  #### dummy rows removal: 1/14/23
+  ENC_Release6 <- ENC_Release6 %>%
+    filter(!TAG %in% c("230000999999"))
   
   
   

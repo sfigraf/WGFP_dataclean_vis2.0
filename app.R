@@ -11,7 +11,11 @@ library(DT)
 library(shinyWidgets) # for pickerinput
 library(shinythemes)
 library(bslib)
-library(mapview)
+#animation stuff
+library(mapedit)
+library(basemaps)
+library(gganimate)
+#library(mapview)
 #biomark test tags: 999000000007601, 999000000007602
 # to do: put qaqc stuff from combine files app in this file as well to see when biomark shits the bed
 # incorporate aviation predation and ghost tag files in
@@ -37,7 +41,7 @@ print("Reading in Stationary, Mobile, Biomark, Release, and Recapture csv files.
 # could be a later task
 Stationary <- read.csv(paste0("WGFP_Raw_20221227.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
 Mobile <- read.csv("WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
-Biomark <- read.csv("Biomark_Raw_20221102.csv", dec = ",") # need to update to correct file
+Biomark <- read.csv("Biomark_Raw_20221102.csv", dec = ",") 
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
 Release <- read.csv("WGFP_ReleaseData_Master.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",8) ))
 Recaptures <- read.csv("WGFP_RecaptureData_Master.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
@@ -50,6 +54,8 @@ GhostTags <- read_csv("WGFP_GhostTags.csv",
 
 end_time = Sys.time()
 print(paste("Reading in files took", round((end_time-start_time),2)))
+
+
 #### This part was for checking if new antennas to be put in will work
 source("functions/dummy_rows.R")
 dummy_rows_list <- add_dummy_rows(stationary = Stationary, biomark = Biomark, release1 = Release)
@@ -96,6 +102,7 @@ source("functions/Combine_events_stations_function.R")
 source("functions/Ind_tag_enc_hist_wide_summary_function.R")
 source("functions/get_movements_function.R")
 source("functions/Get_states_function2.R")
+source("functions/Animation_function.R")
 
 #mapping
 source("map_polygon_readins.R")
@@ -125,6 +132,8 @@ enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
 # applies get_movements_function
 Movements_df <- get_movements_function(combined_events_stations)
 
+animationDatalist <- Animation_function(Movements_df)
+
 #this is used in states_data reactives; but we always want a 0 for weeks
 weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
 
@@ -145,6 +154,16 @@ most_recent_date <- max(df_list$All_Events$Date)
                     
 rainbow_trout_pallette <- list(pink1 = "#E3BABBFF", olive_green1 = "#C4CFBFFF", dark_olive_green1 = "#81754EFF",
                                mustard_yellow1 = "#CBA660FF", brown_yellow = "#86551CFF" )
+
+### taking dummy tag out
+
+Biomark <- Biomark %>%
+  filter(!DEC.Tag.ID %in% c("900.230000999999"))
+Release_05 <- Release_05 %>%
+  filter(!TagID %in% c("230000999999"))
+Stationary <- Stationary %>%
+  filter(!TAG %in% c("900_230000999999"))
+
 # Define UI for application that draws a histogram
 
 ui <- fluidPage(
@@ -201,13 +220,13 @@ ui <- fluidPage(
                         tabPanel("Release",
                                  withSpinner(DT::dataTableOutput("release1")),
                                  sliderInput("slider11", "Length Binwidth",
-                                             min = 0, 
+                                             min = 1, 
                                              max = max(Release_05$Length, na.rm = TRUE),
                                              value = 20),
                                  withSpinner(plotlyOutput("plot10")),
                                  hr(),
                                  sliderInput("slider12", "Weight Binwidth",
-                                             min = 0, 
+                                             min = 1, 
                                              max = max(Release_05$Weight, na.rm = TRUE), 
                                              value = 100),
                                  withSpinner(plotlyOutput("plot11")),
@@ -525,6 +544,9 @@ ui <- fluidPage(
                                             
                                             verbatimTextOutput("text2"),
                                             ), #end of movement graphs tabpanel
+                                   tabPanel("Animation",
+                                            withSpinner(imageOutput("plot12"))
+                                            ) #end of animation tabPanel
                                  ), # end of tabset panel
                        )#end of mainPanel
                      )#end of sidebarLayout including sidebarPanel and Mainpanel
@@ -906,6 +928,9 @@ server <- function(input, output, session) {
             distinct(TAG, .keep_all = TRUE)
             
         }
+      #### filter dummy row
+      all_events_filtered <- all_events_filtered %>%
+        filter(!TAG %in% c("230000999999"))
 
         
         return(all_events_filtered)
@@ -1483,6 +1508,42 @@ server <- function(input, output, session) {
         selectPage(which(input$movements1_rows_all == clickId) %/% input$movements1_state$length + 1)
     })
     
+
+# Movements Animation Output ----------------------------------------------
+
+    output$plot12 <- renderImage(
+      {
+        map_with_data <- ggplot() +
+          basemap_gglayer(animationDatalist$coords1) +
+          scale_fill_identity() +
+          coord_sf() +
+          theme_classic() +
+          geom_point(data = animationDatalist$data, aes(x = animationDatalist$data$X.1, y = animationDatalist$data$Y.1,
+                                                        size = 4,
+                                                        color = animationDatalist$data$movement_only, group = animationDatalist$data$weeks_since))+
+          transition_time(weeks_since) +
+          ggtitle(
+            #paste("Date", m3$Date),
+            'Week after Project: {frame_time}',
+            subtitle = 'Frame {frame} of {nframes}')
+        
+        
+        
+        
+        # Return a list containing the filename
+        # radio_butotns$gif selected
+        anim_save("outfile.gif", animate(map_with_data, nframes = animationDatalist$num_weeks, fps = 2)) # New
+        list(src = "outfile.gif", contentType = "image/gif")
+        
+        #if radiobuttons$ideo selected:
+        #animate(map_with_animation, nframes = num_weeks, fps = 4, renderer = av_renderer())
+        # anim_save("example2.mpg", animate(map_with_data, nframes = num_weeks, fps = 2,  renderer = av_renderer())) # New
+        # list(src = "example2.mpg", contentType = "video/mpg")
+        # 
+        #anim_save("example2.mpg")
+      },
+      deleteFile = TRUE
+    )
 
 # Movement Plots Output ----------------------------------------------------
 
