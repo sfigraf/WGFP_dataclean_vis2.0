@@ -2033,3 +2033,106 @@ webshot("temp.html", file="Rplot.png", cliprect="viewport")
 
 
 mapshot(map1, file = "rrplot.png")
+library(tidyverse)
+library(gganimate)
+library(gifski)
+library(ggmap)
+
+#Movements_df <- get_movements_function(combined_events_stations)
+
+Movements_df <- read_csv
+m1 <- Movements_df %>%
+  mutate(
+    days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
+    #makes sense to use floor not cieling with weeks because then there are are more fish in week 0
+    # if you want to start at week 1 instead of week 0, add +1 to the end of expression
+    # when you change this too, it changes the number of entries in the states dataframe
+    weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks")))
+    #months_since = as.numeric(floor(difftime(Date, min(Date), units = "months")))
+  )
+
+# which_state <- "colorado"
+# county_info <- map_data("county", region=which_state)
+#EPSG:4326 
+base_map1 <- basemap_magick(x, map_service = "esri", map_type = "world_imagery")
+set_defaults(map_service = "esri", map_type = "world_imagery")
+basemap_ggplot(x)
+x1 <- ggplot() + 
+  basemap_gglayer(x) +
+  scale_fill_identity() + 
+  coord_sf()
+
+base_map <- ggplot(data = county_info, mapping = aes(x = long, y = lat, group = group)) +
+  geom_polygon(color = "black", fill = "white") +
+  coord_quickmap() +
+  theme_void()
+
+map_with_data <- base_map +
+  geom_point(data = m1, aes(x = X, y = Y), group = m1$weeks_since)
+map_with_data
+
+min_long <- min(m1$X)
+max_long <- max(m1$X)
+min_lat <- min(m1$Y)
+max_lat <- max(m1$Y)
+map_with_data <- map_with_data +
+  coord_quickmap(xlim = c(min_long, max_long),  ylim = c(min_lat, max_lat))
+
+
+
+map_with_data <- base_map +
+  geom_point(data = m1, aes(x = X, y = Y, color=movement_only, group=weeks_since)) +
+  coord_quickmap(xlim = c(min_long, max_long),  ylim = c(min_lat, max_lat))
+
+map_with_data
+
+
+map_with_animation <- map_with_data +
+  transition_time(weeks_since) +
+  #### this is the title
+  ggtitle('Week after Project: {frame_time}',
+          subtitle = 'Frame {frame} of {nframes}')
+num_weeks <- max(m1$weeks_since) - min(m1$weeks_since) + 1
+## fps is how fast/slow the animation is
+animate(map_with_animation, nframes = num_weeks, fps = 2)
+#saves the last gif you generated
+anim_save("example1.gif")
+## if you want to save as video
+library(av)
+#first render as video
+animate(map_with_animation, nframes = num_weeks, fps = 4, renderer = av_renderer())
+anim_save("example2.mpg")
+
+
+library(ggmap)
+map <- get_googlemap("Montpellier, France", zoom = 8, maptype = "terrain")
+
+#install.packages("mapedit")
+library(mapedit)
+library(basemaps)
+x <- draw_ext()
+basemap_magick(x, map_service = "esri", map_type = "world_imagery")
+
+baylor <- "baylor university"
+qmap(baylor, zoom = 14)
+#######
+#trying to get m1 coords to plot with x1 basemap
+m1 <- m1 %>%
+  ungroup() 
+
+attr(m1, "zone") = "13"
+attr(m1, "projection") = "UTM"
+attr(m1, "datum") = "GRS80"
+
+# need a column that has x and Y for this 
+# converts lutms to lat/long
+m2 <- convUL(m1, km=FALSE, southern=NULL)
+xy <- m1 %>%
+  select(X, Y)
+
+spdf <- SpatialPointsDataFrame(coords = xy, data = m2,
+                               proj4string = CRS("+init=epsg:3857"))
+m3 <- as.data.frame(spdf)
+map_with_data <- x1 +
+  geom_point(data = m3, aes(x = X.1, y = Y.1), group = m3$weeks_since)
+map_with_data

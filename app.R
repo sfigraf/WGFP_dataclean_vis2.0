@@ -39,7 +39,7 @@ print("Reading in Stationary, Mobile, Biomark, Release, and Recapture csv files.
 # if column names change in any of these read-ins, might require some modification to code to get them to combine
 # also if you change read.csv to read_csv, it should read in quicker but column names will change
 # could be a later task
-Stationary <- read.csv(paste0("WGFP_Raw_20221227.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
+Stationary <- read.csv(paste0("WGFP_Raw_20230201.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
 Mobile <- read.csv("WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
 Biomark <- read.csv("Biomark_Raw_20221102.csv", dec = ",") 
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
@@ -131,8 +131,8 @@ unknown_tags <- enc_hist_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
 # applies get_movements_function
 Movements_df <- get_movements_function(combined_events_stations)
-
-animationDatalist <- Animation_function(Movements_df)
+#changes coordinates to web meractor for animations 
+#animationDatalist <- Animation_function(Movements_df)
 
 #this is used in states_data reactives; but we always want a 0 for weeks
 weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
@@ -545,7 +545,28 @@ ui <- fluidPage(
                                             verbatimTextOutput("text2"),
                                             ), #end of movement graphs tabpanel
                                    tabPanel("Animation",
-                                            withSpinner(imageOutput("plot12"))
+                                            br(),
+                                            fluidRow(
+                                              column(width = 4,
+                                                     sliderInput("pointSize_Slider", "Select Size of Point", 
+                                                                 min = 1, 
+                                                                 max = 12, 
+                                                                 value = 4),
+                                                     sliderInput("fps_Slider", "Select frames per Second", 
+                                                                 min = 0, 
+                                                                 max = 6, 
+                                                                 value = 2, 
+                                                                 step = .2),
+                                                     ),#end of column
+                                              column(width = 4, 
+                                                     textInput("anim_Title", "Animation Title"),
+                                                     # radioButtons("renderOption", "Render as GIF or Video", 
+                                                     #              choices = c("GIF","Video"))
+                                                     )
+                                            ),#end of fluidrow
+                                            
+                                            actionButton("button9", "Render Animation: Need to click 'Render Map and Data' button in Sidebar first. Takes a couple minutes to render usually"), 
+                                            imageOutput("plot12")
                                             ) #end of animation tabPanel
                                  ), # end of tabset panel
                        )#end of mainPanel
@@ -1030,6 +1051,9 @@ server <- function(input, output, session) {
       return(movements_data1)
     }) 
 
+# Animation Reactives -----------------------------------------------------
+
+
 
 # QAQC Reactives ----------------------------------------------------------
     filtered_markertag_data <- eventReactive(input$button8,{
@@ -1510,40 +1534,52 @@ server <- function(input, output, session) {
     
 
 # Movements Animation Output ----------------------------------------------
-
-    output$plot12 <- renderImage(
-      {
-        map_with_data <- ggplot() +
-          basemap_gglayer(animationDatalist$coords1) +
-          scale_fill_identity() +
-          coord_sf() +
-          theme_classic() +
-          geom_point(data = animationDatalist$data, aes(x = animationDatalist$data$X.1, y = animationDatalist$data$Y.1,
-                                                        size = 4,
-                                                        color = animationDatalist$data$movement_only, group = animationDatalist$data$weeks_since))+
-          transition_time(weeks_since) +
-          ggtitle(
-            #paste("Date", m3$Date),
-            'Week after Project: {frame_time}',
-            subtitle = 'Frame {frame} of {nframes}')
-        
-        
-        
-        
-        # Return a list containing the filename
-        # radio_butotns$gif selected
-        anim_save("outfile.gif", animate(map_with_data, nframes = animationDatalist$num_weeks, fps = 2)) # New
-        list(src = "outfile.gif", contentType = "image/gif")
-        
-        #if radiobuttons$ideo selected:
-        #animate(map_with_animation, nframes = num_weeks, fps = 4, renderer = av_renderer())
-        # anim_save("example2.mpg", animate(map_with_data, nframes = num_weeks, fps = 2,  renderer = av_renderer())) # New
-        # list(src = "example2.mpg", contentType = "video/mpg")
-        # 
-        #anim_save("example2.mpg")
-      },
-      deleteFile = TRUE
-    )
+observeEvent(input$button9, {
+  output$plot12 <- renderImage(
+    {
+      #I think i need to isolate this so it doesn't 
+      #req(input$button9)
+      animationDatalist <- Animation_function(filtered_movements_data())
+      set_defaults(map_service = "esri", map_type = "world_imagery")
+      
+      map_with_data <- ggplot() +
+        basemap_gglayer(animationDatalist$coords1) +
+        scale_fill_identity() +
+        coord_sf() +
+        theme_classic() +
+        geom_point(data = animationDatalist$data, aes(x = animationDatalist$data$X.1, y = animationDatalist$data$Y.1,
+                                                      size = input$pointSize_Slider,
+                                                      color = animationDatalist$data$movement_only, group = animationDatalist$data$weeks_since))+
+        transition_time(weeks_since) +
+        ggtitle(
+          #paste("Date", m3$Date),
+          paste(input$anim_Title, '{frame_time}'),
+          subtitle = 'Frame {frame} of {nframes}') +
+        guides(size = FALSE, color = guide_legend(title = "Movement"))
+        #guides(fill=guide_legend(title="New Legend Title"))
+        #wake lemgth ishow long it sticks around I think
+        #shadow_wake(wake_length = 0.9, alpha = FALSE)
+      
+      
+      
+      
+      # Return a list containing the filename
+      # radio_butotns$gif selected
+      anim_save("WindyGapFishMovements.gif", animate(map_with_data, nframes = animationDatalist$num_weeks, fps = input$fps_Slider, height = 1200, width =1200)) # New
+      list(src = "WindyGapFishMovements.gif", contentType = "image/gif")
+      
+      #if radiobuttons$ideo selected:
+      #animate(map_with_animation, nframes = num_weeks, fps = 4, renderer = av_renderer())
+      # anim_save("example2.mpg", animate(map_with_data, nframes = num_weeks, fps = 2,  renderer = av_renderer())) # New
+      # list(src = "example2.mpg", contentType = "video/mpg")
+      # 
+      #anim_save("example2.mpg")
+    },
+    deleteFile = FALSE
+  )
+  
+})
+    
 
 # Movement Plots Output ----------------------------------------------------
 
