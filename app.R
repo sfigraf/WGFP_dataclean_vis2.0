@@ -20,6 +20,7 @@ library(gganimate)
 # to do: put qaqc stuff from combine files app in this file as well to see when biomark shits the bed
 # incorporate aviation predation and ghost tag files in
 #continue with how-to
+# make mini charts on leaflet
 
 
 # 
@@ -109,10 +110,10 @@ for (i in list.files("./modules/")) {
 }
 
 #mapping
-source("map_polygon_readins.R")
+#source("map_polygon_readins.R")
 
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
-df_list <- All_combined_events_function(Stationary = Stationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
+df_list <- df_list #All_combined_events_function(Stationary = Stationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
 All_events <- df_list$All_Events
 recaps_and_detections <- df_list$Recaps_detections
 Marker_tags <- df_list$Marker_Tag_data
@@ -121,20 +122,20 @@ unknown_tags_1 <-df_list$Unknown_Tags
 
 #spatially joins point (detection) data to lines (station) data based on nearest feature. 
 #simplestatoins is from plygon_readins
-Stationdata1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
+Stationdata1 <- Stationdata1 #spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
 
-#appplies cobine_events_stations function
-combined_events_stations <- combine_events_and_stations(All_events, Stationdata1)
+#appplies combine_events_stations function
+combined_events_stations <- combined_events_stations#combine_events_and_stations(All_events, Stationdata1)
 
 # states
-states_data_list <- states_function(combined_events_stations, GhostTags, AvianPredation)
+states_data_list <- states_data_list#states_function(combined_events_stations, GhostTags, AvianPredation)
 States_summarized <- states_data_list$States_summarized
 # aplies enc_hist_summary wide function
-enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(recaps_and_detections, Release, combined_events_stations, States_summarized)
+enc_hist_wide_list <- enc_hist_wide_list#Ind_tag_enc_hist_wide_summary_function(recaps_and_detections, Release, combined_events_stations, States_summarized)
 unknown_tags <- enc_hist_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
 # applies get_movements_function
-Movements_df <- get_movements_function(combined_events_stations)
+Movements_df <- Movements_df#get_movements_function(combined_events_stations)
 #changes coordinates to web meractor for animations 
 #animationDatalist <- Animation_function(Movements_df)
 
@@ -194,6 +195,13 @@ ui <- fluidPage(
                       includeHTML(paste0("www/", "WGFP_dataclean_vis_about.html"))
                       
                       ), #end fo how to use TabPanel
+             
+             tabPanel("Daily Movements Map, Plot, and Data",
+                      value = "MovementsTab",
+                      movements_UI("MovementsTab1", Movements_df, df_list)
+                      ),
+                      
+             
              
 
 # Individual Datasets UI ---------------------------------------------------
@@ -457,124 +465,124 @@ ui <- fluidPage(
 #and also from fish that have detections before their official "release" back in May
 #if marker_color or icon_color is NA, it wont get mapped or displayed in data
 #picker wasn't working becuase I had 2 different pick
-            tabPanel("Daily Movements Map, Plot, and Data",
-                     sidebarLayout(
-                       sidebarPanel(width = 2,
-                                      textInput("textinput3", label = "Filter by TAG"),
-                                      pickerInput(inputId = "picker6",
-                                                  label = "Select Movement Type:",
-                                                  choices = sort(unique(Movements_df$movement_only)),
-                                                  selected = unique(Movements_df$movement_only),
-                                                  multiple = TRUE,
-                                                  options = list(
-                                                    `actions-box` = TRUE #this makes the "select/deselect all" option
-                                                  )
-                                      ), #end of picker 6 input
-                                      
-                                      pickerInput(inputId = "picker7",
-                                                  label = "Select Detection Type",
-                                                  choices = sort(unique(Movements_df$det_type)),
-                                                  selected = unique(Movements_df$det_type),
-                                                  multiple = TRUE,
-                                                  options = list(
-                                                    `actions-box` = TRUE #this makes the "select/deselect all" option
-                                                  )
-                                                  ), #end of picker 7 
-                                    pickerInput(inputId = "picker10",
-                                                label = "Select Species Type",
-                                                choices = sort(unique(Movements_df$Species)),
-                                                selected = unique(Movements_df$Species),
-                                                multiple = TRUE,
-                                                options = list(
-                                                  `actions-box` = TRUE #this makes the "select/deselect all" option
-                                                )
-                                    ), #end of picker 10 
-                                    
-                                    sliderInput("slider10", "Fish Release Length",
-                                                min = min(Movements_df$Release_Length, na.rm = TRUE),
-                                                max = max(Movements_df$Release_Length, na.rm = TRUE),  
-                                                value = c(min(Movements_df$Release_Length, na.rm = TRUE),max(Movements_df$Release_Length, na.rm = TRUE)),
-                                                step = 1,
-                                                
-                                    ), #end of slider8
-                                    
-                                    
-                                      sliderInput("slider2", "Date",
-                                                  min = min(df_list$All_Events$Date -1),
-                                                  max = max(df_list$All_Events$Date +1),  
-                                                  value = c(min(df_list$All_Events$Date -1),max(df_list$All_Events$Date +1)),
-                                                  step = 1,
-                                                  timeFormat = "%d %b %y",
-                                                  #animate = animationOptions(interval = 500, loop = FALSE)
-                                      ),
-                                    
-                                    sliderInput("slider9", "Total distance travelled (m)",
-                                                min = min(Movements_df$sum_dist, na.rm = TRUE),
-                                                max = max(Movements_df$sum_dist, na.rm = TRUE),  
-                                                value = c(min(Movements_df$sum_dist, na.rm = TRUE),max(Movements_df$sum_dist, na.rm = TRUE)),
-                                                step = 1,
-                                                
-                                    ), #end of slider8
-                                      actionButton("button7", label = "Render Map and Data"), 
-                                      hr(),
-                       ),#end of sidebar panel
-                       mainPanel(width = 10,
-                                 tabsetPanel(
-                                   tabPanel("Map and Table",
-                                            splitLayout(cellWidths = c("40%", "60%"),
-                                                        withSpinner(DT::dataTableOutput("movements1")),
-                                                        withSpinner(leafletOutput("map1", height = 600))
-                                            ), #end of splitLayout
-                                            hr(),
-                                            downloadButton(outputId = "download6", label = "Save movements data as CSV"),
-                                            hr(),
-                                    ), # end of Map and table tabPanel
-                                   tabPanel("Movement Graphs",
-                                            withSpinner(plotlyOutput("plot1")),
-                                            hr(),
-                                            withSpinner(plotlyOutput("plot6")),
-                                            downloadButton(outputId = "download8", label = "Save seasonal plot data as CSV"),
-                                            hr(),
-                                            withSpinner(plotlyOutput("plot7")),
-                                            hr(),
-                                            withSpinner(plotlyOutput("plot8")),
-                                            hr(),
-                                            withSpinner(plotlyOutput("plot9")),
-                                            hr(),
-                                            
-                                            verbatimTextOutput("text2"),
-                                            ), #end of movement graphs tabpanel
-                                   tabPanel("Animation",
-                                            br(),
-                                            fluidRow(
-                                              column(width = 4,
-                                                     radioButtons("radio2", "Timeframe", 
-                                                                  choices = c("days", "weeks"), 
-                                                                  selected = "weeks"),
-                                                     # sliderInput("pointSize_Slider", "Select Size of Point", 
-                                                     #             min = 1, 
-                                                     #             max = 12, 
-                                                     #             value = 4),
-                                                     sliderInput("fps_Slider", "Select frames per Second",
-                                                                 min = 0,
-                                                                 max = 15,
-                                                                 value = 2,
-                                                                 step = .2),
-                                                     ),#end of column
-                                              column(width = 4, 
-                                                     textInput("anim_Title", "Animation Title"),
-                                                     # radioButtons("renderOption", "Render as GIF or Video", 
-                                                     #              choices = c("GIF","Video"))
-                                                     )
-                                            ),#end of fluidrow
-                                            
-                                            actionButton("button9", "Render Animation: Need to click 'Render Map and Data' button in Sidebar first. Takes a couple minutes to render usually"), 
-                                            imageOutput("plot12")
-                                            ) #end of animation tabPanel
-                                 ), # end of tabset panel
-                       )#end of mainPanel
-                     )#end of sidebarLayout including sidebarPanel and Mainpanel
-            ),#end of Map ui Tab
+            # tabPanel("Daily Movements Map, Plot, and Data",
+            #          sidebarLayout(
+            #            sidebarPanel(width = 2,
+            #                           textInput("textinput3", label = "Filter by TAG"),
+            #                           pickerInput(inputId = "picker6",
+            #                                       label = "Select Movement Type:",
+            #                                       choices = sort(unique(Movements_df$movement_only)),
+            #                                       selected = unique(Movements_df$movement_only),
+            #                                       multiple = TRUE,
+            #                                       options = list(
+            #                                         `actions-box` = TRUE #this makes the "select/deselect all" option
+            #                                       )
+            #                           ), #end of picker 6 input
+            #                           
+            #                           pickerInput(inputId = "picker7",
+            #                                       label = "Select Detection Type",
+            #                                       choices = sort(unique(Movements_df$det_type)),
+            #                                       selected = unique(Movements_df$det_type),
+            #                                       multiple = TRUE,
+            #                                       options = list(
+            #                                         `actions-box` = TRUE #this makes the "select/deselect all" option
+            #                                       )
+            #                                       ), #end of picker 7 
+            #                         pickerInput(inputId = "picker10",
+            #                                     label = "Select Species Type",
+            #                                     choices = sort(unique(Movements_df$Species)),
+            #                                     selected = unique(Movements_df$Species),
+            #                                     multiple = TRUE,
+            #                                     options = list(
+            #                                       `actions-box` = TRUE #this makes the "select/deselect all" option
+            #                                     )
+            #                         ), #end of picker 10 
+            #                         
+            #                         sliderInput("slider10", "Fish Release Length",
+            #                                     min = min(Movements_df$Release_Length, na.rm = TRUE),
+            #                                     max = max(Movements_df$Release_Length, na.rm = TRUE),  
+            #                                     value = c(min(Movements_df$Release_Length, na.rm = TRUE),max(Movements_df$Release_Length, na.rm = TRUE)),
+            #                                     step = 1,
+            #                                     
+            #                         ), #end of slider8
+            #                         
+            #                         
+            #                           sliderInput("slider2", "Date",
+            #                                       min = min(df_list$All_Events$Date -1),
+            #                                       max = max(df_list$All_Events$Date +1),  
+            #                                       value = c(min(df_list$All_Events$Date -1),max(df_list$All_Events$Date +1)),
+            #                                       step = 1,
+            #                                       timeFormat = "%d %b %y",
+            #                                       #animate = animationOptions(interval = 500, loop = FALSE)
+            #                           ),
+            #                         
+            #                         sliderInput("slider9", "Total distance travelled (m)",
+            #                                     min = min(Movements_df$sum_dist, na.rm = TRUE),
+            #                                     max = max(Movements_df$sum_dist, na.rm = TRUE),  
+            #                                     value = c(min(Movements_df$sum_dist, na.rm = TRUE),max(Movements_df$sum_dist, na.rm = TRUE)),
+            #                                     step = 1,
+            #                                     
+            #                         ), #end of slider8
+            #                           actionButton("button7", label = "Render Map and Data"), 
+            #                           hr(),
+            #            ),#end of sidebar panel
+            #            mainPanel(width = 10,
+            #                      tabsetPanel(
+            #                        tabPanel("Map and Table",
+            #                                 splitLayout(cellWidths = c("40%", "60%"),
+            #                                             withSpinner(DT::dataTableOutput("movements1")),
+            #                                             withSpinner(leafletOutput("map1", height = 600))
+            #                                 ), #end of splitLayout
+            #                                 hr(),
+            #                                 downloadButton(outputId = "download6", label = "Save movements data as CSV"),
+            #                                 hr(),
+            #                         ), # end of Map and table tabPanel
+            #                        tabPanel("Movement Graphs",
+            #                                 withSpinner(plotlyOutput("plot1")),
+            #                                 hr(),
+            #                                 withSpinner(plotlyOutput("plot6")),
+            #                                 downloadButton(outputId = "download8", label = "Save seasonal plot data as CSV"),
+            #                                 hr(),
+            #                                 withSpinner(plotlyOutput("plot7")),
+            #                                 hr(),
+            #                                 withSpinner(plotlyOutput("plot8")),
+            #                                 hr(),
+            #                                 withSpinner(plotlyOutput("plot9")),
+            #                                 hr(),
+            #                                 
+            #                                 verbatimTextOutput("text2"),
+            #                                 ), #end of movement graphs tabpanel
+            #                        tabPanel("Animation",
+            #                                 br(),
+            #                                 fluidRow(
+            #                                   column(width = 4,
+            #                                          radioButtons("radio2", "Timeframe", 
+            #                                                       choices = c("days", "weeks"), 
+            #                                                       selected = "weeks"),
+            #                                          # sliderInput("pointSize_Slider", "Select Size of Point", 
+            #                                          #             min = 1, 
+            #                                          #             max = 12, 
+            #                                          #             value = 4),
+            #                                          sliderInput("fps_Slider", "Select frames per Second",
+            #                                                      min = 0,
+            #                                                      max = 15,
+            #                                                      value = 2,
+            #                                                      step = .2),
+            #                                          ),#end of column
+            #                                   column(width = 4, 
+            #                                          textInput("anim_Title", "Animation Title"),
+            #                                          # radioButtons("renderOption", "Render as GIF or Video", 
+            #                                          #              choices = c("GIF","Video"))
+            #                                          )
+            #                                 ),#end of fluidrow
+            #                                 
+            #                                 actionButton("button9", "Render Animation: Need to click 'Render Map and Data' button in Sidebar first. Takes a couple minutes to render usually"), 
+            #                                 imageOutput("plot12")
+            #                                 ) #end of animation tabPanel
+            #                      ), # end of tabset panel
+            #            )#end of mainPanel
+            #          )#end of sidebarLayout including sidebarPanel and Mainpanel
+            # ),#end of Map ui Tab
 
 # QAQC UI tab -------------------------------------------------------------
 
@@ -654,6 +662,12 @@ ui <- fluidPage(
 # Define server logic
 # Warning: Error in validate_session_object: object 'session' not found solved by adding session to the part up here
 server <- function(input, output, session) {
+  observe({
+    if(input$tabs == "MovementsTab") {
+      
+      movements_Server("MovementsTab1", Movements_df)
+    }
+  })
   
 
 # Reset Filters Logic -----------------------------------------------------
@@ -705,33 +719,6 @@ server <- function(input, output, session) {
     )
    
   })
-  
-  
-  
-  #create slider input depending on data frequency
-  # observe({
-  #   
-  #   # allDates <- unique(covidData$Date_reported)
-  #   # eligibleDates <- allDates[xts::endpoints(allDates, on = input$frequency)]
-  #   # 
-  #   if(input$slider2 == "weeks"){
-  #     stepSize = 7
-  #   }else{
-  #     stepSize = 1
-  #   }
-  #   
-  #   output$dateUI <- renderUI({
-  #     sliderInput("slider2", "Date",
-  #                 min = min(df_list$All_Events$Date),
-  #                 max = max(df_list$All_Events$Date),
-  #                 value = min(df_list$All_Events$Date),
-  #                 step = stepSize,
-  #                 timeFormat = "%d %b %y",
-  #                 animate = animationOptions(interval = 500, loop = FALSE)
-  #     )
-  #   })
-  # })
-  #   
 
 # Ind D Reactives ---------------------------------------------------------
     
@@ -1009,50 +996,55 @@ server <- function(input, output, session) {
 # Movement Data Reactives -------------------------------------------------
 
     
-    filtered_movements_data <- eventReactive(input$button7,{
-      # movements_data1 <- Movements_df %>%
-      #   filter(movement_only %in% input$picker6)
-      
-      if(input$textinput3 != ''){
-        movements_data1 <- Movements_df %>%
-          filter(TAG %in% c(input$textinput3),
-                 Release_Length >= input$slider10[1] & Release_Length <= input$slider10[2],
-                 Date >= input$slider2[1] & Date <= input$slider2[2],
-                 movement_only %in% c(input$picker6),
-                 det_type %in% c(input$picker7),
-                 Species %in% c(input$picker10),
-                 sum_dist >= input$slider9[1] & sum_dist <= input$slider9[2],
-                 
-                 
-                 # daily_unique_events %in% input$picker4,
-                 # State %in% input$picker5
-          ) %>%
-          arrange(Datetime)
-        #this id column is used for the map and datatable proxy and needs to be redone each time a filter is applied
-        movements_data1$id <- seq.int(nrow(movements_data1))
-        
-      } else {
-        movements_data1 <- Movements_df  %>% 
-          filter(
-            Release_Length >= input$slider10[1] & Release_Length <= input$slider10[2],
-            Date >= input$slider2[1] & Date <= input$slider2[2],
-            movement_only %in% c(input$picker6),
-            det_type %in% c(input$picker7),
-            Species %in% c(input$picker10),
-            sum_dist >= input$slider9[1] & sum_dist <= input$slider9[2]
-            
-            
-            # daily_unique_events %in% input$picker4,
-            # State %in% input$picker5
-          ) %>%
-          arrange(Datetime)
-        movements_data1$id <- seq.int(nrow(movements_data1))
-        
-      }
-      
-      
-      return(movements_data1)
-    }) 
+  #   filtered_movements_data <- eventReactive(input$button7,{
+  #     # movements_data1 <- Movements_df %>%
+  #     #   filter(movement_only %in% input$picker6)
+  #     
+  #     if(input$textinput3 != ''){
+  #       movements_data1 <- Movements_df %>%
+  #         filter(TAG %in% c(input$textinput3),
+  #                Release_Length >= input$slider10[1] & Release_Length <= input$slider10[2],
+  #                Date >= input$slider2[1] & Date <= input$slider2[2],
+  #                movement_only %in% c(input$picker6),
+  #                det_type %in% c(input$picker7),
+  #                Species %in% c(input$picker10),
+  #                sum_dist >= input$slider9[1] & sum_dist <= input$slider9[2],
+  #                
+  #                
+  #                # daily_unique_events %in% input$picker4,
+  #                # State %in% input$picker5
+  #         ) %>%
+  #         arrange(Datetime)
+  #       #this id column is used for the map and datatable proxy and needs to be redone each time a filter is applied
+  #       movements_data1$id <- seq.int(nrow(movements_data1))
+  #       
+  #     } else {
+  #       movements_data1 <- Movements_df  %>% 
+  #         filter(
+  #           Release_Length >= input$slider10[1] & Release_Length <= input$slider10[2],
+  #           Date >= input$slider2[1] & Date <= input$slider2[2],
+  #           movement_only %in% c(input$picker6),
+  #           det_type %in% c(input$picker7),
+  #           Species %in% c(input$picker10),
+  #           sum_dist >= input$slider9[1] & sum_dist <= input$slider9[2]
+  #           
+  #           
+  #           # daily_unique_events %in% input$picker4,
+  #           # State %in% input$picker5
+  #         ) %>%
+  #         arrange(Datetime)
+  #       movements_data1$id <- seq.int(nrow(movements_data1))
+  #       
+  #     }
+  #     
+  #     
+  #     return(movements_data1)
+  #   }) 
+  # #seasonally
+  # seasonal_movts <- reactive({filtered_movements_data() %>%
+  #     group_by(month(Date), day(Date), movement_only) %>%
+  #     summarise(total_events = n())
+  # })
 
 # QAQC Reactives ----------------------------------------------------------
     filtered_markertag_data <- eventReactive(input$button8,{
@@ -1312,26 +1304,7 @@ server <- function(input, output, session) {
       
     })
     
-    output$movements1 <- renderDT({
-      
-      
-      datatable(filtered_movements_data(),
-                rownames = FALSE,
-                selection = "single",
-                filter = 'top',
-                options = list(
-                  #statesave is restore table state on page reload
-                  stateSave =TRUE,
-                  pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-                  dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
-                  language = list(emptyTable = "Enter inputs and press Render Table")
-                  
-                  #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
-                )
-      ) 
-      
-      
-    })
+    
     
     
 
@@ -1384,301 +1357,311 @@ server <- function(input, output, session) {
       
     })
     
-# Map proxy for Icons -----------------------------------------------------
-    
-    
-    # to keep track of previously selected row
-    #setting to nothing for now
-    row_selected1 <- reactiveVal()
-    #this is what the new icon for selected rows looks like
-    my_icon = makeAwesomeIcon(icon = 'flag', markerColor = 'lightblue', iconColor = 'red')
-    
-    icons <- reactive({
-        awesomeIcons(
-          icon = 'ios-close',
-          iconColor = filtered_movements_data()$icon_color,
-          library = 'ion',
-          markerColor = filtered_movements_data()$marker_color
-        )
-    })
-    
-    #group_name <- "my_additons"
-    #230000228991
-    
-    # get_data <- reactive({
-    #   event.data <- event_data("plotly_selected", source = "subset")
-    #   data <- data %>% mutate(show_id = FALSE)
-    #   if (!is.null(event.data)) {
-    #     data$show_id[event.data$pointNumber + 1] <- TRUE
-    #   }
-    #   data
-    # })
-    
-    observeEvent(input$movements1_rows_selected, {
-      row_selected = filtered_movements_data()[input$movements1_rows_selected,]
-      
-      proxy <- leafletProxy('map1')
-      #print(row_selected)
-      #print(input$movements1_rows_selected)
-      proxy %>%
-        #clearing the group removes previous marker from previuous row before making a new one
-        clearGroup(group = "markers") %>%
-      
-        addAwesomeMarkers(
-          clusterOptions = markerClusterOptions(),
-          group = "markers",
-          popup = paste(
-            "TAG:", row_selected$TAG, "<br>",
-            "Release Site:", row_selected$ReleaseSite, "<br>",
-            "Detection Event:", row_selected$det_type, "<br>",
-            "Date:", row_selected$Datetime),
-          
-          layerId = as.character(row_selected$id),
-          lng=row_selected$X, 
-          lat=row_selected$Y,
-          icon = my_icon)
-      
-     
-     })
-    
-    
-  
-    
-
-# Movements Map Output ----------------------------------------------------
-
-    output$map1 <- renderLeaflet({
-      
-      
-      
-      
-      leaflet(filtered_movements_data()) %>% #Warning: Error in UseMethod: no applicable method for 'metaData' applied to an object of class "NULL"  solved becuase leaflet() needs an arg leaflet(x)
-        addProviderTiles(providers$Esri.WorldImagery,
-                         options = providerTileOptions(maxZoom = 19.5)
-                         ) %>%
-        ##detections: based off reactives
-        addAwesomeMarkers(
-          group = "Detections",
-          clusterOptions = markerClusterOptions(),
-          lng=~X, 
-          lat = ~Y,
-          icon = icons(),
-          label = paste(filtered_movements_data()$movement_only, "\n",
-                        filtered_movements_data()$Date),
-          layerId = as.character(filtered_movements_data()$id),
-          popup = paste(
-            "TAG:", filtered_movements_data()$TAG, "<br>",
-            "Release Site:", filtered_movements_data()$ReleaseSite, "<br>",
-            "Detection Event:", filtered_movements_data()$det_type, "<br>",
-            "Date:", as.character(filtered_movements_data()$Datetime))
-          ) %>%
-        
-        ###polylines and points: obtained from GISdb from this study
-        addAwesomeMarkers(data = antenna_sites@coords,
-                          icon = Station_icons,
-                          clusterOptions = markerClusterOptions(),
-                          label = paste(antenna_sites@data$SiteLabel),
-                          popup = paste(antenna_sites@data$SiteName, "<br>",
-                                        "Channel Width:", antenna_sites@data$ChannelWid, "feet"),
-                          group = "Antennas") %>% # error: don't know jow to get path Data from x....solved by specifying coordinate location with @ within data
-        addPolylines(data = stream_centerline@lines[[1]], 
-                     color = "blue",
-                     opacity = 1,
-                     popup = paste("Colorado River Centerline"),
-                     group = "Stream Centerlines") %>%
-        addPolylines(data = stream_centerline@lines[[2]],
-                     color = "blue",
-                     opacity = 1,
-                     popup = paste("Fraser River Centerline"),
-                     group = "Stream Centerlines") %>%
-        addPolylines(data = mobile_reaches,
-                     color = "yellow",
-                     opacity = 1,
-                     label = mobile_reaches@data$River,
-                     popup = paste("Mobile Run:", mobile_reaches@data$River, 
-                                   "<br>"),
-                     group = "Mobile Reaches") %>%
-        addAwesomeMarkers(data = releasesites@coords,
-                          icon = release_icons,
-                          clusterOptions = markerClusterOptions(),
-                          label = releasesites@data$ReleaseSit, 
-                          popup = paste("Release Date1:", releasesites@data$ReleaseDat, "<br>","Release Date 2:",  releasesites@data$ReleaseD_1),
-                          group = "Release Sites") %>%
-        addPolylines(data = simple_stations2, 
-                     label = simple_stations2@data$ET_STATION,
-                     labelOptions = labelOptions(noHide = T, textOnly = TRUE, style = label_style),
-                     group = "Stations (m)") %>%
-        addLayersControl(overlayGroups = c("Detections", "Antennas", "Release Sites", "Stream Centerlines", "Stations (m)", "Mobile Reaches")) %>%
-        hideGroup(c("Stream Centerlines", "Stations (m)", "Antennas", "Release Sites", "Mobile Reaches"))
-      
-      
-    })
-    
-    #when map is clicked, go to that icon in the dataTable
-    # pagination wasn't working bc ID being assigned was different than row number; 
-    #so when a icon was clicked, it was selecting the right row, but the row number was different than Id so it was going to the wrong page
-    #fixed by assigning a new Id column evyertime the data is filtered; might be a more efficient way to do this but idk/idc
-    observeEvent(input$map1_marker_click, {
-      #need to assign layer ID's in leafletrender to have an id associated with the click
-      #clicking the map gives info in the form of a list, including the layer id assigned in leaflet
-      clickId <- input$map1_marker_click$id
-      #print(clickId)
-      #print(input$movements1_state$length)
-      #print(which(filtered_movements_data()$id == clickId))
-      #saying get the rows in the data with the same id as clickId; clickId is the row number
-      dataTableProxy("movements1") %>%
-        selectRows(which(filtered_movements_data()$id == clickId)) %>%
-        selectPage(which(input$movements1_rows_all == clickId) %/% input$movements1_state$length + 1)
-    })
-    
-
-# Movements Animation Output ----------------------------------------------
-    observeEvent(input$button9, {
-      animationDatalist <- Animation_function(filtered_movements_data())
-      set_defaults(map_service = "esri", map_type = "world_imagery")
-      
-      map_with_data <- ggplot() +
-        basemap_gglayer(animationDatalist$coords1) +
-        scale_fill_identity() +
-        coord_sf() +
-        theme_classic() +
-        guides(size = FALSE, color = guide_legend(title = "Movement"))
-      
-      
-      
-      output$plot12 <- renderImage(
-        {
-          if (input$radio2 == "weeks"){
-            map_with_data <- map_with_data + 
-              geom_point(data = animationDatalist$data, aes(x = animationDatalist$data$X.1, y = animationDatalist$data$Y.1,
-                                                            size = input$pointSize_Slider,
-                                                            color = animationDatalist$data$movement_only, group = animationDatalist$data$weeks_since))+
-              transition_time(weeks_since) +
-              ggtitle(
-                #paste("Date", m3$Date),
-                paste(input$anim_Title, '{frame_time}'),
-                subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(animationDatalist$data$Date) ))
-            map_with_data
-            anim_save("outfile.gif", animate(map_with_data, nframes = animationDatalist$num_weeks, fps = input$fps_Slider, height = 1200, width =1200)) # New
-            
-            
-          } else if (input$radio2 == "days"){
-            map_with_data <- map_with_data + 
-              geom_point(data = animationDatalist$data, aes(x = animationDatalist$data$X.1, y = animationDatalist$data$Y.1,
-                                                            size = 10,
-                                                            color = animationDatalist$data$movement_only, group = animationDatalist$data$days_since))+
-              transition_time(days_since) + 
-              labs(title = "Days") +
-              ggtitle(
-                
-                paste(input$anim_Title, '{frame_time}'),
-                subtitle = paste("Day {frame} of {nframes} past Initial Date of", min(animationDatalist$data$Date) ))
-            map_with_data
-            anim_save("WindyGapFishMovements.gif", animate(map_with_data, nframes = animationDatalist$num_days, fps = input$fps_Slider, height = 1200, width =1200)) # New
-            
-          }
-          
-          
-          list(src = "WindyGapFishMovements.gif", contentType = "image/gif")
-        },
-        deleteFile = FALSE
-      )
-    })
-    
-
-# Movement Plots Output ----------------------------------------------------
-
-    #daily
-    output$plot1 <- renderPlotly({
-      plot <- filtered_movements_data() %>%
-        ggplot(aes(x = Date, fill = movement_only,
-                   text = paste('Date: ', as.character(Date), '\n'))
-        ) +
-        geom_bar(stat = "count", position = "dodge") +
-        theme_classic() +
-        labs(title="Fish Movement by Day",
-             x ="Date", y = "Count") +
-        scale_fill_manual(values = c("Downstream Movement" = "red",
-                                     "Upstream Movement" = "chartreuse3",
-                                     "No Movement" = "black",
-                                     "Initial Release" = "darkorange",
-                                     "Changed Rivers" = "purple"))
-      
-      
-      plotly1 <- ggplotly(p = plot)
-      plotly1
-    })    
-    
-    
-    
-    
-    #seasonally
-    seasonal_movts <- reactive({filtered_movements_data() %>%
-      group_by(month(Date), day(Date), movement_only) %>%
-      summarise(total_events = n())
-    })
-    
-    output$plot6 <- renderPlotly({
-
-      plot <- seasonal_movts() %>%
-        mutate(merged = (parse_date_time(paste(`month(Date)`, `day(Date)`), "md"))) %>%
-        ggplot(aes(x = merged, y = total_events, fill = movement_only)) +
-        geom_bar(stat = "identity", position = "dodge") +
-        theme_classic() +
-        labs(title = "Seasonal Daily Movements", x = "Day", y = "Counts",
-             caption = "Currently No download option for this data.") +
-        scale_x_datetime(date_labels = "%b") +
-        scale_fill_manual(values = c("Downstream Movement" = "red",
-                                     "Upstream Movement" = "chartreuse3",
-                                     "No Movement" = "black",
-                                     "Initial Release" = "darkorange",
-                                     "Changed Rivers" = "purple"))
-      
-      ggplotly(plot)
-    })  
-    
-    # Total movements
-    output$plot7 <- renderPlotly({
-      plot <- filtered_movements_data() %>%
-        filter(
-          !dist_moved %in% c(0)) %>%
-        ggplot(aes(x = dist_moved)) +
-        geom_histogram(binwidth = 50) +
-        theme_classic() +
-        labs(title = "Each movement detected: ('No movements' excluded)", subtitle = "Groupings are 50 m")
-      ggplotly(plot)
-      
-      plotly1 <- ggplotly(p = plot)
-      plotly1
-    })  
-    
-    #cumulative movement
-    output$plot8 <- renderPlotly({
-      plot <- filtered_movements_data() %>%
-        ggplot(aes(x = sum_dist)) +
-        geom_histogram(binwidth = 300) +
-        theme_classic() +
-        labs(title = "Cumulative movement", subtitle = "Groupings are 300 m")
-      plotly1 <- ggplotly(p = plot)
-      plotly1
-      
-    })  
-    
-    output$plot9 <- renderPlotly({
-      plot <- filtered_movements_data() %>%
-        ggplot(aes(x = hour(Datetime), fill = movement_only)) +
-        geom_histogram(binwidth = 1) +
-        theme_classic() +
-        labs(title = "Detections by Hour") 
-      plotly1 <- ggplotly(p = plot)
-      plotly1
-      
-    })  
-    
-    output$text2 <- renderPrint({
-      "'Fish Movement by Day' plot renders table data shown in the 'map and table' tab. 
-      'Seasonal Daily Movements' graph data can be downloaded below."
-    })
+# # Map proxy for Icons -----------------------------------------------------
+#     
+#     
+#     # to keep track of previously selected row
+#     #setting to nothing for now
+#     row_selected1 <- reactiveVal()
+#     #this is what the new icon for selected rows looks like
+#     my_icon = makeAwesomeIcon(icon = 'flag', markerColor = 'lightblue', iconColor = 'red')
+#     
+#     icons <- reactive({
+#         awesomeIcons(
+#           icon = 'ios-close',
+#           iconColor = filtered_movements_data()$icon_color,
+#           library = 'ion',
+#           markerColor = filtered_movements_data()$marker_color
+#         )
+#     })
+#   
+#     
+#     
+#     observeEvent(input$movements1_rows_selected, {
+#       row_selected = filtered_movements_data()[input$movements1_rows_selected,]
+#       
+#       proxy <- leafletProxy('map1')
+#       #print(row_selected)
+#       #print(input$movements1_rows_selected)
+#       proxy %>%
+#         #clearing the group removes previous marker from previuous row before making a new one
+#         clearGroup(group = "markers") %>%
+#       
+#         addAwesomeMarkers(
+#           clusterOptions = markerClusterOptions(),
+#           group = "markers",
+#           popup = paste(
+#             "TAG:", row_selected$TAG, "<br>",
+#             "Release Site:", row_selected$ReleaseSite, "<br>",
+#             "Detection Event:", row_selected$det_type, "<br>",
+#             "Date:", row_selected$Datetime),
+#           
+#           layerId = as.character(row_selected$id),
+#           lng=row_selected$X, 
+#           lat=row_selected$Y,
+#           icon = my_icon)
+#       
+#      
+#      })
+#     
+#     
+#   
+#     
+# 
+# # Movements Map Output ----------------------------------------------------
+# 
+#     output$map1 <- renderLeaflet({
+#       
+#       
+#       
+#       
+#       leaflet(filtered_movements_data()) %>% #Warning: Error in UseMethod: no applicable method for 'metaData' applied to an object of class "NULL"  solved becuase leaflet() needs an arg leaflet(x)
+#         addProviderTiles(providers$Esri.WorldImagery,
+#                          options = providerTileOptions(maxZoom = 19.5)
+#                          ) %>%
+#         ##detections: based off reactives
+#         addAwesomeMarkers(
+#           group = "Detections",
+#           clusterOptions = markerClusterOptions(),
+#           lng=~X, 
+#           lat = ~Y,
+#           icon = icons(),
+#           label = paste(filtered_movements_data()$movement_only, "\n",
+#                         filtered_movements_data()$Date),
+#           layerId = as.character(filtered_movements_data()$id),
+#           popup = paste(
+#             "TAG:", filtered_movements_data()$TAG, "<br>",
+#             "Release Site:", filtered_movements_data()$ReleaseSite, "<br>",
+#             "Detection Event:", filtered_movements_data()$det_type, "<br>",
+#             "Date:", as.character(filtered_movements_data()$Datetime))
+#           ) %>%
+#         
+#         ###polylines and points: obtained from GISdb from this study
+#         addAwesomeMarkers(data = antenna_sites@coords,
+#                           icon = Station_icons,
+#                           clusterOptions = markerClusterOptions(),
+#                           label = paste(antenna_sites@data$SiteLabel),
+#                           popup = paste(antenna_sites@data$SiteName, "<br>",
+#                                         "Channel Width:", antenna_sites@data$ChannelWid, "feet"),
+#                           group = "Antennas") %>% # error: don't know jow to get path Data from x....solved by specifying coordinate location with @ within data
+#         addPolylines(data = stream_centerline@lines[[1]], 
+#                      color = "blue",
+#                      opacity = 1,
+#                      popup = paste("Colorado River Centerline"),
+#                      group = "Stream Centerlines") %>%
+#         addPolylines(data = stream_centerline@lines[[2]],
+#                      color = "blue",
+#                      opacity = 1,
+#                      popup = paste("Fraser River Centerline"),
+#                      group = "Stream Centerlines") %>%
+#         addPolylines(data = mobile_reaches,
+#                      color = "yellow",
+#                      opacity = 1,
+#                      label = mobile_reaches@data$River,
+#                      popup = paste("Mobile Run:", mobile_reaches@data$River, 
+#                                    "<br>"),
+#                      group = "Mobile Reaches") %>%
+#         addAwesomeMarkers(data = releasesites@coords,
+#                           icon = release_icons,
+#                           clusterOptions = markerClusterOptions(),
+#                           label = releasesites@data$ReleaseSit, 
+#                           popup = paste("Release Date1:", releasesites@data$ReleaseDat, "<br>","Release Date 2:",  releasesites@data$ReleaseD_1),
+#                           group = "Release Sites") %>%
+#         addPolylines(data = simple_stations2, 
+#                      label = simple_stations2@data$ET_STATION,
+#                      labelOptions = labelOptions(noHide = T, textOnly = TRUE, style = label_style),
+#                      group = "Stations (m)") %>%
+#         addLayersControl(overlayGroups = c("Detections", "Antennas", "Release Sites", "Stream Centerlines", "Stations (m)", "Mobile Reaches")) %>%
+#         hideGroup(c("Stream Centerlines", "Stations (m)", "Antennas", "Release Sites", "Mobile Reaches"))
+#       
+#       
+#     })
+#     
+#     #when map is clicked, go to that icon in the dataTable
+#     # pagination wasn't working bc ID being assigned was different than row number; 
+#     #so when a icon was clicked, it was selecting the right row, but the row number was different than Id so it was going to the wrong page
+#     #fixed by assigning a new Id column evyertime the data is filtered; might be a more efficient way to do this but idk/idc
+#     observeEvent(input$map1_marker_click, {
+#       #need to assign layer ID's in leafletrender to have an id associated with the click
+#       #clicking the map gives info in the form of a list, including the layer id assigned in leaflet
+#       clickId <- input$map1_marker_click$id
+#       #print(clickId)
+#       #print(input$movements1_state$length)
+#       #print(which(filtered_movements_data()$id == clickId))
+#       #saying get the rows in the data with the same id as clickId; clickId is the row number
+#       dataTableProxy("movements1") %>%
+#         selectRows(which(filtered_movements_data()$id == clickId)) %>%
+#         selectPage(which(input$movements1_rows_all == clickId) %/% input$movements1_state$length + 1)
+#     })
+#     output$movements1 <- renderDT({
+#       
+#       
+#       datatable(filtered_movements_data(),
+#                 rownames = FALSE,
+#                 selection = "single",
+#                 filter = 'top',
+#                 options = list(
+#                   #statesave is restore table state on page reload
+#                   stateSave =TRUE,
+#                   pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
+#                   dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
+#                   language = list(emptyTable = "Enter inputs and press Render Table")
+#                   
+#                   #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
+#                 )
+#       ) 
+#       
+#       
+#     })
+#     
+# 
+# # Movements Animation Output ----------------------------------------------
+#     observeEvent(input$button9, {
+#       animationDatalist <- Animation_function(filtered_movements_data())
+#       set_defaults(map_service = "esri", map_type = "world_imagery")
+#       
+#       map_with_data <- ggplot() +
+#         basemap_gglayer(animationDatalist$coords1) +
+#         scale_fill_identity() +
+#         coord_sf() +
+#         theme_classic() +
+#         guides(size = FALSE, color = guide_legend(title = "Movement"))
+#       
+#       
+#       
+#       output$plot12 <- renderImage(
+#         {
+#           if (input$radio2 == "weeks"){
+#             map_with_data <- map_with_data + 
+#               geom_point(data = animationDatalist$data, aes(x = animationDatalist$data$X.1, y = animationDatalist$data$Y.1,
+#                                                             size = input$pointSize_Slider,
+#                                                             color = animationDatalist$data$movement_only, group = animationDatalist$data$weeks_since))+
+#               transition_time(weeks_since) +
+#               ggtitle(
+#                 #paste("Date", m3$Date),
+#                 paste(input$anim_Title, '{frame_time}'),
+#                 subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(animationDatalist$data$Date) ))
+#             map_with_data
+#             anim_save("outfile.gif", animate(map_with_data, nframes = animationDatalist$num_weeks, fps = input$fps_Slider, height = 1200, width =1200)) # New
+#             
+#             
+#           } else if (input$radio2 == "days"){
+#             map_with_data <- map_with_data + 
+#               geom_point(data = animationDatalist$data, aes(x = animationDatalist$data$X.1, y = animationDatalist$data$Y.1,
+#                                                             size = 10,
+#                                                             color = animationDatalist$data$movement_only, group = animationDatalist$data$days_since))+
+#               transition_time(days_since) + 
+#               labs(title = "Days") +
+#               ggtitle(
+#                 
+#                 paste(input$anim_Title, '{frame_time}'),
+#                 subtitle = paste("Day {frame} of {nframes} past Initial Date of", min(animationDatalist$data$Date) ))
+#             map_with_data
+#             anim_save("WindyGapFishMovements.gif", animate(map_with_data, nframes = animationDatalist$num_days, fps = input$fps_Slider, height = 1200, width =1200)) # New
+#             
+#           }
+#           
+#           
+#           list(src = "WindyGapFishMovements.gif", contentType = "image/gif")
+#         },
+#         deleteFile = FALSE
+#       )
+#     })
+#     
+# 
+# # Movement Plots Output ----------------------------------------------------
+# 
+#     #daily
+#     output$plot1 <- renderPlotly({
+#       plot <- filtered_movements_data() %>%
+#         ggplot(aes(x = Date, fill = movement_only,
+#                    text = paste('Date: ', as.character(Date), '\n'))
+#         ) +
+#         geom_bar(stat = "count", position = "dodge") +
+#         theme_classic() +
+#         labs(title="Fish Movement by Day",
+#              x ="Date", y = "Count") +
+#         scale_fill_manual(values = c("Downstream Movement" = "red",
+#                                      "Upstream Movement" = "chartreuse3",
+#                                      "No Movement" = "black",
+#                                      "Initial Release" = "darkorange",
+#                                      "Changed Rivers" = "purple"))
+#       
+#       
+#       plotly1 <- ggplotly(p = plot)
+#       plotly1
+#     })    
+#     
+#     
+#     
+#     
+#     #seasonally
+#     seasonal_movts <- reactive({filtered_movements_data() %>%
+#       group_by(month(Date), day(Date), movement_only) %>%
+#       summarise(total_events = n())
+#     })
+#     
+#     output$plot6 <- renderPlotly({
+# 
+#       plot <- seasonal_movts() %>%
+#         mutate(merged = (parse_date_time(paste(`month(Date)`, `day(Date)`), "md"))) %>%
+#         ggplot(aes(x = merged, y = total_events, fill = movement_only)) +
+#         geom_bar(stat = "identity", position = "dodge") +
+#         theme_classic() +
+#         labs(title = "Seasonal Daily Movements", x = "Day", y = "Counts",
+#              caption = "Currently No download option for this data.") +
+#         scale_x_datetime(date_labels = "%b") +
+#         scale_fill_manual(values = c("Downstream Movement" = "red",
+#                                      "Upstream Movement" = "chartreuse3",
+#                                      "No Movement" = "black",
+#                                      "Initial Release" = "darkorange",
+#                                      "Changed Rivers" = "purple"))
+#       
+#       ggplotly(plot)
+#     })  
+#     
+#     # Total movements
+#     output$plot7 <- renderPlotly({
+#       plot <- filtered_movements_data() %>%
+#         filter(
+#           !dist_moved %in% c(0)) %>%
+#         ggplot(aes(x = dist_moved)) +
+#         geom_histogram(binwidth = 50) +
+#         theme_classic() +
+#         labs(title = "Each movement detected: ('No movements' excluded)", subtitle = "Groupings are 50 m")
+#       ggplotly(plot)
+#       
+#       plotly1 <- ggplotly(p = plot)
+#       plotly1
+#     })  
+#     
+#     #cumulative movement
+#     output$plot8 <- renderPlotly({
+#       plot <- filtered_movements_data() %>%
+#         ggplot(aes(x = sum_dist)) +
+#         geom_histogram(binwidth = 300) +
+#         theme_classic() +
+#         labs(title = "Cumulative movement", subtitle = "Groupings are 300 m")
+#       plotly1 <- ggplotly(p = plot)
+#       plotly1
+#       
+#     })  
+#     
+#     output$plot9 <- renderPlotly({
+#       plot <- filtered_movements_data() %>%
+#         ggplot(aes(x = hour(Datetime), fill = movement_only)) +
+#         geom_histogram(binwidth = 1) +
+#         theme_classic() +
+#         labs(title = "Detections by Hour") 
+#       plotly1 <- ggplotly(p = plot)
+#       plotly1
+#       
+#     })  
+#     
+#     output$text2 <- renderPrint({
+#       "'Fish Movement by Day' plot renders table data shown in the 'map and table' tab. 
+#       'Seasonal Daily Movements' graph data can be downloaded below."
+#     })
 
  
     
@@ -1792,18 +1775,18 @@ server <- function(input, output, session) {
       }
     ) #end of download5
     
-    output$download6 <- downloadHandler(
-      filename = 
-        function() {
-          paste0("AllMovements_",most_recent_date,".csv")
-        }
-      ,
-      content = function(file) {
-        write_csv(filtered_movements_data(), file)
-        
-        
-      }
-    ) #end of download6
+    # output$download6 <- downloadHandler(
+    #   filename = 
+    #     function() {
+    #       paste0("AllMovements_",most_recent_date,".csv")
+    #     }
+    #   ,
+    #   content = function(file) {
+    #     write_csv(filtered_movements_data(), file)
+    #     
+    #     
+    #   }
+    # ) #end of download6
     
     output$download7 <- downloadHandler(
       filename = 
@@ -1818,15 +1801,15 @@ server <- function(input, output, session) {
       }
     ) #end of download7
     
-    output$download8 <- downloadHandler(
-      filename = 
-        function() {
-          paste0("SeasonalDailyMovements_",most_recent_date,".csv")
-        },
-      content = function(file) {
-        write_csv(seasonal_movts(), file)
-      }
-    ) #end of download8
+    # output$download8 <- downloadHandler(
+    #   filename = 
+    #     function() {
+    #       paste0("SeasonalDailyMovements_",most_recent_date,".csv")
+    #     },
+    #   content = function(file) {
+    #     write_csv(seasonal_movts(), file)
+    #   }
+    # ) #end of download8
 }
 
 # Run the application 

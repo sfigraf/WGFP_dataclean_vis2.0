@@ -4,10 +4,11 @@ counterButton <- function(id, label = "Counter") {
   tagList(
     sidebarLayout(
       sidebarPanel(actionButton(ns("button"), label = label),
+                   actionButton(ns("button1"), label = label),
                     sliderInput(ns("pointSize_Slider111"), "Select Size of Point", 
                                                min = 1,
-                                               max = 300,
-                                               value = 10),
+                                               max = 2000,
+                                               value = 1000),
                                  ),
       mainPanel(
         verbatimTextOutput(ns("out")),
@@ -33,13 +34,21 @@ counterServer <- function(id, data) {
       })
       count
       
-      output$plot999 <- renderPlotly({
-        data %>%
-          ggplot(aes(x = Length, y = Weight, color = Species)) +
-                      geom_point() +
-                      theme_classic() +
-                      labs(title = "Release1 Data")
+      observe({
+        
+        
+        
+        output$plot999 <- renderPlotly({
+          
+          data %>%
+            ggplot(aes(x = Length, y = Weight, color = Species)) +
+            geom_point() +
+            theme_classic() +
+            labs(title = "Release1 Data")
+        })
       })
+      
+      
     }
   )
 }

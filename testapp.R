@@ -337,11 +337,16 @@ ui <- fluidPage(
 server <- function(input, output) {
   observe({
     if(input$tabs == "test2ui") {
-      # test_Server("testtt111",
-      #             Release_05)
-      counterServer("counter1", Release_05)
+      data <- Release_05 %>%
+        filter(Weight < input$pointSize_Slider111)
+      
+      counterServer("counter1", data)
     }
   })
+  observeEvent(input$button1,{
+    
+  })
+  
   
   val1 <- reactiveVal()
   observeEvent(input$button9, {
