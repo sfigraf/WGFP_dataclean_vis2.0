@@ -26,6 +26,7 @@ Animation_function <- function(Movements_df){
   m3 <- as.data.frame(webMercator)
   
   num_weeks <- max(m1$weeks_since) - min(m1$weeks_since) + 1
-  list1 <- list("num_weeks" = num_weeks, "data" = m3, "coords1" = coords1)
+  num_days <- max(m1$days_since) - min(m1$days_since) + 1
+  list1 <- list("num_weeks" = num_weeks, "num_days" = num_days, "data" = m3, "coords1" = coords1)
   return(list1)
 }

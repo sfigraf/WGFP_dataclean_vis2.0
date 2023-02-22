@@ -96,13 +96,17 @@ GhostTags <- GhostTags %>%
 
 
 #functions
-source("functions/All_Combined_events_function.R")
-source("functions/Spatial_join_function.R")
-source("functions/Combine_events_stations_function.R")
-source("functions/Ind_tag_enc_hist_wide_summary_function.R")
-source("functions/get_movements_function.R")
-source("functions/Get_states_function2.R")
-source("functions/Animation_function.R")
+for (i in list.files("./functions/")) {
+  if (grepl(".R", i)) {
+    source(paste0("./functions/",i))
+  }
+}
+
+for (i in list.files("./modules/")) {
+  if (grepl(".R", i)) {
+    source(paste0("./modules/",i))
+  }
+}
 
 #mapping
 source("map_polygon_readins.R")
@@ -169,6 +173,7 @@ Stationary <- Stationary %>%
 ui <- fluidPage(
   
   navbarPage(title = "WGFP Data Exploration",
+             id = "tabs", 
              theme = shinytheme("sandstone"), #end of navbar page arguments; what follow is all inside it
 
                
@@ -493,12 +498,7 @@ ui <- fluidPage(
                                                 
                                     ), #end of slider8
                                     
-                                      # radioButtons(inputId = "radiobuttons1",
-                                      #              label = "Select Data Frequency",
-                                      #              choices = c("days", "weeks"),
-                                      #              selected = "days",
-                                      #              inline = TRUE
-                                      # ),
+                                    
                                       sliderInput("slider2", "Date",
                                                   min = min(df_list$All_Events$Date -1),
                                                   max = max(df_list$All_Events$Date +1),  
@@ -548,14 +548,17 @@ ui <- fluidPage(
                                             br(),
                                             fluidRow(
                                               column(width = 4,
-                                                     sliderInput("pointSize_Slider", "Select Size of Point", 
-                                                                 min = 1, 
-                                                                 max = 12, 
-                                                                 value = 4),
-                                                     sliderInput("fps_Slider", "Select frames per Second", 
-                                                                 min = 0, 
-                                                                 max = 6, 
-                                                                 value = 2, 
+                                                     radioButtons("radio2", "Timeframe", 
+                                                                  choices = c("days", "weeks"), 
+                                                                  selected = "weeks"),
+                                                     # sliderInput("pointSize_Slider", "Select Size of Point", 
+                                                     #             min = 1, 
+                                                     #             max = 12, 
+                                                     #             value = 4),
+                                                     sliderInput("fps_Slider", "Select frames per Second",
+                                                                 min = 0,
+                                                                 max = 15,
+                                                                 value = 2,
                                                                  step = .2),
                                                      ),#end of column
                                               column(width = 4, 
@@ -1051,10 +1054,6 @@ server <- function(input, output, session) {
       return(movements_data1)
     }) 
 
-# Animation Reactives -----------------------------------------------------
-
-
-
 # QAQC Reactives ----------------------------------------------------------
     filtered_markertag_data <- eventReactive(input$button8,{
       #pickers8 ad 9
@@ -1534,11 +1533,7 @@ server <- function(input, output, session) {
     
 
 # Movements Animation Output ----------------------------------------------
-observeEvent(input$button9, {
-  output$plot12 <- renderImage(
-    {
-      #I think i need to isolate this so it doesn't 
-      #req(input$button9)
+    observeEvent(input$button9, {
       animationDatalist <- Animation_function(filtered_movements_data())
       set_defaults(map_service = "esri", map_type = "world_imagery")
       
@@ -1547,38 +1542,48 @@ observeEvent(input$button9, {
         scale_fill_identity() +
         coord_sf() +
         theme_classic() +
-        geom_point(data = animationDatalist$data, aes(x = animationDatalist$data$X.1, y = animationDatalist$data$Y.1,
-                                                      size = input$pointSize_Slider,
-                                                      color = animationDatalist$data$movement_only, group = animationDatalist$data$weeks_since))+
-        transition_time(weeks_since) +
-        ggtitle(
-          #paste("Date", m3$Date),
-          paste(input$anim_Title, '{frame_time}'),
-          subtitle = 'Frame {frame} of {nframes}') +
         guides(size = FALSE, color = guide_legend(title = "Movement"))
-        #guides(fill=guide_legend(title="New Legend Title"))
-        #wake lemgth ishow long it sticks around I think
-        #shadow_wake(wake_length = 0.9, alpha = FALSE)
       
       
       
-      
-      # Return a list containing the filename
-      # radio_butotns$gif selected
-      anim_save("WindyGapFishMovements.gif", animate(map_with_data, nframes = animationDatalist$num_weeks, fps = input$fps_Slider, height = 1200, width =1200)) # New
-      list(src = "WindyGapFishMovements.gif", contentType = "image/gif")
-      
-      #if radiobuttons$ideo selected:
-      #animate(map_with_animation, nframes = num_weeks, fps = 4, renderer = av_renderer())
-      # anim_save("example2.mpg", animate(map_with_data, nframes = num_weeks, fps = 2,  renderer = av_renderer())) # New
-      # list(src = "example2.mpg", contentType = "video/mpg")
-      # 
-      #anim_save("example2.mpg")
-    },
-    deleteFile = FALSE
-  )
-  
-})
+      output$plot12 <- renderImage(
+        {
+          if (input$radio2 == "weeks"){
+            map_with_data <- map_with_data + 
+              geom_point(data = animationDatalist$data, aes(x = animationDatalist$data$X.1, y = animationDatalist$data$Y.1,
+                                                            size = input$pointSize_Slider,
+                                                            color = animationDatalist$data$movement_only, group = animationDatalist$data$weeks_since))+
+              transition_time(weeks_since) +
+              ggtitle(
+                #paste("Date", m3$Date),
+                paste(input$anim_Title, '{frame_time}'),
+                subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(animationDatalist$data$Date) ))
+            map_with_data
+            anim_save("outfile.gif", animate(map_with_data, nframes = animationDatalist$num_weeks, fps = input$fps_Slider, height = 1200, width =1200)) # New
+            
+            
+          } else if (input$radio2 == "days"){
+            map_with_data <- map_with_data + 
+              geom_point(data = animationDatalist$data, aes(x = animationDatalist$data$X.1, y = animationDatalist$data$Y.1,
+                                                            size = 10,
+                                                            color = animationDatalist$data$movement_only, group = animationDatalist$data$days_since))+
+              transition_time(days_since) + 
+              labs(title = "Days") +
+              ggtitle(
+                
+                paste(input$anim_Title, '{frame_time}'),
+                subtitle = paste("Day {frame} of {nframes} past Initial Date of", min(animationDatalist$data$Date) ))
+            map_with_data
+            anim_save("WindyGapFishMovements.gif", animate(map_with_data, nframes = animationDatalist$num_days, fps = input$fps_Slider, height = 1200, width =1200)) # New
+            
+          }
+          
+          
+          list(src = "WindyGapFishMovements.gif", contentType = "image/gif")
+        },
+        deleteFile = FALSE
+      )
+    })
     
 
 # Movement Plots Output ----------------------------------------------------
