@@ -1,6 +1,6 @@
 #library(lubridate)
 ## need to 
-EncounterHistoriesSummariesWide_UI <- function(id, Enc_release_data, df_list) {
+EncounterHistoriesSummariesWide_UI <- function(id, Enc_release_data) {
   ns <- NS(id)
   tagList(
     # tabsetPanel(
@@ -81,7 +81,7 @@ EncounterHistoriesSummariesWide_UI <- function(id, Enc_release_data, df_list) {
   )
 }
 
-EncounterHistoriesSummariesWide_Server <- function(id, Enc_release_data, df_list) {
+EncounterHistoriesSummariesWide_Server <- function(id, Enc_release_data) {
   moduleServer(
     id,
     function(input, output, session) {

@@ -37,7 +37,6 @@ library(gganimate)
 # Data Read Ins -----------------------------------------------------------
 start_time <- Sys.time()
 print("Reading in Stationary, Mobile, Biomark, Release, and Recapture csv files.")
-#Sys.setenv(TZ='GMT')
 
 # if column names change in any of these read-ins, might require some modification to code to get them to combine
 # also if you change read.csv to read_csv, it should read in quicker but column names will change
@@ -114,10 +113,10 @@ for (i in list.files("./modules/")) {
 
 #mapping
 ##uncomment later
-#source("map_polygon_readins.R")
+source("map_polygon_readins.R")
 ##uncomment later
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
-#df_list <- All_combined_events_function(Stationary = Stationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
+df_list <- All_combined_events_function(Stationary = Stationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
 All_events <- df_list$All_Events
 recaps_and_detections <- df_list$Recaps_detections
 Marker_tags <- df_list$Marker_Tag_data
@@ -127,23 +126,23 @@ unknown_tags_1 <-df_list$Unknown_Tags
 #spatially joins point (detection) data to lines (station) data based on nearest feature. 
 #simplestatoins is from plygon_readins
 ##uncomment later
-#Stationdata1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
+Stationdata1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
 
 #appplies combine_events_stations function
 ##uncomment later
-#combined_events_stations <- combine_events_and_stations(df_list$All_Events, Stationdata1)
+combined_events_stations <- combine_events_and_stations(df_list$All_Events, Stationdata1)
 
 # states
 ##uncomment later
-#states_data_list <- states_function(combined_events_stations, GhostTags, AvianPredation)
+states_data_list <- states_function(combined_events_stations, GhostTags, AvianPredation)
 # aplies enc_hist_summary wide function
 ##uncomment later
-#enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(df_list$Recaps_detections, Release_05, combined_events_stations, states_data_list$States_summarized)
+enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(df_list$Recaps_detections, Release_05, combined_events_stations, states_data_list$States_summarized)
 unknown_tags <- enc_hist_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
 # applies get_movements_function
 ##uncomment later
-#Movements_df <- get_movements_function(combined_events_stations)
+Movements_df <- get_movements_function(combined_events_stations)
 
 #changes coordinates to web meractor for animations 
 
@@ -211,10 +210,7 @@ ui <- fluidPage(
                       
                       ), #end fo how to use TabPanel
              
-             tabPanel("Daily Movements Map, Plot, and Data",
-                      value = "MovementsTab",
-                      movements_UI("MovementsTab1", Movements_df, df_list)
-                      ),
+             
                       
              
              
@@ -275,9 +271,13 @@ ui <- fluidPage(
              tabPanel("Encounter Histories",
                       value = "EncounterHistories",
                       tabsetPanel(
-                        tabPanel("Encounter Histories Summeries Wide",
-                          EncounterHistoriesSummariesWide_UI("EncounterHistoriesSummariesWideTab1", Enc_release_data, df_list))
-                      )
+                        tabPanel("Encounter Histories Summaries Wide",
+                          EncounterHistoriesSummariesWide_UI("EncounterHistoriesSummariesWideTab1", Enc_release_data)),
+                      
+                      tabPanel("All Encounter Histories",
+                               AllEncounters_UI("AllEncountersTab1", df_list))
+                      ),
+             
                       
                       
 
@@ -495,6 +495,10 @@ ui <- fluidPage(
 #and also from fish that have detections before their official "release" back in May
 #if marker_color or icon_color is NA, it wont get mapped or displayed in data
 #picker wasn't working becuase I had 2 different pick
+            tabPanel("Daily Movements Map, Plot, and Data",
+                     value = "MovementsTab",
+                     movements_UI("MovementsTab1", Movements_df, df_list)
+            ),
             # tabPanel("Daily Movements Map, Plot, and Data",
             #          sidebarLayout(
             #            sidebarPanel(width = 2,
@@ -704,7 +708,8 @@ server <- function(input, output, session) {
       IndividualDatasets_Server("IndividualDatasetsTab1", indiv_datasets_list)
     } 
     if(input$tabs == "EncounterHistories"){
-      EncounterHistoriesSummariesWide_Server("EncounterHistoriesSummariesWideTab1", Enc_release_data, df_list)
+      EncounterHistoriesSummariesWide_Server("EncounterHistoriesSummariesWideTab1", Enc_release_data)
+      AllEncounters_Server("AllEncountersTab1", df_list)
     }
     if(input$tabs == "StatesTab"){
       States_Server("StatesTab1", states_data_list, weeks)
