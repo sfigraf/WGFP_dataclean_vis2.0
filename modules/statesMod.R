@@ -26,9 +26,7 @@ States_UI <- function(id,states_data_list) {
       ),#end of sidebar panel
       mainPanel(tabsetPanel(
         tabPanel("States Dataframe",
-                 # hr(),
-                 # downloadButton(outputId = "download4", label = "Save this data as CSV"),
-                 # hr(),
+                 
                  br(),
                  withSpinner(DT::dataTableOutput(ns("states1")))),
         tabPanel("States and Weeks Wide",
@@ -38,14 +36,7 @@ States_UI <- function(id,states_data_list) {
                   withSpinner(DT::dataTableOutput(ns("states2")))
                           
                  )
-                 # hr(),
-                 # downloadButton(outputId = "download5", label = "Save this data as CSV"),
-                 # hr(),
                  
-        # tabPanel("Unknown States",
-        #          hr(),
-        #          withSpinner(DT::dataTableOutput(ns("unknownstates1"))),
-        #) #end of tabpanel
       )#end of tabsetPanel
       )#end of mainPanel
     )#end of sidebarLayout including sidebarPanel and Mainpanel
@@ -131,7 +122,7 @@ States_Server <- function(id, states_data_list, weeks) {
       })
       
       output$states2 <- renderDT({
-        #input$button5
+        
         
         datatable(filtered_states_data()$filtered_wide,
                   rownames = FALSE,
@@ -149,22 +140,7 @@ States_Server <- function(id, states_data_list, weeks) {
         
       })
       
-      # output$unknownstates1 <- renderDT({   
-      #   
-      #   datatable(states_data_list$Flagged_movements,
-      #             rownames = FALSE,
-      #             caption = "2022-12-16: 'unknown'states df needs some work so don't pay too much atantion to this. -SG. this hopefully should be pretty small...filled with tags with detections before official 'Release' such as in in May 2021 and tags without release info.",
-      #             filter = 'top',
-      #             options = list(
-      #               pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-      #               dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
-      #               language = list(emptyTable = "Enter inputs and press Render Table")
-      #               
-      #               #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
-      #             )
-      #   ) 
-      #   
-      # })
+    
       
       
       

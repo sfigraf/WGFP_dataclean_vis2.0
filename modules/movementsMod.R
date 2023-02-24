@@ -121,23 +121,7 @@ movements_UI <- function(id, Movements_df, df_list) { #could just get dates in U
                 ), # end of tabset panel
       )#end of mainPanel
     )#end of sidebarLayout including sidebarPanel and Mainpanel
-    
-    
-    # sidebarLayout(
-    #   sidebarPanel(actionButton(ns("button")),
-    #                sliderInput(ns("pointSize_Slider111"), "Select Size of Point", 
-    #                            min = 1,
-    #                            max = 2000,
-    #                            value = 1000),
-    #   ),
-    #   mainPanel(
-    #     verbatimTextOutput(ns("out")),
-    #     plotlyOutput(ns("plot999"))
-    #   )
-    # )
-    
-    
-  )
+    )
 }
 
 movements_Server <- function(id, Movements_df) {
@@ -145,17 +129,9 @@ movements_Server <- function(id, Movements_df) {
     id,
     function(input, output, session) {
       ns <- session$ns
-      # count <- reactiveVal(0)
-      # observeEvent(input$button, {
-      #   count(count() + 1)
-      # })
-      # output$out <- renderText({
-      #   count()
-      # })
-      # count
+      
       filtered_movements_data <- eventReactive(input$button7,{
-        # movements_data1 <- Movements_df %>%
-        #   filter(movement_only %in% input$picker6)
+        
         
         if(input$textinput3 != ''){
           movements_data1 <- Movements_df %>%
@@ -167,9 +143,6 @@ movements_Server <- function(id, Movements_df) {
                    Species %in% c(input$picker10),
                    sum_dist >= input$slider9[1] & sum_dist <= input$slider9[2],
                    
-                   
-                   # daily_unique_events %in% input$picker4,
-                   # State %in% input$picker5
             ) %>%
             arrange(Datetime)
           #this id column is used for the map and datatable proxy and needs to be redone each time a filter is applied
@@ -185,9 +158,6 @@ movements_Server <- function(id, Movements_df) {
               Species %in% c(input$picker10),
               sum_dist >= input$slider9[1] & sum_dist <= input$slider9[2]
               
-              
-              # daily_unique_events %in% input$picker4,
-              # State %in% input$picker5
             ) %>%
             arrange(Datetime)
           movements_data1$id <- seq.int(nrow(movements_data1))
@@ -241,7 +211,6 @@ movements_Server <- function(id, Movements_df) {
                     dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
                     language = list(emptyTable = "Enter inputs and press Render Table")
                     
-                    #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
                   )
         ) 
         
@@ -252,8 +221,7 @@ movements_Server <- function(id, Movements_df) {
         row_selected = filtered_movements_data()[input$movements1_rows_selected,]
         
         proxy <- leafletProxy('map1')
-        #print(row_selected)
-        #print(input$movements1_rows_selected)
+        
         proxy %>%
           #clearing the group removes previous marker from previuous row before making a new one
           clearGroup(group = "markers") %>%
@@ -356,9 +324,7 @@ movements_Server <- function(id, Movements_df) {
         #need to assign layer ID's in leafletrender to have an id associated with the click
         #clicking the map gives info in the form of a list, including the layer id assigned in leaflet
         clickId <- input$map1_marker_click$id
-        #print(clickId)
-        #print(input$movements1_state$length)
-        #print(which(filtered_movements_data()$id == clickId))
+        
         #saying get the rows in the data with the same id as clickId; clickId is the row number
         dataTableProxy("movements1") %>%
           selectRows(which(filtered_movements_data()$id == clickId)) %>%
@@ -506,15 +472,6 @@ movements_Server <- function(id, Movements_df) {
       'Seasonal Daily Movements' graph data can be downloaded below."
         })
         
-        # output$download8 <- downloadHandler(
-        #   filename =
-        #     function() {
-        #       paste0("SeasonalDailyMovements_",most_recent_date,".csv")
-        #     },
-        #   content = function(file) {
-        #     write_csv(seasonal_movts(), file)
-        #   }
-        # ) #end of download8
         
       }) #end of observe
       

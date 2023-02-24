@@ -238,7 +238,7 @@ AllEncounters_Server <- function(id, df_list) {
 
             all_events_filtered <- df_list$All_Events %>%
               filter(
-                #TAG == input$textinput1,
+                
                 Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
                 hour(Datetime) >= input$slider1[1] & hour(Datetime) <= input$slider1[2],
 
@@ -276,7 +276,7 @@ AllEncounters_Server <- function(id, df_list) {
               ) %>%
                 formatStyle(
                   columns = 1:ncol(all_events_data())
-                  #rownames = FALSE
+                  
                 )
 
 

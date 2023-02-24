@@ -42,9 +42,7 @@ QAQC_UI <- function(id, df_list) {
                      withSpinner(plotlyOutput(ns("plot2")))
                      
                    ),
-                   # hr(),
-                   # downloadButton(outputId = "download7", label = "Save this data as CSV"),
-                   # hr(),
+                  
                  )#end of mainpanel
                )#end of sidebar layout
       ), #end of marker tag tab

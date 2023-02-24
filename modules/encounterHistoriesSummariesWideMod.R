@@ -3,11 +3,7 @@
 EncounterHistoriesSummariesWide_UI <- function(id, Enc_release_data) {
   ns <- NS(id)
   tagList(
-    # tabsetPanel(
-    #   tabPanel("Encounter Release History Summary Wide",
-    #            #value = "EncounterReleaseHistorySummaryWideTab",
-    #            #EncounterReleaseHistorySummaryWideTab_UI("EncounterReleaseHistorySummaryWideTab1", Enc_release_data),
-               sidebarLayout(
+     sidebarLayout(
                  sidebarPanel(
                    textInput(ns("textinput4"), "Filter by Tag"),
                    pickerInput(inputId = ns("picker11"),
@@ -71,13 +67,11 @@ EncounterHistoriesSummariesWide_UI <- function(id, Enc_release_data) {
                    actionButton(ns("button6"), label = "Render Table/Data", width = "100%")
                  ), #end of sidebar panel for enc_release wide_summary
                  mainPanel(hr(),
-                           # downloadButton(outputId = "download1", label = "Save this data as CSV"),
-                           # hr(),
+                           
                            withSpinner(DT::dataTableOutput(ns("enc_release1"))),
                            )#end of mainpanel for enc_hist_wide
                ),#end of enc_hist_wide sidebar_layout
-    #   ),#end of tabset panel for enc_release_wide summary
-    # )#temp
+   
   )
 }
 
@@ -102,7 +96,6 @@ EncounterHistoriesSummariesWide_Server <- function(id, Enc_release_data) {
                   sum_dist >= input$slider8[1] & sum_dist <= input$slider8[2],
                   through_dam %in% input$picker13,
                   TotalEncounters %in% input$picker14
-
                 )
 
             } else {
@@ -133,8 +126,6 @@ EncounterHistoriesSummariesWide_Server <- function(id, Enc_release_data) {
           pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
           dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again #errorin list: arg 5 is empty because I had a comma after the dom argument so it thought there was gonna be another argument input
           language = list(emptyTable = "Enter inputs and press Render Table")
-          
-          #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
         )
         )
       })
