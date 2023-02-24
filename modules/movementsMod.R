@@ -205,6 +205,9 @@ movements_Server <- function(id, Movements_df) {
       
       
 
+# Map/Table ---------------------------------------------------------------
+
+
         # to keep track of previously selected row
         #setting to nothing for now
       # to keep track of previously selected row
@@ -276,7 +279,7 @@ movements_Server <- function(id, Movements_df) {
       
       
       
-      # Movements Map Output ----------------------------------------------------
+# Movements Map Output ----------------------------------------------------
       
       output$map1 <- renderLeaflet({
         
@@ -363,7 +366,7 @@ movements_Server <- function(id, Movements_df) {
       })
 
 
-        # Movements Animation Output ----------------------------------------------
+# Movements Animation Output ----------------------------------------------
       observeEvent(input$button9, {
         animationDatalist <- Animation_function(filtered_movements_data())
         set_defaults(map_service = "esri", map_type = "world_imagery")
@@ -416,7 +419,7 @@ movements_Server <- function(id, Movements_df) {
         )
       })
         
-        # Movement Plots Output ----------------------------------------------------
+# Movement Plots Output ----------------------------------------------------
         observe({
         #daily
         output$plot1 <- renderPlotly({
