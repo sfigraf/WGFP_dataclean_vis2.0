@@ -117,7 +117,7 @@ for (i in list.files("./modules/")) {
 #source("map_polygon_readins.R")
 ##uncomment later
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
-df_list <- df_list#All_combined_events_function(Stationary = Stationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
+#df_list <- All_combined_events_function(Stationary = Stationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
 All_events <- df_list$All_Events
 recaps_and_detections <- df_list$Recaps_detections
 Marker_tags <- df_list$Marker_Tag_data
@@ -127,19 +127,18 @@ unknown_tags_1 <-df_list$Unknown_Tags
 #spatially joins point (detection) data to lines (station) data based on nearest feature. 
 #simplestatoins is from plygon_readins
 ##uncomment later
-Stationdata1 <- Stationdata1#spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
+#Stationdata1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
 
 #appplies combine_events_stations function
 ##uncomment later
-combined_events_stations <- combined_events_stations#combine_events_and_stations(All_events, Stationdata1)
+#combined_events_stations <- combine_events_and_stations(df_list$All_Events, Stationdata1)
 
 # states
 ##uncomment later
-states_data_list <- states_data_list#states_function(combined_events_stations, GhostTags, AvianPredation)
-States_summarized <- states_data_list$States_summarized
+#states_data_list <- states_function(combined_events_stations, GhostTags, AvianPredation)
 # aplies enc_hist_summary wide function
 ##uncomment later
-enc_hist_wide_list <- enc_hist_wide_list#Ind_tag_enc_hist_wide_summary_function(recaps_and_detections, Release, combined_events_stations, States_summarized)
+#enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(df_list$Recaps_detections, Release_05, combined_events_stations, states_data_list$States_summarized)
 unknown_tags <- enc_hist_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
 # applies get_movements_function
@@ -147,7 +146,7 @@ enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
 #Movements_df <- get_movements_function(combined_events_stations)
 
 #changes coordinates to web meractor for animations 
-##uncomment later
+
 
 #this is used in states_data reactives; but we always want a 0 for weeks
 weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
@@ -160,13 +159,7 @@ Enc_release_data <- enc_hist_wide_df %>%
 
 
 most_recent_date <- max(df_list$All_Events$Date)  
-
-#want to put this in the function when ready
-# Enc_release_data <- ENC_Release2_1 %>%
-#     mutate(Date = ifelse(str_detect(Date, "/"),
-#                          as.character(mdy(Date)),
-#                          Date))
-                    
+# if someone could incorporate and expland upon this custom rainbow trout color pallette I made that would be great                    
 rainbow_trout_pallette <- list(pink1 = "#E3BABBFF", olive_green1 = "#C4CFBFFF", dark_olive_green1 = "#81754EFF",
                                mustard_yellow1 = "#CBA660FF", brown_yellow = "#86551CFF" )
 
@@ -280,165 +273,170 @@ ui <- fluidPage(
 # Encounter Histories UI --------------------------------------------------
 
              tabPanel("Encounter Histories",
-                      # value = "EncounterHistoriesTab",
-                      # EncounterHistories_UI("EncounterHistoriesTab1", Enc_release_data, df_list),
+                      value = "EncounterHistories",
+                      tabsetPanel(
+                        tabPanel("Encounter Histories Summeries Wide",
+                          EncounterHistoriesSummariesWide_UI("EncounterHistoriesSummariesWideTab1", Enc_release_data, df_list))
+                      )
+                      
+                      
 
-                     tabsetPanel(
-                       tabPanel("Encounter Release History Summary Wide",
-                                #value = "EncounterReleaseHistorySummaryWideTab",
-                                #EncounterReleaseHistorySummaryWideTab_UI("EncounterReleaseHistorySummaryWideTab1", Enc_release_data),
-                                sidebarLayout(
-                                  sidebarPanel(
-                                    textInput("textinput4", "Filter by Tag"),
-                                    pickerInput(inputId = "picker11",
-                                                label = "Select Fish Species:",
-                                                choices = sort(unique(Enc_release_data$Species)),
-                                                selected = unique(Enc_release_data$Species),
-                                                multiple = TRUE,
-                                                options = list(
-                                                  `actions-box` = TRUE #this makes the "select/deselect all" option
-                                                ),
-                                    ), #end of picker 11 input
-                                    sliderInput("slider4", "Fish Length (mm)",
-                                                min = min(Enc_release_data$Length, na.rm = TRUE),
-                                                max = max(Enc_release_data$Length, na.rm = TRUE),
-                                                value = c(min(Enc_release_data$Length, na.rm = TRUE),max(Enc_release_data$Length, na.rm = TRUE)),
-                                                step = 1,
-                                                #timeFormat = "%T",
-                                                #animate = animationOptions(interval = 500, loop = FALSE)
-                                    ),
-                                    sliderInput("slider5", "Fish Weight (grams)",
-                                                min = min(Enc_release_data$Weight, na.rm = TRUE),
-                                                max = max(Enc_release_data$Weight, na.rm = TRUE),
-                                                value = c(min(Enc_release_data$Weight, na.rm = TRUE),max(Enc_release_data$Weight, na.rm = TRUE)),
-                                                step = 1,
-                                                #timeFormat = "%T",
-                                                #animate = animationOptions(interval = 500, loop = FALSE)
-                                    ),
-                                    pickerInput(inputId = "picker12",
-                                                label = "Select Release Site:",
-                                                choices = sort(unique(Enc_release_data$ReleaseSite)),
-                                                selected = unique(Enc_release_data$ReleaseSite),
-                                                multiple = TRUE,
-                                                options = list(
-                                                  `actions-box` = TRUE #this makes the "select/deselect all" option
-                                                )
-                                    ), #end of picker 12 input
-                                    pickerInput(inputId = "picker14",
-                                                label = "Total Number of Unique Events/Encounters:",
-                                                choices = sort(unique(Enc_release_data$TotalEncounters)),
-                                                selected = unique(Enc_release_data$TotalEncounters),
-                                                multiple = TRUE,
-                                                options = list(
-                                                  `actions-box` = TRUE #this makes the "select/deselect all" option
-                                                )
-                                    ), #end of picker 14 input
-                                    sliderInput("slider8", "Total distance travelled (m)",
-                                                min = min(Enc_release_data$sum_dist, na.rm = TRUE),
-                                                max = max(Enc_release_data$sum_dist, na.rm = TRUE),
-                                                value = c(min(Enc_release_data$sum_dist, na.rm = TRUE),max(Enc_release_data$sum_dist, na.rm = TRUE)),
-                                                step = 1,
-                                    ), #end of slider8
-                                    pickerInput(inputId = "picker13",
-                                                label = "Above/Below/Through the Dam:",
-                                                choices = sort(unique(Enc_release_data$through_dam)),
-                                                selected = unique(Enc_release_data$through_dam),
-                                                multiple = TRUE,
-                                                options = list(
-                                                  `actions-box` = TRUE #this makes the "select/deselect all" option
-                                                )
-                                    ), #end of picker 13 input
-                                    actionButton("button6", label = "Render Table/Data", width = "100%")
-                                  ), #end of sidebar panel for enc_release wide_summary
-                                  mainPanel(hr(),
-                                            downloadButton(outputId = "download1", label = "Save this data as CSV"),
-                                            hr(),
-                                            withSpinner(DT::dataTableOutput("enc_release1")),
-                                            )#end of mainpanel for enc_hist_wide
-                                ),#end of enc_hist_wide sidebar_layout
-                       ),#end of tabset panel for enc_release_wide summary
-                       tabPanel("All Events and Plot",
-                                sidebarLayout(
-                                  sidebarPanel(
-                                    textInput("textinput1", "Filter by Tag"),
-                                    dateRangeInput("drangeinput2", "Select a Date Range:",
-                                                   start = "2020-08-01",
-                                                   end = max(df_list$All_Events$Date) + 1), #end of date range input
-                                    sliderInput("slider1", "Hour of Day",
-                                                min = min(hour(All_events$Datetime)),
-                                                max = max(hour(All_events$Datetime)),
-                                                value = c(min(hour(All_events$Datetime)),max(hour(All_events$Datetime))),
-                                                step = 1,
-                                                #timeFormat = "%T",
-                                                #animate = animationOptions(interval = 500, loop = FALSE)
-                                    ),
-                                    pickerInput(inputId = "picker1",
-                                                label = "Select Event",
-                                                choices = unique(df_list$All_Events$Event),
-                                                selected = unique(df_list$All_Events$Event),
-                                                multiple = TRUE,
-                                                options = list(
-                                                  `actions-box` = TRUE #this makes the "select/deselect all" option
-                                                ),
-                                    ), #end of picker input
-                                    pickerInput(inputId = "picker2",
-                                                label = "Select Fish Species:",
-                                                choices = sort(unique(df_list$All_Events$Species)),
-                                                selected = unique(df_list$All_Events$Species),
-                                                multiple = TRUE,
-                                                options = list(
-                                                  `actions-box` = TRUE #this makes the "select/deselect all" option
-                                                ),
-                                    ), #end of picker 2 input
-                                    sliderInput("slider6", "Fish Release Length (mm)",
-                                                min = min(df_list$All_Events$Release_Length, na.rm = TRUE),
-                                                max = max(df_list$All_Events$Release_Length, na.rm = TRUE),
-                                                value = c(min(df_list$All_Events$Release_Length, na.rm = TRUE),max(df_list$All_Events$Release_Length, na.rm = TRUE)),
-                                                step = 1,
-                                    ),
-                                    sliderInput("slider7", "Fish Release Weight (grams)",
-                                                min = min(df_list$All_Events$Release_Weight, na.rm = TRUE),
-                                                max = max(df_list$All_Events$Release_Weight, na.rm = TRUE),
-                                                value = c(min(df_list$All_Events$Release_Weight, na.rm = TRUE),max(df_list$All_Events$Release_Weight, na.rm = TRUE)),
-                                                step = 1,
-                                    ),
-                                    dateRangeInput("drangeinput3", "Release Date Range:",
-                                                   start = min(df_list$All_Events$Release_Date, na.rm = TRUE) - 1,
-                                                   end = max(df_list$All_Events$Release_Date, na.rm = TRUE) + 1), #end of date range input
-                                    pickerInput(inputId = "picker3",
-                                                label = "Select Release Site:",
-                                                choices = sort(unique(df_list$All_Events$ReleaseSite)),
-                                                selected = unique(df_list$All_Events$ReleaseSite),
-                                                multiple = TRUE,
-                                                options = list(
-                                                  `actions-box` = TRUE #this makes the "select/deselect all" option
-                                                )
-                                    ), #end of picker 3 input
-
-                                    checkboxInput("checkbox1", "Remove Duplicate Days, TAGs, Events and UTMs"),
-                                    checkboxInput("checkbox2", "Remove Duplicate TAGs: doesn't work with TAG filter"), #deliberate decision not to add another if statement to have it actually work because it doesn't make sense you would use both at the same time
-                                    actionButton("button2", "Reset Filters"),
-                                    tags$hr(),
-                                    #submit button is limited in scope, doesn't even have a input ID , but works for controlling literally all inputs
-                                    #submitButton("Update inputs", icon("sync"))
-
-                                    actionButton("button3", label = "Render Table", width = "100%")
-                                  ),#end of all events and plot sidebar panel
-                                  mainPanel(
-                                    tabsetPanel(tabPanel("All Events",
-                                      hr(),
-                                      downloadButton(outputId = "download2", label = "Save this data as CSV"),
-                                      hr(),
-                                      withSpinner(DT::dataTableOutput("allevents1")),
-                                     ),
-                                     tabPanel("Plot",
-                                              plotlyOutput("plot5")
-                                              )
-                                    )#end of tabset panel
-                                  )#end of all events and plot mainpanel
-                                ),# end of all events and plot sidebarLayout
-                                ) #end of tab panel for all events and plot
-                     ), #end of tabset panel containing enc_hist-wide summary and all_events/plot tabs
+                     # tabsetPanel(
+                     #   tabPanel("Encounter Release History Summary Wide",
+                     #            #value = "EncounterReleaseHistorySummaryWideTab",
+                     #            #EncounterReleaseHistorySummaryWideTab_UI("EncounterReleaseHistorySummaryWideTab1", Enc_release_data),
+                     #            sidebarLayout(
+                     #              sidebarPanel(
+                     #                textInput("textinput4", "Filter by Tag"),
+                     #                pickerInput(inputId = "picker11",
+                     #                            label = "Select Fish Species:",
+                     #                            choices = sort(unique(Enc_release_data$Species)),
+                     #                            selected = unique(Enc_release_data$Species),
+                     #                            multiple = TRUE,
+                     #                            options = list(
+                     #                              `actions-box` = TRUE #this makes the "select/deselect all" option
+                     #                            ),
+                     #                ), #end of picker 11 input
+                     #                sliderInput("slider4", "Fish Length (mm)",
+                     #                            min = min(Enc_release_data$Length, na.rm = TRUE),
+                     #                            max = max(Enc_release_data$Length, na.rm = TRUE),
+                     #                            value = c(min(Enc_release_data$Length, na.rm = TRUE),max(Enc_release_data$Length, na.rm = TRUE)),
+                     #                            step = 1,
+                     #                            #timeFormat = "%T",
+                     #                            #animate = animationOptions(interval = 500, loop = FALSE)
+                     #                ),
+                     #                sliderInput("slider5", "Fish Weight (grams)",
+                     #                            min = min(Enc_release_data$Weight, na.rm = TRUE),
+                     #                            max = max(Enc_release_data$Weight, na.rm = TRUE),
+                     #                            value = c(min(Enc_release_data$Weight, na.rm = TRUE),max(Enc_release_data$Weight, na.rm = TRUE)),
+                     #                            step = 1,
+                     #                            #timeFormat = "%T",
+                     #                            #animate = animationOptions(interval = 500, loop = FALSE)
+                     #                ),
+                     #                pickerInput(inputId = "picker12",
+                     #                            label = "Select Release Site:",
+                     #                            choices = sort(unique(Enc_release_data$ReleaseSite)),
+                     #                            selected = unique(Enc_release_data$ReleaseSite),
+                     #                            multiple = TRUE,
+                     #                            options = list(
+                     #                              `actions-box` = TRUE #this makes the "select/deselect all" option
+                     #                            )
+                     #                ), #end of picker 12 input
+                     #                pickerInput(inputId = "picker14",
+                     #                            label = "Total Number of Unique Events/Encounters:",
+                     #                            choices = sort(unique(Enc_release_data$TotalEncounters)),
+                     #                            selected = unique(Enc_release_data$TotalEncounters),
+                     #                            multiple = TRUE,
+                     #                            options = list(
+                     #                              `actions-box` = TRUE #this makes the "select/deselect all" option
+                     #                            )
+                     #                ), #end of picker 14 input
+                     #                sliderInput("slider8", "Total distance travelled (m)",
+                     #                            min = min(Enc_release_data$sum_dist, na.rm = TRUE),
+                     #                            max = max(Enc_release_data$sum_dist, na.rm = TRUE),
+                     #                            value = c(min(Enc_release_data$sum_dist, na.rm = TRUE),max(Enc_release_data$sum_dist, na.rm = TRUE)),
+                     #                            step = 1,
+                     #                ), #end of slider8
+                     #                pickerInput(inputId = "picker13",
+                     #                            label = "Above/Below/Through the Dam:",
+                     #                            choices = sort(unique(Enc_release_data$through_dam)),
+                     #                            selected = unique(Enc_release_data$through_dam),
+                     #                            multiple = TRUE,
+                     #                            options = list(
+                     #                              `actions-box` = TRUE #this makes the "select/deselect all" option
+                     #                            )
+                     #                ), #end of picker 13 input
+                     #                actionButton("button6", label = "Render Table/Data", width = "100%")
+                     #              ), #end of sidebar panel for enc_release wide_summary
+                     #              mainPanel(hr(),
+                     #                        downloadButton(outputId = "download1", label = "Save this data as CSV"),
+                     #                        hr(),
+                     #                        withSpinner(DT::dataTableOutput("enc_release1")),
+                     #                        )#end of mainpanel for enc_hist_wide
+                     #            ),#end of enc_hist_wide sidebar_layout
+                     #   ),#end of tabset panel for enc_release_wide summary
+                     #   tabPanel("All Events and Plot",
+                     #            sidebarLayout(
+                     #              sidebarPanel(
+                     #                textInput("textinput1", "Filter by Tag"),
+                     #                dateRangeInput("drangeinput2", "Select a Date Range:",
+                     #                               start = "2020-08-01",
+                     #                               end = max(df_list$All_Events$Date) + 1), #end of date range input
+                     #                sliderInput("slider1", "Hour of Day",
+                     #                            min = min(hour(All_events$Datetime)),
+                     #                            max = max(hour(All_events$Datetime)),
+                     #                            value = c(min(hour(All_events$Datetime)),max(hour(All_events$Datetime))),
+                     #                            step = 1,
+                     #                            #timeFormat = "%T",
+                     #                            #animate = animationOptions(interval = 500, loop = FALSE)
+                     #                ),
+                     #                pickerInput(inputId = "picker1",
+                     #                            label = "Select Event",
+                     #                            choices = unique(df_list$All_Events$Event),
+                     #                            selected = unique(df_list$All_Events$Event),
+                     #                            multiple = TRUE,
+                     #                            options = list(
+                     #                              `actions-box` = TRUE #this makes the "select/deselect all" option
+                     #                            ),
+                     #                ), #end of picker input
+                     #                pickerInput(inputId = "picker2",
+                     #                            label = "Select Fish Species:",
+                     #                            choices = sort(unique(df_list$All_Events$Species)),
+                     #                            selected = unique(df_list$All_Events$Species),
+                     #                            multiple = TRUE,
+                     #                            options = list(
+                     #                              `actions-box` = TRUE #this makes the "select/deselect all" option
+                     #                            ),
+                     #                ), #end of picker 2 input
+                     #                sliderInput("slider6", "Fish Release Length (mm)",
+                     #                            min = min(df_list$All_Events$Release_Length, na.rm = TRUE),
+                     #                            max = max(df_list$All_Events$Release_Length, na.rm = TRUE),
+                     #                            value = c(min(df_list$All_Events$Release_Length, na.rm = TRUE),max(df_list$All_Events$Release_Length, na.rm = TRUE)),
+                     #                            step = 1,
+                     #                ),
+                     #                sliderInput("slider7", "Fish Release Weight (grams)",
+                     #                            min = min(df_list$All_Events$Release_Weight, na.rm = TRUE),
+                     #                            max = max(df_list$All_Events$Release_Weight, na.rm = TRUE),
+                     #                            value = c(min(df_list$All_Events$Release_Weight, na.rm = TRUE),max(df_list$All_Events$Release_Weight, na.rm = TRUE)),
+                     #                            step = 1,
+                     #                ),
+                     #                dateRangeInput("drangeinput3", "Release Date Range:",
+                     #                               start = min(df_list$All_Events$Release_Date, na.rm = TRUE) - 1,
+                     #                               end = max(df_list$All_Events$Release_Date, na.rm = TRUE) + 1), #end of date range input
+                     #                pickerInput(inputId = "picker3",
+                     #                            label = "Select Release Site:",
+                     #                            choices = sort(unique(df_list$All_Events$ReleaseSite)),
+                     #                            selected = unique(df_list$All_Events$ReleaseSite),
+                     #                            multiple = TRUE,
+                     #                            options = list(
+                     #                              `actions-box` = TRUE #this makes the "select/deselect all" option
+                     #                            )
+                     #                ), #end of picker 3 input
+                     # 
+                     #                checkboxInput("checkbox1", "Remove Duplicate Days, TAGs, Events and UTMs"),
+                     #                checkboxInput("checkbox2", "Remove Duplicate TAGs: doesn't work with TAG filter"), #deliberate decision not to add another if statement to have it actually work because it doesn't make sense you would use both at the same time
+                     #                actionButton("button2", "Reset Filters"),
+                     #                tags$hr(),
+                     #                #submit button is limited in scope, doesn't even have a input ID , but works for controlling literally all inputs
+                     #                #submitButton("Update inputs", icon("sync"))
+                     # 
+                     #                actionButton("button3", label = "Render Table", width = "100%")
+                     #              ),#end of all events and plot sidebar panel
+                     #              mainPanel(
+                     #                tabsetPanel(tabPanel("All Events",
+                     #                  hr(),
+                     #                  downloadButton(outputId = "download2", label = "Save this data as CSV"),
+                     #                  hr(),
+                     #                  withSpinner(DT::dataTableOutput("allevents1")),
+                     #                 ),
+                     #                 tabPanel("Plot",
+                     #                          plotlyOutput("plot5")
+                     #                          )
+                     #                )#end of tabset panel
+                     #              )#end of all events and plot mainpanel
+                     #            ),# end of all events and plot sidebarLayout
+                     #            ) #end of tab panel for all events and plot
+                     # ), #end of tabset panel containing enc_hist-wide summary and all_events/plot tabs
              ), #end of Encounter Histories Tab
 # States UI -----------------------------------------------------
 
@@ -705,9 +703,9 @@ server <- function(input, output, session) {
     if(input$tabs == "IndividualDatasetsTab"){
       IndividualDatasets_Server("IndividualDatasetsTab1", indiv_datasets_list)
     } 
-    # if(input$tabs == "EncounterHistoriesTab"){
-    #   EncounterHistories_Server("EncounterHistoriesTab1", Enc_release_data, df_list)
-    # }
+    if(input$tabs == "EncounterHistories"){
+      EncounterHistoriesSummariesWide_Server("EncounterHistoriesSummariesWideTab1", Enc_release_data, df_list)
+    }
     if(input$tabs == "StatesTab"){
       States_Server("StatesTab1", states_data_list, weeks)
     } 
@@ -721,37 +719,37 @@ server <- function(input, output, session) {
 
   
   # observeEvent(input$button2, {
-  #   
+  # 
   #   updateTextInput(session, "textinput1",
   #                   value = "")
-  #   
+  # 
   #   updateDateRangeInput(session, "drangeinput2",
-  #                        start = "2020-08-01", 
+  #                        start = "2020-08-01",
   #                        end = max(df_list$All_Events$Date) + 1)
-  #   
+  # 
   #   updatePickerInput(session, "picker1",
   #                     selected = unique(df_list$All_Events$Event)
   #   )
-  #   
+  # 
   #   updatePickerInput(session, "picker2",
   #                     selected = unique(df_list$All_Events$Species)
   #   )
-  #   
+  # 
   #   updatePickerInput(session, "picker3",
   #                     selected = unique(df_list$All_Events$ReleaseSite)
   #   )
-  #   
+  # 
   #   updateCheckboxInput(session, "checkbox1",
   #                       value = NULL)
-  #   
+  # 
   #   updateCheckboxInput(session, "checkbox2",
   #                       value = NULL)
-  #   
-  #   updateSliderInput(session, "slider1", 
+  # 
+  #   updateSliderInput(session, "slider1",
   #                     value = c(min(hour(All_events$Datetime)),max(hour(All_events$Datetime)))
   #   )
-  #   
-  # }) #end of reset 
+  # 
+  # }) #end of reset
   
   #when button to make States DF list is pressed, update these picker options
   # observeEvent(input$button5,{
@@ -766,6 +764,240 @@ server <- function(input, output, session) {
   #   )
   #  
   # })
+  #Enc Hist Wide Reactive --------------------------------------------------
+#   enc_hist_wide_filtered <- eventReactive(input$button6,{
+#     ##gona have to change a lot of outputs later based on what this is named
+#     
+#     
+#     # if the Tag filter is used or not
+#     if(input$textinput4 !=''){
+#       
+#       Enc_release_data_filtered <- Enc_release_data %>%
+#         filter(
+#           TAG %in% c(input$textinput4),
+#           Species %in% input$picker11,
+#           ReleaseSite %in% input$picker12,
+#           Length >= input$slider4[1] & Length <= input$slider4[2],
+#           Weight >= input$slider5[1] & Weight <= input$slider5[2],
+#           sum_dist >= input$slider8[1] & sum_dist <= input$slider8[2],
+#           through_dam %in% input$picker13,
+#           TotalEncounters %in% input$picker14
+#           
+#         )
+#       
+#     } else {
+#       
+#       Enc_release_data_filtered <- Enc_release_data %>%
+#         filter(
+#           Species %in% input$picker11,
+#           ReleaseSite %in% input$picker12,
+#           Length >= input$slider4[1] & Length <= input$slider4[2],
+#           Weight >= input$slider5[1] & Weight <= input$slider5[2],
+#           sum_dist >= input$slider8[1] & sum_dist <= input$slider8[2],
+#           through_dam %in% input$picker13,
+#           TotalEncounters %in% input$picker14
+#         )
+#     }
+#     
+#     return(Enc_release_data_filtered)
+#   }) #end of ENC data list eventReactive
+#   
+#   # ALL Events and Plot Reactive --------------------------------------------
+#   
+#   
+#   
+#   # enc_releae_data wasn't registering bc i used reactive() instead of reactive ({}).
+#   # i guess reactive ({}) makes it so you can make multiple expressions within a reactive context whereas reactive() can only do 1
+#   all_events_data <- eventReactive(input$button3,{
+#     # if the Tag filter is used or not
+#     if(input$textinput1 !=''){
+#       #all events
+#       all_events_filtered <- df_list$All_Events  %>%
+#         filter(
+#           
+#           TAG %in% c(input$textinput1),
+#           Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
+#           hour(Datetime) >= input$slider1[1] & hour(Datetime) <= input$slider1[2],
+#           Event %in% input$picker1,
+#           Species %in% input$picker2,
+#           Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
+#           Release_Weight >= input$slider7[1] & Release_Weight <= input$slider7[2],
+#           ReleaseSite %in% input$picker3,
+#           Release_Date >= input$drangeinput3[1] & Release_Date <= input$drangeinput3[2]
+#         ) %>%
+#         arrange(Datetime)
+#       
+#       
+#     } else {
+#       all_events_filtered <- df_list$All_Events  %>%
+#         filter(
+#           
+#           Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
+#           hour(Datetime) >= input$slider1[1] & hour(Datetime) <= input$slider1[2],
+#           Event %in% input$picker1,
+#           Species %in% input$picker2,
+#           Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
+#           Release_Weight >= input$slider7[1] & Release_Weight <= input$slider7[2],
+#           ReleaseSite %in% input$picker3,
+#           Release_Date >= input$drangeinput3[1] & Release_Date <= input$drangeinput3[2]
+#         )%>%
+#         arrange(Datetime)
+#       
+#       
+#     }
+#     
+#     
+#     # error below solved because I wasn't using the correct variable names for each dataset
+#     # x `Site_Code` not found in `.data`.
+#     # x `Scan_Date` not found in `.data`
+#     ### Filtering for TAG, SIte Code, and Day
+#     
+#     #if there is a tag input along with the first box checked
+#     if (input$checkbox1 == TRUE & input$checkbox2 == FALSE & input$textinput1 !='') {
+#       
+#       all_events_filtered <- df_list$All_Events %>%
+#         
+#         filter(
+#           TAG == input$textinput1,
+#           Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
+#           hour(Datetime) >= input$slider1[1] & hour(Datetime) <= input$slider1[2],
+#           
+#           Event %in% input$picker1,
+#           Species %in% input$picker2,
+#           ReleaseSite %in% input$picker3,
+#           Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
+#           Release_Weight >= input$slider7[1] & Release_Weight <= input$slider7[2],
+#           Release_Date >= input$drangeinput3[1] & Release_Date <= input$drangeinput3[2]
+#         ) %>%
+#         #this part is for making sure the sequence of events will make sense sequentially: tells where a fish started and ended the day and keeps other unique entries in between
+#         group_by(Date) %>%
+#         mutate(first_last = case_when(Datetime == min(Datetime) ~ "First_of_day",
+#                                       Datetime == max(Datetime) ~ "Last_of_day",
+#                                       Datetime != min(Datetime) & Datetime != max(Datetime) ~ "0")
+#         ) %>%
+#         ungroup() %>%
+#         #need to include UTM_X and UTM_Y so that you can get multiple daily detections of mobile antennas in different locations
+#         distinct(TAG, Event, Date, first_last, UTM_X, UTM_Y, .keep_all = TRUE) %>%
+#         arrange(Datetime) %>%
+#         select(-first_last)
+#       
+#       
+#     }
+#     #if there isn't a tag input along with first box checked
+#     if (input$checkbox1 == TRUE & input$checkbox2 == FALSE & input$textinput1 =='') {
+#       
+#       all_events_filtered <- df_list$All_Events %>%
+#         
+#         filter(
+#           Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
+#           hour(Datetime) >= input$slider1[1] & hour(Datetime) <= input$slider1[2],
+#           
+#           Event %in% input$picker1,
+#           Species %in% input$picker2,
+#           Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
+#           Release_Weight >= input$slider7[1] & Release_Weight <= input$slider7[2],
+#           Release_Date >= input$drangeinput3[1] & Release_Date <= input$drangeinput3[2],
+#           ReleaseSite %in% input$picker3) %>%
+#         #this part is for making sure the sequence of events will make sense
+#         # if there's no tag input then have to group_by TAG as well
+#         group_by(Date, TAG) %>%
+#         mutate(first_last = case_when(Datetime == min(Datetime) ~ "First_of_day",
+#                                       Datetime == max(Datetime) ~ "Last_of_day",
+#                                       Datetime != min(Datetime) & Datetime != max(Datetime) ~ "0")
+#         ) %>%
+#         ungroup() %>%
+#         distinct(TAG, Event, Date, first_last,  UTM_X, UTM_Y, .keep_all = TRUE) %>%
+#         arrange(Datetime) %>%
+#         select(-first_last)
+#       
+#       
+#     }
+#     
+#     if (input$checkbox2 == TRUE) {
+#       
+#       
+#       
+#       all_events_filtered <- df_list$All_Events %>%
+#         filter(
+#           #TAG == input$textinput1,
+#           Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
+#           hour(Datetime) >= input$slider1[1] & hour(Datetime) <= input$slider1[2],
+#           
+#           Event %in% input$picker1,
+#           Species %in% input$picker2,
+#           Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
+#           Release_Weight >= input$slider7[1] & Release_Weight <= input$slider7[2],
+#           Release_Date >= input$drangeinput3[1] & Release_Date <= input$drangeinput3[2],
+#           ReleaseSite %in% input$picker3) %>%
+#         arrange(Datetime) %>%
+#         #need to have distinct() at the end of the expression
+#         
+#         distinct(TAG, .keep_all = TRUE)
+#       
+#     }
+#     #### filter dummy row
+#     all_events_filtered <- all_events_filtered %>%
+#       filter(!TAG %in% c("230000999999"))
+#     
+#     
+#     return(all_events_filtered)
+#   }) #end of ENC data list eventReactive
+# # Encounter Histories Ind D -----------------------------------------------
+#   
+#   
+#   output$enc_release1 <- renderDataTable(
+#     
+#     enc_hist_wide_filtered(),
+#     rownames = FALSE,
+#     #extensions = c('Buttons'),
+#     #for slider filter instead of text input
+#     filter = 'top',
+#     options = list(
+#       pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
+#       dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again #errorin list: arg 5 is empty because I had a comma after the dom argument so it thought there was gonna be another argument input
+#       language = list(emptyTable = "Enter inputs and press Render Table")
+#       
+#       #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
+#     )
+#   )
+#   
+#   output$allevents1 <- renderDataTable({
+#     datatable(all_events_data(),
+#               rownames = FALSE,
+#               #extensions = c('Buttons'),
+#               #for slider filter instead of text input
+#               filter = 'top',
+#               options = list(
+#                 pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
+#                 dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again #errorin list: arg 5 is empty because I had a comma after the dom argument so it thought there was gonna be another argument input
+#                 language = list(emptyTable = "Enter inputs and press Render Table")
+#               ) #end of options list
+#     ) %>%
+#       formatStyle(
+#         columns = 1:ncol(all_events_data())
+#         #rownames = FALSE
+#       )
+#     
+#     
+#   })
+#   
+#   # Enc Hist Plot Render ----------------------------------------------------
+#   
+#   output$plot5 <- renderPlotly({
+#     plot <- all_events_data() %>%
+#       ggplot(aes(x= Date, fill = Event,
+#                  text = paste('Date: ', as.character(Date), '\n')
+#       )) +
+#       geom_bar(stat = "count", position = "dodge") +
+#       theme_classic() +
+#       labs(title = "Raw Detections Frequency")
+#     
+#     
+#     plotly5 <- ggplotly(p = plot)
+#     plotly5
+#     
+#   })
+#   
 
 # Ind D Reactives ---------------------------------------------------------
     
@@ -815,184 +1047,6 @@ server <- function(input, output, session) {
     
 
 
-#Enc Hist Wide Reactive --------------------------------------------------
-enc_hist_wide_filtered <- eventReactive(input$button6,{
-  ##gona have to change a lot of outputs later based on what this is named
-
-
-  # if the Tag filter is used or not
-  if(input$textinput4 !=''){
-
-    Enc_release_data_filtered <- Enc_release_data %>%
-      filter(
-        TAG %in% c(input$textinput4),
-        Species %in% input$picker11,
-        ReleaseSite %in% input$picker12,
-        Length >= input$slider4[1] & Length <= input$slider4[2],
-        Weight >= input$slider5[1] & Weight <= input$slider5[2],
-        sum_dist >= input$slider8[1] & sum_dist <= input$slider8[2],
-        through_dam %in% input$picker13,
-        TotalEncounters %in% input$picker14
-
-        )
-
-  } else {
-
-    Enc_release_data_filtered <- Enc_release_data %>%
-      filter(
-        Species %in% input$picker11,
-        ReleaseSite %in% input$picker12,
-        Length >= input$slider4[1] & Length <= input$slider4[2],
-        Weight >= input$slider5[1] & Weight <= input$slider5[2],
-        sum_dist >= input$slider8[1] & sum_dist <= input$slider8[2],
-        through_dam %in% input$picker13,
-        TotalEncounters %in% input$picker14
-        )
-  }
-
-  return(Enc_release_data_filtered)
-}) #end of ENC data list eventReactive
-
-# ALL Events and Plot Reactive --------------------------------------------
-
-
-    
-    # enc_releae_data wasn't registering bc i used reactive() instead of reactive ({}).
-    # i guess reactive ({}) makes it so you can make multiple expressions within a reactive context whereas reactive() can only do 1
-    all_events_data <- eventReactive(input$button3,{
-      # if the Tag filter is used or not
-      if(input$textinput1 !=''){
-        #all events
-        all_events_filtered <- df_list$All_Events  %>%
-          filter(
-
-            TAG %in% c(input$textinput1),
-            Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
-            hour(Datetime) >= input$slider1[1] & hour(Datetime) <= input$slider1[2],
-            Event %in% input$picker1,
-            Species %in% input$picker2,
-            Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
-            Release_Weight >= input$slider7[1] & Release_Weight <= input$slider7[2],
-            ReleaseSite %in% input$picker3,
-            Release_Date >= input$drangeinput3[1] & Release_Date <= input$drangeinput3[2]
-          ) %>%
-          arrange(Datetime)
-
-
-      } else {
-        all_events_filtered <- df_list$All_Events  %>%
-          filter(
-
-            Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
-            hour(Datetime) >= input$slider1[1] & hour(Datetime) <= input$slider1[2],
-            Event %in% input$picker1,
-            Species %in% input$picker2,
-            Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
-            Release_Weight >= input$slider7[1] & Release_Weight <= input$slider7[2],
-            ReleaseSite %in% input$picker3,
-            Release_Date >= input$drangeinput3[1] & Release_Date <= input$drangeinput3[2]
-          )%>%
-          arrange(Datetime)
-
-
-      }
-
-
-        # error below solved because I wasn't using the correct variable names for each dataset
-        # x `Site_Code` not found in `.data`.
-        # x `Scan_Date` not found in `.data`
-      ### Filtering for TAG, SIte Code, and Day
-
-        #if there is a tag input along with the first box checked
-    if (input$checkbox1 == TRUE & input$checkbox2 == FALSE & input$textinput1 !='') {
-
-        all_events_filtered <- df_list$All_Events %>%
-
-          filter(
-            TAG == input$textinput1,
-            Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
-            hour(Datetime) >= input$slider1[1] & hour(Datetime) <= input$slider1[2],
-
-                 Event %in% input$picker1,
-                 Species %in% input$picker2,
-                 ReleaseSite %in% input$picker3,
-            Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
-            Release_Weight >= input$slider7[1] & Release_Weight <= input$slider7[2],
-            Release_Date >= input$drangeinput3[1] & Release_Date <= input$drangeinput3[2]
-            ) %>%
-          #this part is for making sure the sequence of events will make sense sequentially: tells where a fish started and ended the day and keeps other unique entries in between
-          group_by(Date) %>%
-          mutate(first_last = case_when(Datetime == min(Datetime) ~ "First_of_day",
-                                        Datetime == max(Datetime) ~ "Last_of_day",
-                                        Datetime != min(Datetime) & Datetime != max(Datetime) ~ "0")
-          ) %>%
-          ungroup() %>%
-          #need to include UTM_X and UTM_Y so that you can get multiple daily detections of mobile antennas in different locations
-          distinct(TAG, Event, Date, first_last, UTM_X, UTM_Y, .keep_all = TRUE) %>%
-          arrange(Datetime) %>%
-          select(-first_last)
-
-
-    }
-        #if there isn't a tag input along with first box checked
-        if (input$checkbox1 == TRUE & input$checkbox2 == FALSE & input$textinput1 =='') {
-
-          all_events_filtered <- df_list$All_Events %>%
-
-            filter(
-              Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
-              hour(Datetime) >= input$slider1[1] & hour(Datetime) <= input$slider1[2],
-
-              Event %in% input$picker1,
-              Species %in% input$picker2,
-              Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
-              Release_Weight >= input$slider7[1] & Release_Weight <= input$slider7[2],
-              Release_Date >= input$drangeinput3[1] & Release_Date <= input$drangeinput3[2],
-              ReleaseSite %in% input$picker3) %>%
-            #this part is for making sure the sequence of events will make sense
-            # if there's no tag input then have to group_by TAG as well
-            group_by(Date, TAG) %>%
-            mutate(first_last = case_when(Datetime == min(Datetime) ~ "First_of_day",
-                                          Datetime == max(Datetime) ~ "Last_of_day",
-                                          Datetime != min(Datetime) & Datetime != max(Datetime) ~ "0")
-            ) %>%
-            ungroup() %>%
-            distinct(TAG, Event, Date, first_last,  UTM_X, UTM_Y, .keep_all = TRUE) %>%
-            arrange(Datetime) %>%
-            select(-first_last)
-
-
-        }
-
-        if (input$checkbox2 == TRUE) {
-
-
-
-          all_events_filtered <- df_list$All_Events %>%
-            filter(
-              #TAG == input$textinput1,
-                    Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
-                    hour(Datetime) >= input$slider1[1] & hour(Datetime) <= input$slider1[2],
-
-                   Event %in% input$picker1,
-                   Species %in% input$picker2,
-                   Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
-                   Release_Weight >= input$slider7[1] & Release_Weight <= input$slider7[2],
-                   Release_Date >= input$drangeinput3[1] & Release_Date <= input$drangeinput3[2],
-                   ReleaseSite %in% input$picker3) %>%
-            arrange(Datetime) %>%
-            #need to have distinct() at the end of the expression
-
-            distinct(TAG, .keep_all = TRUE)
-
-        }
-      #### filter dummy row
-      all_events_filtered <- all_events_filtered %>%
-        filter(!TAG %in% c("230000999999"))
-
-
-        return(all_events_filtered)
-    }) #end of ENC data list eventReactive
 
 
 # States data reactives ---------------------------------------------------
@@ -1244,44 +1298,6 @@ enc_hist_wide_filtered <- eventReactive(input$button6,{
     
     # Dt 
 
-# Encounter Histories Ind D -----------------------------------------------
-
-    
-    output$enc_release1 <- renderDataTable(
-
-      enc_hist_wide_filtered(),
-        rownames = FALSE,
-        #extensions = c('Buttons'),
-        #for slider filter instead of text input
-        filter = 'top',
-        options = list(
-          pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-          dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again #errorin list: arg 5 is empty because I had a comma after the dom argument so it thought there was gonna be another argument input
-          language = list(emptyTable = "Enter inputs and press Render Table")
-
-          #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
-        )
-    )
-
-    output$allevents1 <- renderDataTable({
-      datatable(all_events_data(),
-                  rownames = FALSE,
-                  #extensions = c('Buttons'),
-                  #for slider filter instead of text input
-                  filter = 'top',
-                  options = list(
-                    pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-                    dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again #errorin list: arg 5 is empty because I had a comma after the dom argument so it thought there was gonna be another argument input
-                    language = list(emptyTable = "Enter inputs and press Render Table")
-                  ) #end of options list
-                ) %>%
-        formatStyle(
-          columns = 1:ncol(all_events_data())
-          #rownames = FALSE
-        )
-
-
-    })
 
 # States Datatable Renders ------------------------------------------------
 
@@ -1390,22 +1406,7 @@ enc_hist_wide_filtered <- eventReactive(input$button6,{
     #   ) 
     # })
 
-# Enc Hist Plot Render ----------------------------------------------------
 
-    output$plot5 <- renderPlotly({
-      plot <- all_events_data() %>%
-        ggplot(aes(x= Date, fill = Event,
-                   text = paste('Date: ', as.character(Date), '\n')
-        )) +
-        geom_bar(stat = "count", position = "dodge") +
-        theme_classic() +
-        labs(title = "Raw Detections Frequency")
-
-
-      plotly5 <- ggplotly(p = plot)
-      plotly5
-
-    })
     
 # # Map proxy for Icons -----------------------------------------------------
 #     
@@ -1760,18 +1761,18 @@ enc_hist_wide_filtered <- eventReactive(input$button6,{
 # Download Handlers -------------------------------------------------------
 
     
-    output$download1 <- downloadHandler(
-      filename = 
-        function() {
-          paste0("ReleaseEncounters_",most_recent_date,".csv")
-        }
-      ,
-      content = function(file) {
-        write_csv(enc_hist_wide_filtered(), file)
-        
-        
-      }
-    ) #end of download1
+    # output$download1 <- downloadHandler(
+    #   filename = 
+    #     function() {
+    #       paste0("ReleaseEncounters_",most_recent_date,".csv")
+    #     }
+    #   ,
+    #   content = function(file) {
+    #     write_csv(enc_hist_wide_filtered(), file)
+    #     
+    #     
+    #   }
+    # ) #end of download1
     
     # output$download2 <- downloadHandler(
     #   filename = 
@@ -1838,18 +1839,18 @@ enc_hist_wide_filtered <- eventReactive(input$button6,{
     #   }
     # ) #end of download6
     
-    output$download7 <- downloadHandler(
-      filename = 
-        function() {
-          paste0("MarkerTagsOnly_",most_recent_date,".csv")
-        }
-      ,
-      content = function(file) {
-        write_csv(filtered_markertag_data(), file)
-        
-        
-      }
-    ) #end of download7
+    # output$download7 <- downloadHandler(
+    #   filename = 
+    #     function() {
+    #       paste0("MarkerTagsOnly_",most_recent_date,".csv")
+    #     }
+    #   ,
+    #   content = function(file) {
+    #     write_csv(filtered_markertag_data(), file)
+    #     
+    #     
+    #   }
+    # ) #end of download7
     
     # output$download8 <- downloadHandler(
     #   filename = 
