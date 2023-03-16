@@ -333,12 +333,18 @@ movements_Server <- function(id, Movements_df) {
 
 
 # Movements Animation Output ----------------------------------------------
-      observeEvent(input$button9, {
-        animationDatalist <- Animation_function(filtered_movements_data())
+      animationDatalist <- eventReactive(input$button9,{
+        Animation_function(filtered_movements_data())
+      })
+      
+      
+      observe({
+        #req(input$button9)
+        #animationDatalist <- Animation_function(filtered_movements_data())
         set_defaults(map_service = "esri", map_type = "world_imagery")
         
         map_with_data <- ggplot() +
-          basemap_gglayer(animationDatalist$coords1) +
+          basemap_gglayer(animationDatalist()$coords1) +
           scale_fill_identity() +
           coord_sf() +
           theme_classic() +
@@ -350,31 +356,31 @@ movements_Server <- function(id, Movements_df) {
           {
             if (input$radio2 == "weeks"){
               map_with_data <- map_with_data + 
-                geom_point(data = animationDatalist$data, aes(x = animationDatalist$data$X.1, y = animationDatalist$data$Y.1,
-                                                              size = input$pointSize_Slider,
-                                                              color = animationDatalist$data$movement_only, group = animationDatalist$data$weeks_since))+
+                geom_point(data = animationDatalist()$data, aes(x = animationDatalist()$data$X.1, y = animationDatalist()$data$Y.1,
+                                                              size = 10,
+                                                              color = animationDatalist()$data$movement_only, group = animationDatalist()$data$weeks_since))+
                 transition_time(weeks_since) +
                 ggtitle(
                   #paste("Date", m3$Date),
                   paste(input$anim_Title, '{frame_time}'),
-                  subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(animationDatalist$data$Date) ))
+                  subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(animationDatalist()$data$Date) ))
               map_with_data
-              anim_save("WindyGapFishMovements.gif", animate(map_with_data, nframes = animationDatalist$num_weeks, fps = input$fps_Slider, height = 1200, width =1200)) # New
+              anim_save("WindyGapFishMovements.gif", animate(map_with_data, nframes = animationDatalist()$num_weeks, fps = input$fps_Slider, height = 1200, width =1200)) # New
               
               
             } else if (input$radio2 == "days"){
               map_with_data <- map_with_data + 
-                geom_point(data = animationDatalist$data, aes(x = animationDatalist$data$X.1, y = animationDatalist$data$Y.1,
+                geom_point(data = animationDatalist()$data, aes(x = animationDatalist()$data$X.1, y = animationDatalist()$data$Y.1,
                                                               size = 10,
-                                                              color = animationDatalist$data$movement_only, group = animationDatalist$data$days_since))+
+                                                              color = animationDatalist()$data$movement_only, group = animationDatalist()$data$days_since))+
                 transition_time(days_since) + 
                 labs(title = "Days") +
                 ggtitle(
                   
                   paste(input$anim_Title, '{frame_time}'),
-                  subtitle = paste("Day {frame} of {nframes} past Initial Date of", min(animationDatalist$data$Date) ))
+                  subtitle = paste("Day {frame} of {nframes} past Initial Date of", min(animationDatalist()$data$Date) ))
               map_with_data
-              anim_save("WindyGapFishMovements.gif", animate(map_with_data, nframes = animationDatalist$num_days, fps = input$fps_Slider, height = 1200, width =1200)) # New
+              anim_save("WindyGapFishMovements.gif", animate(map_with_data, nframes = animationDatalist()$num_days, fps = input$fps_Slider, height = 1200, width =1200)) # New
               
             }
             
@@ -403,13 +409,7 @@ movements_Server <- function(id, Movements_df) {
                                          "Initial Release" = "darkorange",
                                          "Changed Rivers" = "purple"))
           
-        })    
-        
-        
-
-
-
-
+        })
         output$plot6 <- renderPlotly({
 
           plot <- seasonal_movts() %>%

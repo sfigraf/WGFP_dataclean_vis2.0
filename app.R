@@ -41,16 +41,16 @@ print("Reading in Stationary, Mobile, Biomark, Release, and Recapture csv files.
 # if column names change in any of these read-ins, might require some modification to code to get them to combine
 # also if you change read.csv to read_csv, it should read in quicker but column names will change
 # could be a later task
-Stationary <- read.csv(paste0("WGFP_Raw_20230201.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
-Mobile <- read.csv("WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
-Biomark <- read.csv("Biomark_Raw_20221102.csv", dec = ",") 
+Stationary <- read.csv(paste0("./data/WGFP_Raw_20230201.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
+Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
+Biomark <- read.csv("./data/Biomark_Raw_20221102.csv", dec = ",") 
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
-Release <- read.csv("WGFP_ReleaseData_Master.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",8) ))
-Recaptures <- read.csv("WGFP_RecaptureData_Master.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
+Release <- read.csv("./data/WGFP_ReleaseData_Master.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",8) ))
+Recaptures <- read.csv("./data/WGFP_RecaptureData_Master.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
 #ghost tag df
 #avitaion predation
-AvianPredation <- read_csv("WGFP_AvianPredation.csv", col_types = cols(TagID = col_character(),Comments = col_character()))
-GhostTags <- read_csv("WGFP_GhostTags.csv", 
+AvianPredation <- read_csv("./data/WGFP_AvianPredation.csv", col_types = cols(TagID = col_character(),Comments = col_character()))
+GhostTags <- read_csv("./data/WGFP_GhostTags.csv", 
                            col_types = cols(TagID = col_character()))
 
 
@@ -111,9 +111,14 @@ for (i in list.files("./modules/")) {
   }
 }
 
+for (i in list.files("./R/")) {
+  if (grepl(".R", i)) {
+    source(paste0("./R/",i))
+  }
+}
 #mapping
 ##uncomment later
-source("map_polygon_readins.R")
+#source("map_polygon_readins.R")
 ##uncomment later
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
 df_list <- All_combined_events_function(Stationary = Stationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
@@ -129,7 +134,7 @@ unknown_tags_1 <-df_list$Unknown_Tags
 Stationdata1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
 
 #appplies combine_events_stations function
-##uncomment later
+##uncomment later./
 combined_events_stations <- combine_events_and_stations(df_list$All_Events, Stationdata1)
 
 # states

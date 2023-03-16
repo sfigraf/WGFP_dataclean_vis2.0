@@ -277,7 +277,7 @@ library(plotly)
 #   count(class, sort = TRUE) %>%
 #   mutate(class = reorder(class, n)) %>%
 #   rename(Undergrad = class, HEI = n)
-Release <- read.csv("WGFP_ReleaseData_Master.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",8) ))
+Release <- read.csv("./data/WGFP_ReleaseData_Master.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",8) ))
 
 Release_05 <- Release %>%
   mutate(Date = as.character(mdy(Date)))
@@ -324,31 +324,31 @@ ui <- fluidPage(
                         
                         mainPanel(imageOutput("plot12"))
                       )
-                    ),
-             tabPanel("test2",
-                      value = "test2ui",
-                      counterButton("counter1", "Counter #1")
-                      #test_UI("testtt111")
-                      
-                      )
+                    )
+             # tabPanel("test2",
+             #          value = "test2ui",
+             #          counterButton("counter1", "Counter #1")
+             #          #test_UI("testtt111")
+             #          
+             #          )
   
 ) #end of navbar page
 )
 server <- function(input, output) {
-  observe({
-    if(input$tabs == "test2ui") {
-      data <- Release_05 %>%
-        filter(Weight < input$pointSize_Slider111)
-      
-      counterServer("counter1", data)
-    }
-  })
-  observeEvent(input$button1,{
-    
-  })
-  
-  
-  val1 <- reactiveVal()
+  # observe({
+  #   if(input$tabs == "test2ui") {
+  #     data <- Release_05 %>%
+  #       filter(Weight < input$pointSize_Slider111)
+  #     
+  #     counterServer("counter1", data)
+  #   }
+  # })
+  # observeEvent(input$button1,{
+  #   
+  # })
+  # 
+  # 
+  # val1 <- reactiveVal()
   observeEvent(input$button9, {
     #animationDatalist <- Animation_function(filtered_movements_data())
     set_defaults(map_service = "esri", map_type = "world_imagery")
@@ -366,6 +366,8 @@ server <- function(input, output) {
     
   output$plot12 <- renderImage(
     {
+      
+      
       if (input$radio2 == "weeks"){
         map_with_data <- map_with_data + 
           geom_point(data = animationDatalist$data, aes(x = animationDatalist$data$X.1, y = animationDatalist$data$Y.1,
@@ -399,7 +401,7 @@ server <- function(input, output) {
       
       
       list(src = "WindyGapFishMovements.gif", contentType = "image/gif")
-
+ #end of isolate
       #if radiobuttons$ideo selected:
       #animate(map_with_animation, nframes = num_weeks, fps = 4, renderer = av_renderer())
       # anim_save("example2.mpg", animate(map_with_data, nframes = num_weeks, fps = 2,  renderer = av_renderer())) # New
