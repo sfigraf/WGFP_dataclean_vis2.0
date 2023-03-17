@@ -255,7 +255,6 @@ server <- function(input, output, session) {
   
   observe({
     if(input$tabs == "MovementsTab") {
-      
       movements_Server("MovementsTab1", Movements_df)
     } 
     if(input$tabs == "IndividualDatasetsTab"){

@@ -2136,3 +2136,21 @@ m3 <- as.data.frame(spdf)
 map_with_data <- x1 +
   geom_point(data = m3, aes(x = X.1, y = Y.1), group = m3$weeks_since)
 map_with_data
+
+x <- "2021-03-22 00:39:05"
+All_events1 <- All_events %>%
+  mutate(trest = min(hour(Datetime)))
+#sf instead of ogr
+# condensed_events1 <- st_as_sf(df_list$All_Events_most_relevant, coords = c("UTM_X", "UTM_Y"))
+
+## recap changes
+x <- All_events %>%
+  group_by(TAG, Event) %>%
+  arrange(Datetime) %>%
+  summarise(tot = n()) %>%
+  filter(Event == "Recapture")
+x1 <- All_events %>%
+  filter(TAG == "230000228026")
+
+
+
