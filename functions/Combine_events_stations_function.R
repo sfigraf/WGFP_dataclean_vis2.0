@@ -23,15 +23,9 @@ combine_events_and_stations <- function(All_events, station_data){
   print("Running Combine_events_and_stations function: Combining all events with station data.")
   # Combining stations into all_events dataset ------------------------------
   # takes awhile to join data... what if we gave it hte distinct()) smaller file then added it 
-  # this part exists 
+  # this part exists to
   #just getting distinct rows makes joining easier; all we need from this df is stations
   stations <- station_data %>%
-    # rename(
-    #   Datetime = Datetime_,
-    #   Time = Time_) %>%
-    # mutate(
-    #   Date = mdy(Date_)
-    # ) %>%
     distinct(UTM_X, UTM_Y, .keep_all = TRUE)  #can't do it by ET_station because Sherriff ranch upper field and fraser river ranch the same station initially
     # select(-Date_)
   
@@ -43,13 +37,6 @@ combine_events_and_stations <- function(All_events, station_data){
   
   
   all_events_stations_2 <- left_join( All_events,stations, by = c("UTM_X", "UTM_Y")) # "Species", "Release_Length", "Release_Weight", "Event", "Date", "Time", "ReleaseSite", "Release_Date", "RecaptureSite", "Recap_Length", "Recap_Weight"
-  
-  #will get NA's based on when the station dataset was made; 
-  #if the station data is outdated, there will be new recent tags that have events but aren't accounted for in Station Data;
-  # includes release data and mobile runs
-  ### 11/26/22- this part not needed as much bc joining happens on UTMs only now, not tags and events
-  all_events_stations_21 <- all_events_stations_2 %>%
-    filter(is.na(ET_STATION))
   
   All_events_stations_3 <- all_events_stations_2 %>%
     
@@ -79,22 +66,6 @@ combine_events_and_stations <- function(All_events, station_data){
         (Event %in% c("B4", "B6")) ~ "Fraser River",
         TRUE ~ River
       ),
-      #this fills in the NA rows so therefore accounts for new stationary and biomark detections that weren't captured when stationdata was made 12/1/22 note: there shouldn't be na rows since i changed the way the left_join above was performed and also now spatial join happens within the app everytime it's ran.
-      
-      #if UTM's were correctly assigned initially and stationdata is up to date, this part is unnesseccary because this will all already be done with the left_join
-       # 12/1/22 i don't actually think it's needed anymore since the UTM's ARE all correct, but it's a good rdundant safeguard to have in place
-      
-      # ET_STATION = case_when(
-      #   (Event %in% c("RB1", "RB2")) ~ 4150, # there is no is.na here because RB UTM
-      #   is.na(ET_STATION) & (Event %in% c("HP3", "HP4")) ~ 6340,
-      #   is.na(ET_STATION) & (Event %in% c("CF5", "CF6")) ~ 10100,
-      #   is.na(ET_STATION) & (Event %in% c("CD7", "CD8", "CD9", "CD10")) ~ 8380,
-      #   is.na(ET_STATION) & (Event %in% c("CU11", "CU12")) ~ 9860,
-      #   is.na(ET_STATION) & (Event %in% c("B3")) ~ 8070,
-      #   is.na(ET_STATION) & (Event %in% c("B4")) ~ 6050,
-      #   is.na(ET_STATION) & (Event %in% c("B5")) ~ 12920,
-      #   is.na(ET_STATION) & (Event %in% c("B6")) ~ 12140,
-      #   !is.na(ET_STATION) & (!Event %in% c("RB1", "RB2")) ~ ET_STATION),
       # this part is needed because stations are assigned from 0 up the fraser river starting at the confluence
       #new antennas weren't showing up because I didn't include connectivity channel to to river
       # this assigns a station, then in the get_movements function the distance moved is calculated

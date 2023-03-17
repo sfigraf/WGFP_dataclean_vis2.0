@@ -18,13 +18,8 @@ library(gganimate)
 #library(mapview)
 #biomark test tags: 999000000007601, 999000000007602
 # to do: put qaqc stuff from combine files app in this file as well to see when biomark shits the bed
-# incorporate aviation predation and ghost tag files in
 #continue with how-to
-# make mini charts on leaflet
-# continue with mods
-
-
-# 
+# make mini charts on leaflet# 
 #make "varaibels" file with station info of antennas based off spatial join, point of fraser river/CO river confluence, windy gap dam, antenna UTM's, 
 
 #Biomark is temporarily labelled as B3 and B4 to make data filtering easier
@@ -70,7 +65,6 @@ Release <- dummy_rows_list$Release
 # Date Wrangling ----------------------------------------------------------
 
 # this readies raw files to be put into functions as well as displayed on Indivudal Datasets Page
-#needs to put dates in yyyymmdd format to be filtered with drangeinput1
 Mobile <- Mobile %>%
     mutate(Date = as.character(mdy(Date)))
 
@@ -111,15 +105,12 @@ for (i in list.files("./modules/")) {
   }
 }
 
-for (i in list.files("./R/")) {
+for (i in list.files("./miscR/")) {
   if (grepl(".R", i)) {
-    source(paste0("./R/",i))
+    source(paste0("./miscR/",i))
   }
 }
-#mapping
-##uncomment later
-#source("map_polygon_readins.R")
-##uncomment later
+
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
 df_list <- All_combined_events_function(Stationary = Stationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
 All_events <- df_list$All_Events
@@ -129,7 +120,7 @@ WGFP_Clean_1 <- df_list$WGFP_Clean
 unknown_tags_1 <-df_list$Unknown_Tags
 
 #spatially joins point (detection) data to lines (station) data based on nearest feature. 
-#simplestatoins is from plygon_readins
+#simplestatoins is from polygon_readins
 ##uncomment later
 Stationdata1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
 
@@ -149,10 +140,7 @@ enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
 ##uncomment later
 Movements_df <- get_movements_function(combined_events_stations)
 
-#changes coordinates to web meractor for animations 
-
-
-#this is used in states_data reactives; but we always want a 0 for weeks
+#this is used in states_data reactives
 weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
 
 #more formatting

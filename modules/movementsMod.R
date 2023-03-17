@@ -339,8 +339,6 @@ movements_Server <- function(id, Movements_df) {
       
       
       observe({
-        #req(input$button9)
-        #animationDatalist <- Animation_function(filtered_movements_data())
         set_defaults(map_service = "esri", map_type = "world_imagery")
         
         map_with_data <- ggplot() +
@@ -354,6 +352,10 @@ movements_Server <- function(id, Movements_df) {
         
         output$plot12 <- renderImage(
           {
+            #makes it so code executes on button push
+            input$button9
+            #isolate makes it so it wont execute when all the inputs inside the isolate() are changed (title, fps, days/weeks)
+            isolate(
             if (input$radio2 == "weeks"){
               map_with_data <- map_with_data + 
                 geom_point(data = animationDatalist()$data, aes(x = animationDatalist()$data$X.1, y = animationDatalist()$data$Y.1,
@@ -383,7 +385,7 @@ movements_Server <- function(id, Movements_df) {
               anim_save("WindyGapFishMovements.gif", animate(map_with_data, nframes = animationDatalist()$num_days, fps = input$fps_Slider, height = 1200, width =1200)) # New
               
             }
-            
+            )#end of isolate
             
             list(src = "WindyGapFishMovements.gif", contentType = "image/gif")
           },
