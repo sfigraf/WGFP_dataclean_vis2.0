@@ -114,7 +114,6 @@ for (i in list.files("./miscR/")) {
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
 df_list <- All_combined_events_function(Stationary = Stationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
 All_events <- df_list$All_Events
-recaps_and_detections <- df_list$Recaps_detections
 Marker_tags <- df_list$Marker_Tag_data
 WGFP_Clean_1 <- df_list$WGFP_Clean
 unknown_tags_1 <-df_list$Unknown_Tags
@@ -124,9 +123,8 @@ unknown_tags_1 <-df_list$Unknown_Tags
 ##uncomment later
 Stationdata1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
 
-#appplies combine_events_stations function
-##uncomment later./
-combined_events_stations <- combine_events_and_stations(df_list$All_Events, Stationdata1)
+#prepares joined stations and relevant Movements dataset for movements summaries and states
+combined_events_stations <- PrepareforStatesMovementsandSummary(Stationdata1)
 
 # states
 ##uncomment later

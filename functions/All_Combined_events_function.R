@@ -251,8 +251,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
           ) %>%
           ungroup() %>%
           distinct(TAG, Event, Date, first_last,  UTM_X, UTM_Y, .keep_all = TRUE) %>%
-          arrange(Datetime) %>%
-          select(-first_last) 
+          arrange(Datetime) 
   
 
   df_list <- list( "WGFP_Clean" = WGFP_Clean, "All_Detections" = All_detections2, 

@@ -1,5 +1,5 @@
 #### ENC HIST summary table function
-# recaps_and_all_detections <- df_list$Recaps_detections
+#recaps_and_all_detections <- df_list$Recaps_detections
 # release_data <- Release
 # combined_events_stations <- combined_events_stations #resulting df from combined_events and stations function
 #States_summarized <- states_summarized
@@ -88,7 +88,7 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
   
   
   #summary stats of each antenna encounter
-  #precariously built because Row numbers are used
+  #a little precariously built because Row numbers are used
   #but also has release data
   totalcols <- ncol(ENC_Release1)
   
@@ -98,7 +98,6 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
     #added 8 new columns for new antennas
     mutate(
       TotalEncounters = rowSums(ENC_Release1[(totalcols-18):totalcols] == TRUE),
-      
       TotalAntennas1 = rowSums(ENC_Release1[(totalcols-18):(totalcols-1)] == TRUE),
       TotalStationary = rowSums(ENC_Release1[(totalcols-18):(totalcols-7)] == TRUE),
       TotalMobile = rowSums(ENC_Release1[(totalcols-6):(totalcols-5)] == TRUE),
@@ -123,6 +122,7 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
   ### the release data isn't being brought in well; The tags aren't being brought in as full numbers, so when the release data is joined,
   # it can't match up 23000088888 to 2.3E+11; so release site gets put in as "no info", and
   #therefore when the columns join, it doesn't make a column called "release above dam" (should I cahnge to subset by number instead of column name?)
+  #SOLVED: needed to change the format in release csv file
   
   # trying to go based on movements
   ### thinking of disbanding this and doing the same process but with the states in order to say if fish went above/below
