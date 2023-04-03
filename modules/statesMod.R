@@ -61,7 +61,7 @@ States_Server <- function(id, states_data_list, weeks) {
         
       })
       
-      filtered_states_data <- eventReactive(input$button5,{
+      filtered_states_data <- eventReactive(input$button5, ignoreNULL = FALSE,{
         
         if(input$textinput2 != ''){ 
           states_data1 <- states_data_list$All_States %>%

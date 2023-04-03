@@ -14,6 +14,7 @@ library(bslib)
 #animation stuff
 library(mapedit)
 library(gganimate)
+library(basemaps)
 #minicharts
 library(leaflet.minicharts)
 #library(mapview)

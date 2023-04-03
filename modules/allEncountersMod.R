@@ -127,7 +127,7 @@ AllEncounters_Server <- function(id, df_list) {
 
         # enc_release_data wasn't registering bc i used reactive() instead of reactive ({}).
         # i guess reactive ({}) makes it so you can make multiple expressions within a reactive context whereas reactive() can only do 1
-        all_events_data <- eventReactive(input$button3,{
+        all_events_data <- eventReactive(input$button3,ignoreNULL = FALSE,{
           # if the Tag filter is used or not
           if(input$textinput1 !=''){
             #all events

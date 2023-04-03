@@ -79,7 +79,7 @@ EncounterHistoriesSummariesWide_Server <- function(id, Enc_release_data) {
   moduleServer(
     id,
     function(input, output, session) {
-      enc_hist_wide_filtered <- eventReactive(input$button6,{
+      enc_hist_wide_filtered <- eventReactive(input$button6,ignoreNULL = FALSE,{
             ##gona have to change a lot of outputs later based on what this is named
 
 

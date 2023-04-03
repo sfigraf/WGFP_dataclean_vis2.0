@@ -6,7 +6,7 @@
 # station_data1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
 # station_data <- as.data.frame(station_data1)
 #stations
-# dam is listed at 8330
+# dam is listed at DamLocation
 #b3 is 8190
 
 PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
@@ -64,8 +64,8 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
                            TRUE ~ Event),
       #need to check this function out given new stationing and connectivity channel
       above_below = case_when(
-        ET_STATION >= 8330 ~ "Above the Dam",
-        ET_STATION < 8330 ~ "Below the Dam"
+        ET_STATION >= DamLocation ~ "Above the Dam",
+        ET_STATION < DamLocation ~ "Below the Dam"
       )
       
     ) %>%

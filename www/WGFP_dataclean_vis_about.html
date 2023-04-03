@@ -5,72 +5,7 @@
 <body>
 <h3> How to Use </h3>
 
-<p>
-<h4> <b> Encounter Histories and Individual Datasets </b> </h4>
+
+<p> 
+Navigate through the tabs to view and analyize fish movement data from Windy Gap. Consult the How-To pdf as needed. 
 </p>
-
-<p> Select a Tab from the header and filter the data in the sidebar. In the Individual datasets Tab, Stationary datafile is a cleaned datafile without marker tags or test tags and most unknown tags are filtered out of it. 
-Biomark and Mobile file tabs are basically the raw files but with the Date field reformatted for better filtering. As of now, there is only a date filter in the sidebar for these files in the "Individual Datasets" tab but you can filter more using the built-in filters in the tables.
-If these don't do enough and need to be used for questions that can't be answered with the "All Events" and the "Encounter Release History" tables in the "Encounter History" tab, let me know. 
-
-</p>
-
-<p>
-Clicking "Render table" immediately after startup will yield tables without any filters. In the All Events Tab, removing duplicates will take out rows based on Tag number, Event and Day, while keeping the first and last detections at an antenna in a day in order to help answer questions like "what is a succinct Event History of this specific Tag?". 
-The "remove duplicate tags" filter is useful for answering questions like "How many unique fish hit this antenna/how many different brown trout were recaptured" etc. 
-</p>
-
-<p> RB1 is the most downstream of the Stationary antennas, going up to CF6 which is the most upstream of the Stationary antennas. HP, RB, B3 are all below Windy Gap Dam. CF and B4 are above. Mobile runs were both above and below. 
-Biomark antennas are labelled as B3 below Windy Gap and B4 at Kaibab Park, labelled this way to make filtering syntax a bit easier in R. 
-</p>
-
-
-<p>
-<h4> <b> Daily States and Movements </b> </h4>
-</p>
-
-<p>
-A State of a fish is defined as either physically existing in a section of river (States A-F from downstream to upstream) or transitioning between physical states. 
-A upstream transition between states is defined as states G, I, and K at Red Barn, Hitching Post, and Confluence respectively. Downstream transition states are H, J, and L at Red Barn, Hitching Post, and Confluence respectively. 
-See the photo below for a diagram.
-</p>
-
-<p>
-Since detection, release, and recapture data are rarely straightforward, there are certain assumptions that are made in order to make these states.
-As of 01/03/2022, the assumptions are that:
-
-<ul>
-<li> A fish resides in its release state before it is detected or captured again. </li>
-<li> If a fish resides in a state downstream of a stationary antenna and ends the day by hitting the upstream-most antenna of that stationary site, it is said to have made an upstream movement for that day, regardless of how many raw detections occurred at that antenna site that day. Vice versa for downstream movement.</li>
-<li> If a fish resides in a state downstream of a stationary antenna and is detected on both the upstream and downstream antenna of that site in a day but ends the day on the downstream-most antenna of that site, the fish is said to have made a upstream then downstream movement that day (ie GH, IJ, KL), regardless of the total number of raw detections at that stationary site that day. Vice Versa for if a fish starts upstream of the site. </li>
-<li> If a fish resides in a state downstream of a stationary antenna and is detected on the downstream-most stationary antenna at that site multiple times that day without ever getting detected on the upstream antenna, it is assumed to have made a upstream then downstream movement that day (ie GH, IJ, KL). Vice versa for if the fish starts upstream of a stationary antenna site.  </li>
-<li> If a fish resides in a state downstream of a stationary antenna and is detected on the downstream-most stationary antenna at that site only once that day without ever getting detected on the upstream antenna, it is assumed to have continued upstream and missed detection on the upstream-most antenna at that stationary site, and is coded as just a upstream movement (G, I, K) for that day. Vice versa or if the fish started upstream. </li>
-<li> A fish can have multiple states in a day if it is detected at multiple antenna sites in a day. This also reveals "problem" fish because some fish are have said to make trips up through the dam multiple times, sometimes in a day.</li>
-<li> Biomark detections are coded as a physical state.</li>
-<li> Mobile Detections are physical states. </li>
-</ul>
-
-</p>
-
-
-
-<p>
-<b> Notes </b>
-</p>
-
-<p>
-It is sometimes finnicky to read in the Time field in the Biomark file and Stationary file, which from what I can tell only happens when the files get randomly corrupted. 
-With the Biomark file, sometimes another file has to be made using the combine data app so it's important to just have file backups for the biomark_raw_XXXXXXX.csv so this isn't necessary. 
-
-The Stationary times between March and April 2021 as well as Dec 3 - Dec 10 2020 can be finnicky to read in correctly.  
- There is a script stationary_timestamp_fix.R that exists to make a correct Stationary datafile if those are indeed the problem times, using a csv called new_times which has only the problematic time entries. 
-There are backup copies of the most recent Stationary, Biomark, and new_times files in the CSV_backups folder, so if there is a problem, hopefully these can be used instead of having to make a new file and/or use the stationary_timestamp_fix.R script.
- 
-</p>
-
-<p> In May, some tags registered detections before their official "release" and these detrections are ignored in the states/movements dataframe.  These tags are (230000) 272140, 272063, 272153, 272273, and 142517 that have detections before official "release" </p>
-
-<p><b>States Diagram</b></p>
-<p><img src="Stationary_Antenna_States.jpeg" alt="states_diagram" height = "600px"></p>
-
-<p></p>

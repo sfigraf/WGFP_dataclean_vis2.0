@@ -11,7 +11,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   WGFP_NoMarkers <- Stationary %>%
     mutate(TAG = str_replace(str_trim(TAG), "\\_", "")) %>%
     filter(str_detect(TAG, "^900"), 
-           !TAG %in% c("900230000102751","900226001581072","900230000004000"))
+           !TAG %in% test_tags)
 
 #marker tag only file 
   Markers_only <- Stationary %>%

@@ -136,7 +136,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
     function(input, output, session) {
       ns <- session$ns
       
-      filtered_movements_data <- eventReactive(input$button7,{
+      filtered_movements_data <- eventReactive(input$button7, ignoreNULL = FALSE,{
         
         
         if(input$textinput3 != ''){

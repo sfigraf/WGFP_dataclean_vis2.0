@@ -74,7 +74,7 @@ QAQC_Server <- function(id, df_list, Release_05, Recaptures_05, unknown_tags) {
     id,
     function(input, output, session) {
       
-      filtered_markertag_data <- eventReactive(input$button8,{
+      filtered_markertag_data <- eventReactive(input$button8,ignoreNULL = FALSE,{
         
         markertag_data1 <- df_list$Marker_Tag_data %>%
           filter(SCD %in% c(input$picker8),

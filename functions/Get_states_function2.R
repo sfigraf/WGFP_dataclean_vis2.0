@@ -102,8 +102,3 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
   
 }
 
-weeks_and_states <- full_join(weeks, states_final, by = "weeks_since")
-weeks_and_states_wide <- pivot_wider(weeks_and_states, id_cols = TAG, names_from = weeks_since, values_from = State)
-#need to change this part if we decide to start at week 1 instead of 0
-weeks_and_states_wide <- weeks_and_states_wide %>%
-  select(TAG, `0`, 2:ncol(weeks_and_states_wide))
