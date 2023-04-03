@@ -31,8 +31,6 @@ States_UI <- function(id,states_data_list) {
                  withSpinner(DT::dataTableOutput(ns("states1")))),
         tabPanel("States and Weeks Wide",
                   br(),
-                  verbatimTextOutput(ns("text1")),
-                  br(),
                   withSpinner(DT::dataTableOutput(ns("states2")))
                           
                  )
@@ -48,6 +46,7 @@ States_Server <- function(id, states_data_list, weeks) {
   moduleServer(
     id,
     function(input, output, session) {
+      
       
       observeEvent(input$button5,{
         updatePickerInput(session, "picker4",
@@ -80,6 +79,7 @@ States_Server <- function(id, states_data_list, weeks) {
             arrange(Date)
         }
         
+
         #weeks <- data.frame(weeks_since = 1:max(states_data1$weeks_since))
         weeks_and_states <- full_join(weeks, states_data1, by = "weeks_since")
         
@@ -117,9 +117,6 @@ States_Server <- function(id, states_data_list, weeks) {
           )
       })
       
-      output$text1 <- renderPrint({
-        "Sidebar filters also work on Wide Data"
-      })
       
       output$states2 <- renderDT({
         

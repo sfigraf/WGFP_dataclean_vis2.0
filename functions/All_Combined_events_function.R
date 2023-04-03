@@ -236,8 +236,17 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
            UTM_X = UTM_X.x,
            UTM_Y = UTM_Y.x) %>%
     #gets rid of all duplicate rows but keeps all info
-    distinct(Datetime,TAG, Event,  .keep_all = TRUE) %>%
+    distinct(Datetime, TAG, Event, .keep_all = TRUE) %>%
     replace_na(list(Species = "No Info", ReleaseSite = "No Info"))
+  
+  Tags_only <- Release1 %>%
+    select(TAG)
+  
+  #makes sure all events are from tags ONLY in the release file
+  
+  filled_in_release_rows_condensed <- left_join(Tags_only, filled_in_release_rows_condensed, by = "TAG")
+  
+  
   
   ### This is getting the events dataframe to only the data relevant for joining with stations
   
@@ -252,6 +261,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
           ungroup() %>%
           distinct(TAG, Event, Date, first_last,  UTM_X, UTM_Y, .keep_all = TRUE) %>%
           arrange(Datetime) 
+  
   
 
   df_list <- list( "WGFP_Clean" = WGFP_Clean, "All_Detections" = All_detections2, 

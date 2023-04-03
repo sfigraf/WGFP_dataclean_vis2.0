@@ -69,7 +69,7 @@ QAQC_UI <- function(id, df_list) {
   )
 }
 
-QAQC_Server <- function(id, df_list, Release_05, Recaptures_05) {
+QAQC_Server <- function(id, df_list, Release_05, Recaptures_05, unknown_tags) {
   moduleServer(
     id,
     function(input, output, session) {

@@ -371,6 +371,10 @@ ui <- fluidPage(
                       value = "MovementsTab",
                       movements_UI("MovementsTab1", Movements_df, df_list)
              ),
+             tabPanel("Weekly States",
+                      value = "StatesTab",
+                      States_UI("StatesTab1", states_data_list)
+             ),#end of States ui Tab
              tabPanel("test", 
                       sidebarLayout(
                         sidebarPanel(
@@ -401,6 +405,9 @@ ui <- fluidPage(
 )
 server <- function(input, output) {
   movements_Server("MovementsTab1", Movements_df, WeeklyMovementsbyType2 )
+  
+    States_Server("StatesTab1", states_data_list, weeks)
+  
   
   observeEvent(input$button9, {
     #animationDatalist <- Animation_function(filtered_movements_data())

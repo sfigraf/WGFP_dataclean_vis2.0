@@ -22,7 +22,7 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
   # joining with avian predation
   #Shouldn't matter really, but this just cuts down unnecesary rows. left_joining creates more rows than df1 if there are duplicate values in the key_col of df1 (in this case TAG)
   #some new rows are created then when joining to the ghost tag df because many of the ghost tags have multiple detections after the ghost date in the combined_df
-  # Im'm just cutting out these excess rows but I think they would get cut down anyway later in this function. As long as each ghost tag gains a row with ghost date or predation date, that's all that matters
+  # Im'm just cutting out these excess rows but they would get cut down anyway later in this function. As long as each ghost tag gains a row with ghost date or predation date, that's all that matters
   wghost_av <- left_join(wghost_date, av_pred_df, by = c("TAG")) %>%
     distinct(TAG, Event, Datetime, UTM_X, UTM_Y, first_last, .keep_all = TRUE)
   
@@ -42,7 +42,6 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
   
   states2 <- states1 %>%
     group_by(weeks_since, TAG) %>%
-    #arranging my datetime ensures that all states will be recorded in the correct order
     arrange(Datetime) %>%
     mutate(
       teststate_2 = paste(state1, collapse = ""),
@@ -103,3 +102,8 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
   
 }
 
+weeks_and_states <- full_join(weeks, states_final, by = "weeks_since")
+weeks_and_states_wide <- pivot_wider(weeks_and_states, id_cols = TAG, names_from = weeks_since, values_from = State)
+#need to change this part if we decide to start at week 1 instead of 0
+weeks_and_states_wide <- weeks_and_states_wide %>%
+  select(TAG, `0`, 2:ncol(weeks_and_states_wide))

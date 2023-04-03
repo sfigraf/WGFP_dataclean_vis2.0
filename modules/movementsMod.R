@@ -66,6 +66,10 @@ movements_UI <- function(id, Movements_df, df_list) { #could just get dates in U
       mainPanel(width = 10,
                 tabsetPanel(
                   tabPanel("Minicharts Map",
+                           fluidRow(
+                             column(12,
+                                    div("This is a work in progress, doesn't work with the sidebar filters yet and for some reason stops going after 7 ish months. Press the play button in the bottom right"))
+                           ),
                            leafletOutput(ns("map2"))),
                   tabPanel("Map and Table",
                            hr(),

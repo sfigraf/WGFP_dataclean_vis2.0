@@ -13,8 +13,9 @@ library(shinythemes)
 library(bslib)
 #animation stuff
 library(mapedit)
-library(basemaps)
 library(gganimate)
+#minicharts
+library(leaflet.minicharts)
 #library(mapview)
 #biomark test tags: 999000000007601, 999000000007602
 # to do: put qaqc stuff from combine files app in this file as well to see when biomark shits the bed
@@ -36,7 +37,7 @@ print("Reading in Stationary, Mobile, Biomark, Release, and Recapture csv files.
 # if column names change in any of these read-ins, might require some modification to code to get them to combine
 # also if you change read.csv to read_csv, it should read in quicker but column names will change
 # could be a later task
-Stationary <- read.csv(paste0("./data/WGFP_Raw_20230201.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
+Stationary <- read.csv(paste0("./data/WGFP_Raw_20230307.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
 Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
 Biomark <- read.csv("./data/Biomark_Raw_20221102.csv", dec = ",") 
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
@@ -137,6 +138,7 @@ enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
 # applies get_movements_function
 ##uncomment later
 Movements_df <- get_movements_function(combined_events_stations)
+WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_df)
 
 #this is used in states_data reactives
 weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
@@ -255,7 +257,7 @@ server <- function(input, output, session) {
   
   observe({
     if(input$tabs == "MovementsTab") {
-      movements_Server("MovementsTab1", Movements_df)
+      movements_Server("MovementsTab1", Movements_df, WeeklyMovementsbyType)
     } 
     if(input$tabs == "IndividualDatasetsTab"){
       IndividualDatasets_Server("IndividualDatasetsTab1", indiv_datasets_list)
@@ -268,7 +270,7 @@ server <- function(input, output, session) {
       States_Server("StatesTab1", states_data_list, weeks)
     } 
     if(input$tabs == "QAQCTab"){
-      QAQC_Server("QAQCTab1", df_list = df_list, Release_05, Recaptures_05)
+      QAQC_Server("QAQCTab1", df_list = df_list, Release_05, Recaptures_05, unknown_tags)
     } 
   })
   
