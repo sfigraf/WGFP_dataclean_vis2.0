@@ -38,7 +38,7 @@ print("Reading in Stationary, Mobile, Biomark, Release, and Recapture csv files.
 # if column names change in any of these read-ins, might require some modification to code to get them to combine
 # also if you change read.csv to read_csv, it should read in quicker but column names will change
 # could be a later task
-Stationary <- read.csv(paste0("./data/WGFP_Raw_20230307.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
+Stationary <- read.csv(paste0("./data/WGFP_Raw_20230503.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
 Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
 Biomark <- read.csv("./data/Biomark_Raw_20221102.csv", dec = ",") 
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
