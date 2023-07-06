@@ -32,150 +32,172 @@ library(leaflet.minicharts)
 # had "application failed to start" error and fixed both times with above command. both times because packages in local environment (tidyverse and lubridate) weren't called with library() command 
 
 # Data Read Ins -----------------------------------------------------------
-start_time <- Sys.time()
-print("Reading in Stationary, Mobile, Biomark, Release, and Recapture csv files.")
-
-# if column names change in any of these read-ins, might require some modification to code to get them to combine
-# also if you change read.csv to read_csv, it should read in quicker but column names will change
-# could be a later task
-Stationary <- read.csv(paste0("./data/WGFP_Raw_20230307.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
-Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
-Biomark <- read.csv("./data/Biomark_Raw_20221102.csv", dec = ",") 
-# need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
-Release <- read.csv("./data/WGFP_ReleaseData_Master.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",8) ))
-Recaptures <- read.csv("./data/WGFP_RecaptureData_Master.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
-#ghost tag df
-#avitaion predation
-AvianPredation <- read_csv("./data/WGFP_AvianPredation.csv", col_types = cols(TagID = col_character(),Comments = col_character()))
-GhostTags <- read_csv("./data/WGFP_GhostTags.csv", 
-                           col_types = cols(TagID = col_character()))
-
-
-
-end_time = Sys.time()
-print(paste("Reading in files took", round((end_time-start_time),2)))
-
-
-#### This part was for checking if new antennas to be put in will work
-source("functions/dummy_rows.R")
-dummy_rows_list <- add_dummy_rows(stationary = Stationary, biomark = Biomark, release1 = Release)
-Stationary <- dummy_rows_list$Stationary
-Biomark <- dummy_rows_list$Biomark
-Release <- dummy_rows_list$Release
-#ghost_tag_df <- dummy_rows_list$Ghost_tags #date column is named "Ghost_date" and is a date type
-
-# Date Wrangling ----------------------------------------------------------
-
-# this readies raw files to be put into functions as well as displayed on Indivudal Datasets Page
-Mobile <- Mobile %>%
-    mutate(Date = as.character(mdy(Date)))
-
-
-Biomark <- Biomark %>%
-  #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy 
-  # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
-  mutate(Scan.Date = ifelse(str_detect(Scan.Date, "/"), 
-                            as.character(mdy(Scan.Date)), 
-                            Scan.Date))
-
-
-Release_05 <- Release %>%
-  mutate(Date = as.character(mdy(Date)))
-
-Recaptures_05 <- Recaptures %>%
-  mutate(Date = as.character(mdy(Date)))
-
-AvianPredation <- AvianPredation %>%
-  mutate(PredationDate = mdy(PredationDate))
-
-GhostTags <- GhostTags %>%
-  mutate(GhostDate = mdy(GhostDate)) 
-
-# Functions Read-in -------------------------------------------------------
-
-
-#functions
-for (i in list.files("./functions/")) {
-  if (grepl(".R", i)) {
-    source(paste0("./functions/",i))
-  }
-}
-
+# start_time <- Sys.time()
+# print("Reading in Stationary, Mobile, Biomark, Release, and Recapture csv files.")
+# 
+# # if column names change in any of these read-ins, might require some modification to code to get them to combine
+# # also if you change read.csv to read_csv, it should read in quicker but column names will change
+# # could be a later task
+# Stationary <- read.csv(paste0("./data/WGFP_Raw_20230623.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
+# Stationary <- readRDS("data/WGFP_StationaryCleaned_20230623.rds")
+# Cleaned_Stationary_detectionsOnly <- Stationary$Cleaned_Stationary_detectionsOnly
+# Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
+# Biomark <- read.csv("./data/Biomark_Raw_20221102.csv", dec = ",") 
+# # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
+# Release <- read.csv("./data/WGFP_ReleaseData_Master.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",8) ))
+# Recaptures <- read.csv("./data/WGFP_RecaptureData_Master.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
+# #ghost tag df
+# #avitaion predation
+# AvianPredation <- read_csv("./data/WGFP_AvianPredation.csv", col_types = cols(TagID = col_character(),Comments = col_character()))
+# GhostTags <- read_csv("./data/WGFP_GhostTags.csv", 
+#                            col_types = cols(TagID = col_character()))
+# 
+# 
+# 
+# end_time = Sys.time()
+# print(paste("Reading in files took", round((end_time-start_time),2)))
+# 
+# 
+# #### This part was for checking if new antennas to be put in will work
+# source("functions/dummy_rows.R")
+# dummy_rows_list <- add_dummy_rows(stationary = Stationary, biomark = Biomark, release1 = Release)
+# Stationary <- dummy_rows_list$Stationary
+# Biomark <- dummy_rows_list$Biomark
+# Release <- dummy_rows_list$Release
+# #ghost_tag_df <- dummy_rows_list$Ghost_tags #date column is named "Ghost_date" and is a date type
+# 
+# # Date Wrangling ----------------------------------------------------------
+# 
+# # this readies raw files to be put into functions as well as displayed on Indivudal Datasets Page
+# Mobile <- Mobile %>%
+#     mutate(Date = as.character(mdy(Date)))
+# 
+# 
+# Biomark <- Biomark %>%
+#   #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy 
+#   # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
+#   mutate(Scan.Date = ifelse(str_detect(Scan.Date, "/"), 
+#                             as.character(mdy(Scan.Date)), 
+#                             Scan.Date))
+# 
+# 
+# Release_05 <- Release %>%
+#   mutate(Date = as.character(mdy(Date)))
+# 
+# Recaptures_05 <- Recaptures %>%
+#   mutate(Date = as.character(mdy(Date)))
+# 
+# AvianPredation <- AvianPredation %>%
+#   mutate(PredationDate = mdy(PredationDate))
+# 
+# GhostTags <- GhostTags %>%
+#   mutate(GhostDate = mdy(GhostDate)) 
+# 
+# # Functions Read-in -------------------------------------------------------
+# 
+# 
+# #functions
+# for (i in list.files("./functions/")) {
+#   if (grepl(".R", i)) {
+#     source(paste0("./functions/",i))
+#   }
+# }
+# 
 for (i in list.files("./modules/")) {
   if (grepl(".R", i)) {
     source(paste0("./modules/",i))
   }
 }
-
+# 
 for (i in list.files("./miscR/")) {
   if (grepl(".R", i)) {
     source(paste0("./miscR/",i))
   }
 }
+# 
+# #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
+# df_list <- All_combined_events_function(Stationary = Stationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
+# All_events <- df_list$All_Events
+# Marker_tags <- Stationary$cleanMarkerTags
+# WGFP_Clean_1 <- df_list$WGFP_Clean
+# unknown_tags_1 <-df_list$Unknown_Tags
+# 
+# #spatially joins point (detection) data to lines (station) data based on nearest feature. 
+# #simplestatoins is from polygon_readins
+# ##uncomment later
+# Stationdata1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
+# 
+# #prepares joined stations and relevant Movements dataset for movements summaries and states
+# combined_events_stations <- PrepareforStatesMovementsandSummary(Stationdata1)
+# 
+# # states
+# ##uncomment later
+# states_data_list <- states_function(combined_events_stations, GhostTags, AvianPredation)
+# # aplies enc_hist_summary wide function
+# ##uncomment later
+# enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(df_list$Recaps_detections, Release_05, combined_events_stations, states_data_list$States_summarized)
+# unknown_tags <- enc_hist_wide_list$Unknown_Tags
+# enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
+# # applies get_movements_function
+# ##uncomment later
+# Movements_df <- get_movements_function(combined_events_stations)
+# WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_df)
+# 
+# #this is used in states_data reactives
+# weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
+# 
+# #more formatting
+# Enc_release_data <- enc_hist_wide_df %>%
+#     mutate(Date = ifelse(str_detect(Date, "/"),
+#                          as.character(mdy(Date)),
+#                          Date))
+# 
+# 
+# most_recent_date <- max(df_list$All_Events$Date)  
+# # if someone could incorporate and expland upon this custom rainbow trout color pallette I made that would be great                    
+# rainbow_trout_pallette <- list(pink1 = "#E3BABBFF", olive_green1 = "#C4CFBFFF", dark_olive_green1 = "#81754EFF",
+#                                mustard_yellow1 = "#CBA660FF", brown_yellow = "#86551CFF" )
+# 
+# ### taking dummy tag out
+# 
+# Biomark <- Biomark %>%
+#   filter(!DEC.Tag.ID %in% c("900.230000999999"))
+# Release_05 <- Release_05 %>%
+#   filter(!TagID %in% c("230000999999"))
+# Stationary <- Stationary %>%
+#   filter(!TAG %in% c("900_230000999999"))
+# 
+# #this list is taken by the individual datasets mod
+# indiv_datasets_list <- list(
+#       "stationarycleandata" = Stationary,
+#       "biomarkdata" = Biomark,
+#       "mobiledata" = Mobile,
+#       "recapdata" = Recaptures_05,
+#       "releasedata" = Release_05,
+#       "ghostdata" = GhostTags,
+#       "avian_preddata" = AvianPredation
+# 
+#     )
 
-#putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
-df_list <- All_combined_events_function(Stationary = Stationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
-All_events <- df_list$All_Events
-Marker_tags <- df_list$Marker_Tag_data
-WGFP_Clean_1 <- df_list$WGFP_Clean
-unknown_tags_1 <-df_list$Unknown_Tags
+# df_list, indiv_datasets_list$releasedata, Enc_release_data, states_data_list, Movements_df, WeeklyMovementsbyType, Marker_Tags, Release_05, Recaptures_05, unknown_tags, weeks
 
-#spatially joins point (detection) data to lines (station) data based on nearest feature. 
-#simplestatoins is from polygon_readins
-##uncomment later
-Stationdata1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
 
-#prepares joined stations and relevant Movements dataset for movements summaries and states
-combined_events_stations <- PrepareforStatesMovementsandSummary(Stationdata1)
 
-# states
-##uncomment later
-states_data_list <- states_function(combined_events_stations, GhostTags, AvianPredation)
-# aplies enc_hist_summary wide function
-##uncomment later
-enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(df_list$Recaps_detections, Release_05, combined_events_stations, states_data_list$States_summarized)
-unknown_tags <- enc_hist_wide_list$Unknown_Tags
-enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
-# applies get_movements_function
-##uncomment later
-Movements_df <- get_movements_function(combined_events_stations)
-WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_df)
+if(!exists("combinedData_df_list")){
+  
+  start_time <- Sys.time()
+  print("Reading in Static Files for app.....")
+  combinedData_df_list <- readRDS("data/flatFilesforApp/combinedData_df_list.rds")
+  indiv_datasets_list <- readRDS("data/flatFilesforApp/indiv_datasets_list.rds")
+  Enc_release_data <- readRDS("data/flatFilesforApp/Enc_release_data.rds")
+  states_data_list <- readRDS("data/flatFilesforApp/states_data_list.rds")
+  movements_list <- readRDS("data/flatFilesforApp/movements_list.rds")
+  Stationary_Marker_tags <- readRDS("data/flatFilesforApp/Stationary_Marker_tags.rds")
+  end_time <- Sys.time()
+  print(paste("Static File Read-in took", round((end_time-start_time),2)))
+}
 
-#this is used in states_data reactives
 weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
-
-#more formatting
-Enc_release_data <- enc_hist_wide_df %>%
-    mutate(Date = ifelse(str_detect(Date, "/"),
-                         as.character(mdy(Date)),
-                         Date))
-
-
-most_recent_date <- max(df_list$All_Events$Date)  
-# if someone could incorporate and expland upon this custom rainbow trout color pallette I made that would be great                    
-rainbow_trout_pallette <- list(pink1 = "#E3BABBFF", olive_green1 = "#C4CFBFFF", dark_olive_green1 = "#81754EFF",
-                               mustard_yellow1 = "#CBA660FF", brown_yellow = "#86551CFF" )
-
-### taking dummy tag out
-
-Biomark <- Biomark %>%
-  filter(!DEC.Tag.ID %in% c("900.230000999999"))
-Release_05 <- Release_05 %>%
-  filter(!TagID %in% c("230000999999"))
-Stationary <- Stationary %>%
-  filter(!TAG %in% c("900_230000999999"))
-
-#this list is taken by the individual datasets mod
-indiv_datasets_list <- list(
-      "stationarycleandata" = Stationary,
-      "biomarkdata" = Biomark,
-      "mobiledata" = Mobile,
-      "recapdata" = Recaptures_05,
-      "releasedata" = Release_05,
-      "ghostdata" = GhostTags,
-      "avian_preddata" = AvianPredation
-
-    )
 
 # Define UI for application that draws a histogram
 
@@ -206,7 +228,7 @@ ui <- fluidPage(
              
              tabPanel("Individual Datasets",
                       value = "IndividualDatasetsTab",
-                      IndividualDatasets_UI("IndividualDatasetsTab1", df_list, Release_05)
+                      IndividualDatasets_UI("IndividualDatasetsTab1", combinedData_df_list, indiv_datasets_list$releasedata)
                     ),#end of Individual data tab panel
              
 # Encounter Histories UI --------------------------------------------------
@@ -218,7 +240,7 @@ ui <- fluidPage(
                           EncounterHistoriesSummariesWide_UI("EncounterHistoriesSummariesWideTab1", Enc_release_data)),
                       
                       tabPanel("All Encounter Histories",
-                               AllEncounters_UI("AllEncountersTab1", df_list))
+                               AllEncounters_UI("AllEncountersTab1", combinedData_df_list))
                       )
                       ), #end of Encounter Histories Tab
 # States UI -----------------------------------------------------
@@ -237,7 +259,7 @@ ui <- fluidPage(
 #picker wasn't working becuase I had 2 different pickers named the same
             tabPanel("Daily Movements Map, Plot, and Data",
                      value = "MovementsTab",
-                     movements_UI("MovementsTab1", Movements_df, df_list)
+                     movements_UI("MovementsTab1", movements_list$Movements_df, combinedData_df_list)
             ),
             
 
@@ -245,10 +267,11 @@ ui <- fluidPage(
 
           tabPanel("QAQC",
                    value = "QAQCTab",
-                   QAQC_UI("QAQCTab1", df_list)
+                   QAQC_UI("QAQCTab1", Stationary_Marker_tags)
                    ) # end of tabPanel
     ) #end of navbar page
 ) #end of fluidpage
+
 
 
 
@@ -257,22 +280,19 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   
   observe({
-    if(input$tabs == "MovementsTab") {
-      movements_Server("MovementsTab1", Movements_df, WeeklyMovementsbyType)
-    } 
-    if(input$tabs == "IndividualDatasetsTab"){
+    
+      movements_Server("MovementsTab1", movements_list$Movements_df, movements_list$WeeklyMovementsbyType)
+    
       IndividualDatasets_Server("IndividualDatasetsTab1", indiv_datasets_list)
-    } 
-    if(input$tabs == "EncounterHistories"){
+    
       EncounterHistoriesSummariesWide_Server("EncounterHistoriesSummariesWideTab1", Enc_release_data)
-      AllEncounters_Server("AllEncountersTab1", df_list)
-    }
-    if(input$tabs == "StatesTab"){
+      
+      AllEncounters_Server("AllEncountersTab1", combinedData_df_list)
+    
       States_Server("StatesTab1", states_data_list, weeks)
-    } 
-    if(input$tabs == "QAQCTab"){
-      QAQC_Server("QAQCTab1", df_list = df_list, Release_05, Recaptures_05, unknown_tags)
-    } 
+   
+      QAQC_Server("QAQCTab1", Stationary_Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, unknown_tags)
+    
   })
   
 }

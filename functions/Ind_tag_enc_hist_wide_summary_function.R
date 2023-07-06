@@ -17,9 +17,6 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
   x <- all_enc12 %>%
     replace_na(list(Species = "No Info", ReleaseSite = "No Info"))
   
-  #all_enc12[is.na(all_enc12)]=0
-  #### NEED To make this compatible with new antennas!!
-  
   ENC_ALL <- all_enc12 %>%
     rename(RB1_n = RB1,
            RB2_n = RB2,
@@ -166,7 +163,10 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
     select(TAG, sum_dist)
   
   ENC_Release6 <- ENC_Release5 %>%
-    left_join(sum_dist1, by = "TAG")
+    left_join(sum_dist1, by = "TAG") %>%
+    mutate(Date = ifelse(str_detect(Date, "/"),
+                         as.character(mdy(Date)),
+                         Date))
   
   #### dummy rows removal: 1/14/23
   ENC_Release6 <- ENC_Release6 %>%
