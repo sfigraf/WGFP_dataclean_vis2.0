@@ -57,19 +57,30 @@ for (i in list.files("./miscR/")) {
 
 # Data Read Ins -----------------------------------------------------------
 
+ 
+start_time <- Sys.time()
+print("Reading in Static Files for app.....")
 if(!exists("combinedData_df_list")){
-  
-  start_time <- Sys.time()
-  print("Reading in Static Files for app.....")
   combinedData_df_list <- readRDS("data/flatFilesforApp/combinedData_df_list.rds")
-  indiv_datasets_list <- readRDS("data/flatFilesforApp/indiv_datasets_list.rds")
-  Enc_release_data <- readRDS("data/flatFilesforApp/Enc_release_data.rds")
-  states_data_list <- readRDS("data/flatFilesforApp/states_data_list.rds")
-  movements_list <- readRDS("data/flatFilesforApp/movements_list.rds")
-  Stationary_Marker_tags <- readRDS("data/flatFilesforApp/Stationary_Marker_tags.rds")
-  end_time <- Sys.time()
-  print(paste("Static File Read-in took", round((end_time-start_time),2)))
 }
+if(!exists("indiv_datasets_list")){
+  indiv_datasets_list <- readRDS("data/flatFilesforApp/indiv_datasets_list.rds")
+}
+if(!exists("Enc_release_data")){
+  Enc_release_data <- readRDS("data/flatFilesforApp/Enc_release_data.rds")
+}
+if(!exists("states_data_list")){
+  states_data_list <- readRDS("data/flatFilesforApp/states_data_list.rds")
+}
+if(!exists("movements_list")){
+  movements_list <- readRDS("data/flatFilesforApp/movements_list.rds")
+}
+if(!exists("Stationary_Marker_tags")){
+  Stationary_Marker_tags <- readRDS("data/flatFilesforApp/Stationary_Marker_tags.rds")
+}
+end_time <- Sys.time()
+print(paste("Static File Read-in took", round((end_time-start_time),2)))
+
 
 weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
 

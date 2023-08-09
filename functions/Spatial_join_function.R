@@ -6,6 +6,8 @@
 # condensed_events = df_list$All_Events_most_relevant
 # simple_stations = simple_stations2
 #simplestations is a sptial lines dataframe brought in with map_polygon_readins 
+
+library(PBSmapping)
 spatial_join_stations_detections <- function(condensed_events, simple_stations) {
   
   start_time <- Sys.time()
