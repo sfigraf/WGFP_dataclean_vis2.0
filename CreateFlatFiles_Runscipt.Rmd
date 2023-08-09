@@ -35,8 +35,7 @@ for (i in list.files("./miscR/")) {
 # could be a later task
 #Stationary <- read.csv(paste0("./data/WGFP_Raw_20230307.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
 Stationary <- readRDS("./data/WGFP_StationaryCleaned_20230623.rds")
-Stationary_Marker_tags <- Stationary$cleanMarkerTags %>%
-  mutate(DTY = ymd(DTY))
+
 Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
 Biomark <- read.csv("./data/Biomark_Raw_20221102.csv", dec = ",") 
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
@@ -57,6 +56,31 @@ print(paste("Reading in files took", round((end_time-start_time),2)))
 
 
 ```{r wrangling, include=FALSE, echo = FALSE}
+##some stationary hosuekeeping
+
+Stationary_cleanSiteCodes <- Stationary %>%
+  filter(DTY >= as.Date("2020-08-06")) %>%
+  mutate(
+         SCD = case_when(SCD == "CD7" & ANT == "A1" ~ "CD7",
+                             SCD == "CD7" & ANT == "A2" ~ "CD8",
+                             SCD == "CD7" & ANT == "A3" ~ "CD9",
+                             SCD == "CD7" & ANT == "A4" ~ "CD10",
+                             TRUE ~ SCD),
+          DTY = ifelse(str_detect(DTY, "/"), 
+                          as.character(mdy(DTY)), 
+                          DTY))
+#separating to marker tag file and fish detections file
+Stationary_cleanMarkerTags <- Stationary_cleanSiteCodes %>%
+  filter(str_detect(TAG, "^0000000"))
+Stationary_Marker_tags <- Stationary_cleanMarkerTags %>%
+  #this is to get it in right format for displaying
+  mutate(DTY = ymd(DTY))
+
+Cleaned_Stationary_FishdetectionsOnly <- Stationary_cleanSiteCodes %>%
+  filter(grepl("^900", TAG),
+             Code %in% c("I", "S")) %>% 
+  mutate(TAG = ifelse(grepl("^900", TAG), gsub("^900", "", TAG)))
+      
 #### This part is for checking if new antennas to be put in will work
 #neeed to keep this in because it adds a column for the new antennas which sets up the enc_hist_wide_list for the new antennas
 #the actual dummy tag is taken out at the end though
@@ -97,7 +121,6 @@ GhostTags <- GhostTags %>%
 # Functions Read-in -------------------------------------------------------
 
 #Stationary <- Stationary$Cleaned_Stationary_detectionsOnly
-
 
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
 df_list <- All_combined_events_function(Stationary = Stationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
