@@ -1,4 +1,5 @@
-
+###  want to take all the "cleaning data" stuff out and put it into their own functions
+#then this function will just be combining everything
 
 # Create Function
 ## this function is up to date for new antennas 
@@ -8,64 +9,21 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   print("Running All_combined_events_function: Combining and cleaning Stationary, Mobile, Biomark, Release, and Recapture csv inputs.")
   
   
-  WGFP_NoMarkers <- Stationary %>%
-    mutate(TAG = str_replace(str_trim(TAG), "\\_", "")) %>%
-    filter(str_detect(TAG, "^900"), 
-           !TAG %in% test_tags)
-
-#marker tag only file 
-  Markers_only <- Stationary %>%
-    mutate(TAG = str_replace(str_trim(TAG), "\\_", "")) %>%
-    filter(
-      str_detect(TAG, "^0000000")
-    )
-  
-  Markers_only1 <- Markers_only %>%
-    mutate(
-      DTY = 
-        ifelse(str_detect(DTY, "/"), 
-                   as.character(mdy(DTY)), 
-                   DTY),
-      DTY2 = as.Date(DTY))
-      
-  
-  Markers_only2 <- Markers_only1 %>%
-    #this is the same process that all_detections goes through
-    mutate(Scan_Time1 = case_when(str_detect(ARR, "AM") & str_detect(ARR, "^12:") ~ hms(ARR) - hours(12),
-                                 str_detect(ARR, "PM") & str_detect(ARR, "^12:") ~ hms(ARR),
-                                 
-                                 str_detect(ARR, "AM") & str_detect(ARR, "^12:", negate = TRUE) ~ hms(ARR),
-                                 str_detect(ARR, "PM") & str_detect(ARR, "^12:", negate = TRUE) ~ hms(ARR) + hours(12),
-                                 #if it doesn't detect PM or AM just do hms(ARR)
-                                 str_detect(ARR, "PM|AM") == FALSE ~ hms(ARR)),
-           Scan_Time2 = as.character(as_datetime(Scan_Time1)), 
-           CleanARR = str_trim(str_sub(Scan_Time2, start = 11, end = -1))
-    ) %>%
-    
-    select(Code, DTY2, ARR, CleanARR, TRF, DUR, TTY, TAG, SCD, ANT, NCD, EFA) %>%
-    rename(DTY = DTY2)
-    
-  ## rest of getting "clean" windy gap stationary data
-  ### Subset Detection Type "Codes" to only include Summary (S) and Individual (I) ###
-  WGFP_Clean= data.frame(WGFP_NoMarkers[which(WGFP_NoMarkers$Code == "I" | WGFP_NoMarkers$Code == "S"),])
-  
   #### Add Lat Longs to detections ###
    
   # takes out 900 from TAG in WGFP Clean
   # also takes out duplicate rows
-  WGFP_Clean <- WGFP_Clean %>%
+  WGFP_Clean <- Stationary %>%
+    #this change
     mutate(TAG = ifelse(str_detect(TAG, "^900"), str_sub(TAG, 4,-1), TAG),
            SCD = case_when(SCD == "CD7" & ANT == "A1" ~ "CD7",
                            SCD == "CD7" & ANT == "A2" ~ "CD8",
                            SCD == "CD7" & ANT == "A3" ~ "CD9",
                            SCD == "CD7" & ANT == "A4" ~ "CD10",
                            TRUE ~ SCD),
-           DTY = ifelse(str_detect(DTY, "/"), 
-                         as.character(mdy(DTY)), 
+           DTY = ifelse(str_detect(DTY, "/"),
+                         as.character(mdy(DTY)),
                          DTY)) %>%
-    
-    # mutate(TAG = case_when(str_detect(TAG, "^900") ~ str_sub(TAG, 4,-1),
-    #                        str_detect(TAG, "!^900") ~ TAG)) %>%
     # assigning UTM's are important because they are plotted later when getting stations file in GIS
     mutate(UTM_X =case_when(SCD == "RB1" | SCD == "RB2" ~ "412489",
                             SCD == "HP3" | SCD == "HP4" ~ "414375",
@@ -131,34 +89,15 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     rename(Scan_Date = Date, Scan_Time = Time, Site_Code = Ant)
   
   
-  WG_bio <- bind_rows(WGFP_condensed,Biomark_condensed)
-  All_detections <- bind_rows(WG_bio, Mobile_condensed)
+  mobile_bio <- bind_rows(Mobile_condensed,Biomark_condensed)
+  All_detections <- bind_rows(mobile_bio, WGFP_condensed)
   
-  #cleaning timestamps for mobile and old stationary detections mainly
-  if (    length(unique( str_detect(All_detections$Scan_Time, "PM|AM"))) > 1) {
-    All_detections1 <- All_detections %>%
-      mutate(Scan_Time1 = case_when(str_detect(Scan_Time, "AM") & str_detect(Scan_Time, "^12:") ~ hms(Scan_Time) - hours(12),
-                                    str_detect(Scan_Time, "PM") & str_detect(Scan_Time, "^12:") ~ hms(Scan_Time),
-                                    
-                                    str_detect(Scan_Time, "AM") & str_detect(Scan_Time, "^12:", negate = TRUE) ~ hms(Scan_Time),
-                                    str_detect(Scan_Time, "PM") & str_detect(Scan_Time, "^12:", negate = TRUE) ~ hms(Scan_Time) + hours(12),
-                                    #if it doesn't detect PM or AM just do hms(Scan_Time)
-                                    str_detect(Scan_Time, "PM|AM") == FALSE ~ hms(Scan_Time)),
-      ) %>%
-      mutate(Scan_Time2 = as.character(as_datetime(Scan_Time1)), 
-             clean_time = str_trim(str_sub(Scan_Time2, start = 11, end = -1))) %>%
-      
-      select(Scan_Date, clean_time, TAG, Site_Code, UTM_X, UTM_Y ) #%>%
-      #rename(Scan_Time = (clean_time))
-  }
-  
-  All_detections2 <- All_detections1 %>%
+  All_detections2 <- All_detections %>%
     filter(Scan_Date >= as.Date("2020-08-06")) %>% #right before the first date of marker tag detections on stationary antennas
     mutate(
-      #datetime1 = as.POSIXct(paste(Scan_Date, Scan_Time),format="%Y-%m-%d %H:%M:%S"), #this line works too
-      Scan_DateTime = ymd_hms(paste(Scan_Date, clean_time))) %>%
+      Scan_DateTime = ymd_hms(paste(Scan_Date, Scan_Time))) %>%
     #rename(Scan_DateTime = datetime2) %>%
-    select(Scan_Date, clean_time, Scan_DateTime, TAG, Site_Code, UTM_X, UTM_Y )
+    select(Scan_Date, Scan_Time, Scan_DateTime, TAG, Site_Code, UTM_X, UTM_Y )
   
 ### all detections and recaps and release "EVENTS" DF
   
@@ -194,9 +133,9 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   
   #getting all detections file ready to merge with encounters
   All_Detections_1_merge <- All_detections2 %>%
-    mutate(Date = as.Date(Scan_Date)) %>%
+    mutate(Date = ymd(Scan_Date)) %>%
     rename(
-      Time = clean_time,
+      Time = Scan_Time,
       DateTime = Scan_DateTime,
       Event = Site_Code) 
   
@@ -266,10 +205,11 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
 
   df_list <- list( "WGFP_Clean" = WGFP_Clean, "All_Detections" = All_detections2, 
                    "All_Events_most_relevant" = all_events_relevant_to_stations,
-                  "All_Events" = filled_in_release_rows_condensed, "Marker_Tag_data" = Markers_only2, "Recaps_detections" = recaps_detections)
+                   #allEvents has release and recapture along with detections. All Detections just has detections
+                  "All_Events" = filled_in_release_rows_condensed, "Recaps_detections" = recaps_detections)
   
   end_time <- Sys.time()
-  print(paste("All_combined_events_function took", round((end_time-start_time)/60,2), "Minutes"))
+  print(paste("All_combined_events_function took", round((end_time-start_time),2)))
   
   return(df_list)
 }
