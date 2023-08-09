@@ -1,0 +1,186 @@
+---
+title: "Create Files for App Runscript"
+author: "Sam Graf"
+date: '2023-07-06'
+output: html_document
+---
+
+```{r readins, include=FALSE, echo = FALSE}
+library(tidyverse) 
+library(lubridate)
+start_time <- Sys.time()
+print("Reading in Stationary, Mobile, Biomark, Release, and Recapture csv files.")
+
+#functions
+for (i in list.files("./functions/")) {
+  if (grepl(".R", i)) {
+    source(paste0("./functions/",i))
+  }
+}
+
+for (i in list.files("./modules/")) {
+  if (grepl(".R", i)) {
+    source(paste0("./modules/",i))
+  }
+}
+
+for (i in list.files("./miscR/")) {
+  if (grepl(".R", i)) {
+    source(paste0("./miscR/",i))
+  }
+}
+
+# if column names change in any of these read-ins, might require some modification to code to get them to combine
+# also if you change read.csv to read_csv, it should read in quicker but column names will change
+# could be a later task
+#Stationary <- read.csv(paste0("./data/WGFP_Raw_20230307.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
+Stationary <- readRDS("./data/WGFP_StationaryCleaned_20230623.rds")
+Stationary_Marker_tags <- Stationary$cleanMarkerTags %>%
+  mutate(DTY = ymd(DTY))
+Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
+Biomark <- read.csv("./data/Biomark_Raw_20221102.csv", dec = ",") 
+# need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
+Release <- read.csv("./data/WGFP_ReleaseData_Master.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",8) ))
+Recaptures <- read.csv("./data/WGFP_RecaptureData_Master.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
+
+#avitaion predation
+AvianPredation <- read_csv("./data/WGFP_AvianPredation.csv", col_types = cols(TagID = col_character(),Comments = col_character()))
+#ghost tag df
+GhostTags <- read_csv("./data/WGFP_GhostTags.csv", 
+                           col_types = cols(TagID = col_character()))
+
+
+
+end_time = Sys.time()
+print(paste("Reading in files took", round((end_time-start_time),2)))
+```
+
+
+```{r wrangling, include=FALSE, echo = FALSE}
+#### This part is for checking if new antennas to be put in will work
+#neeed to keep this in because it adds a column for the new antennas which sets up the enc_hist_wide_list for the new antennas
+#the actual dummy tag is taken out at the end though
+
+dummy_rows_list <- add_dummy_rows(stationary = Stationary$Cleaned_Stationary_detectionsOnly, biomark = Biomark, release1 = Release)
+Stationary <- dummy_rows_list$Stationary
+Biomark <- dummy_rows_list$Biomark
+Release <- dummy_rows_list$Release
+#ghost_tag_df <- dummy_rows_list$Ghost_tags #date column is named "Ghost_date" and is a date type
+
+# Date Wrangling ----------------------------------------------------------
+
+# this readies raw files to be put into functions as well as displayed on Indivudal Datasets Page
+Mobile <- Mobile %>%
+    mutate(Date = as.character(mdy(Date)))
+
+
+Biomark <- Biomark %>%
+  #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy 
+  # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
+  mutate(Scan.Date = ifelse(str_detect(Scan.Date, "/"), 
+                            as.character(mdy(Scan.Date)), 
+                            Scan.Date))
+
+
+Release_05 <- Release %>%
+  mutate(Date = as.character(mdy(Date)))
+
+Recaptures_05 <- Recaptures %>%
+  mutate(Date = as.character(mdy(Date)))
+
+AvianPredation <- AvianPredation %>%
+  mutate(PredationDate = mdy(PredationDate))
+
+GhostTags <- GhostTags %>%
+  mutate(GhostDate = mdy(GhostDate)) 
+
+# Functions Read-in -------------------------------------------------------
+
+#Stationary <- Stationary$Cleaned_Stationary_detectionsOnly
+
+
+#putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
+df_list <- All_combined_events_function(Stationary = Stationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
+All_events <- df_list$All_Events
+
+WGFP_Clean_1 <- df_list$WGFP_Clean
+
+#recaps_and_all_detections <- df_list$Recaps_detections
+#spatially joins point (detection) data to lines (station) data based on nearest feature. 
+#simplestatoins is from polygon_readins
+##uncomment later
+Stationdata1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
+
+#prepares joined stations and relevant Movements dataset for movements summaries and states
+combined_events_stations <- PrepareforStatesMovementsandSummary(Stationdata1)
+
+# states
+##uncomment later
+states_data_list <- states_function(combined_events_stations, GhostTags, AvianPredation)
+# aplies enc_hist_summary wide function
+##uncomment later
+enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(df_list$Recaps_detections, Release_05, combined_events_stations, states_data_list$States_summarized)
+unknown_tags <- enc_hist_wide_list$Unknown_Tags
+enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
+# applies get_movements_function
+##uncomment later
+Movements_df <- get_movements_function(combined_events_stations)
+WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_df)
+
+#this is used in states_data reactives
+weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
+
+#more formatting
+Enc_release_data <- enc_hist_wide_df %>%
+    mutate(Date = ifelse(str_detect(Date, "/"),
+                         as.character(mdy(Date)),
+                         Date))
+
+
+# if someone could incorporate and expland upon this custom rainbow trout color pallette I made that would be great                    
+rainbow_trout_pallette <- list(pink1 = "#E3BABBFF", olive_green1 = "#C4CFBFFF", dark_olive_green1 = "#81754EFF",
+                               mustard_yellow1 = "#CBA660FF", brown_yellow = "#86551CFF" )
+
+### taking dummy tag out
+
+Biomark <- Biomark %>%
+  filter(!DEC.Tag.ID %in% c("900.230000999999"))
+Release_05 <- Release_05 %>%
+  filter(!TagID %in% c("230000999999"))
+Stationary <- Stationary %>%
+  filter(!TAG %in% c("900_230000999999"))
+
+#this list is taken by the individual datasets mod
+indiv_datasets_list <- list(
+      "stationarycleandata" = Stationary,
+      "biomarkdata" = Biomark,
+      "mobiledata" = Mobile,
+      "recapdata" = Recaptures_05,
+      "releasedata" = Release_05,
+      "ghostdata" = GhostTags,
+      "avian_preddata" = AvianPredation
+
+    )
+movements_list <- list(
+  "Movements_df" = Movements_df,
+  "WeeklyMovementsbyType" = WeeklyMovementsbyType
+)
+
+
+allFlatFiles <- list(
+  "combinedData_df_list" = df_list, 
+  "indiv_datasets_list" = indiv_datasets_list, 
+  "Enc_release_data" = Enc_release_data, 
+  "states_data_list" = states_data_list,
+  "movements_list" = movements_list,
+  "Stationary_Marker_tags" = Stationary_Marker_tags
+  
+)
+for(filename in names(allFlatFiles)){
+  saveRDS(allFlatFiles[[filename]], paste0("data/flatFilesforApp/", filename, ".rds") )
+}
+
+saveRDS(allFlatFiles, "data/allFlatFiles.rds")
+# df_list, indiv_datasets_list$releasedata, Enc_release_data, states_data_list, Movements_df, WeeklyMovementsbyType, Marker_Tags, Release_05, Recaptures_05, unknown_tags, weeks
+
+```
