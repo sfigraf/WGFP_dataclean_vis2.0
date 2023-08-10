@@ -34,8 +34,7 @@ for (i in list.files("./miscR/")) {
 # if column names change in any of these read-ins, might require some modification to code to get them to combine
 # also if you change read.csv to read_csv, it should read in quicker but column names will change
 # could be a later task
-#Stationary <- read.csv(paste0("./data/WGFP_Raw_20230307.csv")) #WGFP_Raw_20211130.csv WGFP_Raw_20220110_cf6.csv
-Stationary <- readRDS("./data/WGFP_Raw_20230623.rds")
+Stationary <- readRDS("./data/WGFP_Raw_20230809.rds")
 
 Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
 Biomark <- read.csv("./data/Biomark_Raw_20221102.csv", dec = ",") 
@@ -97,9 +96,6 @@ AvianPredation <- AvianPredation %>%
 GhostTags <- GhostTags %>%
   mutate(GhostDate = mdy(GhostDate)) 
 
-
-#Stationary <- Stationary$Cleaned_Stationary_detectionsOnly
-
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
 df_list <- All_combined_events_function(Stationary = StationaryClean, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
 All_events <- df_list$All_Events
@@ -113,25 +109,20 @@ Cleaned_Stationary_FishdetectionsOnly <- StationaryClean %>%
   filter(grepl("^230|^226", TAG))
 
 
-#recaps_and_all_detections <- df_list$Recaps_detections
 #spatially joins point (detection) data to lines (station) data based on nearest feature. 
 #simplestatoins is from polygon_readins
-##uncomment later
 Stationdata1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
 
 #prepares joined stations and relevant Movements dataset for movements summaries and states
 combined_events_stations <- PrepareforStatesMovementsandSummary(Stationdata1)
 
 # states
-##uncomment later
 states_data_list <- states_function(combined_events_stations, GhostTags, AvianPredation)
 # aplies enc_hist_summary wide function
-##uncomment later
 enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(df_list$Recaps_detections, Release_05, combined_events_stations, states_data_list$States_summarized)
 unknown_tags <- enc_hist_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
 # applies get_movements_function
-##uncomment later
 Movements_df <- get_movements_function(combined_events_stations)
 WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_df)
 
@@ -187,10 +178,6 @@ allFlatFiles <- list(
 for(filename in names(allFlatFiles)){
   saveRDS(allFlatFiles[[filename]], paste0("data/flatFilesforApp/", filename, ".rds"))
 }
-
-
-#saveRDS(allFlatFiles, "data/allFlatFiles.rds")
-# df_list, indiv_datasets_list$releasedata, Enc_release_data, states_data_list, Movements_df, WeeklyMovementsbyType, Marker_Tags, Release_05, Recaptures_05, unknown_tags, weeks
 
 ```
 ```{r conclusion, echo = FALSE}

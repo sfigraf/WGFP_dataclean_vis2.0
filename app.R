@@ -37,11 +37,11 @@ library(leaflet.minicharts)
 # 
 # 
 # #functions
-# for (i in list.files("./functions/")) {
-#   if (grepl(".R", i)) {
-#     source(paste0("./functions/",i))
-#   }
-# }
+for (i in list.files("./functions/")) {
+  if (grepl(".R", i)) {
+    source(paste0("./functions/",i))
+  }
+}
 # 
 for (i in list.files("./modules/")) {
   if (grepl(".R", i)) {
