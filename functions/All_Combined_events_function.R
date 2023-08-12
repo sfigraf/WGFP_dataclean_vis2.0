@@ -23,7 +23,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
                               as.character(mdy(Scan.Date)), 
                               Scan.Date)
              ) %>%
-    filter(!TAG %in% c("900230000102751", "900226001581072", "999000000007586", "999000000007585", "999000000007601", "999000000007602" )) %>%
+    filter(!TAG %in% test_tags) %>%
     
     # from gis: B1 416026, 4440196
     #B2: 420727.9, 4437221

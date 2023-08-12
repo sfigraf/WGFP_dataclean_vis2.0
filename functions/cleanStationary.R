@@ -9,7 +9,9 @@ cleanStationary <- function(Stationary){
     mutate(TAG = gsub("\\_", "", str_trim(TAG)), 
            DTY = ifelse(str_detect(DTY, "/"),
                     as.character(mdy(DTY)),
-                    DTY))
+                    DTY)) %>%
+    #taking out test_tags
+    filter(!TAG %in% test_tags)
   
   #cleaning timestamps for mobile and old stationary detections mainly
   if (any(grepl("PM|AM", Stationary$ARR))) {
@@ -60,27 +62,6 @@ cleanStationary <- function(Stationary){
                              SCD == "CD7" | SCD == "CD8" | SCD == "CD9" | SCD == "CD10" ~ "4439899",
                              SCD == "CU11" | SCD == "CU12" ~ "4439507")) %>%
     distinct()
-  
-  ##separating marker tags and detections
-  # 
-  # Cleaned_Stationary_detectionsOnly <- Stationary_cleanedTime %>%
-  #   filter(grepl("^900", TAG),
-  #          Code %in% c("I", "S"), 
-  #          DTY >= as.Date("2020-08-06")) %>% 
-  #   mutate(
-  #          TAG = ifelse(grepl("^900", TAG), gsub("^900", "", TAG)),
-  #          SCD = case_when(SCD == "CD7" & ANT == "A1" ~ "CD7",
-  #                          SCD == "CD7" & ANT == "A2" ~ "CD8",
-  #                          SCD == "CD7" & ANT == "A3" ~ "CD9",
-  #                          SCD == "CD7" & ANT == "A4" ~ "CD10",
-  #                          TRUE ~ SCD),
-  #          DTY = ifelse(str_detect(DTY, "/"), 
-  #                       as.character(mdy(DTY)), 
-  #                       DTY))
-  # 
-  # #marker tag only file 
-  # Markers_only <- Stationary_cleanedTime %>%
-  #   filter(str_detect(TAG, "^0000000"))
   end_time = Sys.time()
   print(paste("Reading in files took", round((end_time-start_time),2)))
   

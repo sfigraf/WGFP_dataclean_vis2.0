@@ -37,10 +37,10 @@ library(leaflet.minicharts)
 # 
 # 
 # #functions
-for (i in list.files("./functions/")) {
-  if (grepl(".R", i)) {
+neededFunctions <- c("Animation_function.R")
+
+for (i in neededFunctions) {
     source(paste0("./functions/",i))
-  }
 }
 # 
 for (i in list.files("./modules/")) {
@@ -78,6 +78,10 @@ if(!exists("movements_list")){
 if(!exists("Stationary_Marker_tags")){
   Stationary_Marker_tags <- readRDS("data/flatFilesforApp/Stationary_Marker_tags.rds")
 }
+if(!exists("unknown_tags")){
+  unknown_tags <- readRDS("data/flatFilesforApp/unknown_tags.rds")
+}
+
 end_time <- Sys.time()
 print(paste("Static File Read-in took", round((end_time-start_time),2)))
 

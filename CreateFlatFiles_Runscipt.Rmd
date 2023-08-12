@@ -34,13 +34,13 @@ for (i in list.files("./miscR/")) {
 # if column names change in any of these read-ins, might require some modification to code to get them to combine
 # also if you change read.csv to read_csv, it should read in quicker but column names will change
 # could be a later task
-Stationary <- readRDS("./data/WGFP_Raw_20230809.rds")
+Stationary <- readRDS("./data/WGFP_Raw_20230801.rds")
 
 Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
 Biomark <- read.csv("./data/Biomark_Raw_20221102.csv", dec = ",") 
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
-Release <- read.csv("./data/WGFP_ReleaseData_Master.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",8) ))
-Recaptures <- read.csv("./data/WGFP_RecaptureData_Master.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
+Release <- read.csv("./data/WGFP_ReleaseData_Master_20230614.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",8) ))
+Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20230614.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
 
 #avitaion predation
 AvianPredation <- read_csv("./data/WGFP_AvianPredation.csv", col_types = cols(TagID = col_character(),Comments = col_character()))
@@ -172,16 +172,16 @@ allFlatFiles <- list(
   "Enc_release_data" = Enc_release_data, 
   "states_data_list" = states_data_list,
   "movements_list" = movements_list,
-  "Stationary_Marker_tags" = Cleaned_Stationary_Marker_tags
+  "Stationary_Marker_tags" = Cleaned_Stationary_Marker_tags, 
+  "unknown_tags" = unknown_tags
   
 )
 for(filename in names(allFlatFiles)){
   saveRDS(allFlatFiles[[filename]], paste0("data/flatFilesforApp/", filename, ".rds"))
 }
 
-```
-```{r conclusion, echo = FALSE}
 whole_doc_endTime <- Sys.time()
-print(paste("The whole document took", round(whole_doc_endTime-whole_doc_startTime,2), "minutes to run.  Flat Files are saved to the flat files directory and the data vis app is ready to run with the most updated data."))
+
 ```
 
+## `r paste("The whole document took", round(whole_doc_endTime-whole_doc_startTime,2), "minutes to run.  Flat Files are saved to the flat files directory and the data vis app is ready to run with the most updated data.")`
