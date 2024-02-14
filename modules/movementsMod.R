@@ -97,11 +97,11 @@ movements_UI <- function(id, Movements_df, df_list) { #could just get dates in U
                            
                            verbatimTextOutput(ns("text2")),
                   ), #end of movement graphs tabpanel
-                  tabPanel("Animation",
-                           br(),
-                           mod_animationUI(ns("movements_animation"))
-                           
-                  ) #end of animation tabPanel
+                  # tabPanel("Animation",
+                  #          br(),
+                  #          mod_animationUI(ns("movements_animation"))
+                  #          
+                  # ) #end of animation tabPanel
                 ), # end of tabset panel
       )#end of mainPanel
     )#end of sidebarLayout including sidebarPanel and Mainpanel
@@ -399,8 +399,8 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
 
 
 # Movements Animation Output ----------------------------------------------
-      mod_animationServer("movements_animation", filtered_movements_data = filtered_movements_data())
-      
+      # mod_animationServer("movements_animation", filtered_movements_data = filtered_movements_data())
+      # 
         
 # Movement Plots Output ----------------------------------------------------
         observe({
