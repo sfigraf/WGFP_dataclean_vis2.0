@@ -1,4 +1,4 @@
-QAQC_UI <- function(id, Marker_Tag_data) {
+QAQC_UI <- function(id, df_list) {
   ns <- NS(id)
   tagList(
     tabsetPanel(
@@ -7,8 +7,8 @@ QAQC_UI <- function(id, Marker_Tag_data) {
                  sidebarPanel(
                    pickerInput(ns("picker8"),
                                label = "Select Site Code",
-                               choices = sort(unique(Marker_Tag_data$SCD)),
-                               selected = unique(Marker_Tag_data$SCD),
+                               choices = sort(unique(df_list$Marker_Tag_data$SCD)),
+                               selected = unique(df_list$Marker_Tag_data$SCD),
                                multiple = TRUE,
                                options = list(
                                  `actions-box` = TRUE #this makes the "select/deselect all" option
@@ -16,8 +16,8 @@ QAQC_UI <- function(id, Marker_Tag_data) {
                    ), #end of picker 8
                    pickerInput(ns("picker9"),
                                label = "Select Marker Tag",
-                               choices = sort(unique(Marker_Tag_data$TAG)),
-                               selected = unique(Marker_Tag_data$TAG)[1],
+                               choices = sort(unique(df_list$Marker_Tag_data$TAG)),
+                               selected = unique(df_list$Marker_Tag_data$TAG)[1],
                                multiple = TRUE,
                                options = list(
                                  `actions-box` = TRUE #this makes the "select/deselect all" option
@@ -25,9 +25,9 @@ QAQC_UI <- function(id, Marker_Tag_data) {
                    ), #end of picker 9 
                    sliderInput(ns("slider3"),
                                "Date",
-                               min = min(Marker_Tag_data$DTY -1),
-                               max = max(Marker_Tag_data$DTY +1),  
-                               value = c(min(Marker_Tag_data$DTY -1),max(Marker_Tag_data$DTY +1)),
+                               min = min(df_list$Marker_Tag_data$DTY -1),
+                               max = max(df_list$Marker_Tag_data$DTY +1),  
+                               value = c(min(df_list$Marker_Tag_data$DTY -1),max(df_list$Marker_Tag_data$DTY +1)),
                                step = 1,
                                timeFormat = "%d %b %y",
                                #animate = animationOptions(interval = 500, loop = FALSE)
@@ -69,14 +69,14 @@ QAQC_UI <- function(id, Marker_Tag_data) {
   )
 }
 
-QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_tags) {
+QAQC_Server <- function(id, df_list, Release_05, Recaptures_05, unknown_tags) {
   moduleServer(
     id,
     function(input, output, session) {
       
       filtered_markertag_data <- eventReactive(input$button8,ignoreNULL = FALSE,{
         
-        markertag_data1 <- Marker_Tag_data %>%
+        markertag_data1 <- df_list$Marker_Tag_data %>%
           filter(SCD %in% c(input$picker8),
                  TAG %in% c(input$picker9),
                  DTY >= input$slider3[1] & DTY <= input$slider3[2]
@@ -88,7 +88,7 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
       
       output$plot2 <- renderPlotly({
         plot2 <- filtered_markertag_data() %>%
-          ggplot(aes(x = DTY, y = ARR, color = SCD, text = paste(TAG) )) +
+          ggplot(aes(x = DTY, y = CleanARR, color = SCD, text = paste(TAG) )) +
           geom_point() +
           theme_classic() +
           theme(

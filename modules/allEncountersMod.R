@@ -8,8 +8,8 @@ AllEncounters_UI <- function(id, df_list) {
                                     start = "2020-08-01",
                                     end = max(df_list$All_Events$Date) + 1), #end of date range input
                      sliderInput(ns("slider1"), "Hour of Day",
-                                 min = min(hour(df_list$All_Events$Datetime), na.rm = TRUE),
-                                 max = max(hour(df_list$All_Events$Datetime), na.rm = TRUE),
+                                 min = min(hour(df_list$All_Events$Datetime)),
+                                 max = max(hour(df_list$All_Events$Datetime)),
                                  value = c(min(hour(df_list$All_Events$Datetime)),max(hour(df_list$All_Events$Datetime))),
                                  step = 1,
                                  #timeFormat = "%T",
