@@ -1,6 +1,6 @@
 
 # the EVENT field is not super helpful here; for most it doesn't matter if it hit RB1 or RB2; can be misleading; maybe omit it? same idea for states DF
-
+library(PBSmapping)
 get_movements_function <- function(combined_events_stations) {
   start_time <- Sys.time()
   print("Running get_movements_function: Calculates movements of fish based off a change in station.")

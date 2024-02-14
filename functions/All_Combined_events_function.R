@@ -6,36 +6,8 @@
 All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, Recaptures){
   
   start_time <- Sys.time()
-  print("Running All_combined_events_function: Combining and cleaning Stationary, Mobile, Biomark, Release, and Recapture csv inputs.")
-  
-  
-  #### Add Lat Longs to detections ###
-   
-  # takes out 900 from TAG in WGFP Clean
-  # also takes out duplicate rows
-  WGFP_Clean <- Stationary %>%
-    #this change
-    mutate(TAG = ifelse(str_detect(TAG, "^900"), str_sub(TAG, 4,-1), TAG),
-           SCD = case_when(SCD == "CD7" & ANT == "A1" ~ "CD7",
-                           SCD == "CD7" & ANT == "A2" ~ "CD8",
-                           SCD == "CD7" & ANT == "A3" ~ "CD9",
-                           SCD == "CD7" & ANT == "A4" ~ "CD10",
-                           TRUE ~ SCD),
-           DTY = ifelse(str_detect(DTY, "/"),
-                         as.character(mdy(DTY)),
-                         DTY)) %>%
-    # assigning UTM's are important because they are plotted later when getting stations file in GIS
-    mutate(UTM_X =case_when(SCD == "RB1" | SCD == "RB2" ~ "412489",
-                            SCD == "HP3" | SCD == "HP4" ~ "414375",
-                            SCD == "CF5" | SCD == "CF6" ~ "416965",
-                            SCD == "CD7" | SCD == "CD8" | SCD == "CD9" | SCD == "CD10" ~ "415801",
-                            SCD == "CU11" | SCD == "CU12" ~ "416802"),
-           UTM_Y = case_when(SCD == "RB1" | SCD == "RB2" ~ "4439413",
-                             SCD == "HP3" | SCD == "HP4" ~ "4440241",
-                             SCD == "CF5" | SCD == "CF6" ~ "4439369",
-                             SCD == "CD7" | SCD == "CD8" | SCD == "CD9" | SCD == "CD10" ~ "4439899",
-                             SCD == "CU11" | SCD == "CU12" ~ "4439507")) %>%
-    distinct()
+  print("Running All_combined_events_function: Combining and cleaning Stationary, Mobile, Biomark, Release, and Recapture csv inputs......")
+
   
   # biomark cleaning, getting dates into uniform format, 
   biomark2 <- Biomark %>%
@@ -51,7 +23,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
                               as.character(mdy(Scan.Date)), 
                               Scan.Date)
              ) %>%
-    filter(!TAG %in% c("900230000102751", "900226001581072", "999000000007586", "999000000007585", "999000000007601", "999000000007602" )) %>%
+    filter(!TAG %in% test_tags) %>%
     
     # from gis: B1 416026, 4440196
     #B2: 420727.9, 4437221
@@ -69,7 +41,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     distinct()
   
   ###Create one big clean dataset
-  WGFP_condensed <- WGFP_Clean %>%
+  WGFP_condensed <- Stationary %>%
     select(DTY, ARR, TAG, SCD, UTM_X, UTM_Y) %>%
     rename(Scan_Date = DTY, Scan_Time = ARR, Site_Code = SCD, UTM_X = UTM_X, UTM_Y = UTM_Y)
   
@@ -202,8 +174,8 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
           arrange(Datetime) 
   
   
-
-  df_list <- list( "WGFP_Clean" = WGFP_Clean, "All_Detections" = All_detections2, 
+  
+  df_list <- list("All_Detections" = All_detections2, 
                    "All_Events_most_relevant" = all_events_relevant_to_stations,
                    #allEvents has release and recapture along with detections. All Detections just has detections
                   "All_Events" = filled_in_release_rows_condensed, "Recaps_detections" = recaps_detections)
