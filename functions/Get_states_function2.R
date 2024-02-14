@@ -35,7 +35,7 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
       #might have to readjust 8330 stationing
       state1 = case_when(Date >= GhostDate ~ "G",
                          Date >= PredationDate ~ "P",
-                         str_detect(Event, "CD7|CD8|CD9|CD10|CU11|CU12") ~ "C",
+                         str_detect(Event, "CD1|CD2|CS1|CS2|CU1|CU2") ~ "C",
                          ET_STATION <= 8330 ~ "A",
                          ET_STATION > 8330 ~ "B")
     )

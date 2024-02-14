@@ -17,7 +17,7 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
         (Event %in% c("RB1", "RB2")) ~ "Colorado River", # there is no is.na here because RB UTM
         (Event %in% c("HP3", "HP4")) ~ "Colorado River",
         (Event %in% c("CF5", "CF6")) ~ "Colorado River",
-        (Event %in% c("CD7", "CD8", "CD9", "CD10", "CU11", "CU12")) ~ "Connectivity Channel",
+        (Event %in% c("CD1", "CD2", "CS1", "CS2", "CU1", "CU2")) ~ "Connectivity Channel",
         (Event %in% c("B3", "B5")) ~ "Colorado River",
         (Event %in% c("B4", "B6")) ~ "Fraser River",
         TRUE ~ River
@@ -53,8 +53,9 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
       det_type = case_when(str_detect(Event, "RB1|RB2") ~ "Red Barn Stationary Antenna",
                            str_detect(Event, "HP3|HP4") ~ "Hitching Post Stationary Antenna",
                            str_detect(Event, "CF5|CF6") ~ "Confluence Stationary Antenna",
-                           str_detect(Event, "CD7|CD8|CD9|CD10") ~ "Connectivity Channel Downstream Stationary Antenna", #Caused by error in `"CD7|CD8" | "CD9"`: solved because quotation marks in the worng places
-                           str_detect(Event, "CU11|CU12") ~ "Connectivity Channel Upstream Stationary Antenna",
+                           str_detect(Event, "CD1|CD2") ~ "Connectivity Channel Downstream Stationary Antenna",
+                           str_detect(Event, "CS1|CS2") ~ "Connectivity Channel Side Channel Stationary Antenna", #Caused by error in `"CD7|CD8" | "CD9"`: solved because quotation marks in the worng places
+                           str_detect(Event, "CU1|CU2") ~ "Connectivity Channel Upstream Stationary Antenna",
                            str_detect(Event, "B3") ~ "Windy Gap Dam Biomark Antenna",
                            str_detect(Event, "B4") ~ "Kaibab Park Biomark Antenna",
                            str_detect(Event, "B5") ~ "River Run Biomark Antenna",
