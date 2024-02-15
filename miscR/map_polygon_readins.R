@@ -1,7 +1,7 @@
 
 start_time <- Sys.time()
 print("Reading in Map Files.")
-library(rgdal)
+#library(rgdal)
 library(leaflet)
 
 library(sf)

@@ -6,7 +6,7 @@ library(leaflet)
 library(PBSmapping)
 library(sf)
 library(plotly) #for turning maps to plotly
-library(rgdal)
+#library(rgdal)
 library(DT)
 library(shinyWidgets) # for pickerinput
 library(shinythemes)
