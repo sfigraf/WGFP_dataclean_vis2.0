@@ -368,7 +368,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
                             popup = paste("Release Date1:", releasesites$ReleaseDat, "<br>","Release Date 2:",  releasesites$ReleaseD_1),
                             group = "Release Sites") %>%
           addPolylines(data = simple_stations2, 
-                       label = simple_stations2@data$ET_STATION,
+                       label = simple_stations2$ET_STATION,
                        labelOptions = labelOptions(noHide = T, textOnly = TRUE, style = label_style),
                        group = "Stations (m)") %>%
          

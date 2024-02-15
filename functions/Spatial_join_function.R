@@ -47,9 +47,8 @@ spatial_join_stations_detections <- function(condensedEvents, simpleStations) {
   
   
   
-  joined <- st_join(condensedEventsSFLatLong, simpleStations, st_nearest_feature)
-  #need to convert class sf object back to dataframe so that it processes faster in combine_events_stations_function
-  stationData <- as.data.frame(joined)
+  stationData <- st_join(condensedEventsSFLatLong, simpleStations, st_nearest_feature)
+ 
   
   
   

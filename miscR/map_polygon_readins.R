@@ -59,11 +59,11 @@ label_style <- list(
 # simple_stations2 <- readOGR(dsn = layerLocation, layer = "Stations_10m_Post")
 # simple_stations2 <- sp::spTransform(simple_stations2, CRS("+init=epsg:4326"))
 
-# stations <- st_transform(read_sf(file.path(layerLocation, "Stations_10m_Post.shp")), latLongCRS)
+stations <- st_transform(read_sf(file.path(layerLocation, "Stations_10m_Post.shp")), latLongCRS)
 # 
 # library(rmapshaper)
-# simpleStations <- rmapshaper::ms_simplify(stations, keep = .1)
-# write_rds(simpleStations, file = file.path(paste0(layerLocation,"/simple_stations2.rds")))
+simpleStations <- rmapshaper::ms_simplify(stations, keep = .1)
+write_rds(simpleStations, file = file.path(paste0(layerLocation,"/simple_stations2.rds")))
 
 
 end_time <- Sys.time()
