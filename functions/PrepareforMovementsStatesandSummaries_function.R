@@ -44,7 +44,7 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
     group_by(Date, TAG) %>%
     mutate(c_number_of_detections = n(),
            daily_unique_events = length(unique(Event))
-           ) %>%
+    ) %>%
     ungroup()
   #generating generic event title for movements map
   DailyMovements_withStations <- DailyMovements_withStations %>%
@@ -69,8 +69,26 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
         ET_STATION < DamLocation ~ "Below the Dam"
       )
       
-    ) %>%
-    
+    ) 
+  
+  # Transform the coordinates back to UTM
+  sf_object_utm <- st_transform(DailyMovements_withStations, crs = 32613)  # Assuming UTM zone 13 with GRS80
+  
+  
+  coordinates <- st_coordinates(sf_object_utm)
+  
+  # Convert the coordinates to a data frame
+  coordinatesDf <- as.data.frame(coordinates)
+  
+  # Rename the columns
+  colnames(coordinatesDf) <- c("UTM_X", "UTM_Y")
+  # # Extract the UTM_X and UTM_Y coordinates
+  DailyMovements_withStations$UTM_X <- coordinatesDf$UTM_X
+  DailyMovements_withStations$UTM_Y <- coordinatesDf$UTM_Y
+
+  #need to convert class sf object back to dataframe so that it processes faster in combine_events_stations_function
+  DailyMovements_withStations <- as.data.frame(DailyMovements_withStations)
+  DailyMovements_withStations <- DailyMovements_withStations %>%
     select(Date, Datetime, TAG, Event, det_type, ReleaseSite,Species, Release_Length, Release_Weight, Release_Date, RecaptureSite, River, days_since, weeks_since, first_last, c_number_of_detections, daily_unique_events, ET_STATION, above_below, UTM_X, UTM_Y) #next_event, next_event_2, same_day_next_events,
   
   return(DailyMovements_withStations)

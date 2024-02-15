@@ -337,19 +337,19 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
           ) %>%
           
           ###polylines and points: obtained from GISdb from this study
-          addAwesomeMarkers(data = antenna_sites@coords,
+          addAwesomeMarkers(data = antenna_sites,
                             icon = Station_icons,
                             clusterOptions = markerClusterOptions(),
-                            label = paste(antenna_sites@data$SiteLabel),
-                            popup = paste(antenna_sites@data$SiteName, "<br>",
-                                          "Channel Width:", antenna_sites@data$ChannelWid, "feet"),
-                            group = "Antennas") %>% # error: don't know jow to get path Data from x....solved by specifying coordinate location with @ within data
-          addPolylines(data = stream_centerline@lines[[1]], 
+                            label = paste(antenna_sites$SiteLabel),
+                            popup = paste(antenna_sites$SiteName, "<br>",
+                                          "Channel Width:", antenna_sites$ChannelWid, "feet"),
+                            group = "Antennas") %>% # error: don't know how to get path Data from x....solved by specifying coordinate location with @ within data
+          addPolylines(data = stream_centerline[stream_centerline$River == "Colorado River",], 
                        color = "blue",
                        opacity = 1,
                        popup = paste("Colorado River Centerline"),
                        group = "Stream Centerlines") %>%
-          addPolylines(data = stream_centerline@lines[[2]],
+          addPolylines(data = stream_centerline[stream_centerline$River == "Fraser River",],
                        color = "blue",
                        opacity = 1,
                        popup = paste("Fraser River Centerline"),
@@ -357,18 +357,18 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
           addPolylines(data = mobile_reaches,
                        color = "yellow",
                        opacity = 1,
-                       label = mobile_reaches@data$River,
-                       popup = paste("Mobile Run:", mobile_reaches@data$River, 
+                       label = mobile_reaches$River,
+                       popup = paste("Mobile Run:", mobile_reaches$River, 
                                      "<br>"),
                        group = "Mobile Reaches") %>%
-          addAwesomeMarkers(data = releasesites@coords,
+          addAwesomeMarkers(data = releasesites,
                             icon = release_icons,
                             clusterOptions = markerClusterOptions(),
-                            label = releasesites@data$ReleaseSit, 
-                            popup = paste("Release Date1:", releasesites@data$ReleaseDat, "<br>","Release Date 2:",  releasesites@data$ReleaseD_1),
+                            label = releasesites$ReleaseSit, 
+                            popup = paste("Release Date1:", releasesites$ReleaseDat, "<br>","Release Date 2:",  releasesites$ReleaseD_1),
                             group = "Release Sites") %>%
           addPolylines(data = simple_stations2, 
-                       label = simple_stations2@data$ET_STATION,
+                       label = simple_stations2$ET_STATION,
                        labelOptions = labelOptions(noHide = T, textOnly = TRUE, style = label_style),
                        group = "Stations (m)") %>%
          

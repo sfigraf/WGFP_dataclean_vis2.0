@@ -114,10 +114,11 @@ Cleaned_Stationary_FishdetectionsOnly <- StationaryClean %>%
 
 #spatially joins point (detection) data to lines (station) data based on nearest feature. 
 #simplestatoins is from polygon_readins
-Stationdata1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
+DailyMovements_withStations <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simpleStations = simpleStations)
 
 #prepares joined stations and relevant Movements dataset for movements summaries and states
-combined_events_stations <- PrepareforStatesMovementsandSummary(Stationdata1)
+#it appears it's calulcating this right
+combined_events_stations <- PrepareforStatesMovementsandSummary(DailyMovements_withStations)
 
 # states
 states_data_list <- states_function(combined_events_stations, GhostTags, AvianPredation)
