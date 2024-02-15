@@ -7,50 +7,19 @@
 # simpleStations = simpleStations2
 #simplestations is a sptial lines dataframe brought in with map_polygon_readins 
 
-library(PBSmapping)
+library(sf)
 spatial_join_stations_detections <- function(condensedEvents, simpleStations) {
   
   start_time <- Sys.time()
   print("Running spatial_join_stations_detections function: Joining detections and events to stations shapefile.")
   ### converting to lat/longs instead of UTM's
   #convert events to sf object
+  #the utms are grs80 and utm zone 13, which corresponds to crs  32613
   condensedEventsSF <- sf::st_as_sf(condensedEvents, coords = c("UTM_X", "UTM_Y"), crs = 32613)
   #convert to lat/long
-  condensedEventsSFLatLong <- st_transform(condensedEventsSF, latLongCRS)
-  # condensedEvents <- condensedEvents %>%
-  #   
-  #   mutate(
-  #     X = as.numeric(UTM_X),
-  #     Y = as.numeric(UTM_Y)
-  #   ) #end of mutate
-  # 
-  # # assigning projection to ready df lat/longs for plotting
-  # attr(condensedEvents, "zone") = "13"
-  # attr(condensedEvents, "projection") = "UTM"
-  # attr(condensedEvents, "datum") = "GRS80"
-  # 
-  # # need a column that has x and Y for this 
-  # # converts lutms to lat/long
-  # condensedEvents <- convUL(condensedEvents, km=FALSE, southern=NULL)
-  # 
-  # #converting lat/long entries to spatial points dataframe
-  # # needs to have a df of just coordinates (xy)
-  # xy <- condensedEvents %>%
-  #   select(X, Y)
-  # 
-  # spdf <- SpatialPointsDataFrame(coords = xy, data = condensedEvents,
-  #                                proj4string = CRS("+init=epsg:4326"))
+  condensedEventsSFLatLong <- sf::st_transform(condensedEventsSF, latLongCRS)
   
-  ## making sf objects
-  # detections_sf <- st_as_sf(spdf)
-  # stations_sf <- st_as_sf(simpleStations)
-  
-  
-  
-  stationData <- st_join(condensedEventsSFLatLong, simpleStations, st_nearest_feature)
- 
-  
-  
+  stationData <- sf::st_join(condensedEventsSFLatLong, simpleStations, st_nearest_feature)
   
   end_time <- Sys.time()
   print(paste("Spatial_join_stations_detections took", round(end_time-start_time,2), "Seconds"))
@@ -58,7 +27,3 @@ spatial_join_stations_detections <- function(condensedEvents, simpleStations) {
   return(stationData)
   
 }
-
-
-#test1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simpleStations2)
-

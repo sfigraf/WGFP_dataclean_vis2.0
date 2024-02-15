@@ -82,21 +82,10 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
   
   # Rename the columns
   colnames(coordinatesDf) <- c("UTM_X", "UTM_Y")
-  
+  # # Extract the UTM_X and UTM_Y coordinates
   DailyMovements_withStations$UTM_X <- coordinatesDf$UTM_X
   DailyMovements_withStations$UTM_Y <- coordinatesDf$UTM_Y
-  # # Extract the UTM_X and UTM_Y coordinates
-  # DailyMovements_withStations$UTM_X <- x <- as.data.frame(as.numeric(st_coordinates(DailyMovements_withStations)))["X"]
-  # DailyMovements_withStations$UTM_Y <- as.data.frame(as.numeric(st_coordinates(DailyMovements_withStations)))["Y"]
-  # 
-  # x <- DailyMovements_withStations %>%
-  #   dplyr::rename( UTM_X =`UTM_X$X`)
-  
-  # # Convert the coordinates to a data frame
-  # df <- as.data.frame(coordinates)
-  # 
-  # # Rename the columns
-  # colnames(df) <- c("UTM_X", "UTM_Y")
+
   #need to convert class sf object back to dataframe so that it processes faster in combine_events_stations_function
   DailyMovements_withStations <- as.data.frame(DailyMovements_withStations)
   DailyMovements_withStations <- DailyMovements_withStations %>%
