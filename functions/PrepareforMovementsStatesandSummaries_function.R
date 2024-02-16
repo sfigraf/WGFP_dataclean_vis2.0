@@ -3,8 +3,6 @@
 
 # station data comes from spatial join function
 
-# station_data1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
-# station_data <- as.data.frame(station_data1)
 #stations
 # dam is listed at DamLocation
 #b3 is 8190
