@@ -65,12 +65,6 @@ movements_UI <- function(id, Movements_df, df_list) { #could just get dates in U
       ),#end of sidebar panel
       mainPanel(width = 10,
                 tabsetPanel(
-                  tabPanel("Minicharts Map",
-                           fluidRow(
-                             column(12,
-                                    div("This is a work in progress, doesn't work with the sidebar filters yet and for some reason stops going after 7 ish months. Press the play button in the bottom right"))
-                           ),
-                           leafletOutput(ns("map2"))),
                   tabPanel("Map and Table",
                            hr(),
                            splitLayout(cellWidths = c("40%", "60%"),
@@ -82,6 +76,14 @@ movements_UI <- function(id, Movements_df, df_list) { #could just get dates in U
                            # downloadButton(ns("download6"), label = "Save movements data as CSV"),
                            # hr(),
                   ), # end of Map and table tabPanel
+                  tabPanel("Minicharts Map",
+                           fluidRow(
+                             column(12,
+                                    div("This is a work in progress, doesn't work with the sidebar filters yet and for some reason stops going after 7 ish months. Press the play button in the bottom right"))
+                           ),
+                           leafletOutput(ns("map2"))
+                           ),
+                  
                   tabPanel("Movement Graphs",
                            withSpinner(plotlyOutput(ns("plot1"))),
                            hr(),
@@ -312,9 +314,6 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
       
       output$map1 <- renderLeaflet({
         
-        
-        
-        
         leaflet(filtered_movements_data()) %>% #Warning: Error in UseMethod: no applicable method for 'metaData' applied to an object of class "NULL"  solved becuase leaflet() needs an arg leaflet(x)
           addProviderTiles(providers$Esri.WorldImagery,
                            options = providerTileOptions(maxZoom = 19.5)
@@ -419,6 +418,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
                                          "No Movement" = "black",
                                          "Initial Release" = "darkorange",
                                          "Changed Rivers" = "purple"))
+          #ggplotly(plot)
           
         })
         output$plot6 <- renderPlotly({
@@ -449,10 +449,10 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
             geom_histogram(binwidth = 50) +
             theme_classic() +
             labs(title = "Each movement detected: ('No movements' excluded)", subtitle = "Groupings are 50 m")
-          ggplotly(plot)
+          
 
-          plotly1 <- ggplotly(p = plot)
-          plotly1
+          ggplotly(plot)
+          
         })
 
         #cumulative movement
@@ -462,8 +462,8 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
             geom_histogram(binwidth = 300) +
             theme_classic() +
             labs(title = "Cumulative movement", subtitle = "Groupings are 300 m")
-          plotly1 <- ggplotly(p = plot)
-          plotly1
+          ggplotly(plot)
+          
 
         })
 
@@ -473,8 +473,8 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
             geom_histogram(binwidth = 1) +
             theme_classic() +
             labs(title = "Detections by Hour")
-          plotly1 <- ggplotly(p = plot)
-          plotly1
+          ggplotly(plot)
+          
 
         })
         
