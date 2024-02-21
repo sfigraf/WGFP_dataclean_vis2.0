@@ -65,12 +65,6 @@ movements_UI <- function(id, Movements_df, df_list) { #could just get dates in U
       ),#end of sidebar panel
       mainPanel(width = 10,
                 tabsetPanel(
-                  tabPanel("Minicharts Map",
-                           fluidRow(
-                             column(12,
-                                    div("This is a work in progress, doesn't work with the sidebar filters yet and for some reason stops going after 7 ish months. Press the play button in the bottom right"))
-                           ),
-                           leafletOutput(ns("map2"))),
                   tabPanel("Map and Table",
                            hr(),
                            splitLayout(cellWidths = c("40%", "60%"),
@@ -82,6 +76,14 @@ movements_UI <- function(id, Movements_df, df_list) { #could just get dates in U
                            # downloadButton(ns("download6"), label = "Save movements data as CSV"),
                            # hr(),
                   ), # end of Map and table tabPanel
+                  tabPanel("Minicharts Map",
+                           fluidRow(
+                             column(12,
+                                    div("This is a work in progress, doesn't work with the sidebar filters yet and for some reason stops going after 7 ish months. Press the play button in the bottom right"))
+                           ),
+                           leafletOutput(ns("map2"))
+                           ),
+                  
                   tabPanel("Movement Graphs",
                            withSpinner(plotlyOutput(ns("plot1"))),
                            hr(),
@@ -180,23 +182,24 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
       })
       output$movements1 <- renderDT({
         
-        
-        datatable(filtered_movements_data(),
-                  rownames = FALSE,
-                  selection = "single",
-                  filter = 'top',
-                  extensions = c(
-                    "Buttons"
-                  ),
-                  options = list(
-                    #statesave is restore table state on page reload
-                    stateSave =TRUE,
-                    pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-                    dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
-                    language = list(emptyTable = "Enter inputs and press Render Table")
-                    
-                  )
-        ) 
+        datatable(
+          filtered_movements_data(),
+          rownames = FALSE,
+          selection = "single",
+          filter = 'top',
+          extensions = c("Buttons"),
+          options = list(
+            #statesave is restore table state on page reload
+            stateSave = TRUE,
+            pageLength = 10,
+            info = TRUE,
+            lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
+            dom = 'Blfrtip',
+            #had to add 'lowercase L' letter to display the page length again
+            language = list(emptyTable = "Enter inputs and press Render Table")
+          )
+        ) %>%
+          formatRound(columns = c("UTM_X", "UTM_Y"), digits = 0, mark = "")
         
         
       })
@@ -312,9 +315,6 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
       
       output$map1 <- renderLeaflet({
         
-        
-        
-        
         leaflet(filtered_movements_data()) %>% #Warning: Error in UseMethod: no applicable method for 'metaData' applied to an object of class "NULL"  solved becuase leaflet() needs an arg leaflet(x)
           addProviderTiles(providers$Esri.WorldImagery,
                            options = providerTileOptions(maxZoom = 19.5)
@@ -367,8 +367,8 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
                             label = releasesites$ReleaseSit, 
                             popup = paste("Release Date1:", releasesites$ReleaseDat, "<br>","Release Date 2:",  releasesites$ReleaseD_1),
                             group = "Release Sites") %>%
-          addPolylines(data = simple_stations2, 
-                       label = simple_stations2$ET_STATION,
+          addPolylines(data = simpleStations, 
+                       label = simpleStations$ET_STATION,
                        labelOptions = labelOptions(noHide = T, textOnly = TRUE, style = label_style),
                        group = "Stations (m)") %>%
          
@@ -419,6 +419,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
                                          "No Movement" = "black",
                                          "Initial Release" = "darkorange",
                                          "Changed Rivers" = "purple"))
+          #ggplotly(plot)
           
         })
         output$plot6 <- renderPlotly({
@@ -449,10 +450,10 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
             geom_histogram(binwidth = 50) +
             theme_classic() +
             labs(title = "Each movement detected: ('No movements' excluded)", subtitle = "Groupings are 50 m")
-          ggplotly(plot)
+          
 
-          plotly1 <- ggplotly(p = plot)
-          plotly1
+          ggplotly(plot)
+          
         })
 
         #cumulative movement
@@ -462,8 +463,8 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
             geom_histogram(binwidth = 300) +
             theme_classic() +
             labs(title = "Cumulative movement", subtitle = "Groupings are 300 m")
-          plotly1 <- ggplotly(p = plot)
-          plotly1
+          ggplotly(plot)
+          
 
         })
 
@@ -473,8 +474,8 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
             geom_histogram(binwidth = 1) +
             theme_classic() +
             labs(title = "Detections by Hour")
-          plotly1 <- ggplotly(p = plot)
-          plotly1
+          ggplotly(plot)
+          
 
         })
         

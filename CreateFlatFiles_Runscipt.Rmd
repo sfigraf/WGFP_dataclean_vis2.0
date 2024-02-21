@@ -19,12 +19,6 @@ for (i in list.files("./functions/")) {
   }
 }
 
-# for (i in list.files("./modules/")) {
-#   if (grepl(".R", i)) {
-#     source(paste0("./modules/",i))
-#   }
-# }
-
 for (i in list.files("./miscR/")) {
   if (grepl(".R", i)) {
     source(paste0("./miscR/",i))
@@ -34,7 +28,7 @@ for (i in list.files("./miscR/")) {
 # if column names change in any of these read-ins, might require some modification to code to get them to combine
 # also if you change read.csv to read_csv, it should read in quicker but column names will change
 # could be a later task
-Stationary <- readRDS("./data/WGFP_Raw_20240104.rds")
+Stationary <- readRDS("./data/WGFP_Raw_20240213.rds")
 
 Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
 
@@ -113,7 +107,7 @@ Cleaned_Stationary_FishdetectionsOnly <- StationaryClean %>%
 
 
 #spatially joins point (detection) data to lines (station) data based on nearest feature. 
-#simplestatoins is from polygon_readins
+#simpleStations is from polygon_readins
 DailyMovements_withStations <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simpleStations = simpleStations)
 
 #prepares joined stations and relevant Movements dataset for movements summaries and states

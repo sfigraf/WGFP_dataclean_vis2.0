@@ -19,7 +19,7 @@ mobile_reaches <- st_transform(read_sf(file.path(layerLocation, "mobile_reaches.
 
 ###no need to change files other than stations to .rds because the others aren't slow to bring in and convert to correct coordinate system
 
-simple_stations2 <- readr::read_rds(file.path("./gis/simple_stations2.rds"))
+simpleStations <- readr::read_rds(file.path("./gis/simpleStations.rds"))
 
 Station_icons <- leaflet::awesomeIcons(
   icon = 'add',
@@ -50,7 +50,7 @@ label_style <- list(
 # 
 # library(rmapshaper)
 # simpleStations <- rmapshaper::ms_simplify(stations, keep = .1)
-# write_rds(simpleStations, file = file.path(paste0(layerLocation,"/simple_stations2.rds")))
+# write_rds(simpleStations, file = file.path(paste0(layerLocation,"/simpleStations.rds")))
 
 
 end_time <- Sys.time()
