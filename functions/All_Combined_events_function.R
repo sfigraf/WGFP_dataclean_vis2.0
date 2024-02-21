@@ -78,12 +78,9 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     rename(TAG = TagID) %>%
     mutate(TAG = str_trim(TAG),
            Date = mdy(Date),
-           Time1 = case_when(str_length(Time) > 5 ~ as_datetime(hms(Time)),
-                             str_length(Time) <= 5 ~ as_datetime(hm(Time))), #warning message: problem with mutate(time1, some strings failed to parse); same with recaps # fixed by changing to hms() newest release file 20211229 has times with seconds 
-           Time2 = str_sub(Time1, start = 11, end = -1),
-           DateTime = ymd_hms(paste(Date, Time2))) %>%
-    select(RS_Num,River,ReleaseSite,Date, Time2, DateTime,UTM_X,UTM_Y,Species,Length,Weight,TAG,TagSize,Ant,Event) %>%
-    rename(Time = Time2) 
+           DateTime = lubridate::ymd_hms(paste(Date, Time))) %>%
+    select(RS_Num, River, ReleaseSite, Date, Time, DateTime, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event)# %>%
+    
   
   #getting timestamps in order and getting relevant columns
   
