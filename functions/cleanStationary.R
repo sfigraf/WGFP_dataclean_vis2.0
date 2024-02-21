@@ -28,9 +28,12 @@ cleanStationary <- function(Stationary){
       #but that also means that as_datetime reads those as periods and doesn't play well with the 0s interval specifically
       #so we need to convert that plain "1970-01-01" to midnight
       mutate(ARR2 = as.character(as_datetime(ARR1)), 
-             ARR = ifelse(ARR2 == "1970-01-01", "00:00:00", str_trim(str_sub(ARR2, start = 11, end = -1)))) %>%
+             ARR = ifelse(ARR2 == "1970-01-01", 
+                          "00:00:00",
+                          str_trim(str_sub(ARR2, start = 11, end = -1))
+             )
+    ) %>%
       select(-c(ARR1, ARR2))
-    #rename(Scan_Time = (clean_time))
   } else{
     Stationary_cleanedTime <- Stationary %>%
       mutate(ARR = lubridate::hms(ARR))
