@@ -81,8 +81,8 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
   # Rename the columns
   colnames(coordinatesDf) <- c("UTM_X", "UTM_Y")
   # # Extract the UTM_X and UTM_Y coordinates
-  DailyMovements_withStations$UTM_X <- coordinatesDf$UTM_X
-  DailyMovements_withStations$UTM_Y <- coordinatesDf$UTM_Y
+  DailyMovements_withStations$UTM_X <- round(coordinatesDf$UTM_X, 0)
+  DailyMovements_withStations$UTM_Y <- round(coordinatesDf$UTM_Y, 0)
 
   #need to convert class sf object back to dataframe so that it processes faster in combine_events_stations_function
   DailyMovements_withStations <- as.data.frame(DailyMovements_withStations)

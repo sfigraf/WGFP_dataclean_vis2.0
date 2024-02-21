@@ -97,23 +97,29 @@ States_Server <- function(id, states_data_list, weeks) {
       
       output$states1 <- renderDT({
         
-        
-        datatable(filtered_states_data()$filtered_states, #initial_states_data_list()$All_States
-                  rownames = FALSE,
-                  extensions = c("Buttons"),
-                  
-                  #for slider filter instead of text input
-                  filter = 'top',
-                  options = list(
-                    pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-                    dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
-                    language = list(emptyTable = "Enter inputs and press Render Table")
-                    
-                  )
-        ) %>%
-          formatStyle(
-            columns = c(1:ncol(filtered_states_data()$filtered_states))
+        datatable(
+          filtered_states_data()$filtered_states,
+          #initial_states_data_list()$All_States
+          rownames = FALSE,
+          extensions = c("Buttons"),
+          
+          #for slider filter instead of text input
+          filter = 'top',
+          options = list(
+            pageLength = 10,
+            info = TRUE,
+            lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
+            dom = 'Blfrtip',
+            #had to add 'lowercase L' letter to display the page length again
+            language = list(emptyTable = "Enter inputs and press Render Table")
             
+          )
+        ) %>%
+          formatStyle(columns = c(1:ncol(filtered_states_data()$filtered_states))) %>%
+          formatRound(
+            columns = c("UTM_X", "UTM_Y"),
+            digits = 0,
+            mark = ""
           )
       })
       

@@ -182,23 +182,24 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
       })
       output$movements1 <- renderDT({
         
-        
-        datatable(filtered_movements_data(),
-                  rownames = FALSE,
-                  selection = "single",
-                  filter = 'top',
-                  extensions = c(
-                    "Buttons"
-                  ),
-                  options = list(
-                    #statesave is restore table state on page reload
-                    stateSave =TRUE,
-                    pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-                    dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
-                    language = list(emptyTable = "Enter inputs and press Render Table")
-                    
-                  )
-        ) 
+        datatable(
+          filtered_movements_data(),
+          rownames = FALSE,
+          selection = "single",
+          filter = 'top',
+          extensions = c("Buttons"),
+          options = list(
+            #statesave is restore table state on page reload
+            stateSave = TRUE,
+            pageLength = 10,
+            info = TRUE,
+            lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
+            dom = 'Blfrtip',
+            #had to add 'lowercase L' letter to display the page length again
+            language = list(emptyTable = "Enter inputs and press Render Table")
+          )
+        ) %>%
+          formatRound(columns = c("UTM_X", "UTM_Y"), digits = 0, mark = "")
         
         
       })
