@@ -1,16 +1,17 @@
 ###  want to take all the "cleaning data" stuff out and put it into their own functions
 #then this function will just be combining everything
-
+ogStationary <- Stationary
+Stationary <- StationaryClean
 # Create Function
 ## this function is up to date for new antennas 
 All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, Recaptures){
   
   start_time <- Sys.time()
   print("Running All_combined_events_function: Combining and cleaning Stationary, Mobile, Biomark, Release, and Recapture csv inputs......")
-
+  
   
   # biomark cleaning, getting dates into uniform format, 
-  biomark2 <- Biomark %>%
+  biomarkCleaned <- Biomark %>%
     mutate(TAG = str_replace(DEC.Tag.ID, "\\.", ""),
            Reader.ID = case_when(Reader.ID == "A1" | Reader.ID == "B1" ~ "B3",
                                  Reader.ID == "A2" | Reader.ID == "B2" ~ "B4",
@@ -22,7 +23,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
            Scan.Date = ifelse(str_detect(Scan.Date, "/"), 
                               as.character(mdy(Scan.Date)), 
                               Scan.Date)
-             ) %>%
+    ) %>%
     filter(!TAG %in% test_tags) %>%
     
     # from gis: B1 416026, 4440196
@@ -41,17 +42,17 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     distinct()
   
   ###Create one big clean dataset
-  WGFP_condensed <- Stationary %>%
+  condensedWGFP <- Stationary %>%
     select(DTY, ARR, TAG, SCD, UTM_X, UTM_Y) %>%
     rename(Scan_Date = DTY, Scan_Time = ARR, Site_Code = SCD, UTM_X = UTM_X, UTM_Y = UTM_Y)
   
   
-  Biomark_condensed <- biomark2 %>%
+  condensedBiomark <- biomarkCleaned %>%
     mutate(TAG = ifelse(str_detect(TAG, "^900"), str_sub(TAG, 4,-1), TAG)) %>%
     select(Scan.Date, Scan.Time, TAG, Reader.ID, UTM_X, UTM_Y) %>%
     rename(Scan_Date = Scan.Date, Scan_Time = Scan.Time, Site_Code = Reader.ID, UTM_X = UTM_X, UTM_Y = UTM_Y)
   
-  Mobile_condensed <- Mobile %>% #gonna have to just change to mobile eventually
+  condensedMobile <- Mobile %>% #gonna have to just change to mobile eventually
     rename(TAG = TagID) %>%
     mutate(TAG = ifelse(str_detect(TAG, "^900"), str_sub(TAG, 4,-1), TAG),
            Date = ifelse(str_detect(Date, "/"), 
@@ -61,67 +62,57 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     rename(Scan_Date = Date, Scan_Time = Time, Site_Code = Ant)
   
   
-  mobile_bio <- bind_rows(Mobile_condensed,Biomark_condensed)
-  All_detections <- bind_rows(mobile_bio, WGFP_condensed)
+  condensedMobileAndBiomark <- bind_rows(condensedMobile,condensedBiomark)
+  allDetections <- bind_rows(condensedMobileAndBiomark, condensedWGFP)
   
-  All_detections2 <- All_detections %>%
+  cleanedAllDetections <- allDetections %>%
     filter(Scan_Date >= as.Date("2020-08-06")) %>% #right before the first date of marker tag detections on stationary antennas
     mutate(
       Scan_DateTime = ymd_hms(paste(Scan_Date, Scan_Time))) %>%
-    #rename(Scan_DateTime = datetime2) %>%
     select(Scan_Date, Scan_Time, Scan_DateTime, TAG, Site_Code, UTM_X, UTM_Y )
   
-### all detections and recaps and release "EVENTS" DF
+  ### all detections and recaps and release "EVENTS" DF
   
   #getting timestamps in order and getting relevant columns
-  Release1 <- Release %>%
+  cleanedRelease <- Release %>%
     rename(TAG = TagID) %>%
     mutate(TAG = str_trim(TAG),
            Date = mdy(Date),
            DateTime = lubridate::ymd_hms(paste(Date, Time))) %>%
     select(RS_Num, River, ReleaseSite, Date, Time, DateTime, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event)# %>%
-    
   
   #getting timestamps in order and getting relevant columns
   
-  recaps1 <- Recaptures %>%
+  cleanedRecaptures <- Recaptures %>%
     rename(TAG = TagID) %>%
     filter(!Date %in% c("", " ", NA)) %>%
     mutate(TAG = str_trim(TAG),
            Date = mdy(Date),
-           # added in like I did the release file, functionality for when the time contains just HH:mm and hh:mm:ss
-           Time1 = case_when(str_length(Time) > 5 ~ as_datetime(hms(Time)),
-                             str_length(Time) <= 5 ~ as_datetime(hm(Time))),
-           Time2 = str_sub(Time1, start = 11, end = -1),
-           DateTime = ymd_hms(paste(Date, Time2))) %>%
-    select(RS_Num,River,RecaptureSite,DateTime,Date,Time2,UTM_X,UTM_Y,Species,Length,Weight,TAG,TagSize,Ant,Event) %>%
-    rename(Time = Time2,
-           Recap_Length = Length,
-           Recap_Weight = Weight
+           DateTime = ymd_hms(paste(Date, Time))) %>%
+    select(RS_Num, River, RecaptureSite, DateTime, Date, Time, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event) %>%
+    rename(
+      Recap_Length = Length,
+      Recap_Weight = Weight
     )
   
   #getting all detections file ready to merge with encounters
-  All_Detections_1_merge <- All_detections2 %>%
+  allDetectionsForBinding <- cleanedAllDetections %>%
     mutate(Date = ymd(Scan_Date)) %>%
     rename(
       Time = Scan_Time,
       DateTime = Scan_DateTime,
-      Event = Site_Code) 
-  
-  ## 
-  
+      Event = Site_Code
+    ) 
   
   # this file is used in enc_hist_summary_wide 
-  recaps_detections <- bind_rows(All_Detections_1_merge, recaps1)
+  recapturesAndDetections <- bind_rows(allDetectionsForBinding, cleanedRecaptures)
   
-  detections_release_recaps <- bind_rows(recaps_detections, Release1)
-  
+  allEvents <- bind_rows(recapturesAndDetections, cleanedRelease)
   
   # bind rows vs left join; bind rows will make it so there is a "release" or "recapture" event and also make columns with relevant info
   
-
   #fills in release info so it is known at any row of detection
-  filled_in_release_rows <- left_join(detections_release_recaps, Release1, by = c("TAG"))
+  allEventsWithReleaseInfo <- left_join(allEvents, cleanedRelease, by = c("TAG"))
   
   
   #this is the final df 
@@ -130,7 +121,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   #pretty sure that's just a bug on the DT or shinyWidgets end that it can't select by NA
   # 87 rows were not even showing up on the all_events app because the Species was NA -12/14/21 SG
   
-  filled_in_release_rows_condensed <- filled_in_release_rows %>%
+  condensedAllEventsWithReleaseInfo <- allEventsWithReleaseInfo %>%
     select(Date.x, Time.x, DateTime.x, TAG, Event.x, Species.y, Length.y, Weight.y, ReleaseSite.y, Date.y, RecaptureSite, Recap_Length, Recap_Weight, UTM_X.x, UTM_Y.x) %>%
     rename(Release_Date = Date.y,
            Date = Date.x,
@@ -147,35 +138,31 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     distinct(Datetime, TAG, Event, .keep_all = TRUE) %>%
     replace_na(list(Species = "No Info", ReleaseSite = "No Info"))
   
-  Tags_only <- Release1 %>%
+  Tags_only <- cleanedRelease %>%
     select(TAG)
   
   #makes sure all events are from tags ONLY in the release file
   
-  filled_in_release_rows_condensed <- left_join(Tags_only, filled_in_release_rows_condensed, by = "TAG")
-  
-  
+  condensedAllEventsWithReleaseInfo <- left_join(Tags_only, condensedAllEventsWithReleaseInfo, by = "TAG")
   
   ### This is getting the events dataframe to only the data relevant for joining with stations
   
-  all_events_relevant_to_stations <- filled_in_release_rows_condensed %>%
+  allEventsRelevantToStations <- condensedAllEventsWithReleaseInfo %>%
     #this part is for making sure the sequence of events will make sense
     # if there's no tag input then have to group_by TAG as well
-        group_by(Date, TAG) %>% 
-          mutate(first_last = case_when(Datetime == min(Datetime) ~ "First_of_day",
-                                        Datetime == max(Datetime) ~ "Last_of_day",
-                                        Datetime != min(Datetime) & Datetime != max(Datetime) ~ "0")
-          ) %>%
-          ungroup() %>%
-          distinct(TAG, Event, Date, first_last,  UTM_X, UTM_Y, .keep_all = TRUE) %>%
-          arrange(Datetime) 
+    group_by(Date, TAG) %>% 
+    mutate(first_last = case_when(Datetime == min(Datetime) ~ "First_of_day",
+                                  Datetime == max(Datetime) ~ "Last_of_day",
+                                  Datetime != min(Datetime) & Datetime != max(Datetime) ~ "0")
+    ) %>%
+    ungroup() %>%
+    distinct(TAG, Event, Date, first_last,  UTM_X, UTM_Y, .keep_all = TRUE) %>%
+    arrange(Datetime) 
   
-  
-  
-  df_list <- list("All_Detections" = All_detections2, 
-                   "All_Events_most_relevant" = all_events_relevant_to_stations,
-                   #allEvents has release and recapture along with detections. All Detections just has detections
-                  "All_Events" = filled_in_release_rows_condensed, "Recaps_detections" = recaps_detections)
+  df_list <- list("All_Detections" = cleanedAllDetections, 
+                  "All_Events_most_relevant" = allEventsRelevantToStations,
+                  #allEvents has release and recapture along with detections. All Detections just has detections
+                  "All_Events" = condensedAllEventsWithReleaseInfo, "Recaps_detections" = recapturesAndDetections)
   
   end_time <- Sys.time()
   print(paste("All_combined_events_function took", round((end_time-start_time),2)))
