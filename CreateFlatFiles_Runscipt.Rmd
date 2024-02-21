@@ -19,12 +19,6 @@ for (i in list.files("./functions/")) {
   }
 }
 
-# for (i in list.files("./modules/")) {
-#   if (grepl(".R", i)) {
-#     source(paste0("./modules/",i))
-#   }
-# }
-
 for (i in list.files("./miscR/")) {
   if (grepl(".R", i)) {
     source(paste0("./miscR/",i))

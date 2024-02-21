@@ -1,7 +1,5 @@
-###  want to take all the "cleaning data" stuff out and put it into their own functions
+### maybe want to take all the "cleaning data" stuff out and put it into their own functions
 #then this function will just be combining everything
-ogStationary <- Stationary
-Stationary <- StationaryClean
 # Create Function
 ## this function is up to date for new antennas 
 All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, Recaptures){
