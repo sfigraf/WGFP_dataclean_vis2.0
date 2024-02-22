@@ -41,7 +41,8 @@ Release <- read.csv("./data/WGFP_ReleaseData_Master_20240123.csv", na.strings = 
 Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20240123.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
 
 #avian predation
-AvianPredation <- read_csv("./data/WGFP_AvianPredation.csv", col_types = cols(TagID = col_character(),Comments = col_character()))
+AvianPredation <- read_csv("./data/WGFP_AvianPredation.csv", 
+                           col_types = cols(TagID = col_character(),Comments = col_character()))
 
 #ghost tag df
 GhostTags <- read_csv("./data/WGFP_GhostTags.csv", 
