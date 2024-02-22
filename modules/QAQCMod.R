@@ -74,20 +74,28 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
     id,
     function(input, output, session) {
       
-      filtered_markertag_data <- eventReactive(input$button8,ignoreNULL = FALSE,{
+      plotAndTableMarkerTagDataList <- eventReactive(input$button8,ignoreNULL = FALSE,{
         
-        markertag_data1 <- Marker_Tag_data %>%
+        
+        markerTagDataFiltered <- Marker_Tag_data %>%
           filter(SCD %in% c(input$picker8),
-                 TAG %in% c(input$picker9),
-                 DTY >= input$slider3[1] & DTY <= input$slider3[2]
-          )
-        return(markertag_data1)
+                 TAG %in% c(input$picker9))
+        
+        markerTagDataForPlot <- markerTagDataFiltered %>%
+          filter(DTY >= input$slider3[1] & DTY <= input$slider3[2])
+        
+        summarizedMarkerTagDataForTable <- markerTagDataFiltered %>%
+          dplyr::count(SCD, TAG, name = "totalDetectionsSinceProjectInception")
+        
+        plotAndTableMarkerTagDataList <- list("markerTagDataForPlot" = markerTagDataForPlot, 
+                              "summarizedMarkerTagDataForTable" = summarizedMarkerTagDataForTable)
+        return(plotAndTableMarkerTagDataList)
       }) 
       
       # MarkerTag Plot Output ---------------------------------------------------
       
       output$plot2 <- renderPlotly({
-        plot2 <- filtered_markertag_data() %>%
+        plot2 <- plotAndTableMarkerTagDataList()$markerTagDataForPlot %>%
           ggplot(aes(x = DTY, y = ARR, color = SCD, text = paste(TAG) )) +
           geom_point() +
           labs(title = "Marker Tag Detection Times") +
@@ -128,7 +136,7 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
       output$markertags1 <- renderDT({
         
         datatable(
-          filtered_markertag_data(),
+          plotAndTableMarkerTagDataList()$markerTagDataForPlot,
           rownames = FALSE,
           selection = "single",
           filter = 'top',
