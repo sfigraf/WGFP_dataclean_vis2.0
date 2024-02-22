@@ -9,6 +9,7 @@ library(plotly) #for turning maps to plotly
 library(DT)
 library(shinyWidgets) # for pickerinput
 library(shinythemes)
+library(shinydashboard)
 library(bslib)
 #animation stuff
 library(mapedit)
