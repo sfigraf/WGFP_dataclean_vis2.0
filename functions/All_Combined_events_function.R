@@ -22,7 +22,8 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
                               as.character(mdy(Scan.Date)), 
                               Scan.Date)
     ) %>%
-    filter(!TAG %in% test_tags) %>%
+    #we want to filter out test tags here, but not marker tags
+    #filter(!TAG %in% test_tags) %>%
     
     # from gis: B1 416026, 4440196
     #B2: 420727.9, 4437221
@@ -160,7 +161,8 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   df_list <- list("All_Detections" = cleanedAllDetections, 
                   "All_Events_most_relevant" = allEventsRelevantToStations,
                   #allEvents has release and recapture along with detections. All Detections just has detections
-                  "All_Events" = condensedAllEventsWithReleaseInfo, "Recaps_detections" = recapturesAndDetections)
+                  "All_Events" = condensedAllEventsWithReleaseInfo, 
+                  "Recaps_detections" = recapturesAndDetections)
   
   end_time <- Sys.time()
   print(paste("All_combined_events_function took", round((end_time-start_time),2)))

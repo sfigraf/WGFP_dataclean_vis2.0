@@ -75,8 +75,8 @@ if(!exists("states_data_list")){
 if(!exists("movements_list")){
   movements_list <- readRDS("data/flatFilesforApp/movements_list.rds")
 }
-if(!exists("Stationary_Marker_tags")){
-  Stationary_Marker_tags <- readRDS("data/flatFilesforApp/Stationary_Marker_tags.rds")
+if(!exists("Marker_tags")){
+  Marker_tags <- readRDS("data/flatFilesforApp/Marker_tags.rds")
 }
 if(!exists("unknown_tags")){
   unknown_tags <- readRDS("data/flatFilesforApp/unknown_tags.rds")
@@ -156,7 +156,7 @@ ui <- fluidPage(
 
           tabPanel("QAQC",
                    value = "QAQCTab",
-                   QAQC_UI("QAQCTab1", Stationary_Marker_tags)
+                   QAQC_UI("QAQCTab1", Marker_tags)
                    ) # end of tabPanel
     ) #end of navbar page
 ) #end of fluidpage
@@ -180,7 +180,7 @@ server <- function(input, output, session) {
     
       States_Server("StatesTab1", states_data_list, weeks)
    
-      QAQC_Server("QAQCTab1", Stationary_Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, unknown_tags)
+      QAQC_Server("QAQCTab1", Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, unknown_tags)
     
   })
   

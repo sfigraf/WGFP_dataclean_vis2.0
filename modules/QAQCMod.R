@@ -7,7 +7,8 @@ QAQC_UI <- function(id, Marker_Tag_data) {
                  tabPanel("Stationary", 
                           MarkerTagQAQC_UI(ns("StationaryMarkerTags"), Marker_Tag_data)
                ), 
-               tabPanel("Biomark"
+               tabPanel("Biomark",
+                        MarkerTagQAQC_UI(ns("BiomarkMarkerTags"), Marker_Tag_data)
                         )
               )
                
@@ -41,6 +42,8 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
     function(input, output, session) {
       
       MarkerTagQAQC_Server("StationaryMarkerTags", Marker_Tag_data)
+      MarkerTagQAQC_Server("BiomarkMarkerTags", Marker_Tag_data)
+      
       
       
       # Release and Recap Data L/W Plot Output --------------------------------------------

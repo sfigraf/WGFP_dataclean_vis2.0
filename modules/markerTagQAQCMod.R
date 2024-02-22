@@ -2,13 +2,22 @@
 
 MarkerTagQAQC_UI <- function(id, Marker_Tag_data) {
   ns <- NS(id)
+  
+  if(str_detect(id, "Stationary")){
+    Marker_Tag_data <- Marker_Tag_data %>%
+      dplyr::filter(str_detect(TAG, "^0000000"))
+  } else{
+    Marker_Tag_data <- Marker_Tag_data %>%
+      dplyr::filter(str_detect(TAG, "^999"))
+  }
+  
   tagList(
     sidebarLayout(
       sidebarPanel(
         pickerInput(ns("picker8"),
                     label = "Select Site Code",
-                    choices = sort(unique(Marker_Tag_data$SCD)),
-                    selected = unique(Marker_Tag_data$SCD),
+                    choices = sort(unique(Marker_Tag_data$Site_Code)),
+                    selected = unique(Marker_Tag_data$Site_Code),
                     multiple = TRUE,
                     options = list(
                       `actions-box` = TRUE #this makes the "select/deselect all" option
@@ -25,9 +34,9 @@ MarkerTagQAQC_UI <- function(id, Marker_Tag_data) {
         ), #end of picker 9 
         sliderInput(ns("slider3"),
                     "Date",
-                    min = min(Marker_Tag_data$DTY -1),
-                    max = max(Marker_Tag_data$DTY +1),  
-                    value = c(max(Marker_Tag_data$DTY - 30), max(Marker_Tag_data$DTY +1)),
+                    min = min(Marker_Tag_data$Scan_Date -1),
+                    max = max(Marker_Tag_data$Scan_Date +1),  
+                    value = c(max(Marker_Tag_data$Scan_Date - 30), max(Marker_Tag_data$Scan_Date +1)),
                     step = 1,
                     timeFormat = "%d %b %y",
                     #animate = animationOptions(interval = 500, loop = FALSE)
@@ -61,16 +70,23 @@ MarkerTagQAQC_Server <- function(id, Marker_Tag_data) {
     function(input, output, session) {
       
       plotAndTableMarkerTagDataList <- eventReactive(input$button8,ignoreNULL = FALSE,{
+        if(str_detect(id, "Stationary")){
+          Marker_Tag_data <- Marker_Tag_data %>%
+            dplyr::filter(str_detect(TAG, "^0000000"))
+        } else{
+          Marker_Tag_data <- Marker_Tag_data %>%
+            dplyr::filter(str_detect(TAG, "^999"))
+        }
         
         markerTagDataFiltered <- Marker_Tag_data %>%
-          filter(SCD %in% c(input$picker8),
+          filter(Site_Code %in% c(input$picker8),
                  TAG %in% c(input$picker9))
         
         markerTagDataForPlot <- markerTagDataFiltered %>%
-          filter(DTY >= input$slider3[1] & DTY <= input$slider3[2])
+          filter(Scan_Date >= input$slider3[1] & Scan_Date <= input$slider3[2])
         
         summarizedMarkerTagDataForTable <- markerTagDataFiltered %>%
-          dplyr::count(SCD, TAG, name = "totalDetectionsSinceProjectInception")
+          dplyr::count(Site_Code, TAG, name = "totalDetectionsSinceProjectInception")
         
         plotAndTableMarkerTagDataList <- list("markerTagDataForPlot" = markerTagDataForPlot, 
                                               "summarizedMarkerTagDataForTable" = summarizedMarkerTagDataForTable)
@@ -82,7 +98,7 @@ MarkerTagQAQC_Server <- function(id, Marker_Tag_data) {
       
       output$plot2 <- renderPlotly({
         plot2 <- plotAndTableMarkerTagDataList()$markerTagDataForPlot %>%
-          ggplot(aes(x = DTY, y = ARR, color = SCD, text = paste(TAG) )) +
+          ggplot(aes(x = Scan_Date, y = Scan_Time, color = Site_Code, text = paste(TAG) )) +
           geom_point() +
           labs(title = "Marker Tag Detection Times") +
           xlab("Date") +
@@ -105,7 +121,7 @@ MarkerTagQAQC_Server <- function(id, Marker_Tag_data) {
           rownames = FALSE,
           selection = "single",
           filter = 'top',
-          caption = "Marker tags are inferred as tags that start with 0000000",
+          caption = "Marker tags are inferred as tags that start with 0000000 for Stationary and 999 for Biomark",
           options = list(
             #statesave is restore table state on page reload
             stateSave = TRUE,

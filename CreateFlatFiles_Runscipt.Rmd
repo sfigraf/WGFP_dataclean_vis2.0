@@ -82,10 +82,10 @@ Biomark <- Biomark %>%
                             Scan.Date))
 
 
-cleanRelease <- Release %>%
+cleanedRelease <- Release %>%
   mutate(Date = as.character(mdy(Date)))
 
-cleanRecaptures <- Recaptures %>%
+cleanedRecaptures <- Recaptures %>%
   mutate(Date = as.character(mdy(Date)))
 
 AvianPredation <- AvianPredation %>%
@@ -99,9 +99,11 @@ df_list <- All_combined_events_function(Stationary = StationaryClean, Mobile = M
 All_events <- df_list$All_Events
 
 #separating to marker tag file and fish detections file
-Cleaned_Stationary_Marker_tags <- StationaryClean %>%
-  filter(str_detect(TAG, "^0000000")) %>%
-  mutate(DTY = ymd(DTY))
+
+#want to get all marker tags here
+Cleaned_Marker_tags <- df_list$All_Detections %>%
+  filter(str_detect(TAG, "^0000000|^999")) %>%
+  mutate(Scan_Date = ymd(Scan_Date))
 
 Cleaned_Stationary_FishdetectionsOnly <- StationaryClean %>%
   filter(grepl("^230|^226", TAG))
@@ -118,7 +120,7 @@ combined_events_stations <- PrepareforStatesMovementsandSummary(DailyMovements_w
 # states
 states_data_list <- states_function(combined_events_stations, GhostTags, AvianPredation)
 # aplies enc_hist_summary wide function
-enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(df_list$Recaps_detections, cleanRelease, combined_events_stations, states_data_list$States_summarized, markerTags = unique(Cleaned_Stationary_Marker_tags$TAG))
+enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(df_list$Recaps_detections, cleanedRelease, combined_events_stations, states_data_list$States_summarized, markerTags = unique(Cleaned_Marker_tags$TAG))
 unknown_tags <- enc_hist_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
 # applies get_movements_function
@@ -143,7 +145,7 @@ rainbow_trout_pallette <- list(pink1 = "#E3BABBFF", olive_green1 = "#C4CFBFFF", 
 
 Biomark <- Biomark %>%
   filter(!DEC.Tag.ID %in% c("900.230000999999"))
-cleanRelease <- cleanRelease %>%
+cleanedRelease <- cleanedRelease %>%
   filter(!TagID %in% c("230000999999"))
 Stationary <- Cleaned_Stationary_FishdetectionsOnly %>%
   filter(!TAG %in% c("900230000999999"))
@@ -153,8 +155,8 @@ indiv_datasets_list <- list(
       "stationarycleandata" = Stationary,
       "biomarkdata" = Biomark,
       "mobiledata" = Mobile,
-      "recapdata" = cleanRecaptures,
-      "releasedata" = cleanRelease,
+      "recapdata" = cleanedRecaptures,
+      "releasedata" = cleanedRelease,
       "ghostdata" = GhostTags,
       "avian_preddata" = AvianPredation
     )
@@ -178,7 +180,7 @@ allFlatFiles <- list(
   "Enc_release_data" = Enc_release_data, 
   "states_data_list" = states_data_list,
   "movements_list" = movements_list,
-  "Stationary_Marker_tags" = Cleaned_Stationary_Marker_tags, 
+  "Marker_tags" = Cleaned_Marker_tags, 
   "unknown_tags" = unknown_tags
   
 )
