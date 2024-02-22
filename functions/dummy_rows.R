@@ -10,7 +10,7 @@ add_dummy_rows <- function(stationary1, biomark1, release1) {
             DUR = "00:00.9",
             TTY = "A",
             TAG = "900_230000999999",
-            SCD = "CD7",
+            SCD = "CD1",
             ANT = "A1",
             NCD = "30",
             EFA = .6) %>%
@@ -21,7 +21,7 @@ add_dummy_rows <- function(stationary1, biomark1, release1) {
             DUR = "00:00.9",
             TTY = "A",
             TAG = "900_230000999999",
-            SCD = "CD7",
+            SCD = "CD2",
             ANT = "A2",
             NCD = "30",
             EFA = .6) %>%
@@ -32,7 +32,7 @@ add_dummy_rows <- function(stationary1, biomark1, release1) {
             DUR = "00:00.9",
             TTY = "A",
             TAG = "900_230000999999",
-            SCD = "CD7",
+            SCD = "CU1",
             ANT = "A3",
             NCD = "30",
             EFA = .6) %>%
@@ -43,7 +43,7 @@ add_dummy_rows <- function(stationary1, biomark1, release1) {
             DUR = "00:00.9",
             TTY = "A",
             TAG = "900_230000999999",
-            SCD = "CD7",
+            SCD = "CU2",
             ANT = "A4",
             NCD = "30",
             EFA = .6) %>%
@@ -54,7 +54,7 @@ add_dummy_rows <- function(stationary1, biomark1, release1) {
             DUR = "00:00.9",
             TTY = "A",
             TAG = "900_230000999999",
-            SCD = "CU11",
+            SCD = "CS1",
             ANT = "A1",
             NCD = "30",
             EFA = .6) %>%
@@ -65,8 +65,8 @@ add_dummy_rows <- function(stationary1, biomark1, release1) {
             DUR = "00:00.9",
             TTY = "A",
             TAG = "900_230000999999",
-            SCD = "CU12",
-            ANT = "A1",
+            SCD = "CS2",
+            ANT = "A2",
             NCD = "30",
             EFA = .6)
   

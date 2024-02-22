@@ -1,15 +1,15 @@
 #### ENC HIST summary table function
-#recaps_and_all_detections <- df_list$Recaps_detections
-# release_data <- Release
+# allDetectionsAndRecaptures <- df_list$Recaps_detections
+# Release <- Release
 # combined_events_stations <- combined_events_stations #resulting df from combined_events and stations function
-#States_summarized <- states_summarized
+# States_summarized <- states_summarized
 #recaps and all detreitons comes from WGFP ENC_hist_function, release data is a read_in csv, all_events_condensed with stations comes from combine_stations_events function
-Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, release_data, combined_events_stations, States_summarized){
+Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, Release, combined_events_stations, States_summarized, markerTags){
   
   start_time <- Sys.time()
   print("Running Ind_tag_enc_hist_wide_summary_function: Summarizes detection and movement data from each released Tag.")
   
-  all_enc12 <- recaps_and_all_detections %>%
+  all_enc12 <- allDetectionsAndRecaptures %>%
     count(TAG, Event, name = "Encounters") 
   
   all_enc12 <- pivot_wider(data = all_enc12, id_cols = TAG, names_from = Event, values_from = Encounters)
@@ -24,12 +24,12 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
            HP4_n = HP4,
            CF5_n = CF5,
            CF6_n = CF6,
-           CD7_n = CD7,
-           CD8_n = CD8,
-           CD9_n = CD9,
-           CD10_n = CD10,
-           CU11_n = CU11,
-           CU12_n = CU12,
+           CD1_n = CD1,
+           CD2_n = CD2,
+           CS1_n = CS1,
+           CS2_n = CS2,
+           CU1_n = CU1,
+           CU2_n = CU2,
            M1_n = M1,
            M2_n = M2,
            B3_n = B3,
@@ -38,11 +38,11 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
            B6_n = B6,
            Recap_n = Recapture
     ) %>%
-    select(TAG, RB1_n,RB2_n,HP3_n, HP4_n, CF5_n, CF6_n, CD7_n, CD8_n, CD9_n, CD10_n, CU11_n, CU12_n, M1_n, M2_n, B3_n, B4_n, B5_n, B6_n, Recap_n)
+    select(TAG, RB1_n,RB2_n,HP3_n, HP4_n, CF5_n, CF6_n, CD1_n, CD2_n, CS1_n, CS2_n, CU1_n, CU2_n, M1_n, M2_n, B3_n, B4_n, B5_n, B6_n, Recap_n)
   
   
   #### Combine Release data ###
-  Release1 <- release_data %>%
+  Release1 <- Release %>%
     rename(TAG = TagID) %>%
     mutate(TAG = str_trim(TAG)) %>%
     replace_na(list(Species = "No Info", ReleaseSite = "No Info")) #replaced species and releasesite to follow the same convention as AllEvents
@@ -51,9 +51,10 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
   #need to actually join on full join not merge
   ENC_Release <- full_join(Release1, ENC_ALL,  by = "TAG")
   
-  #gets tag list that wasn't in release file
+  #gets tag list that wasn't in release file or markerTags
   unknown_tags <- ENC_Release %>%
-    filter(is.na(ReleaseSite)) %>%
+    filter(is.na(ReleaseSite), 
+           !TAG %in% markerTags) %>%
     select(TAG,where(is.numeric))
   
   
@@ -69,12 +70,12 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
            HP4 = (HP4_n >0),
            CF5 = (CF5_n >0),
            CF6 = (CF6_n >0),
-           CD7 = (CD7_n >0),
-           CD8 = (CD8_n >0),
-           CD9 = (CD9_n >0),
-           CD10 = (CD10_n >0),
-           CU11 = (CU11_n >0),
-           CU12 = (CU12_n >0),
+           CD1 = (CD1_n >0),
+           CD2 = (CD2_n >0),
+           CS1 = (CS1_n >0),
+           CS2 = (CS2_n >0),
+           CU1 = (CU1_n >0),
+           CU2 = (CU2_n >0),
            M1 = (M1_n >0),
            M2 = (M2_n >0),
            B3 = (B3_n >0),
@@ -109,8 +110,9 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
     mutate(RB = (RB1_n > 0 | RB2_n >0),
            HP = (HP3_n > 0 | HP4_n >0),
            CF = (CF5_n > 0 | CF6_n >0),
-           CD = (CD7_n > 0 | CD8_n >0 | CD9_n > 0 | CD10_n >0),
-           CU = (CU11_n > 0 | CU12_n >0),
+           CD = (CD1_n > 0 | CD2_n >0),
+           CS = (CS1_n > 0 | CS2_n >0),
+           CU = (CU1_n > 0 | CU2_n >0),
            Biomark = (B3_n > 0 | B4_n >0 | B5_n > 0 | B6_n >0),
            Mobile = (M1_n > 0 | M2_n >0)) %>%
     filter(!UTM_X %in% c(0, NA)) # one way to filter out tags that don't have any sort of release data; usually if they're entered in release file then they have UTM's

@@ -6,15 +6,15 @@ library(leaflet)
 library(PBSmapping)
 library(sf)
 library(plotly) #for turning maps to plotly
-library(rgdal)
 library(DT)
 library(shinyWidgets) # for pickerinput
 library(shinythemes)
+library(shinydashboard)
 library(bslib)
 #animation stuff
 library(mapedit)
 library(gganimate)
-library(basemaps)
+#library(basemaps)
 #minicharts
 library(leaflet.minicharts)
 #library(mapview)

@@ -151,7 +151,6 @@ IndividualDatasets_Server <- function(id, indiv_datasets_list) {
         
         indiv_datasets_list$ghostdata,
         rownames = FALSE,
-        caption = ("Date filter applies to Ghost Date"),
         filter = 'top',
         options = list(
           pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
@@ -166,7 +165,6 @@ IndividualDatasets_Server <- function(id, indiv_datasets_list) {
         
         indiv_datasets_list$avian_preddata,
         rownames = FALSE,
-        caption = ("Date filter applies to Predation Date"),
         filter = 'top',
         options = list(
           pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),

@@ -3,8 +3,6 @@
 
 # station data comes from spatial join function
 
-# station_data1 <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simple_stations2)
-# station_data <- as.data.frame(station_data1)
 #stations
 # dam is listed at DamLocation
 #b3 is 8190
@@ -17,7 +15,7 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
         (Event %in% c("RB1", "RB2")) ~ "Colorado River", # there is no is.na here because RB UTM
         (Event %in% c("HP3", "HP4")) ~ "Colorado River",
         (Event %in% c("CF5", "CF6")) ~ "Colorado River",
-        (Event %in% c("CD7", "CD8", "CD9", "CD10", "CU11", "CU12")) ~ "Connectivity Channel",
+        (Event %in% c("CD1", "CD2", "CS1", "CS2", "CU1", "CU2")) ~ "Connectivity Channel",
         (Event %in% c("B3", "B5")) ~ "Colorado River",
         (Event %in% c("B4", "B6")) ~ "Fraser River",
         TRUE ~ River
@@ -44,7 +42,7 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
     group_by(Date, TAG) %>%
     mutate(c_number_of_detections = n(),
            daily_unique_events = length(unique(Event))
-           ) %>%
+    ) %>%
     ungroup()
   #generating generic event title for movements map
   DailyMovements_withStations <- DailyMovements_withStations %>%
@@ -53,8 +51,9 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
       det_type = case_when(str_detect(Event, "RB1|RB2") ~ "Red Barn Stationary Antenna",
                            str_detect(Event, "HP3|HP4") ~ "Hitching Post Stationary Antenna",
                            str_detect(Event, "CF5|CF6") ~ "Confluence Stationary Antenna",
-                           str_detect(Event, "CD7|CD8|CD9|CD10") ~ "Connectivity Channel Downstream Stationary Antenna", #Caused by error in `"CD7|CD8" | "CD9"`: solved because quotation marks in the worng places
-                           str_detect(Event, "CU11|CU12") ~ "Connectivity Channel Upstream Stationary Antenna",
+                           str_detect(Event, "CD1|CD2") ~ "Connectivity Channel Downstream Stationary Antenna",
+                           str_detect(Event, "CS1|CS2") ~ "Connectivity Channel Side Channel Stationary Antenna", #Caused by error in `"CD7|CD8" | "CD9"`: solved because quotation marks in the worng places
+                           str_detect(Event, "CU1|CU2") ~ "Connectivity Channel Upstream Stationary Antenna",
                            str_detect(Event, "B3") ~ "Windy Gap Dam Biomark Antenna",
                            str_detect(Event, "B4") ~ "Kaibab Park Biomark Antenna",
                            str_detect(Event, "B5") ~ "River Run Biomark Antenna",
@@ -68,8 +67,26 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
         ET_STATION < DamLocation ~ "Below the Dam"
       )
       
-    ) %>%
-    
+    ) 
+  
+  # Transform the coordinates back to UTM
+  sf_object_utm <- st_transform(DailyMovements_withStations, crs = 32613)  # Assuming UTM zone 13 with GRS80
+  
+  
+  coordinates <- st_coordinates(sf_object_utm)
+  
+  # Convert the coordinates to a data frame
+  coordinatesDf <- as.data.frame(coordinates)
+  
+  # Rename the columns
+  colnames(coordinatesDf) <- c("UTM_X", "UTM_Y")
+  # # Extract the UTM_X and UTM_Y coordinates
+  DailyMovements_withStations$UTM_X <- round(coordinatesDf$UTM_X, 0)
+  DailyMovements_withStations$UTM_Y <- round(coordinatesDf$UTM_Y, 0)
+
+  #need to convert class sf object back to dataframe so that it processes faster in combine_events_stations_function
+  DailyMovements_withStations <- as.data.frame(DailyMovements_withStations)
+  DailyMovements_withStations <- DailyMovements_withStations %>%
     select(Date, Datetime, TAG, Event, det_type, ReleaseSite,Species, Release_Length, Release_Weight, Release_Date, RecaptureSite, River, days_since, weeks_since, first_last, c_number_of_detections, daily_unique_events, ET_STATION, above_below, UTM_X, UTM_Y) #next_event, next_event_2, same_day_next_events,
   
   return(DailyMovements_withStations)

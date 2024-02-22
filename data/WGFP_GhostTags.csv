@@ -5,7 +5,6 @@ RS_Num,River,ReleaseSite,ReleaseDate,Species,Length,Weight,TagID,TagSize,Event,G
 6,Colorado River,Windy Gap Dam,10/6/2021,LOC,375,608,230000224014,32,Ghost,5/18/2022,416025,4440166,detected during ghost tag survey below WG dam on 5/18/2022
 6,Colorado River,Windy Gap Dam,10/6/2021,LOC,397,464,230000224092,32,Ghost,5/18/2022,416010,4440172,detected during ghost tag survey below WG dam on 5/18/2022
 6,Colorado River,Windy Gap Dam,10/6/2020,LOC,389,528,230000228602,32,Ghost,5/18/2022,415996,4440187,detected during ghost tag survey below WG dam on 5/18/2022
-6,Colorado River,Windy Gap Dam,10/6/2020,LOC,347,442,230000228609,32,Ghost,5/18/2022,416025,4440164,detected during ghost tag survey below WG dam on 5/18/2022
 6,Colorado River,Windy Gap Dam,10/6/2020,LOC,364,400,230000228701,32,Ghost,5/18/2022,416095,4440119,detected during ghost tag survey below WG dam on 5/18/2022
 17,Colorado River,Sheriff Ranch Upper Field,5/6/2021,LOC,341,354,230000272506,32,Ghost,5/18/2022,416010,4440174,detected during ghost tag survey below WG dam on 5/18/2022
 2,Fraser River,Fraser River Ranch,9/1/2020,LOC,382,640,230000228030,32,Ghost,4/13/2021,418031,4437885,confirmed using encounter history; field confirmation needed; valid detections before ghost date
@@ -20,7 +19,6 @@ RS_Num,River,ReleaseSite,ReleaseDate,Species,Length,Weight,TagID,TagSize,Event,G
 4,Colorado River,Lower River Run,10/5/2020,LOC,172,52,230000228448,32,Ghost,4/12/2021,418210,4439930,"confirmed using encounter history; field confirmation needed; could be ghost on 10/19/2020, but no movement after 4/12/2021"
 3,Colorado River,Upper River Run,10/5/2020,LOC,472,982,230000228453,32,Ghost,10/19/2020,418722,4440082,confirmed using encounter history; field confirmation needed
 13,Colorado River,Below Red Barn Diversion #1,10/7/2020,LOC,268,186,230000228848,32,Ghost,10/21/2020,412121,4439251,confirmed using encounter history; field confirmation needed
-13,Colorado River,Below Red Barn Diversion #1,10/7/2020,LOC,268,186,230000228848,32,Ghost,10/21/2020,410621,4438636,confirmed using encounter history; field confirmation needed
 15,Colorado River,Kinney Creek,10/7/2020,LOC,329,304,230000229046,32,Ghost,10/21/2020,411449,4438887,confirmed using encounter history; field confirmation needed
 15,Colorado River,Kinney Creek,10/7/2020,LOC,327,366,230000229079,32,Ghost,10/21/2020,414106,4440161,confirmed using encounter history; field confirmation needed; stationary antenna detection (RB) prior to becoming ghost tag
 2,Fraser River,Fraser River Ranch,9/1/2020,LOC,189,61,230000228019,32,Ghost,7/27/2021,417299,4438476,"confirmed using encounter history; field confirmation needed; could be ghost on 10/20/2020, but no movement after 7/27/2021"
