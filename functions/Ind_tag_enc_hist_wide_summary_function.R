@@ -1,15 +1,15 @@
 #### ENC HIST summary table function
-#recaps_and_all_detections <- df_list$Recaps_detections
-# release_data <- Release
+# allDetectionsAndRecaptures <- df_list$Recaps_detections
+# Release <- Release
 # combined_events_stations <- combined_events_stations #resulting df from combined_events and stations function
-#States_summarized <- states_summarized
+# States_summarized <- states_summarized
 #recaps and all detreitons comes from WGFP ENC_hist_function, release data is a read_in csv, all_events_condensed with stations comes from combine_stations_events function
-Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, release_data, combined_events_stations, States_summarized){
+Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, Release, combined_events_stations, States_summarized, markerTags){
   
   start_time <- Sys.time()
   print("Running Ind_tag_enc_hist_wide_summary_function: Summarizes detection and movement data from each released Tag.")
   
-  all_enc12 <- recaps_and_all_detections %>%
+  all_enc12 <- allDetectionsAndRecaptures %>%
     count(TAG, Event, name = "Encounters") 
   
   all_enc12 <- pivot_wider(data = all_enc12, id_cols = TAG, names_from = Event, values_from = Encounters)
@@ -42,7 +42,7 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
   
   
   #### Combine Release data ###
-  Release1 <- release_data %>%
+  Release1 <- Release %>%
     rename(TAG = TagID) %>%
     mutate(TAG = str_trim(TAG)) %>%
     replace_na(list(Species = "No Info", ReleaseSite = "No Info")) #replaced species and releasesite to follow the same convention as AllEvents
@@ -51,9 +51,10 @@ Ind_tag_enc_hist_wide_summary_function <- function(recaps_and_all_detections, re
   #need to actually join on full join not merge
   ENC_Release <- full_join(Release1, ENC_ALL,  by = "TAG")
   
-  #gets tag list that wasn't in release file
+  #gets tag list that wasn't in release file or markerTags
   unknown_tags <- ENC_Release %>%
-    filter(is.na(ReleaseSite)) %>%
+    filter(is.na(ReleaseSite), 
+           !TAG %in% markerTags) %>%
     select(TAG,where(is.numeric))
   
   

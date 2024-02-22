@@ -27,7 +27,7 @@ QAQC_UI <- function(id, Marker_Tag_data) {
                                "Date",
                                min = min(Marker_Tag_data$DTY -1),
                                max = max(Marker_Tag_data$DTY +1),  
-                               value = c(min(Marker_Tag_data$DTY -1),max(Marker_Tag_data$DTY +1)),
+                               value = c(max(Marker_Tag_data$DTY - 30),max(Marker_Tag_data$DTY +1)),
                                step = 1,
                                timeFormat = "%d %b %y",
                                #animate = animationOptions(interval = 500, loop = FALSE)
@@ -90,6 +90,9 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
         plot2 <- filtered_markertag_data() %>%
           ggplot(aes(x = DTY, y = ARR, color = SCD, text = paste(TAG) )) +
           geom_point() +
+          labs(title = "Marker Tag Detection Times") +
+          xlab("Date") +
+          ylab("Time") +
           theme_classic() +
           theme(
             axis.text.y = element_blank(),
@@ -109,8 +112,7 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
           theme_classic() +
           labs(title = "Release Data")
         
-        plotly3 <- ggplotly(plot3) 
-        plotly3
+        ggplotly(plot3)
       })    
       
       output$plot4 <- renderPlotly({
@@ -120,23 +122,28 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
           theme_classic() +
           labs(title = "Recapture Data")
         
-        plotly4 <- ggplotly(plot4) 
-        plotly4
+        ggplotly(plot4)
       })
       
       output$markertags1 <- renderDT({
-        datatable(filtered_markertag_data(),
-                  rownames = FALSE,
-                  selection = "single",
-                  filter = 'top',
-                  options = list(
-                    #statesave is restore table state on page reload
-                    stateSave =TRUE,
-                    pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-                    dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
-                    language = list(emptyTable = "Enter inputs and press Render Table")
-                  )
-        ) 
+        
+        datatable(
+          filtered_markertag_data(),
+          rownames = FALSE,
+          selection = "single",
+          filter = 'top',
+          caption = "Marker tags are inferred as tags that start with 0000000",
+          options = list(
+            #statesave is restore table state on page reload
+            stateSave = TRUE,
+            pageLength = 10,
+            info = TRUE,
+            lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
+            dom = 'Blfrtip',
+            #had to add 'lowercase L' letter to display the page length again
+            language = list(emptyTable = "Enter inputs and press Render Table")
+          )
+        )
       })
       
       output$unknowntags1 <- renderDT({

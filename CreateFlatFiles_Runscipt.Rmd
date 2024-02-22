@@ -81,10 +81,10 @@ Biomark <- Biomark %>%
                             Scan.Date))
 
 
-Release_05 <- Release %>%
+cleanRelease <- Release %>%
   mutate(Date = as.character(mdy(Date)))
 
-Recaptures_05 <- Recaptures %>%
+cleanRecaptures <- Recaptures %>%
   mutate(Date = as.character(mdy(Date)))
 
 AvianPredation <- AvianPredation %>%
@@ -117,7 +117,7 @@ combined_events_stations <- PrepareforStatesMovementsandSummary(DailyMovements_w
 # states
 states_data_list <- states_function(combined_events_stations, GhostTags, AvianPredation)
 # aplies enc_hist_summary wide function
-enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(df_list$Recaps_detections, Release_05, combined_events_stations, states_data_list$States_summarized)
+enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(df_list$Recaps_detections, cleanRelease, combined_events_stations, states_data_list$States_summarized, markerTags = unique(Cleaned_Stationary_Marker_tags$TAG))
 unknown_tags <- enc_hist_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
 # applies get_movements_function
@@ -142,7 +142,7 @@ rainbow_trout_pallette <- list(pink1 = "#E3BABBFF", olive_green1 = "#C4CFBFFF", 
 
 Biomark <- Biomark %>%
   filter(!DEC.Tag.ID %in% c("900.230000999999"))
-Release_05 <- Release_05 %>%
+cleanRelease <- cleanRelease %>%
   filter(!TagID %in% c("230000999999"))
 Stationary <- Cleaned_Stationary_FishdetectionsOnly %>%
   filter(!TAG %in% c("900230000999999"))
@@ -152,8 +152,8 @@ indiv_datasets_list <- list(
       "stationarycleandata" = Stationary,
       "biomarkdata" = Biomark,
       "mobiledata" = Mobile,
-      "recapdata" = Recaptures_05,
-      "releasedata" = Release_05,
+      "recapdata" = cleanRecaptures,
+      "releasedata" = cleanRelease,
       "ghostdata" = GhostTags,
       "avian_preddata" = AvianPredation
     )
