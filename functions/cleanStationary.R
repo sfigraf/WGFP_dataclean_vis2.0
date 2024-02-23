@@ -11,6 +11,7 @@ cleanStationary <- function(Stationary){
                     as.character(mdy(DTY)),
                     DTY)) %>%
     #taking out test_tags
+    #this variable comes from the metadata
     filter(!TAG %in% test_tags)
   
   #cleaning timestamps for mobile and old stationary detections mainly

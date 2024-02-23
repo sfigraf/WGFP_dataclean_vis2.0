@@ -11,10 +11,10 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   # biomark cleaning, getting dates into uniform format, 
   biomarkCleaned <- Biomark %>%
     mutate(TAG = str_replace(DEC.Tag.ID, "\\.", ""),
-           Reader.ID = case_when(Reader.ID == "A1" | Reader.ID == "B1" ~ "B3",
-                                 Reader.ID == "A2" | Reader.ID == "B2" ~ "B4",
-                                 Reader.ID == "A3" ~ "B5",
-                                 Reader.ID == "A4" ~ "B6",
+           Reader.ID = case_when(Reader.ID == "A1" | Reader.ID == "B1" ~ WindyGapAntennaSiteCode,
+                                 Reader.ID == "A2" | Reader.ID == "B2" ~ KaibabParkAntennaSiteCode,
+                                 Reader.ID == "A3" ~ RiverRunAntennaSiteCode,
+                                 Reader.ID == "A4" ~ FraserRiverCanyonAntennaSiteCode,
                                  TRUE ~ Reader.ID),
            #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy 
            # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
@@ -23,7 +23,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
                               Scan.Date)
     ) %>%
     #we want to filter out test tags here, but not marker tags
-    #filter(!TAG %in% test_tags) %>%
+    filter(!TAG %in% test_tags) %>%
     
     # from gis: B1 416026, 4440196
     #B2: 420727.9, 4437221
