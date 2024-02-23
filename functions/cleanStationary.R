@@ -46,7 +46,8 @@ cleanStationary <- function(Stationary){
            Code %in% c("I", "S"))
   
   #### Add UTMS to detections ###
-  
+  selectedMetaData <- wgfpMetadata$AntennaMetadata %>%
+    select(SiteCode, UTM_X, UTM_Y)
   # takes out 900 from TAG in WGFP Clean
   # also takes out duplicate rows
   Stationary_withUTMS <- Stationary_cleanedTime1 %>%
@@ -58,8 +59,8 @@ cleanStationary <- function(Stationary){
                            SCD == "CD7" & ANT == "A4" ~ "CS2",
                            TRUE ~ SCD)) %>%
     # assigning UTM's are important because they are plotted later when getting stations file in GIS
-    left_join(wgfpMetadata$AntennaMetadata, by = c("SCD" = "SiteCode")) %>%
-    distinct()
+    left_join(selectedMetaData, by = c("SCD" = "SiteCode")) %>%
+    distinct() 
   end_time = Sys.time()
   print(paste("Cleaning Stationary file took", round((end_time-start_time),2)))
   

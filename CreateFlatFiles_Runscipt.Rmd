@@ -57,10 +57,10 @@ wgfpMetadata <- lapply(excel_sheets("./data/WGFP Metadata.xlsx"), function(x)
 names(wgfpMetadata) <- excel_sheets("./data/WGFP Metadata.xlsx")
 
 ###Variables that are used throughout the funcitons
-WindyGapAntennaSiteCode <- unique(wgfpMetadata$AntennaMetadata[wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Dam", "SiteCode"])
-KaibabParkAntennaSiteCode <- unique(wgfpMetadata$AntennaMetadata[wgfpMetadata$AntennaMetadata$AntennaSite == "Kaibab Park", "SiteCode"])
-RiverRunAntennaSiteCode <- unique(wgfpMetadata$AntennaMetadata[wgfpMetadata$AntennaMetadata$AntennaSite == "River Run", "SiteCode"])
-FraserRiverCanyonAntennaSiteCode <- unique(wgfpMetadata$AntennaMetadata[wgfpMetadata$AntennaMetadata$AntennaSite == "Fraser River Canyon", "SiteCode"])
+WindyGapAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Dam", "SiteCode"])
+KaibabParkAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[wgfpMetadata$AntennaMetadata$AntennaSite == "Kaibab Park", "SiteCode"])
+RiverRunAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[wgfpMetadata$AntennaMetadata$AntennaSite == "River Run", "SiteCode"])
+FraserRiverCanyonAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[wgfpMetadata$AntennaMetadata$AntennaSite == "Fraser River Canyon", "SiteCode"])
 
 test_tags <- unique(wgfpMetadata$TestTags$TAG)
 

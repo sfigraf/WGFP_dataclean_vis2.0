@@ -9,24 +9,18 @@
 
 PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
   DailyMovements_withStations <- DailyMovements_withStations %>%
-    mutate(
-      #River also needs to be assigned for new detections 
-      River = case_when(
-        (Event %in% c("RB1", "RB2")) ~ "Colorado River", # there is no is.na here because RB UTM
-        (Event %in% c("HP3", "HP4")) ~ "Colorado River",
-        (Event %in% c("CF5", "CF6")) ~ "Colorado River",
-        (Event %in% c("CD1", "CD2", "CS1", "CS2", "CU1", "CU2")) ~ "Connectivity Channel",
-        (Event %in% c("B3", "B5")) ~ "Colorado River",
-        (Event %in% c("B4", "B6")) ~ "Fraser River",
-        TRUE ~ River
-      ),
+    left_join(wgfpMetadata$AntennaMetadata[,c("SiteCode", "River")], by = c("Event" = "SiteCode")) %>%
+    #selects first non-NA value from set of columns; by having River.Y first it prioritizes that column
+    mutate(River = coalesce(River.y, River.x), 
+           ET_STATION = case_when(River %in% "Fraser River" ~ ET_STATION + fraserColoradoRiverConfluence, #10120 is above Fraser River Confluence; pre-construciton was 9566
+                                  River %in% c("Colorado River", "Connectivity Channel") ~ ET_STATION,
+                                  TRUE ~ ET_STATION)
+           ) %>%
+    select(-River.x, -River.y)
+  
       # this part is needed because stations are assigned from 0 up the fraser river starting at the confluence
       #new antennas weren't showing up because I didn't include connectivity channel to to river
       # this assigns a station, then in the get_movements function the distance moved is calculated
-      ET_STATION = case_when(River %in% "Fraser River" ~ ET_STATION + 10120, #10120 is above Fraser River Confluence; pre-construciton was 9566
-                             River %in% c("Colorado River", "Connectivity Channel") ~ ET_STATION,
-                             TRUE ~ ET_STATION)
-    ) 
   # making these columns prepares the data for making states and pivoting wider to days/weeks
   DailyMovements_withStations <- DailyMovements_withStations %>%
     mutate(
