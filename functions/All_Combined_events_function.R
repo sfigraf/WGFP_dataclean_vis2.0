@@ -24,20 +24,9 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     ) %>%
     #we want to filter out test tags here, but not marker tags
     filter(!TAG %in% test_tags) %>%
-    
-    # from gis: B1 416026, 4440196
-    #B2: 420727.9, 4437221
-    # b3 is wg, b4 is kaibab
-    # b5 is river run
-    # b6 is fraser river canyon
-    mutate(UTM_X =case_when(Reader.ID == "B3" ~ "416026",
-                            Reader.ID == "B4" ~ "420728",
-                            Reader.ID == "B5" ~ "419210",
-                            Reader.ID == "B6" ~ "424543"),
-           UTM_Y = case_when(Reader.ID == "B3" ~ "4440196",
-                             Reader.ID == "B4" ~ "4437221",
-                             Reader.ID == "B5" ~ "4439961",
-                             Reader.ID == "B6" ~ "4435559")) %>%
+    #get UTMs based off what is in metaDataTable
+    #left_join() is faster than merge()
+    left_join(wgfpMetadata$AntennaMetadata, by = c("Reader.ID" = "SiteCode")) %>%
     distinct()
   
   ###Create one big clean dataset
@@ -56,7 +45,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     mutate(TAG = ifelse(str_detect(TAG, "^900"), str_sub(TAG, 4,-1), TAG),
            Date = ifelse(str_detect(Date, "/"), 
                          as.character(mdy(Date)), 
-                         Date)) %>% #end of mutate
+                         Date)) %>% 
     select(Date, Time, TAG, Ant, UTM_X, UTM_Y) %>%
     rename(Scan_Date = Date, Scan_Time = Time, Site_Code = Ant)
   
@@ -68,7 +57,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     filter(Scan_Date >= as.Date("2020-08-06")) %>% #right before the first date of marker tag detections on stationary antennas
     mutate(
       Scan_DateTime = ymd_hms(paste(Scan_Date, Scan_Time))) %>%
-    select(Scan_Date, Scan_Time, Scan_DateTime, TAG, Site_Code, UTM_X, UTM_Y )
+    select(Scan_Date, Scan_Time, Scan_DateTime, TAG, Site_Code, UTM_X, UTM_Y)
   
   ### all detections and recaps and release "EVENTS" DF
   
@@ -78,7 +67,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     mutate(TAG = str_trim(TAG),
            Date = mdy(Date),
            DateTime = lubridate::ymd_hms(paste(Date, Time))) %>%
-    select(RS_Num, River, ReleaseSite, Date, Time, DateTime, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event)# %>%
+    select(RS_Num, River, ReleaseSite, Date, Time, DateTime, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event)
   
   #getting timestamps in order and getting relevant columns
   
@@ -112,7 +101,6 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   
   #fills in release info so it is known at any row of detection
   allEventsWithReleaseInfo <- left_join(allEvents, cleanedRelease, by = c("TAG"))
-  
   
   #this is the final df 
   

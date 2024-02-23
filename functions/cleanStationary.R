@@ -58,18 +58,7 @@ cleanStationary <- function(Stationary){
                            SCD == "CD7" & ANT == "A4" ~ "CS2",
                            TRUE ~ SCD)) %>%
     # assigning UTM's are important because they are plotted later when getting stations file in GIS
-    mutate(UTM_X =case_when(SCD == "RB1" | SCD == "RB2" ~ "412489",
-                            SCD == "HP3" | SCD == "HP4" ~ "414375",
-                            SCD == "CF5" | SCD == "CF6" ~ "416965",
-                            SCD == "CD1" | SCD == "CD2" ~ "415802",
-                            SCD == "CS1" | SCD == "CS2" ~ "415787",
-                            SCD == "CU1" | SCD == "CU2" ~ "416723"),
-           UTM_Y = case_when(SCD == "RB1" | SCD == "RB2" ~ "4439413",
-                             SCD == "HP3" | SCD == "HP4" ~ "4440241",
-                             SCD == "CF5" | SCD == "CF6" ~ "4439369",
-                             SCD == "CD1" | SCD == "CD2" ~ "4439907",
-                             SCD == "CS1" | SCD == "CS2" ~ "4439908",
-                             SCD == "CU1" | SCD == "CU2" ~ "4439443")) %>%
+    left_join(wgfpMetadata$AntennaMetadata, by = c("SCD" = "SiteCode")) %>%
     distinct()
   end_time = Sys.time()
   print(paste("Cleaning Stationary file took", round((end_time-start_time),2)))
