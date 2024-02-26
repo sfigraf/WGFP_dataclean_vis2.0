@@ -19,13 +19,13 @@ get_movements_function <- function(combined_events_stations) {
     #if previous station is above the confluence and current station is above the confluence and you changed rivers, 
     #then take the previous station and subtract the confluence station to get distance travelled to the confluence (A), then subtract the new station minus confluence station to get distance travelled up the new river (B). Then add A + B to get total distance
     # otherwise, just subtract current station from previous
-    mutate(dist_moved = case_when(lag(ET_STATION, order_by = Datetime) > FraserColoradoRiverConfluence & ET_STATION > FraserColoradoRiverConfluence & River != lag(River, order_by = Datetime) ~ (lag(ET_STATION, order_by = Datetime) - FraserColoradoRiverConfluence) + (ET_STATION - FraserColoradoRiverConfluence),
+    mutate(dist_moved = case_when(lag(ET_STATION, order_by = Datetime) > fraserColoradoRiverConfluence & ET_STATION > fraserColoradoRiverConfluence & River != lag(River, order_by = Datetime) ~ (lag(ET_STATION, order_by = Datetime) - fraserColoradoRiverConfluence) + (ET_STATION - fraserColoradoRiverConfluence),
                                   TRUE ~ ET_STATION - lag(ET_STATION, order_by = Datetime)
                                   ),
            sum_dist = (sum(abs(dist_moved), na.rm = TRUE)),
            
            
-           movement_only = case_when(lag(ET_STATION, order_by = Datetime) > FraserColoradoRiverConfluence & ET_STATION > FraserColoradoRiverConfluence & River != lag(River, order_by = Datetime) ~ "Changed Rivers",
+           movement_only = case_when(lag(ET_STATION, order_by = Datetime) > fraserColoradoRiverConfluence & ET_STATION > fraserColoradoRiverConfluence & River != lag(River, order_by = Datetime) ~ "Changed Rivers",
                                      Event %in% c("Release", "Recapture and Release")  ~ "Initial Release",
                                      dist_moved == 0 ~ "No Movement",
                                      dist_moved > 0 ~ "Upstream Movement",

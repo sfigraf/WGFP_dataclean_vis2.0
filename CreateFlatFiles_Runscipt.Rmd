@@ -57,12 +57,15 @@ wgfpMetadata <- lapply(excel_sheets("./data/WGFP Metadata.xlsx"), function(x)
 names(wgfpMetadata) <- excel_sheets("./data/WGFP Metadata.xlsx")
 
 ###Variables that are used throughout the funcitons
-WindyGapAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Dam", "SiteCode"])
-KaibabParkAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[wgfpMetadata$AntennaMetadata$AntennaSite == "Kaibab Park", "SiteCode"])
-RiverRunAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[wgfpMetadata$AntennaMetadata$AntennaSite == "River Run", "SiteCode"])
-FraserRiverCanyonAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[wgfpMetadata$AntennaMetadata$AntennaSite == "Fraser River Canyon", "SiteCode"])
+WindyGapAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Dam", "SiteCode"])
+KaibabParkAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Kaibab Park", "SiteCode"])
+RiverRunAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "River Run", "SiteCode"])
+FraserRiverCanyonAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Fraser River Canyon", "SiteCode"])
 
 test_tags <- unique(wgfpMetadata$TestTags$TAG)
+fraserColoradoRiverConfluence <- as.numeric(wgfpMetadata$ImportantStationingVariables[wgfpMetadata$ImportantStationingVariables$Variable == "Fraser/Colorado River Confluence", "StationingLocation"])
+
+DamLocation <- as.numeric(wgfpMetadata$ImportantStationingVariables[wgfpMetadata$ImportantStationingVariables$Variable == "Windy Gap Dam", "StationingLocation"])
 
 
 
@@ -89,28 +92,28 @@ StationaryClean <- cleanStationary(Stationary = Stationary)
 
 # this readies raw files to be put into functions as well as displayed on Indivudal Datasets Page
 Mobile <- Mobile %>%
-    mutate(Date = as.character(mdy(Date)))
+    mutate(Date = as.character(lubridate::mdy(Date)))
 
 
 Biomark <- Biomark %>%
   #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy 
   # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
   mutate(Scan.Date = ifelse(str_detect(Scan.Date, "/"), 
-                            as.character(mdy(Scan.Date)), 
+                            as.character(lubridate::mdy(Scan.Date)), 
                             Scan.Date))
 
 
 cleanedRelease <- Release %>%
-  mutate(Date = as.character(mdy(Date)))
+  mutate(Date = as.character(lubridate::mdy(Date)))
 
 cleanedRecaptures <- Recaptures %>%
-  mutate(Date = as.character(mdy(Date)))
+  mutate(Date = as.character(lubridate::mdy(Date)))
 
 AvianPredation <- AvianPredation %>%
-  mutate(PredationDate = mdy(PredationDate))
+  mutate(PredationDate = lubridate::mdy(PredationDate))
 
 GhostTags <- GhostTags %>%
-  mutate(GhostDate = mdy(GhostDate)) 
+  mutate(GhostDate = lubridate::mdy(GhostDate)) 
 
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
 df_list <- All_combined_events_function(Stationary = StationaryClean, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
@@ -151,7 +154,7 @@ weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):m
 #more formatting
 Enc_release_data <- enc_hist_wide_df %>%
     mutate(Date = ifelse(str_detect(Date, "/"),
-                         as.character(mdy(Date)),
+                         as.character(lubridate::mdy(Date)),
                          Date))
 
 
