@@ -104,36 +104,34 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   #but also has release data
   totalcols <- ncol(ENC_Release1)
   
-  ENC_Release22 <- ENC_Release1 %>%
+  ENC_Release2 <- ENC_Release1 %>%
     #counts number of TRUE across specified rows. -SG
     # need to have parentheses (totalcols-1) that's why i was getting bad numbers on biomark T/F initially
     #added 8 new columns for new antennas
     mutate(
-      TotalEncounters = rowSums(select(., dplyr::ends_with(c(RedBarnCodes, HitchingPostCodes, ConfluenceCodes, 
+      TotalEncounters = rowSums(select(., all_of(c(RedBarnCodes, HitchingPostCodes, ConfluenceCodes, 
                                             ConnectivityChannelDownstreamCodes, ConnectivityChannelSideChannelCodes,
                                             ConnectivityChannelUpstreamCodes, MobileRunCodes, 
                                             WindyGapAntennaSiteCode, KaibabParkAntennaSiteCode,
                                             RiverRunAntennaSiteCode, FraserRiverCanyonAntennaSiteCode, "Recapture"))) == TRUE),
-      TotalAntennas1 = rowSums(select(., dplyr::ends_with(c(RedBarnCodes, HitchingPostCodes, ConfluenceCodes, 
+      TotalAntennas1 = rowSums(select(., all_of(c(RedBarnCodes, HitchingPostCodes, ConfluenceCodes, 
                                                             ConnectivityChannelDownstreamCodes, ConnectivityChannelSideChannelCodes,
                                                             ConnectivityChannelUpstreamCodes, MobileRunCodes, 
                                                             WindyGapAntennaSiteCode, KaibabParkAntennaSiteCode,
                                                             RiverRunAntennaSiteCode, FraserRiverCanyonAntennaSiteCode))) == TRUE),
-      TotalStationary = rowSums(select(., dplyr::ends_with(c(RedBarnCodes, HitchingPostCodes, ConfluenceCodes, 
+      TotalStationary = rowSums(select(., all_of(c(RedBarnCodes, HitchingPostCodes, ConfluenceCodes, 
                                                              ConnectivityChannelDownstreamCodes, ConnectivityChannelSideChannelCodes,
-                                                             ConnectivityChannelUpstreamCodes, MobileRunCodes, 
-                                                             WindyGapAntennaSiteCode, KaibabParkAntennaSiteCode,
-                                                             RiverRunAntennaSiteCode, FraserRiverCanyonAntennaSiteCode))) == TRUE),
+                                                             ConnectivityChannelUpstreamCodes))) == TRUE),
 
-      TotalMobile = rowSums(select(.,  dplyr::matches(paste0("(", MobileRunCodes, ")_n"))) == TRUE),
-      TotalBiomark = rowSums(select(., dplyr::matches(paste0("(", c(WindyGapAntennaSiteCode, KaibabParkAntennaSiteCode,
-                                                                                     RiverRunAntennaSiteCode, FraserRiverCanyonAntennaSiteCode), ")_n"))) == TRUE),
-      TotalRedBarn = rowSums(select(., dplyr::matches(paste0("(", RedBarnCodes, ")_n"))) == TRUE),
-      TotalHitchingPost = rowSums(select(., dplyr::matches(paste0("(", HitchingPostCodes, ")_n"))) == TRUE),
-      TotalConfluence = rowSums(select(., dplyr::matches(paste0("(", ConfluenceCodes, ")_n"))) == TRUE),
-      TotalConnectivityDownstream = rowSums(select(., dplyr::matches(paste0("(", ConnectivityChannelDownstreamCodes, ")_n"))) == TRUE),
-      TotalConnectivitySideChannel = rowSums(select(., dplyr::matches(paste0("(", ConnectivityChannelSideChannelCodes, ")_n"))) == TRUE),
-      TotalConnectivityUpstream = rowSums(select(., dplyr::matches(paste0("(", ConnectivityChannelUpstreamCodes, ")_n"))) == TRUE),
+      TotalMobile = rowSums(select(.,  all_of(MobileRunCodes)) == TRUE),
+      TotalBiomark = rowSums(select(., all_of(c(WindyGapAntennaSiteCode, KaibabParkAntennaSiteCode,
+                                                                                     RiverRunAntennaSiteCode, FraserRiverCanyonAntennaSiteCode))) == TRUE),
+      TotalRedBarn =rowSums(select(.,  all_of(RedBarnCodes)) == TRUE),
+      TotalHitchingPost = rowSums(select(.,  all_of(HitchingPostCodes)) == TRUE),
+      TotalConfluence = rowSums(select(.,  all_of(ConfluenceCodes)) == TRUE),
+      TotalConnectivityDownstream = rowSums(select(.,  all_of(ConnectivityChannelDownstreamCodes)) == TRUE),
+      TotalConnectivitySideChannel = rowSums(select(.,  all_of(ConnectivityChannelSideChannelCodes)) == TRUE),
+      TotalConnectivityUpstream = rowSums(select(.,  all_of(ConnectivityChannelUpstreamCodes)) == TRUE)
     ) %>%
     # just says if the fish was ever detected at these sites
     mutate(RedBarn = TotalRedBarn > 0,
