@@ -2,7 +2,7 @@
 
 MarkerTagQAQC_UI <- function(id, Marker_Tag_data) {
   ns <- NS(id)
-  
+  #deciding which marker tag data to show
   if(str_detect(id, "Stationary")){
     Marker_Tag_data <- Marker_Tag_data %>%
       dplyr::filter(str_detect(TAG, "^0000000"))

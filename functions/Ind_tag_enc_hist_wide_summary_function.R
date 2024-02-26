@@ -1,9 +1,9 @@
-#### ENC HIST summary table function
-allDetectionsAndRecaptures <- df_list$Recaps_detections
-Release <- Release
-markerTags = unique(Cleaned_Marker_tags$TAG)
-combined_events_stations <- combined_events_stations #resulting df from combined_events and stations function
-States_summarized <- states_data_list$States_summarized
+# #### ENC HIST summary table function
+# allDetectionsAndRecaptures <- df_list$Recaps_detections
+# Release <- Release
+# markerTags = unique(Cleaned_Marker_tags$TAG)
+# combined_events_stations <- combined_events_stations #resulting df from combined_events and stations function
+# States_summarized <- states_data_list$States_summarized
 #recaps and all detreitons comes from WGFP ENC_hist_function, release data is a read_in csv, all_events_condensed with stations comes from combine_stations_events function
 Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, Release, combined_events_stations, States_summarized, markerTags){
   
@@ -22,35 +22,7 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
                    MobileRunCodes, WindyGapAntennaSiteCode, KaibabParkAntennaSiteCode, RiverRunAntennaSiteCode, FraserRiverCanyonAntennaSiteCode)
   all_enc12wideOrdered <- all_enc12wide %>%
     select(TAG, one_of(paste0(columnOrder, "_n")), Recapture_n)
-    #select(TAG, RB1_n,RB2_n,HP3_n, HP4_n, CF5_n, CF6_n, CD1_n, CD2_n, CS1_n, CS2_n, CU1_n, CU2_n, M1_n, M2_n, B3_n, B4_n, B5_n, B6_n, Recap_n)
-    
-  #    
-  # x <- all_enc12 %>%
-  #   replace_na(list(Species = "No Info", ReleaseSite = "No Info"))
-  # 
-  # ENC_ALL <- all_enc12 %>%
-  #   rename(RB1_n = RB1,
-  #          RB2_n = RB2,
-  #          HP3_n = HP3,
-  #          HP4_n = HP4,
-  #          CF5_n = CF5,
-  #          CF6_n = CF6,
-  #          CD1_n = CD1,
-  #          CD2_n = CD2,
-  #          CS1_n = CS1,
-  #          CS2_n = CS2,
-  #          CU1_n = CU1,
-  #          CU2_n = CU2,
-  #          M1_n = M1,
-  #          M2_n = M2,
-  #          B3_n = B3,
-  #          B4_n = B4,
-  #          B5_n = B5,
-  #          B6_n = B6,
-  #          Recap_n = Recapture
-  #   ) %>%
-  #   select(TAG, RB1_n,RB2_n,HP3_n, HP4_n, CF5_n, CF6_n, CD1_n, CD2_n, CS1_n, CS2_n, CU1_n, CU2_n, M1_n, M2_n, B3_n, B4_n, B5_n, B6_n, Recap_n)
-  # 
+
   
   #### Combine Release data ###
   Release1 <- Release %>%
@@ -69,36 +41,13 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   
   ENC_Release[is.na(ENC_Release)] = 0 #gets rest of the number count columns to 0 from NA
   
+  #### Make 1 or 0 for encounter history rather than counts ###
+  #gets df with TF of whether a fish was detected at a antenna
   ENC_Release1 <- ENC_Release %>%
     #applies the mutation logic to all columns that end with "_n". 
     #It checks if each value is greater than 0 
     #creates a new column with the name obtained by removing "_n" from the original column name.
     mutate(across(ends_with("_n"), ~ (. > 0), .names = "{sub('_n', '', .col)}"))
-  
-  
-  #### Make 1 or 0 for encounter history rather than counts ###
-  #gets df with TF of whether a fish was detected at a antenna
-  # ENC_Release1 <- ENC_Release %>%
-  #   mutate(RB1 = (RB1_n >0),
-  #          RB2 = (RB2_n >0),
-  #          HP3 = (HP3_n >0),
-  #          HP4 = (HP4_n >0),
-  #          CF5 = (CF5_n >0),
-  #          CF6 = (CF6_n >0),
-  #          CD1 = (CD1_n >0),
-  #          CD2 = (CD2_n >0),
-  #          CS1 = (CS1_n >0),
-  #          CS2 = (CS2_n >0),
-  #          CU1 = (CU1_n >0),
-  #          CU2 = (CU2_n >0),
-  #          M1 = (M1_n >0),
-  #          M2 = (M2_n >0),
-  #          B3 = (B3_n >0),
-  #          B4 = (B4_n>0),
-  #          B5 = (B5_n >0),
-  #          B6 = (B6_n>0),
-  #          Recapture = (Recap_n > 0))
-  
   
   #summary stats of each antenna encounter
   #a little precariously built because Row numbers are used
@@ -146,7 +95,6 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
     ) %>%
     filter(TAG %in% unique(Release1$TAG)) 
   
-  #setdiff(ENC_Release22$TotalBiomark, ENC_Release2$TotalBiomark)
   ###Bringing in Station data with info about ABOVE/BELOW dam for joining
   ### the release data isn't being brought in well; The tags aren't being brought in as full numbers, so when the release data is joined,
   # it can't match up 23000088888 to 2.3E+11; so release site gets put in as "no info", and
@@ -181,12 +129,6 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   #currently counts the connectivity channel as going "through the dam" 
   ENC_Release4 <- ENC_Release3 %>%
     left_join(encountersThroughDam, by = "TAG")
-    # mutate(through_dam = case_when(
-    #   (RB1|RB2|HP3|HP4|B3|`Release Below the Dam`|`Recapture Below the Dam`|`Recapture and Release Below the Dam`|`Mobile Run Below the Dam`) == TRUE & (CF5|CF6|B4|B5|B6|`Release Above the Dam`|`Recapture Above the Dam`|`Recapture and Release Above the Dam`|`Mobile Run Above the Dam`) == TRUE ~ "Went through dam or Connectivity Channel",
-    #   (RB1|RB2|HP3|HP4|B3|`Release Below the Dam`|`Recapture Below the Dam`|`Recapture and Release Below the Dam`|`Mobile Run Below the Dam`) == TRUE & (CF5&CF6&B4&B5&B6&`Release Above the Dam`&`Recapture Above the Dam`&`Recapture and Release Above the Dam`&`Mobile Run Above the Dam`) == FALSE ~ "Stayed Below the Dam",
-    #   (RB1&RB2&HP3&HP4&B3&`Release Below the Dam`&`Recapture Below the Dam`&`Recapture and Release Below the Dam`&`Mobile Run Below the Dam`) == FALSE & (CF5|CF6|B4|B5|B6|`Release Above the Dam`|`Recapture Above the Dam`|`Recapture and Release Above the Dam`|`Mobile Run Above the Dam`) == TRUE ~ "Stayed Above the Dam",
-    # 
-    # ))
   # left joining states summary to enc_release
   ENC_Release5 <- left_join(ENC_Release4, States_summarized, by = "TAG")
   #rearranging so that Tag is first column shown
@@ -212,8 +154,6 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   #### dummy rows removal: 1/14/23
   ENC_Release6 <- ENC_Release6 %>%
     filter(!TAG %in% c("230000999999"))
-  
-  
   
   
   enc_wide_list <- list(

@@ -1,4 +1,4 @@
-AllEncounters_UI <- function(id, df_list) {
+AllEncounters_UI <- function(id, combinedData_df_list) {
   ns <- NS(id)
   tagList(
     sidebarLayout(
@@ -6,17 +6,17 @@ AllEncounters_UI <- function(id, df_list) {
                      textInput(ns("textinput1"), "Filter by Tag"),
                      dateRangeInput(ns("drangeinput2"), "Select a Date Range:",
                                     start = "2020-08-01",
-                                    end = max(df_list$All_Events$Date) + 1), #end of date range input
+                                    end = max(combinedData_df_list$All_Events$Date) + 1), #end of date range input
                      sliderInput(ns("slider1"), "Hour of Day",
-                                 min = min(hour(df_list$All_Events$Datetime), na.rm = TRUE),
-                                 max = max(hour(df_list$All_Events$Datetime), na.rm = TRUE),
-                                 value = c(min(hour(df_list$All_Events$Datetime), na.rm = TRUE),max(hour(df_list$All_Events$Datetime), na.rm = TRUE)),
+                                 min = min(hour(combinedData_df_list$All_Events$Datetime), na.rm = TRUE),
+                                 max = max(hour(combinedData_df_list$All_Events$Datetime), na.rm = TRUE),
+                                 value = c(min(hour(combinedData_df_list$All_Events$Datetime), na.rm = TRUE),max(hour(combinedData_df_list$All_Events$Datetime), na.rm = TRUE)),
                                  step = 1
                      ),
                      pickerInput(ns("picker1"),
                                  label = "Select Event",
-                                 choices = unique(df_list$All_Events$Event),
-                                 selected = unique(df_list$All_Events$Event),
+                                 choices = unique(combinedData_df_list$All_Events$Event),
+                                 selected = unique(combinedData_df_list$All_Events$Event),
                                  multiple = TRUE,
                                  options = list(
                                    `actions-box` = TRUE #this makes the "select/deselect all" option
@@ -24,32 +24,32 @@ AllEncounters_UI <- function(id, df_list) {
                      ), #end of picker input
                      pickerInput(ns("picker2"),
                                  label = "Select Fish Species:",
-                                 choices = sort(unique(df_list$All_Events$Species)),
-                                 selected = unique(df_list$All_Events$Species),
+                                 choices = sort(unique(combinedData_df_list$All_Events$Species)),
+                                 selected = unique(combinedData_df_list$All_Events$Species),
                                  multiple = TRUE,
                                  options = list(
                                    `actions-box` = TRUE #this makes the "select/deselect all" option
                                  ),
                      ), #end of picker 2 input
                      sliderInput(ns("slider6"), "Fish Release Length (mm)",
-                                 min = min(df_list$All_Events$Release_Length, na.rm = TRUE),
-                                 max = max(df_list$All_Events$Release_Length, na.rm = TRUE),
-                                 value = c(min(df_list$All_Events$Release_Length, na.rm = TRUE),max(df_list$All_Events$Release_Length, na.rm = TRUE)),
+                                 min = min(combinedData_df_list$All_Events$Release_Length, na.rm = TRUE),
+                                 max = max(combinedData_df_list$All_Events$Release_Length, na.rm = TRUE),
+                                 value = c(min(combinedData_df_list$All_Events$Release_Length, na.rm = TRUE),max(combinedData_df_list$All_Events$Release_Length, na.rm = TRUE)),
                                  step = 1,
                      ),
                      sliderInput(ns("slider7"), "Fish Release Weight (grams)",
-                                 min = min(df_list$All_Events$Release_Weight, na.rm = TRUE),
-                                 max = max(df_list$All_Events$Release_Weight, na.rm = TRUE),
-                                 value = c(min(df_list$All_Events$Release_Weight, na.rm = TRUE),max(df_list$All_Events$Release_Weight, na.rm = TRUE)),
+                                 min = min(combinedData_df_list$All_Events$Release_Weight, na.rm = TRUE),
+                                 max = max(combinedData_df_list$All_Events$Release_Weight, na.rm = TRUE),
+                                 value = c(min(combinedData_df_list$All_Events$Release_Weight, na.rm = TRUE),max(combinedData_df_list$All_Events$Release_Weight, na.rm = TRUE)),
                                  step = 1,
                      ),
                      dateRangeInput(ns("drangeinput3"), "Release Date Range:",
-                                    start = min(df_list$All_Events$Release_Date, na.rm = TRUE) - 1,
-                                    end = max(df_list$All_Events$Release_Date, na.rm = TRUE) + 1), #end of date range input
+                                    start = min(combinedData_df_list$All_Events$Release_Date, na.rm = TRUE) - 1,
+                                    end = max(combinedData_df_list$All_Events$Release_Date, na.rm = TRUE) + 1), #end of date range input
                      pickerInput(ns("picker3"),
                                  label = "Select Release Site:",
-                                 choices = sort(unique(df_list$All_Events$ReleaseSite)),
-                                 selected = unique(df_list$All_Events$ReleaseSite),
+                                 choices = sort(unique(combinedData_df_list$All_Events$ReleaseSite)),
+                                 selected = unique(combinedData_df_list$All_Events$ReleaseSite),
                                  multiple = TRUE,
                                  options = list(
                                    `actions-box` = TRUE #this makes the "select/deselect all" option
@@ -81,7 +81,7 @@ AllEncounters_UI <- function(id, df_list) {
   )
 }
 
-AllEncounters_Server <- function(id, df_list) {
+AllEncounters_Server <- function(id, combinedData_df_list) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -93,18 +93,18 @@ AllEncounters_Server <- function(id, df_list) {
 
         updateDateRangeInput(session, "drangeinput2",
                              start = "2020-08-01",
-                             end = max(df_list$All_Events$Date) + 1)
+                             end = max(combinedData_df_list$All_Events$Date) + 1)
 
         updatePickerInput(session, "picker1",
-                          selected = unique(df_list$All_Events$Event)
+                          selected = unique(combinedData_df_list$All_Events$Event)
         )
 
         updatePickerInput(session, "picker2",
-                          selected = unique(df_list$All_Events$Species)
+                          selected = unique(combinedData_df_list$All_Events$Species)
         )
 
         updatePickerInput(session, "picker3",
-                          selected = unique(df_list$All_Events$ReleaseSite)
+                          selected = unique(combinedData_df_list$All_Events$ReleaseSite)
         )
 
         updateCheckboxInput(session, "checkbox1",
@@ -121,15 +121,13 @@ AllEncounters_Server <- function(id, df_list) {
       
 #ALL Events and Plot Reactive --------------------------------------------
 
-
-
         # enc_release_data wasn't registering bc i used reactive() instead of reactive ({}).
         # i guess reactive ({}) makes it so you can make multiple expressions within a reactive context whereas reactive() can only do 1
         all_events_data <- eventReactive(input$button3,ignoreNULL = FALSE,{
           # if the Tag filter is used or not
           if(input$textinput1 !=''){
             #all events
-            all_events_filtered <- df_list$All_Events  %>%
+            all_events_filtered <- combinedData_df_list$All_Events  %>%
               filter(
 
                 TAG %in% c(input$textinput1),
@@ -146,7 +144,7 @@ AllEncounters_Server <- function(id, df_list) {
 
 
           } else {
-            all_events_filtered <- df_list$All_Events  %>%
+            all_events_filtered <- combinedData_df_list$All_Events  %>%
               filter(
 
                 Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
@@ -160,7 +158,6 @@ AllEncounters_Server <- function(id, df_list) {
               )%>%
               arrange(Datetime)
 
-
           }
 
 
@@ -172,7 +169,7 @@ AllEncounters_Server <- function(id, df_list) {
           #if there is a tag input along with the first box checked
           if (input$checkbox1 == TRUE & input$checkbox2 == FALSE & input$textinput1 !='') {
 
-            all_events_filtered <- df_list$All_Events %>%
+            all_events_filtered <- combinedData_df_list$All_Events %>%
 
               filter(
                 TAG == input$textinput1,
@@ -203,7 +200,7 @@ AllEncounters_Server <- function(id, df_list) {
           #if there isn't a tag input along with first box checked
           if (input$checkbox1 == TRUE & input$checkbox2 == FALSE & input$textinput1 =='') {
 
-            all_events_filtered <- df_list$All_Events %>%
+            all_events_filtered <- combinedData_df_list$All_Events %>%
 
               filter(
                 Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
@@ -227,14 +224,11 @@ AllEncounters_Server <- function(id, df_list) {
               arrange(Datetime) %>%
               select(-first_last)
 
-
           }
 
           if (input$checkbox2 == TRUE) {
 
-
-
-            all_events_filtered <- df_list$All_Events %>%
+            all_events_filtered <- combinedData_df_list$All_Events %>%
               filter(
                 
                 Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
@@ -291,9 +285,7 @@ AllEncounters_Server <- function(id, df_list) {
                 theme_classic() +
                 labs(title = "Raw Detections Frequency")
 
-
-              plotly5 <- ggplotly(p = plot)
-              plotly5
+              ggplotly(p = plot)
 
             })
 
