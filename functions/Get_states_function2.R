@@ -37,12 +37,12 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
     filter(!TAG %in% c('230000999999')) %>%
     mutate(
       #the case_whens also are a priority list, so important not to rearange these 
-      #might have to readjust 8330 stationing; this is dam location
+      
       state = case_when(Date >= GhostDate ~ "G",
                          Date >= PredationDate ~ "P",
-                         str_detect(Event, "CD1|CD2|CS1|CS2|CU1|CU2") ~ "C",
-                         ET_STATION <= 8330 ~ "A",
-                         ET_STATION > 8330 ~ "B")
+                        Event %in% ConnectivityChannelCodes ~ "C",
+                         ET_STATION <= DamLocation ~ "A",
+                         ET_STATION > DamLocation ~ "B")
     )
   
   weeklyStates <- states %>%
