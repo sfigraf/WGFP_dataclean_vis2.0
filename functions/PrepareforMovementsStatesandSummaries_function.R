@@ -8,21 +8,23 @@
 #b3 is 8190
 
 PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
-  DailyMovements_withStations <- DailyMovements_withStations %>%
+  
+  DailyMovements_withStationsFraserColoradoCorrected <- DailyMovements_withStations %>%
     left_join(wgfpMetadata$AntennaMetadata[,c("SiteCode", "River")], by = c("Event" = "SiteCode")) %>%
     #selects first non-NA value from set of columns; by having River.Y first it prioritizes that column
     mutate(River = coalesce(River.y, River.x), 
+           # this part is needed because stations are assigned from 0 up the fraser river starting at the confluence
+           #new antennas weren't showing up because I didn't include connectivity channel to to river
+           # this assigns a station, then in the get_movements function the distance moved is calculated
            ET_STATION = case_when(River %in% "Fraser River" ~ ET_STATION + fraserColoradoRiverConfluence, #10120 is above Fraser River Confluence; pre-construciton was 9566
                                   River %in% c("Colorado River", "Connectivity Channel") ~ ET_STATION,
                                   TRUE ~ ET_STATION)
            ) %>%
     select(-River.x, -River.y)
   
-      # this part is needed because stations are assigned from 0 up the fraser river starting at the confluence
-      #new antennas weren't showing up because I didn't include connectivity channel to to river
-      # this assigns a station, then in the get_movements function the distance moved is calculated
+      
   # making these columns prepares the data for making states and pivoting wider to days/weeks
-  DailyMovements_withStations <- DailyMovements_withStations %>%
+  DailyMovements_withStationsDaysSince <- DailyMovements_withStationsFraserColoradoCorrected %>%
     mutate(
       days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
       #makes sense to use floor not cieling with weeks because then there are are more fish in week 0
@@ -32,39 +34,28 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
     )
   
   #getting number of daily events
-  DailyMovements_withStations <- DailyMovements_withStations %>%
+  DailyMovements_withStationsNumberofDailyEvents <- DailyMovements_withStationsDaysSince %>%
     group_by(Date, TAG) %>%
     mutate(c_number_of_detections = n(),
            daily_unique_events = length(unique(Event))
     ) %>%
     ungroup()
   #generating generic event title for movements map
-  DailyMovements_withStations <- DailyMovements_withStations %>%
-    mutate(
-      #this part is used in movemnets map
-      det_type = case_when(str_detect(Event, "RB1|RB2") ~ "Red Barn Stationary Antenna",
-                           str_detect(Event, "HP3|HP4") ~ "Hitching Post Stationary Antenna",
-                           str_detect(Event, "CF5|CF6") ~ "Confluence Stationary Antenna",
-                           str_detect(Event, "CD1|CD2") ~ "Connectivity Channel Downstream Stationary Antenna",
-                           str_detect(Event, "CS1|CS2") ~ "Connectivity Channel Side Channel Stationary Antenna", #Caused by error in `"CD7|CD8" | "CD9"`: solved because quotation marks in the worng places
-                           str_detect(Event, "CU1|CU2") ~ "Connectivity Channel Upstream Stationary Antenna",
-                           str_detect(Event, "B3") ~ "Windy Gap Dam Biomark Antenna",
-                           str_detect(Event, "B4") ~ "Kaibab Park Biomark Antenna",
-                           str_detect(Event, "B5") ~ "River Run Biomark Antenna",
-                           str_detect(Event, "B6") ~ "Fraser River Canyon Biomark Antenna",
-                           str_detect(Event, "M1|M2") ~ "Mobile Run",
-                           Event == "Recapture" ~ "Recapture",
-                           TRUE ~ Event),
-      #need to check this function out given new stationing and connectivity channel
-      above_below = case_when(
-        ET_STATION >= DamLocation ~ "Above the Dam",
-        ET_STATION < DamLocation ~ "Below the Dam"
-      )
-      
-    ) 
+  
+  ####can join this
+  DailyMovements_withStationsAndDetectionType <- DailyMovements_withStationsNumberofDailyEvents %>%
+    left_join(wgfpMetadata$AntennaMetadata[,c("SiteCode", "SiteName")], by = c("Event" = "SiteCode")) %>%
+    mutate(det_type = coalesce(SiteName, Event), 
+           #need to check this function out given new stationing and connectivity channel!!!!!
+           #!!!!!
+           above_below = case_when(
+             ET_STATION >= DamLocation ~ "Above the Dam",
+             ET_STATION < DamLocation ~ "Below the Dam"
+           )
+    )
   
   # Transform the coordinates back to UTM
-  sf_object_utm <- st_transform(DailyMovements_withStations, crs = 32613)  # Assuming UTM zone 13 with GRS80
+  sf_object_utm <- st_transform(DailyMovements_withStationsAndDetectionType, crs = 32613)  # Assuming UTM zone 13 with GRS80
   
   
   coordinates <- st_coordinates(sf_object_utm)
@@ -75,14 +66,14 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
   # Rename the columns
   colnames(coordinatesDf) <- c("UTM_X", "UTM_Y")
   # # Extract the UTM_X and UTM_Y coordinates
-  DailyMovements_withStations$UTM_X <- round(coordinatesDf$UTM_X, 0)
-  DailyMovements_withStations$UTM_Y <- round(coordinatesDf$UTM_Y, 0)
+  DailyMovements_withStationsAndDetectionType$UTM_X <- round(coordinatesDf$UTM_X, 0)
+  DailyMovements_withStationsAndDetectionType$UTM_Y <- round(coordinatesDf$UTM_Y, 0)
 
   #need to convert class sf object back to dataframe so that it processes faster in combine_events_stations_function
-  DailyMovements_withStations <- as.data.frame(DailyMovements_withStations)
-  DailyMovements_withStations <- DailyMovements_withStations %>%
+  DailyMovements_withStationsAndDetectionType <- as.data.frame(DailyMovements_withStationsAndDetectionType)
+  DailyMovements_withStationsAndSummaryInfo <- DailyMovements_withStationsAndDetectionType %>%
     select(Date, Datetime, TAG, Event, det_type, ReleaseSite,Species, Release_Length, Release_Weight, Release_Date, RecaptureSite, River, days_since, weeks_since, first_last, c_number_of_detections, daily_unique_events, ET_STATION, above_below, UTM_X, UTM_Y) #next_event, next_event_2, same_day_next_events,
   
-  return(DailyMovements_withStations)
+  return(DailyMovements_withStationsAndSummaryInfo)
 }
 
