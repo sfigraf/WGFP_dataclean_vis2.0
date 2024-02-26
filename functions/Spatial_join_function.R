@@ -3,7 +3,7 @@
 
 #condensedEvents is the detection data filtered on distinct stuff from all_events. comes from all_combined_events function
 # condesned_events has UTMs for coordinates 
-# condensedEvents = df_list$All_Events_most_relevant
+#condensedEvents = df_list$All_Events_most_relevant
 # simpleStations = simpleStations2
 #simplestations is a sptial lines dataframe brought in with map_polygon_readins 
 

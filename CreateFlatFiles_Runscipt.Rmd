@@ -56,21 +56,38 @@ wgfpMetadata <- lapply(excel_sheets("./data/WGFP Metadata.xlsx"), function(x)
 )
 names(wgfpMetadata) <- excel_sheets("./data/WGFP Metadata.xlsx")
 
+end_time = Sys.time()
+print(paste("Reading in files took", round((end_time-start_time),2)))
+```
+
+```{r metadatavariables, include=FALSE, echo = FALSE}
 ###Variables that are used throughout the funcitons
 WindyGapAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Dam", "SiteCode"])
+
 KaibabParkAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Kaibab Park", "SiteCode"])
+
 RiverRunAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "River Run", "SiteCode"])
+
 FraserRiverCanyonAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Fraser River Canyon", "SiteCode"])
+
+RedBarnCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Red Barn Stationary Antenna", "SiteCode"])))
+
+HitchingPostCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Hitching Post Stationary Antenna", "SiteCode"])))
+
+ConfluenceCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Confluence Stationary Antenna", "SiteCode"])))
+
+MobileRunCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Mobile Run", "SiteCode"])))
+
+ConnectivityChannelDownstreamCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Connectivity Channel Downstream Stationary Antenna", "SiteCode"])))
+
+ConnectivityChannelSideChannelCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Connectivity Channel Side Channel Stationary Antenna", "SiteCode"])))
+
+ConnectivityChannelUpstreamCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Connectivity Channel Upstream Stationary Antenna", "SiteCode"])))
 
 test_tags <- unique(wgfpMetadata$TestTags$TAG)
 fraserColoradoRiverConfluence <- as.numeric(wgfpMetadata$ImportantStationingVariables[wgfpMetadata$ImportantStationingVariables$Variable == "Fraser/Colorado River Confluence", "StationingLocation"])
 
 DamLocation <- as.numeric(wgfpMetadata$ImportantStationingVariables[wgfpMetadata$ImportantStationingVariables$Variable == "Windy Gap Dam", "StationingLocation"])
-
-
-
-end_time = Sys.time()
-print(paste("Reading in files took", round((end_time-start_time),2)))
 ```
 
 
@@ -121,7 +138,7 @@ All_events <- df_list$All_Events
 
 #separating to marker tag file and fish detections file
 
-#want to get all marker tags here
+#all marker tags here
 Cleaned_Marker_tags <- df_list$All_Detections %>%
   filter(str_detect(TAG, "^0000000|^999")) %>%
   mutate(Scan_Date = ymd(Scan_Date))
