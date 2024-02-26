@@ -1,8 +1,9 @@
 #### ENC HIST summary table function
-# allDetectionsAndRecaptures <- df_list$Recaps_detections
-# Release <- Release
-# combined_events_stations <- combined_events_stations #resulting df from combined_events and stations function
-# States_summarized <- states_data_list$States_summarized
+allDetectionsAndRecaptures <- df_list$Recaps_detections
+Release <- Release
+markerTags = unique(Cleaned_Marker_tags$TAG)
+combined_events_stations <- combined_events_stations #resulting df from combined_events and stations function
+States_summarized <- states_data_list$States_summarized
 #recaps and all detreitons comes from WGFP ENC_hist_function, release data is a read_in csv, all_events_condensed with stations comes from combine_stations_events function
 Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, Release, combined_events_stations, States_summarized, markerTags){
   
@@ -145,7 +146,7 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
     ) %>%
     filter(TAG %in% unique(Release1$TAG)) 
   
-  setdiff(ENC_Release22$TotalHitchingPost, ENC_Release2$TotalHitchingPost)
+  #setdiff(ENC_Release22$TotalBiomark, ENC_Release2$TotalBiomark)
   ###Bringing in Station data with info about ABOVE/BELOW dam for joining
   ### the release data isn't being brought in well; The tags aren't being brought in as full numbers, so when the release data is joined,
   # it can't match up 23000088888 to 2.3E+11; so release site gets put in as "no info", and
@@ -154,6 +155,12 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   
   # trying to go based on movements
   ### thinking of disbanding this and doing the same process but with the states in order to say if fish went above/below
+  
+  encountersThroughDam <- combined_events_stations %>%
+    group_by(TAG) %>%
+    summarize(through_dam = if_else(all(above_below == "Above the Dam"), "Stayed Above the Dam", 
+                                             if_else(all(above_below == "Below the Dam"), "Stayed Below the Dam",
+                                                     "Went through dam or Connectivity Channel")))
   
   above_below_counts <- combined_events_stations %>%
     count(TAG, det_type, above_below, name = "Encounters") %>%
@@ -168,19 +175,22 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   #turns all the NA's made to FALSE
   above_below_counts2[is.na(above_below_counts2)] = FALSE
 
-  ENC_Release3 <- left_join(ENC_Release2, above_below_counts2, by = "TAG")
+  ENC_Release3 <- ENC_Release2 %>%
+    left_join(above_below_counts2, by = "TAG")
   ### need to figure out how connectivity channel fits into this part?
+  #currently counts the connectivity channel as going "through the dam" 
   ENC_Release4 <- ENC_Release3 %>%
-    mutate(through_dam = case_when(
-      (RB1|RB2|HP3|HP4|B3|`Release Below the Dam`|`Recapture Below the Dam`|`Recapture and Release Below the Dam`|`Mobile Run Below the Dam`) == TRUE & (CF5|CF6|B4|B5|B6|`Release Above the Dam`|`Recapture Above the Dam`|`Recapture and Release Above the Dam`|`Mobile Run Above the Dam`) == TRUE ~ "Went through dam",
-      (RB1|RB2|HP3|HP4|B3|`Release Below the Dam`|`Recapture Below the Dam`|`Recapture and Release Below the Dam`|`Mobile Run Below the Dam`) == TRUE & (CF5&CF6&B4&B5&B6&`Release Above the Dam`&`Recapture Above the Dam`&`Recapture and Release Above the Dam`&`Mobile Run Above the Dam`) == FALSE ~ "Stayed Below the Dam",
-      (RB1&RB2&HP3&HP4&B3&`Release Below the Dam`&`Recapture Below the Dam`&`Recapture and Release Below the Dam`&`Mobile Run Below the Dam`) == FALSE & (CF5|CF6|B4|B5|B6|`Release Above the Dam`|`Recapture Above the Dam`|`Recapture and Release Above the Dam`|`Mobile Run Above the Dam`) == TRUE ~ "Stayed Above the Dam",
-      
-    ))
+    left_join(encountersThroughDam, by = "TAG")
+    # mutate(through_dam = case_when(
+    #   (RB1|RB2|HP3|HP4|B3|`Release Below the Dam`|`Recapture Below the Dam`|`Recapture and Release Below the Dam`|`Mobile Run Below the Dam`) == TRUE & (CF5|CF6|B4|B5|B6|`Release Above the Dam`|`Recapture Above the Dam`|`Recapture and Release Above the Dam`|`Mobile Run Above the Dam`) == TRUE ~ "Went through dam or Connectivity Channel",
+    #   (RB1|RB2|HP3|HP4|B3|`Release Below the Dam`|`Recapture Below the Dam`|`Recapture and Release Below the Dam`|`Mobile Run Below the Dam`) == TRUE & (CF5&CF6&B4&B5&B6&`Release Above the Dam`&`Recapture Above the Dam`&`Recapture and Release Above the Dam`&`Mobile Run Above the Dam`) == FALSE ~ "Stayed Below the Dam",
+    #   (RB1&RB2&HP3&HP4&B3&`Release Below the Dam`&`Recapture Below the Dam`&`Recapture and Release Below the Dam`&`Mobile Run Below the Dam`) == FALSE & (CF5|CF6|B4|B5|B6|`Release Above the Dam`|`Recapture Above the Dam`|`Recapture and Release Above the Dam`|`Mobile Run Above the Dam`) == TRUE ~ "Stayed Above the Dam",
+    # 
+    # ))
   # left joining states summary to enc_release
   ENC_Release5 <- left_join(ENC_Release4, States_summarized, by = "TAG")
   #rearranging so that Tag is first column shown
-  ENC_Release5<- ENC_Release5 %>%
+  ENC_Release5 <- ENC_Release5 %>%
     select(TAG, 1:ncol(ENC_Release5))
   ###joining on column with sum data
   #same code appears in movements function
