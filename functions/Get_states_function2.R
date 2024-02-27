@@ -30,7 +30,7 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
       #the case_whens apply with priority, so it's important not to rearrange these 
       state = case_when(Date >= GhostDate ~ "G",
                         Date >= PredationDate ~ "P",
-                        Event %in% c(ConnectivityChannelDownstreamCodes, ConnectivityChannelSideChannelCodes, ConnectivityChannelUpstreamCodes) ~ "C",
+                        Event %in% c(ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes, ConnectivityChannelUpstreamFrontendCodes) ~ "C",
                         ET_STATION <= DamLocation ~ "A",
                         ET_STATION > DamLocation ~ "B")
     )
@@ -89,7 +89,7 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
   unknown_states <- checking %>%
     filter(is.na(through_dam1) & !det_type %in% c("Release", "Recapture and Release", "Recapture"))  
   
-  states_df_list <- list("All_States" = cleanedWeeklyStates, "Flagged_movements" = unknown_states, "States_summarized" = summarizedStates, "FlaggedTagsMessage" = troubleShootingMessage)
+  states_df_list <- list("All_States" = cleanedWeeklyStates, "Flagged_movements" = unknown_states, "States_summarized" = summarizedStates)
   end_time <- Sys.time()
   print(paste("States Function took", round(end_time-start_time,2)))
   

@@ -10,7 +10,7 @@
 PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
   
   DailyMovements_withStationsFraserColoradoCorrected <- DailyMovements_withStations %>%
-    left_join(wgfpMetadata$AntennaMetadata[,c("SiteCode", "River")], by = c("Event" = "SiteCode")) %>%
+    left_join(wgfpMetadata$AntennaMetadata[,c("FrontendSiteCode", "River")], by = c("Event" = "FrontendSiteCode")) %>%
     #selects first non-NA value from set of columns; by having River.Y first it prioritizes that column
     mutate(River = coalesce(River.y, River.x), 
            # this part is needed because stations are assigned from 0 up the fraser river starting at the confluence
@@ -44,7 +44,7 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
   
   ####can join this
   DailyMovements_withStationsAndDetectionType <- DailyMovements_withStationsNumberofDailyEvents %>%
-    left_join(wgfpMetadata$AntennaMetadata[,c("SiteCode", "SiteName")], by = c("Event" = "SiteCode")) %>%
+    left_join(wgfpMetadata$AntennaMetadata[,c("FrontendSiteCode", "SiteName")], by = c("Event" = "FrontendSiteCode")) %>%
     mutate(det_type = coalesce(SiteName, Event), 
            #need to check this function out given new stationing and connectivity channel!!!!!
            #!!!!!

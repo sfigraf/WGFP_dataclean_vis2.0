@@ -15,15 +15,20 @@ spatial_join_stations_detections <- function(condensedEvents, simpleStations) {
   ### converting to lat/longs instead of UTM's
   #convert events to sf object
   #the utms are grs80 and utm zone 13, which corresponds to crs  32613
-  condensedEventsSF <- sf::st_as_sf(condensedEvents, coords = c("UTM_X", "UTM_Y"), crs = 32613)
+  #can't do it if there's any NA values in the utm fields
+  problemRows <- condensedEvents %>%
+    filter(is.na(UTM_X))
+  condensedEventsFiltered <- condensedEvents %>%
+    filter(!is.na(UTM_X))
+  condensedEventsSF <- sf::st_as_sf(condensedEventsFiltered, coords = c("UTM_X", "UTM_Y"), crs = 32613)
   #convert to lat/long
   condensedEventsSFLatLong <- sf::st_transform(condensedEventsSF, latLongCRS)
   
   stationData <- sf::st_join(condensedEventsSFLatLong, simpleStations, st_nearest_feature)
-  
+  spatialList <- list("stationData" = stationData, "noUTMS" = problemRows)
   end_time <- Sys.time()
   print(paste("Spatial_join_stations_detections took", round(end_time-start_time,2), "Seconds"))
   
-  return(stationData)
+  return(spatialList)
   
 }

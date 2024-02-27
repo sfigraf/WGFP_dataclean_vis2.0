@@ -15,7 +15,7 @@ AllEncounters_UI <- function(id, combinedData_df_list) {
                      ),
                      pickerInput(ns("picker1"),
                                  label = "Select Event",
-                                 choices = unique(combinedData_df_list$All_Events$Event),
+                                 choices = sort(unique(combinedData_df_list$All_Events$Event)),
                                  selected = unique(combinedData_df_list$All_Events$Event),
                                  multiple = TRUE,
                                  options = list(
@@ -73,7 +73,7 @@ AllEncounters_UI <- function(id, combinedData_df_list) {
                       ),
                       tabPanel("Plot",
                                br(),
-                               plotlyOutput(ns("plot5"))
+                               withSpinner(plotlyOutput(ns("plot5")))
                                )
                      )#end of tabset panel
                    )#end of all events and plot mainpanel

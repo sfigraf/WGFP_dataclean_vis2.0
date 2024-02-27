@@ -48,23 +48,20 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
       
       # Release and Recap Data L/W Plot Output --------------------------------------------
       output$plot3 <- renderPlotly({
-        plot3 <- Release_05 %>%
+        Release_05 %>%
           ggplot(aes(x = Length, y = Weight, color = Species)) +
           geom_point() + 
           theme_classic() +
           labs(title = "Release Data")
-        
-        ggplotly(plot3)
       })    
       
       output$plot4 <- renderPlotly({
-        plot4 <- Recaptures_05 %>%
+        Recaptures_05 %>%
           ggplot(aes(x = Length, y = Weight, color = Species)) +
           geom_point() + 
           theme_classic() +
           labs(title = "Recapture Data")
         
-        ggplotly(plot4)
       })
       
       
@@ -73,7 +70,7 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
                   rownames = FALSE,
                   selection = "single",
                   filter = 'top',
-                  caption = ("Tags that initially started  with 900_ but are not in the release file."),
+                  caption = ("Tags that initially started  with 900_ but are not marker tags, test tags, or part of the release file."),
                   options = list(
                     #statesave is restore table state on page reload
                     stateSave =TRUE,

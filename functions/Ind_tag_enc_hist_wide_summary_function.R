@@ -16,8 +16,8 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
     rename_with(~ paste0(., "_n"), -TAG) 
   
   #column order is just nice to have for the user
-  columnOrder <- c(RedBarnCodes, HitchingPostCodes, ConfluenceCodes, ConnectivityChannelDownstreamCodes, ConnectivityChannelSideChannelCodes, ConnectivityChannelUpstreamCodes, 
-                   MobileRunCodes, WindyGapAntennaSiteCode, KaibabParkAntennaSiteCode, RiverRunAntennaSiteCode, FraserRiverCanyonAntennaSiteCode)
+  columnOrder <- c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes, ConnectivityChannelUpstreamFrontendCodes, 
+                   MobileRunFrontendCodes, WindyGapAntennaFrontendSiteCode, KaibabParkAntennaFrontendSiteCode, RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode)
   allEncountersWideOrdered <- allEncountersWide %>%
     select(TAG, one_of(paste0(columnOrder, "_n")), Recapture_n)
 
@@ -53,29 +53,29 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   encountersAndReleaseRowsums <- encountersAndReleasePreparedForRowSums %>%
     #counts number of TRUE across rows specified by antenna codes. -SG
     mutate(
-      TotalEncounters = rowSums(select(., all_of(c(RedBarnCodes, HitchingPostCodes, ConfluenceCodes, 
-                                            ConnectivityChannelDownstreamCodes, ConnectivityChannelSideChannelCodes,
-                                            ConnectivityChannelUpstreamCodes, MobileRunCodes, 
-                                            WindyGapAntennaSiteCode, KaibabParkAntennaSiteCode,
-                                            RiverRunAntennaSiteCode, FraserRiverCanyonAntennaSiteCode, "Recapture"))) == TRUE),
-      TotalAntennas = rowSums(select(., all_of(c(RedBarnCodes, HitchingPostCodes, ConfluenceCodes, 
-                                                            ConnectivityChannelDownstreamCodes, ConnectivityChannelSideChannelCodes,
-                                                            ConnectivityChannelUpstreamCodes, MobileRunCodes, 
-                                                            WindyGapAntennaSiteCode, KaibabParkAntennaSiteCode,
-                                                            RiverRunAntennaSiteCode, FraserRiverCanyonAntennaSiteCode))) == TRUE),
-      TotalStationary = rowSums(select(., all_of(c(RedBarnCodes, HitchingPostCodes, ConfluenceCodes, 
-                                                             ConnectivityChannelDownstreamCodes, ConnectivityChannelSideChannelCodes,
-                                                             ConnectivityChannelUpstreamCodes))) == TRUE),
+      TotalEncounters = rowSums(select(., all_of(c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, 
+                                            ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes,
+                                            ConnectivityChannelUpstreamFrontendCodes, MobileRunFrontendCodes, 
+                                            WindyGapAntennaFrontendSiteCode, KaibabParkAntennaFrontendSiteCode,
+                                            RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode, "Recapture"))) == TRUE),
+      TotalAntennas = rowSums(select(., all_of(c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, 
+                                                            ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes,
+                                                            ConnectivityChannelUpstreamFrontendCodes, MobileRunFrontendCodes, 
+                                                            WindyGapAntennaFrontendSiteCode, KaibabParkAntennaFrontendSiteCode,
+                                                            RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode))) == TRUE),
+      TotalStationary = rowSums(select(., all_of(c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, 
+                                                             ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes,
+                                                             ConnectivityChannelUpstreamFrontendCodes))) == TRUE),
 
-      TotalMobile = rowSums(select(.,  all_of(MobileRunCodes)) == TRUE),
-      TotalBiomark = rowSums(select(., all_of(c(WindyGapAntennaSiteCode, KaibabParkAntennaSiteCode,
-                                                                                     RiverRunAntennaSiteCode, FraserRiverCanyonAntennaSiteCode))) == TRUE),
-      TotalRedBarn =rowSums(select(.,  all_of(RedBarnCodes)) == TRUE),
-      TotalHitchingPost = rowSums(select(.,  all_of(HitchingPostCodes)) == TRUE),
-      TotalConfluence = rowSums(select(.,  all_of(ConfluenceCodes)) == TRUE),
-      TotalConnectivityDownstream = rowSums(select(., all_of(ConnectivityChannelDownstreamCodes)) == TRUE),
-      TotalConnectivitySideChannel = rowSums(select(., all_of(ConnectivityChannelSideChannelCodes)) == TRUE),
-      TotalConnectivityUpstream = rowSums(select(., all_of(ConnectivityChannelUpstreamCodes)) == TRUE)
+      TotalMobile = rowSums(select(.,  all_of(MobileRunFrontendCodes)) == TRUE),
+      TotalBiomark = rowSums(select(., all_of(c(WindyGapAntennaFrontendSiteCode, KaibabParkAntennaFrontendSiteCode,
+                                                                                     RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode))) == TRUE),
+      TotalRedBarn =rowSums(select(.,  all_of(RedBarnFrontendCodes)) == TRUE),
+      TotalHitchingPost = rowSums(select(.,  all_of(HitchingPostFrontendCodes)) == TRUE),
+      TotalConfluence = rowSums(select(.,  all_of(ConfluenceFrontendCodes)) == TRUE),
+      TotalConnectivityDownstream = rowSums(select(., all_of(ConnectivityChannelDownstreamFrontendCodes)) == TRUE),
+      TotalConnectivitySideChannel = rowSums(select(., all_of(ConnectivityChannelSideChannelFrontendCodes)) == TRUE),
+      TotalConnectivityUpstream = rowSums(select(., all_of(ConnectivityChannelUpstreamFrontendCodes)) == TRUE)
     ) %>%
     # just says if the fish was ever detected at these sites
     mutate(RedBarn = TotalRedBarn > 0,

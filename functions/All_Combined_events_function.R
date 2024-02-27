@@ -11,10 +11,11 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   # biomark cleaning, getting dates into uniform format, 
   biomarkCleaned <- Biomark %>%
     mutate(TAG = str_replace(DEC.Tag.ID, "\\.", ""),
-           Reader.ID = case_when(Reader.ID == "A1" | Reader.ID == "B1" ~ WindyGapAntennaSiteCode,
-                                 Reader.ID == "A2" | Reader.ID == "B2" ~ KaibabParkAntennaSiteCode,
-                                 Reader.ID == "A3" ~ RiverRunAntennaSiteCode,
-                                 Reader.ID == "A4" ~ FraserRiverCanyonAntennaSiteCode,
+           # i wish this could be a join, but when there are 2 dif codes (A1, B1, etc) used for backend name, this is a bit simpler
+           Reader.ID = case_when(Reader.ID %in% WindyGapAntennaBackendSiteCode ~ WindyGapAntennaFrontendSiteCode,
+                                 Reader.ID %in% KaibabParkAntennaBackendSiteCode ~ KaibabParkAntennaFrontendSiteCode,
+                                 Reader.ID %in% RiverRunAntennaBackendSiteCode ~ RiverRunAntennaFrontendSiteCode,
+                                 Reader.ID %in% FraserRiverCanyonAntennaBackendSiteCode ~ FraserRiverCanyonAntennaFrontendSiteCode,
                                  TRUE ~ Reader.ID),
            #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy 
            # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
@@ -26,7 +27,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     filter(!TAG %in% test_tags) %>%
     #get UTMs based off what is in metaDataTable
     #left_join() is faster than merge()
-    left_join(wgfpMetadata$AntennaMetadata, by = c("Reader.ID" = "SiteCode")) %>%
+    left_join(wgfpMetadata$AntennaMetadata, by = c("Reader.ID" = "FrontendSiteCode")) %>%
     distinct()
   
   ###Create one big clean dataset
@@ -46,6 +47,9 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
            Date = ifelse(str_detect(Date, "/"), 
                          as.character(mdy(Date)), 
                          Date)) %>% 
+    #getting backend codes to frontend codes
+    left_join(wgfpMetadata$AntennaMetadata[,c("FrontendSiteCode", "BackendSiteCode")], by = c("Ant" = "BackendSiteCode")) %>%
+    mutate(Ant = coalesce(FrontendSiteCode, Ant)) %>%
     select(Date, Time, TAG, Ant, UTM_X, UTM_Y) %>%
     rename(Scan_Date = Date, Scan_Time = Time, Site_Code = Ant)
   
