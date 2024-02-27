@@ -95,27 +95,37 @@ if(nrow(problemReleaseTags) > 0){
 
 ```{r metadatavariables, include=FALSE, echo = FALSE}
 ###Variables that are used throughout the funcitons
-WindyGapAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Dam", "SiteCode"])
+###Frontend (display) codes
+WindyGapAntennaFrontendSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Dam", "FrontendSiteCode"])
 
-KaibabParkAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Kaibab Park", "SiteCode"])
+KaibabParkAntennaFrontendSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Kaibab Park", "FrontendSiteCode"])
 
-RiverRunAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "River Run", "SiteCode"])
+RiverRunAntennaFrontendSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "River Run", "FrontendSiteCode"])
 
-FraserRiverCanyonAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Fraser River Canyon", "SiteCode"])
+FraserRiverCanyonAntennaFrontendSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Fraser River Canyon", "FrontendSiteCode"])
 
-RedBarnCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Red Barn Stationary Antenna", "SiteCode"])))
+RedBarnFrontendCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Red Barn Stationary Antenna", "FrontendSiteCode"])))
 
-HitchingPostCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Hitching Post Stationary Antenna", "SiteCode"])))
+HitchingPostFrontendCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Hitching Post Stationary Antenna", "FrontendSiteCode"])))
 
-ConfluenceCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Confluence Stationary Antenna", "SiteCode"])))
+ConfluenceFrontendCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Confluence Stationary Antenna", "FrontendSiteCode"])))
 
-MobileRunCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Mobile Run", "SiteCode"])))
+MobileRunFrontendCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Mobile Run", "FrontendSiteCode"])))
 
-ConnectivityChannelDownstreamCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Connectivity Channel Downstream Stationary Antenna", "SiteCode"])))
+ConnectivityChannelDownstreamFrontendCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Connectivity Channel Downstream Stationary Antenna", "FrontendSiteCode"])))
 
-ConnectivityChannelSideChannelCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Connectivity Channel Side Channel Stationary Antenna", "SiteCode"])))
+ConnectivityChannelSideChannelFrontendCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Connectivity Channel Side Channel Stationary Antenna", "FrontendSiteCode"])))
 
-ConnectivityChannelUpstreamCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Connectivity Channel Upstream Stationary Antenna", "SiteCode"])))
+ConnectivityChannelUpstreamFrontendCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Connectivity Channel Upstream Stationary Antenna", "FrontendSiteCode"])))
+
+# ##############BACKEND CODES
+WindyGapAntennaBackendSiteCode <- unlist(strsplit(as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Dam", "BackendSiteCode"]), ",\\s*"))
+
+KaibabParkAntennaBackendSiteCode <- unlist(strsplit(as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Kaibab Park", "BackendSiteCode"]), ",\\s*"))
+
+RiverRunAntennaBackendSiteCode <- unlist(strsplit(as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "River Run", "BackendSiteCode"]), ",\\s*"))
+
+FraserRiverCanyonAntennaBackendSiteCode <- unlist(strsplit(as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Fraser River Canyon", "BackendSiteCode"]), ",\\s*"))
 
 test_tags <- unique(wgfpMetadata$TestTags$TAG)
 fraserColoradoRiverConfluence <- as.numeric(wgfpMetadata$ImportantStationingVariables[wgfpMetadata$ImportantStationingVariables$Variable == "Fraser/Colorado River Confluence", "StationingLocation"])
@@ -123,15 +133,14 @@ fraserColoradoRiverConfluence <- as.numeric(wgfpMetadata$ImportantStationingVari
 DamLocation <- as.numeric(wgfpMetadata$ImportantStationingVariables[wgfpMetadata$ImportantStationingVariables$Variable == "Windy Gap Dam", "StationingLocation"])
 ```
 
-
-```{r wrangling, include=FALSE, echo = FALSE}
+```{r cleaningForFunctions, include=FALSE, echo=FALSE}
 
 #### This part is for checking if new antennas to be put in will work
 #neeed to keep this in because it adds a column for the new antennas which sets up the enc_hist_wide_list for the new antennas
 #the actual dummy tag is taken out at the end though
 
 dummy_rows_list <- add_dummy_rows(stationary1 = Stationary, biomark1 = Biomark, release1 = Release)
-Stationary <- dummy_rows_list$Stationary
+#Stationary <- dummy_rows_list$Stationary
 Biomark <- dummy_rows_list$Biomark
 Release <- dummy_rows_list$Release
 #ghost_tag_df <- dummy_rows_list$Ghost_tags #date column is named "Ghost_date" and is a date type
@@ -164,6 +173,10 @@ AvianPredation <- AvianPredation %>%
 
 GhostTags <- GhostTags %>%
   mutate(GhostDate = lubridate::mdy(GhostDate))
+```
+
+```{r wrangling, include=TRUE, echo = FALSE}
+
 
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
 df_list <- All_combined_events_function(Stationary = StationaryClean, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
@@ -184,9 +197,14 @@ Cleaned_Stationary_FishdetectionsOnly <- StationaryClean %>%
 #simpleStations is from polygon_readins
 DailyMovements_withStations <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simpleStations = simpleStations)
 
+if(nrow(DailyMovements_withStations$noUTMS) > 0){
+  print(paste0("The following tags could not be assigned stations becuase of an NA entry for UTMs: ", unique(DailyMovements_withStations$noUTMS$TAG),
+                                         "."))
+}
+
 #prepares joined stations and relevant Movements dataset for movements summaries and states
 #it appears it's calulcating this right
-combined_events_stations <- PrepareforStatesMovementsandSummary(DailyMovements_withStations)
+combined_events_stations <- PrepareforStatesMovementsandSummary(DailyMovements_withStations$stationData)
 
 # states
 states_data_list <- states_function(combined_events_stations, GhostTags, AvianPredation)
