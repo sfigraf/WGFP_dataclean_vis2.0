@@ -3,15 +3,6 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
   start_time = Sys.time()
   print("Running States Function: Assigns letters A, B, C, or G based on position relative to dam, or Ghost/predated tag.")
   
-  #checking if ghost tags have 1 tag entry for each
-  problemGhostTags <- GhostTags %>%
-    count(TagID) %>%
-    filter(n > 1)
-  if(nrow(problemGhostTags) > 0){
-    print(paste0("The following tags in the Ghost Tag dataframe have multiple entries in the Ghost Tag dataframe: ", unique(problemTags$TagID),
-                 ". Please adjust this in the original df, otherwise there will be a left_join() warning."))
-  }
-  
   # these dates are cleaned before they go into this function
   
   GhostTagsForJoining <- GhostTags %>%
@@ -36,13 +27,12 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
   states <- eventsWithGhostDatesAndAvianPredation %>%
     filter(!TAG %in% c('230000999999')) %>%
     mutate(
-      #the case_whens also are a priority list, so important not to rearange these 
-      #might have to readjust 8330 stationing; this is dam location
+      #the case_whens apply with priority, so it's important not to rearrange these 
       state = case_when(Date >= GhostDate ~ "G",
-                         Date >= PredationDate ~ "P",
-                         str_detect(Event, "CD1|CD2|CS1|CS2|CU1|CU2") ~ "C",
-                         ET_STATION <= 8330 ~ "A",
-                         ET_STATION > 8330 ~ "B")
+                        Date >= PredationDate ~ "P",
+                        Event %in% c(ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes, ConnectivityChannelUpstreamFrontendCodes) ~ "C",
+                        ET_STATION <= DamLocation ~ "A",
+                        ET_STATION > DamLocation ~ "B")
     )
   
   weeklyStates <- states %>%
