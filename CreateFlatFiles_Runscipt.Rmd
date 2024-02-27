@@ -60,6 +60,39 @@ end_time = Sys.time()
 print(paste("Reading in files took", round((end_time-start_time),2)))
 ```
 
+```{r QAQCduplicateTags, include = TRUE, echo = FALSE}
+#checking if ghost tags have 1 tag entry for each
+#troubleShootingMessage <- ""
+
+problemGhostTags <- GhostTags %>%
+  count(TagID) %>%
+  filter(n > 1)
+
+if(nrow(problemGhostTags) > 0){
+  print(paste0("The following tags in the Ghost Tag dataframe have multiple entries in the Ghost Tag sheet: ", unique(problemGhostTags$TagID),
+                                         ". Please adjust this in the original df, otherwise there will be a left_join() warning.\n"))
+}
+
+problemAvianPredationTags <- AvianPredation %>%
+  count(TagID) %>%
+  filter(n > 1)
+
+if(nrow(problemAvianPredationTags) > 0){
+  print(paste0("The following tags in the Avian Predation dataframe have multiple entries: ", unique(problemAvianPredationTags$TagID),
+                                         ". Please adjust this in the original df, otherwise there will be a left_join() warning."))
+}
+
+problemReleaseTags <- Release %>%
+  count(TagID) %>%
+  filter(n > 1)
+
+if(nrow(problemReleaseTags) > 0){
+  print(paste0("The following tags in the Release dataframe have multiple entries: ", unique(problemReleaseTags$TagID),
+                                         ". Please adjust this in the original df."))
+}
+```
+
+
 ```{r metadatavariables, include=FALSE, echo = FALSE}
 ###Variables that are used throughout the funcitons
 WindyGapAntennaSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Dam", "SiteCode"])
@@ -113,10 +146,10 @@ Mobile <- Mobile %>%
 
 
 Biomark <- Biomark %>%
-  #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy 
+  #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy
   # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
-  mutate(Scan.Date = ifelse(str_detect(Scan.Date, "/"), 
-                            as.character(lubridate::mdy(Scan.Date)), 
+  mutate(Scan.Date = ifelse(str_detect(Scan.Date, "/"),
+                            as.character(lubridate::mdy(Scan.Date)),
                             Scan.Date))
 
 
@@ -130,7 +163,7 @@ AvianPredation <- AvianPredation %>%
   mutate(PredationDate = lubridate::mdy(PredationDate))
 
 GhostTags <- GhostTags %>%
-  mutate(GhostDate = lubridate::mdy(GhostDate)) 
+  mutate(GhostDate = lubridate::mdy(GhostDate))
 
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
 df_list <- All_combined_events_function(Stationary = StationaryClean, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
@@ -147,7 +180,7 @@ Cleaned_Stationary_FishdetectionsOnly <- StationaryClean %>%
   filter(grepl("^230|^226", TAG))
 
 
-#spatially joins point (detection) data to lines (station) data based on nearest feature. 
+#spatially joins point (detection) data to lines (station) data based on nearest feature.
 #simpleStations is from polygon_readins
 DailyMovements_withStations <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simpleStations = simpleStations)
 
@@ -160,7 +193,7 @@ states_data_list <- states_function(combined_events_stations, GhostTags, AvianPr
 # aplies enc_hist_summary wide function
 enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(df_list$Recaps_detections, cleanedRelease, combined_events_stations, states_data_list$States_summarized, markerTags = unique(Cleaned_Marker_tags$TAG))
 unknown_tags <- enc_hist_wide_list$Unknown_Tags
-enc_hist_wide_df <- enc_hist_wide_list$ENC_Release_wide_summary
+enc_hist_wide_df <- enc_hist_wide_list$encountersAndRelease_wide_summary
 # applies get_movements_function
 Movements_df <- get_movements_function(combined_events_stations)
 WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_df)
@@ -175,7 +208,7 @@ Enc_release_data <- enc_hist_wide_df %>%
                          Date))
 
 
-# if someone could incorporate and expland upon this custom rainbow trout color pallette I made that would be great                    
+# if someone could incorporate and expland upon this custom rainbow trout color pallette I made that would be great
 rainbow_trout_pallette <- list(pink1 = "#E3BABBFF", olive_green1 = "#C4CFBFFF", dark_olive_green1 = "#81754EFF",
                                mustard_yellow1 = "#CBA660FF", brown_yellow = "#86551CFF" )
 
@@ -213,14 +246,14 @@ movements_list <- list(
 
 
 allFlatFiles <- list(
-  "combinedData_df_list" = df_list, 
-  "indiv_datasets_list" = indiv_datasets_list, 
-  "Enc_release_data" = Enc_release_data, 
+  "combinedData_df_list" = df_list,
+  "indiv_datasets_list" = indiv_datasets_list,
+  "Enc_release_data" = Enc_release_data,
   "states_data_list" = states_data_list,
   "movements_list" = movements_list,
-  "Marker_tags" = Cleaned_Marker_tags, 
+  "Marker_tags" = Cleaned_Marker_tags,
   "unknown_tags" = unknown_tags
-  
+
 )
 for(filename in names(allFlatFiles)){
   saveRDS(allFlatFiles[[filename]], paste0("data/flatFilesforApp/", filename, ".rds"))
