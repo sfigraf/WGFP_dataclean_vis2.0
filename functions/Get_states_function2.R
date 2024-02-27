@@ -3,15 +3,6 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
   start_time = Sys.time()
   print("Running States Function: Assigns letters A, B, C, or G based on position relative to dam, or Ghost/predated tag.")
   
-  #checking if ghost tags have 1 tag entry for each
-  problemGhostTags <- GhostTags %>%
-    count(TagID) %>%
-    filter(n > 1)
-  if(nrow(problemGhostTags) > 0){
-    print(paste0("The following tags in the Ghost Tag dataframe have multiple entries in the Ghost Tag dataframe: ", unique(problemTags$TagID),
-                 ". Please adjust this in the original df, otherwise there will be a left_join() warning."))
-  }
-  
   # these dates are cleaned before they go into this function
   
   GhostTagsForJoining <- GhostTags %>%
@@ -98,7 +89,7 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
   unknown_states <- checking %>%
     filter(is.na(through_dam1) & !det_type %in% c("Release", "Recapture and Release", "Recapture"))  
   
-  states_df_list <- list("All_States" = cleanedWeeklyStates, "Flagged_movements" = unknown_states, "States_summarized" = summarizedStates)
+  states_df_list <- list("All_States" = cleanedWeeklyStates, "Flagged_movements" = unknown_states, "States_summarized" = summarizedStates, "FlaggedTagsMessage" = troubleShootingMessage)
   end_time <- Sys.time()
   print(paste("States Function took", round(end_time-start_time,2)))
   
