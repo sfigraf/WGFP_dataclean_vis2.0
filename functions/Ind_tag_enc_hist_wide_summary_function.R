@@ -17,7 +17,7 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   
   #column order is just nice to have for the user
   columnOrder <- c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes, ConnectivityChannelUpstreamFrontendCodes, 
-                   MobileRunFrontendCodes, WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode, KaibabParkAntennaFrontendSiteCode, RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode)
+                   MobileRunFrontendCodes, WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode, GranbyDiversionAntennaFrontendSiteCode, RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode)
   allEncountersWideOrdered <- allEncountersWide %>%
     select(TAG, one_of(paste0(columnOrder, "_n")), Recapture_n)
 
@@ -56,13 +56,13 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
       TotalEncounters = rowSums(select(., all_of(c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, 
                                                    ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes,
                                                    ConnectivityChannelUpstreamFrontendCodes, MobileRunFrontendCodes, 
-                                                   WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode, KaibabParkAntennaFrontendSiteCode,
+                                                   WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode, GranbyDiversionAntennaFrontendSiteCode,
                                                    RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode, "Recapture"))) == TRUE),
       TotalAntennas = rowSums(select(., all_of(c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, 
                                                  ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes,
                                                  ConnectivityChannelUpstreamFrontendCodes, MobileRunFrontendCodes, 
                                                  WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode,
-                                                 KaibabParkAntennaFrontendSiteCode,
+                                                 GranbyDiversionAntennaFrontendSiteCode,
                                                  RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode))) == TRUE),
       TotalStationary = rowSums(select(., all_of(c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, 
                                                    ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes,
@@ -70,7 +70,7 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
       
       TotalMobile = rowSums(select(.,  all_of(MobileRunFrontendCodes)) == TRUE),
       TotalBiomark = rowSums(select(., all_of(c(WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode,
-                                                KaibabParkAntennaFrontendSiteCode,
+                                                GranbyDiversionAntennaFrontendSiteCode,
                                                 RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode))) == TRUE),
       TotalRedBarn =rowSums(select(.,  all_of(RedBarnFrontendCodes)) == TRUE),
       TotalHitchingPost = rowSums(select(.,  all_of(HitchingPostFrontendCodes)) == TRUE),
