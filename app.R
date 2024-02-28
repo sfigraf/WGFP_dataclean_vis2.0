@@ -3,7 +3,6 @@ library(shinycssloaders)
 library(tidyverse) 
 library(lubridate)
 library(leaflet)
-library(PBSmapping)
 library(sf)
 library(plotly) #for turning maps to plotly
 library(DT)
