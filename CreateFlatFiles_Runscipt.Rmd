@@ -96,7 +96,9 @@ if(nrow(problemReleaseTags) > 0){
 ```{r metadatavariables, include=FALSE, echo = FALSE}
 ###Variables that are used throughout the funcitons
 ###Frontend (display) codes
-WindyGapAntennaFrontendSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Dam", "FrontendSiteCode"])
+WindyGapBypassAntennaFrontendSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Bypass Channel", "FrontendSiteCode"])
+
+WindyGapAuxiliaryAntennaFrontendSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Auxiliary", "FrontendSiteCode"])
 
 KaibabParkAntennaFrontendSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Kaibab Park", "FrontendSiteCode"])
 
@@ -119,6 +121,10 @@ ConnectivityChannelSideChannelFrontendCodes <- unname(unlist(as.vector(wgfpMetad
 ConnectivityChannelUpstreamFrontendCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Connectivity Channel Upstream Stationary Antenna", "FrontendSiteCode"])))
 
 # ##############BACKEND CODES
+WindyGapBypassAntennaBackendSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Bypass Channel Biomark Antenna", "BackendSiteCode"])
+
+WindyGapAuxiliaryAntennaBackendSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Auxiliary Biomark Antenna", "BackendSiteCode"])
+
 WindyGapAntennaBackendSiteCode <- unlist(strsplit(as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Dam", "BackendSiteCode"]), ",\\s*"))
 
 KaibabParkAntennaBackendSiteCode <- unlist(strsplit(as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Kaibab Park", "BackendSiteCode"]), ",\\s*"))
