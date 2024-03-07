@@ -179,7 +179,7 @@ server <- function(input, output, session) {
     
       States_Server("StatesTab1", states_data_list, weeks)
    
-      QAQC_Server("QAQCTab1", Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, unknown_tags)
+      QAQC_Server("QAQCTab1", Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate)
     
   })
   

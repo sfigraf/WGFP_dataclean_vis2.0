@@ -46,7 +46,7 @@ AvianPredation <- read_csv("./data/WGFP_AvianPredation.csv",
                            col_types = cols(TagID = col_character(),Comments = col_character()))
 
 #ghost tag df
-GhostTags <- read_csv("./data/WGFP_GhostTags.csv", 
+GhostTags <- read_csv("./data/WGFP_GhostTags_20240307.csv", 
                            col_types = cols(TagID = col_character()))
 
 #metadata
@@ -70,7 +70,7 @@ problemGhostTags <- GhostTags %>%
 
 if(nrow(problemGhostTags) > 0){
   print(paste0("The following tags in the Ghost Tag dataframe have multiple entries in the Ghost Tag sheet: ", unique(problemGhostTags$TagID),
-                                         ". Please adjust this in the original df, otherwise there will be a left_join() warning.\n"))
+                                         ". Please adjust this in the original df, otherwise there will be a left_join() warning."))
 }
 
 problemAvianPredationTags <- AvianPredation %>%
@@ -221,6 +221,9 @@ enc_hist_wide_df <- enc_hist_wide_list$encountersAndRelease_wide_summary
 Movements_df <- get_movements_function(combined_events_stations)
 WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_df)
 
+###QAQC ghost tags
+ghostTagsWithMovementAfterGhostDate <- qaqcGhostTagMovements(GhostTags, Movements_df)
+
 #this is used in states_data reactives
 weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
 
@@ -264,7 +267,8 @@ indiv_datasets_list <- lapply(indiv_datasets_list, function(dataset) {
 
 movements_list <- list(
   "Movements_df" = Movements_df,
-  "WeeklyMovementsbyType" = WeeklyMovementsbyType
+  "WeeklyMovementsbyType" = WeeklyMovementsbyType, 
+  "ghostTagsWithMovementAfterGhostDate" = ghostTagsWithMovementAfterGhostDate
 )
 
 

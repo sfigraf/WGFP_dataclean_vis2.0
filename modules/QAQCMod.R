@@ -31,12 +31,16 @@ QAQC_UI <- function(id, Marker_Tag_data) {
       tabPanel("Unknown Tags",
                br(),
                withSpinner(DT::dataTableOutput(ns("unknowntags1")))
-      )#end of tab panel
+      ),
+      tabPanel("Ghost Tag Movements",
+               br(),
+               withSpinner(DT::dataTableOutput(ns("ghostTags1")))
+      )#end of tab panel#end of tab panel
     )#end of tabset Panel 
   )
 }
 
-QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_tags) {
+QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_tags, ghostTagsWithMovementAfterGhostDate) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -75,6 +79,22 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
                     #statesave is restore table state on page reload
                     stateSave =TRUE,
                     pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
+                    dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
+                    language = list(emptyTable = "Enter inputs and press Render Table")
+                  )
+        ) 
+      })
+      
+      output$ghostTags1 <- renderDT({
+        datatable(ghostTagsWithMovementAfterGhostDate,
+                  rownames = FALSE,
+                  selection = "single",
+                  filter = 'top',
+                  caption = ("Ghost Tags To Double Check: each of these tags has moved >= 50m since its assigned Ghost Date."),
+                  options = list(
+                    #statesave is restore table state on page reload
+                    stateSave =TRUE,
+                    pageLength = 25, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
                     dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
                     language = list(emptyTable = "Enter inputs and press Render Table")
                   )
