@@ -3,7 +3,6 @@ RS_Num,River,ReleaseSite,ReleaseDate,Species,Length,Weight,TagID,TagSize,Event,G
 15,Colorado River,Kinney Creek,10/7/2020,NA,NA,NA,230000229063,32,Ghost,10/20/2021,414706,4440364,"no release information, but tag was detected with mobile antenna"
 7,Colorado River,Hitching Post,5/4/2021,NA,NA,NA,230000142513,32,Ghost,7/28/2021,410551,4438628,"no release information, but tag was detected with mobile antenna"
 6,Colorado River,Windy Gap Dam,10/6/2020,LOC,389,528,230000228602,32,Ghost,5/18/2022,415996,4440187,detected during ghost tag survey below WG dam on 5/18/2022
-6,Colorado River,Windy Gap Dam,10/6/2020,LOC,364,400,230000228701,32,Ghost,5/18/2022,416095,4440119,detected during ghost tag survey below WG dam on 5/18/2022
 17,Colorado River,Sheriff Ranch Upper Field,5/6/2021,LOC,341,354,230000272506,32,Ghost,5/18/2022,416010,4440174,detected during ghost tag survey below WG dam on 5/18/2022
 2,Fraser River,Fraser River Ranch,9/1/2020,LOC,382,640,230000228030,32,Ghost,4/13/2021,418031,4437885,confirmed using encounter history; field confirmation needed; valid detections before ghost date
 2,Fraser River,Fraser River Ranch,9/1/2020,LOC,392,650,230000228038,32,Ghost,10/20/2020,417243,4438612,confirmed using encounter history; field confirmation needed
@@ -16,7 +15,6 @@ RS_Num,River,ReleaseSite,ReleaseDate,Species,Length,Weight,TagID,TagSize,Event,G
 4,Colorado River,Lower River Run,10/5/2020,LOC,446,840,230000228406,32,Ghost,10/19/2020,418209,4439967,confirmed using encounter history; field confirmation needed
 4,Colorado River,Lower River Run,10/5/2020,LOC,172,52,230000228448,32,Ghost,4/12/2021,418210,4439930,"confirmed using encounter history; field confirmation needed; could be ghost on 10/19/2020, but no movement after 4/12/2021"
 3,Colorado River,Upper River Run,10/5/2020,LOC,472,982,230000228453,32,Ghost,10/19/2020,418722,4440082,confirmed using encounter history; field confirmation needed
-13,Colorado River,Below Red Barn Diversion #1,10/7/2020,LOC,268,186,230000228848,32,Ghost,10/21/2020,412121,4439251,confirmed using encounter history; field confirmation needed
 15,Colorado River,Kinney Creek,10/7/2020,LOC,329,304,230000229046,32,Ghost,10/21/2020,411449,4438887,confirmed using encounter history; field confirmation needed
 15,Colorado River,Kinney Creek,10/7/2020,LOC,327,366,230000229079,32,Ghost,10/21/2020,414106,4440161,confirmed using encounter history; field confirmation needed; stationary antenna detection (RB) prior to becoming ghost tag
 2,Fraser River,Fraser River Ranch,9/1/2020,LOC,189,61,230000228019,32,Ghost,7/27/2021,417299,4438476,"confirmed using encounter history; field confirmation needed; could be ghost on 10/20/2020, but no movement after 7/27/2021"
@@ -42,7 +40,6 @@ RS_Num,River,ReleaseSite,ReleaseDate,Species,Length,Weight,TagID,TagSize,Event,G
 7,Colorado River,Hitching Post,10/6/2020,LOC,152,40,230000228747,32,Ghost,10/21/2020,413151,4439931,confirmed using encounter history; field confirmation needed; valid detections before ghost date
 7,Colorado River,Hitching Post,10/6/2020,LOC,324,358,230000228785,32,Ghost,4/14/2021,416011,4440187,confirmed using encounter history; field confirmation needed
 10,Colorado River,Upper Red Barn Fry Site,10/6/2020,LOC,363,507,230000228795,32,Ghost,4/14/2021,412651,4439566,confirmed using encounter history; field confirmation needed
-15,Colorado River,Kinney Creek,10/7/2020,LOC,345,400,230000228836,32,Ghost,4/14/2021,411492,4438900,confirmed using encounter history; field confirmation needed
 10,Colorado River,Upper Red Barn Fry Site,10/6/2020,LOC,360,476,230000228875,32,Ghost,4/14/2021,415427,4440084,confirmed using encounter history; field confirmation needed; valid detections before ghost date
 13,Colorado River,Below Red Barn Diversion #1,10/7/2020,LOC,346,351,230000228926,32,Ghost,4/14/2021,412207,4439281,confirmed using encounter history; field confirmation needed
 13,Colorado River,Below Red Barn Diversion #1,10/7/2020,LOC,345,383,230000228935,32,Ghost,4/14/2021,412136,4439257,confirmed using encounter history; field confirmation needed
@@ -56,7 +53,6 @@ RS_Num,River,ReleaseSite,ReleaseDate,Species,Length,Weight,TagID,TagSize,Event,G
 15,Colorado River,Kinney Creek,10/7/2020,LOC,372,492,230000229074,32,Ghost,10/21/2020,411262,4438741,confirmed using encounter history; field confirmation needed
 19,Colorado River,Sheriff Ranch Fry Site,10/7/2020,LOC,276,243,230000229099,32,Ghost,4/14/2021,411506,4438897,confirmed using encounter history; field confirmation needed
 4,Colorado River,Lower River Run,10/5/2020,RBT,72,4,226001581475,12,Ghost,4/12/2021,418210,4439974,confirmed using encounter history; field confirmation needed
-7,Colorado River,Hitching Post,5/6/2021,LOC,366,387,230000142516,32,Ghost,7/28/2021,414548,4440286,confirmed using encounter history; field confirmation needed
 7,Colorado River,Hitching Post,5/4/2021,LOC,225,108,230000142525,32,Ghost?,7/28/2021,414078,4440162,"likely ghost tag based on encounter history; field confirmation needed; moved downstream on last detection, but between spring and fall runs"
 8,Colorado River,Chimney Rock Above Island,5/4/2021,LOC,313,305,230000142590,32,Ghost,7/28/2021,414021,4440150,confirmed using encounter history; field confirmation needed
 8,Colorado River,Chimney Rock Above Island,5/6/2021,LOC,350,409,230000142602,32,Ghost,7/28/2021,414050,4440153,confirmed using encounter history; field confirmation needed
@@ -92,7 +88,6 @@ RS_Num,River,ReleaseSite,ReleaseDate,Species,Length,Weight,TagID,TagSize,Event,G
 13,Colorado River,Below Red Barn Diversion #1,10/7/2020,LOC,355,412,230000228925,32,Ghost,4/14/2021,412278,4439325,confirmed using encounter history; field confirmation needed; valid detections before ghost date
 13,Colorado River,Below Red Barn Diversion #1,10/7/2020,LOC,379,522,230000228931,32,Ghost,4/14/2021,412192,4439278,confirmed using encounter history; field confirmation needed
 13,Colorado River,Below Red Barn Diversion #1,10/7/2020,LOC,335,352,230000228967,32,Ghost?,7/28/2021,412064,4439212,"likely ghost tag based on encounter history; field confirmation needed; moved downstream on last detection, but between spring and fall runs"
-15,Colorado River,Kinney Creek,10/7/2020,RBT,338,416,230000229030,32,Ghost,7/28/2021,411478,4438903,confirmed using encounter history; field confirmation needed; valid detections before ghost date
 15,Colorado River,Kinney Creek,10/7/2020,LOC,328,322,230000229031,32,Ghost?,4/14/2021,411407,4438874,"likely ghost tag based on encounter history; field confirmation needed; moved downstream on last detection, but between spring and fall runs"
 15,Colorado River,Kinney Creek,10/7/2020,LOC,349,472,230000229034,32,Ghost,4/14/2021,411248,4438741,confirmed using encounter history; field confirmation needed; valid detections before ghost date
 15,Colorado River,Kinney Creek,10/7/2020,LOC,297,250,230000229049,32,Ghost,10/21/2020,409652,4438258,confirmed using encounter history; field confirmation needed
@@ -100,33 +95,25 @@ RS_Num,River,ReleaseSite,ReleaseDate,Species,Length,Weight,TagID,TagSize,Event,G
 15,Colorado River,Kinney Creek,10/7/2020,LOC,313,295,230000229055,32,Ghost,4/14/2021,411492,4438900,confirmed using encounter history; field confirmation needed
 15,Colorado River,Kinney Creek,10/7/2020,LOC,377,518,230000229056,32,Ghost,4/14/2021,411577,4438905,confirmed using encounter history; field confirmation needed
 15,Colorado River,Kinney Creek,10/7/2020,LOC,330,357,230000229068,32,Ghost,4/14/2021,411105,4438686,confirmed using encounter history; field confirmation needed
-15,Colorado River,Kinney Creek,10/7/2020,LOC,328,412,230000229070,32,Ghost,4/14/2021,411434,4438883,confirmed using encounter history; field confirmation needed
 15,Colorado River,Kinney Creek,10/7/2020,LOC,366,499,230000229075,32,Ghost,10/21/2020,414120,4440164,confirmed using encounter history; field confirmation needed; valid detections before ghost date
 9,Colorado River,Chimney Rock Below Island,5/4/2021,LOC,263,215,230000272020,32,Ghost,7/28/2021,413666,4440104,confirmed using encounter history; field confirmation needed
 9,Colorado River,Chimney Rock Below Island,5/6/2021,LOC,381,540,230000272037,32,Ghost,7/28/2021,413367,4440037,confirmed using encounter history; field confirmation needed
 9,Colorado River,Chimney Rock Below Island,5/4/2021,LOC,208,105,230000272094,32,Ghost,7/28/2022,413893,4440122,confirmed using encounter history; field confirmation needed
 9,Colorado River,Chimney Rock Below Island,5/4/2021,RBT,257,180,230000272096,32,Ghost,7/28/2022,413793,4440091,confirmed using encounter history; field confirmation needed
-11,Colorado River,Pool Above Red Barn Antenna,5/4/2021,LOC,207,79,230000272103,32,Ghost?,7/28/2022,412507,4439420,confirmed using encounter history; field confirmation needed; ghost tag lost on Red Barn? 58 detections on RB just before ghost date
 11,Colorado River,Pool Above Red Barn Antenna,5/4/2021,LOC,342,424,230000272112,32,Ghost,7/28/2021,413108,4439836,confirmed using encounter history; field confirmation needed
-11,Colorado River,Pool Above Red Barn Antenna,5/4/2021,LOC,268,205,230000272139,32,Ghost,7/28/2021,413210,4440018,confirmed using encounter history; field confirmation needed
 14,Colorado River,Below Red Barn Diversion #2,5/4/2021,LOC,332,410,230000272225,32,Ghost,7/28/2021,411978,4439119,confirmed using encounter history; field confirmation needed
 11,Colorado River,Pool Above Red Barn Antenna,5/4/2021,LOC,360,440,230000272261,32,Ghost,7/28/2021,413065,4439794,confirmed using encounter history; field confirmation needed
-11,Colorado River,Pool Above Red Barn Antenna,5/4/2021,LOC,348,420,230000272290,32,Ghost,7/28/2021,413367,4440054,confirmed using encounter history; field confirmation needed
 14,Colorado River,Below Red Barn Diversion #2,5/6/2021,LOC,376,548,230000272371,32,Ghost,7/28/2021,411990,4438939,confirmed using encounter history; field confirmation needed
-14,Colorado River,Below Red Barn Diversion #2,5/4/2021,LOC,322,311,230000272372,32,Ghost,7/28/2021,411833,4438878,confirmed using encounter history; field confirmation needed
 15,Colorado River,Kinney Creek,5/4/2021,LOC,363,475,230000272453,32,Ghost,7/28/2021,411535,4438909,confirmed using encounter history; field confirmation needed
 14,Colorado River,Below Red Barn Diversion #2,5/6/2021,LOC,335,390,230000272465,32,Ghost,7/28/2021,411976,4438982,confirmed using encounter history; field confirmation needed
 15,Colorado River,Kinney Creek,5/4/2021,LOC,339,390,230000272561,32,Ghost,7/28/2021,411264,4438792,confirmed using encounter history; field confirmation needed
 17,Colorado River,Sheriff Ranch Upper Field,5/4/2021,LOC,335,360,230000272612,32,Ghost,7/28/2021,410452,4438655,confirmed using encounter history; field confirmation needed
 17,Colorado River,Sheriff Ranch Upper Field,5/4/2021,LOC,362,455,230000272635,32,Ghost,7/28/2021,410166,4438537,confirmed using encounter history; field confirmation needed
 16,Colorado River,Dark Timber Above Railroad,5/4/2021,LOC,248,200,230000272652,32,Ghost,7/28/2021,411435,4438879,confirmed using encounter history; field confirmation needed
-16,Colorado River,Dark Timber Above Railroad,5/4/2021,LOC,249,165,230000272659,32,Ghost,7/28/2021,410892,4438654,confirmed using encounter history; field confirmation needed
-17,Colorado River,Sheriff Ranch Upper Field,5/6/2021,LOC,357,455,230000272664,32,Ghost,7/28/2021,411263,4438762,confirmed using encounter history; field confirmation needed
 17,Colorado River,Sheriff Ranch Upper Field,5/6/2021,LOC,330,360,230000272677,32,Ghost,7/28/2021,411292,4438829,confirmed using encounter history; field confirmation needed
 16,Colorado River,Dark Timber Above Railroad,5/4/2021,LOC,244,170,230000272680,32,Ghost,7/28/2021,411134,4438694,confirmed using encounter history; field confirmation needed
 17,Colorado River,Sheriff Ranch Upper Field,5/4/2021,LOC,318,326,230000272715,32,Ghost,7/28/2021,410779,4438635,confirmed using encounter history; field confirmation needed
 16,Colorado River,Dark Timber Above Railroad,5/4/2021,LOC,302,269,230000272756,32,Ghost,7/28/2021,411220,4438713,confirmed using encounter history; field confirmation needed
-16,Colorado River,Dark Timber Above Railroad,5/4/2021,LOC,350,355,230000272758,32,Ghost,7/28/2021,415982,4440187,confirmed using encounter history; field confirmation needed; valid detections before ghost date
 16,Colorado River,Dark Timber Above Railroad,5/4/2021,LOC,345,396,230000272788,32,Ghost,7/28/2021,411392,4438879,confirmed using encounter history; field confirmation needed
 18,Colorado River,Shefiff Ranch Middle Field,5/4/2021,LOC,352,440,230000272858,32,Ghost,7/28/2021,409910,4438458,confirmed using encounter history; field confirmation needed
 3,Colorado River,Upper River Run,10/5/2020,MTS,82,8,226001581297,12,Ghost?,10/19/2020,418779,4440023,likely a ghost tag based on encounter history; field confirmation needed; all MTS should be checked (shocking + ghost tag protocol?)
@@ -137,7 +124,6 @@ RS_Num,River,ReleaseSite,ReleaseDate,Species,Length,Weight,TagID,TagSize,Event,G
 7,Colorado River,Hitching Post,5/4/2021,LOC,387,511,230000142521,32,Ghost,7/28/2021,414505,4440248,confirmed using encounter history; field confirmation needed; valid detections before ghost date
 7,Colorado River,Hitching Post,5/4/2021,RBT,264,205,230000142546,32,Ghost,7/28/2021,414519,4440265,confirmed using encounter history; field confirmation needed
 7,Colorado River,Hitching Post,5/4/2021,LOC,293,250,230000142570,32,Ghost,7/28/2021,414562,4440291,confirmed using encounter history; field confirmation needed
-8,Colorado River,Chimney Rock Above Island,5/4/2021,LOC,295,227,230000142618,32,Ghost,7/28/2021,414007,4440150,confirmed using encounter history; field confirmation needed; valid detections before ghost date
 8,Colorado River,Chimney Rock Above Island,5/4/2021,LOC,323,352,230000142636,32,Ghost,7/28/2021,410124,4438545,confirmed using encounter history; field confirmation needed; valid detections before ghost date
 9,Colorado River,Chimney Rock Below Island,5/6/2021,LOC,384,564,230000142644,32,Ghost,7/28/2021,413978,4440147,confirmed using encounter history; field confirmation needed
 8,Colorado River,Chimney Rock Above Island,5/6/2021,LOC,354,425,230000142669,32,Ghost,7/28/2021,414192,4440215,confirmed using encounter history; field confirmation needed
@@ -166,7 +152,6 @@ RS_Num,River,ReleaseSite,ReleaseDate,Species,Length,Weight,TagID,TagSize,Event,G
 19,Colorado River,Sheriff Ranch Fry Site,10/7/2020,LOC,363,494,230000224583,32,Ghost,4/14/2021,409335,4438013,confirmed using encounter history; field confirmation needed
 19,Colorado River,Sheriff Ranch Fry Site,10/7/2020,LOC,370,556,230000224585,32,Ghost,4/14/2021,409108,4438043,confirmed using encounter history; field confirmation needed
 2,Fraser River,Fraser River Ranch,9/1/2020,RBT,414,723,230000228007,32,Ghost,7/27/2021,417201,4438638,confirmed using encounter history; field confirmation needed
-2,Fraser River,Fraser River Ranch,9/1/2020,RBT,238,132,230000228050,32,Ghost,10/20/2020,417270,4438545,confirmed using encounter history; field confirmation needed
 2,Fraser River,Fraser River Ranch,9/1/2020,LOC,187,67,230000228056,32,Ghost,7/27/2021,417173,4438622,confirmed using encounter history; field confirmation needed
 2,Fraser River,Fraser River Ranch,9/1/2020,LOC,356,438,230000228081,32,Ghost,10/20/2020,417691,4437990,confirmed using encounter history; field confirmation needed
 2,Fraser River,Fraser River Ranch,9/1/2020,LOC,177,58,230000228088,32,Ghost?,4/13/2021,417089,4438761,"likely ghost tag based on encounter history; field confirmation needed; moved downstream on last detection, but between spring and fall runs"
@@ -207,7 +192,6 @@ RS_Num,River,ReleaseSite,ReleaseDate,Species,Length,Weight,TagID,TagSize,Event,G
 11,Colorado River,Pool Above Red Barn Antenna,5/4/2021,LOC,363,460,230000272242,32,Ghost,7/28/2021,412651,4439572,confirmed using encounter history; field confirmation needed
 11,Colorado River,Pool Above Red Barn Antenna,5/4/2021,LOC,302,280,230000272245,32,Ghost,7/28/2021,412577,4439446,confirmed using encounter history; field confirmation needed
 11,Colorado River,Pool Above Red Barn Antenna,5/4/2021,LOC,319,350,230000272258,32,Ghost,10/20/2021,412880,4439745,confirmed using encounter history; field confirmation needed
-11,Colorado River,Pool Above Red Barn Antenna,5/4/2021,RBT,257,190,230000272277,32,Ghost,7/28/2021,412422,4439402,confirmed using encounter history; field confirmation needed; valid detections before ghost date
 11,Colorado River,Pool Above Red Barn Antenna,5/4/2021,LOC,351,425,230000272284,32,Ghost,10/20/2021,415798,4440193,confirmed using encounter history; field confirmation needed; valid detections before ghost date
 11,Colorado River,Pool Above Red Barn Antenna,5/4/2021,LOC,260,175,230000272294,32,Ghost,10/20/2021,413152,4439940,confirmed using encounter history; field confirmation needed
 14,Colorado River,Below Red Barn Diversion #2,5/4/2021,LOC,363,448,230000272316,32,Ghost,7/28/2021,412034,4439172,confirmed using encounter history; field confirmation needed
@@ -221,10 +205,7 @@ RS_Num,River,ReleaseSite,ReleaseDate,Species,Length,Weight,TagID,TagSize,Event,G
 15,Colorado River,Kinney Creek,5/4/2021,RBT,338,495,230000272448,32,Ghost,10/20/2021,411464,4438893,confirmed using encounter history; field confirmation needed
 16,Colorado River,Dark Timber Above Railroad,5/6/2021,RBT,422,635,230000272452,32,Ghost?,10/20/2021,411548,4438908,"likely ghost tag based on encounter history; field confirmation needed; in same location in October 2021 and April 2022, but only two detections in current location; valid detections before ghost date"
 16,Colorado River,Dark Timber Above Railroad,5/4/2021,LOC,230,120,230000272503,32,Ghost?,10/20/2021,411977,4439103,"likely ghost tag based on encounter history; field confirmation needed; in same location in October 2021 and April 2022, but only two detections in current location; valid detections before ghost date"
-15,Colorado River,Kinney Creek,5/4/2021,LOC,211,87,230000272533,32,Ghost,7/28/2021,411478,4438899,confirmed using encounter history; field confirmation needed
-15,Colorado River,Kinney Creek,5/4/2021,LOC,283,232,230000272539,32,Ghost,7/28/2021,411478,4438872,confirmed using encounter history; field confirmation needed
 15,Colorado River,Kinney Creek,5/4/2021,LOC,222,109,230000272544,32,Ghost,7/28/2021,411563,4438932,confirmed using encounter history; field confirmation needed
-15,Colorado River,Kinney Creek,5/4/2021,LOC,312,329,230000272556,32,Ghost,7/28/2021,410892,4438660,confirmed using encounter history; field confirmation needed
 15,Colorado River,Kinney Creek,5/4/2021,LOC,315,326,230000272569,32,Ghost,7/28/2021,411407,4438874,confirmed using encounter history; field confirmation needed
 15,Colorado River,Kinney Creek,5/4/2021,RBT,429,756,230000272578,32,Ghost?,7/28/2021,411819,4438869,likely ghost tag based on encounter history; field confirmation needed; moved 100 m downstream between April 2022 and October 2022
 16,Colorado River,Dark Timber Above Railroad,5/6/2021,LOC,362,443,230000272583,32,Ghost,7/28/2021,410665,4438627,confirmed using encounter history; field confirmation needed
@@ -233,14 +214,12 @@ RS_Num,River,ReleaseSite,ReleaseDate,Species,Length,Weight,TagID,TagSize,Event,G
 17,Colorado River,Sheriff Ranch Upper Field,5/4/2021,LOC,297,250,230000272643,32,Ghost,7/28/2021,410095,4438526,confirmed using encounter history; field confirmation needed
 16,Colorado River,Dark Timber Above Railroad,5/4/2021,LOC,313,315,230000272695,32,Ghost,10/20/2021,411264,4438796,confirmed using encounter history; field confirmation needed
 16,Colorado River,Dark Timber Above Railroad,5/6/2021,LOC,199,80,230000272698,32,Ghost,7/28/2021,411034,4438670,confirmed using encounter history; field confirmation needed
-17,Colorado River,Sheriff Ranch Upper Field,5/4/2021,LOC,353,440,230000272701,32,Ghost,7/28/2021,410607,4438612,confirmed using encounter history; field confirmation needed
 17,Colorado River,Sheriff Ranch Upper Field,5/4/2021,LOC,291,242,230000272705,32,Ghost,7/28/2021,410095,4438525,confirmed using encounter history; field confirmation needed
 18,Colorado River,Shefiff Ranch Middle Field,5/6/2021,LOC,328,364,230000272710,32,Ghost,7/28/2021,409421,4438076,confirmed using encounter history; field confirmation needed
 17,Colorado River,Sheriff Ranch Upper Field,5/6/2021,LOC,352,432,230000272716,32,Ghost,7/28/2021,410806,4438652,confirmed using encounter history; field confirmation needed
 16,Colorado River,Dark Timber Above Railroad,5/4/2021,LOC,345,364,230000272754,32,Ghost,7/28/2021,411904,4438883,confirmed using encounter history; field confirmation needed
 16,Colorado River,Dark Timber Above Railroad,5/4/2021,LOC,232,118,230000272760,32,Ghost,7/28/2021,410679,4438619,confirmed using encounter history; field confirmation needed
 16,Colorado River,Dark Timber Above Railroad,5/4/2021,LOC,235,133,230000272768,32,Ghost,7/28/2021,411149,4438675,confirmed using encounter history; field confirmation needed
-16,Colorado River,Dark Timber Above Railroad,5/4/2021,LOC,335,,230000272774,32,Ghost,7/28/2021,411120,4438696,confirmed using encounter history; field confirmation needed
 16,Colorado River,Dark Timber Above Railroad,5/4/2021,RBT,242,148,230000272781,32,Ghost,7/28/2021,411634,4438951,confirmed using encounter history; field confirmation needed
 16,Colorado River,Dark Timber Above Railroad,5/4/2021,LOC,361,457,230000272787,32,Ghost,7/28/2021,411162,4438679,confirmed using encounter history; field confirmation needed
 18,Colorado River,Shefiff Ranch Middle Field,5/4/2021,LOC,207,80,230000272800,32,Ghost,10/20/2021,409507,4438067,confirmed using encounter history; field confirmation needed
@@ -250,7 +229,4 @@ RS_Num,River,ReleaseSite,ReleaseDate,Species,Length,Weight,TagID,TagSize,Event,G
 18,Colorado River,Shefiff Ranch Middle Field,5/4/2021,LOC,337,375,230000272861,32,Ghost,7/28/2021,409608,4438228,confirmed using encounter history; field confirmation needed
 17,Colorado River,Sheriff Ranch Upper Field,5/6/2021,LOC,275,215,230000272866,32,Ghost,7/28/2021,410678,4438626,confirmed using encounter history; field confirmation needed
 17,Colorado River,Sheriff Ranch Upper Field,5/4/2021,LOC,330,355,230000272886,32,Ghost,7/28/2021,410395,4438652,confirmed using encounter history; field confirmation needed
-18,Colorado River,Shefiff Ranch Middle Field,5/4/2021,LOC,179,50,230000272909,32,Ghost,7/28/2021,409765,4438300,confirmed using encounter history; field confirmation needed
 18,Colorado River,Shefiff Ranch Middle Field,5/4/2021,RBT,390,550,230000272927,32,Ghost,7/28/2021,411577,4438905,confirmed using encounter history; field confirmation needed
-18,Colorado River,Shefiff Ranch Middle Field,5/4/2021,RBT,402,519,230000272949,32,Ghost,7/28/2021,409622,4438242,confirmed using encounter history; field confirmation needed
-17,Colorado River,Sheriff Ranch Upper Field,5/4/2021,LOC,282,208,230000272993,32,Take out,7/28/2021,410607,4438614,confirmed using encounter history; field confirmation needed
