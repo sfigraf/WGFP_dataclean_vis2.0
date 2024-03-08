@@ -8,9 +8,9 @@ qaqcGhostTagMovements <- function(GhostTags, Movements_df){
     group_by(TagID) %>%
     filter(Date > GhostDate) %>%
     summarise(
-      antennasDetected = paste(unique(det_type), collapse = ", "),
+      antennasDetectedAfterGhostDate = paste(unique(det_type), collapse = ", "),
       total_distmovedAfterGhostDate = (sum(abs(dist_moved), na.rm = TRUE)),
-      maxDistMoved = max(dist_moved)) %>%
+      maxUpstreamDistMovedAfterGhost = max(dist_moved)) %>%
     filter(total_distmovedAfterGhostDate > 0) %>%
     arrange(desc(total_distmovedAfterGhostDate))
   

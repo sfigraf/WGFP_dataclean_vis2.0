@@ -46,7 +46,7 @@ AvianPredation <- read_csv("./data/WGFP_AvianPredation.csv",
                            col_types = cols(TagID = col_character(),Comments = col_character()))
 
 #ghost tag df
-GhostTags <- read_csv("./data/WGFP_GhostTags_20240307.csv", 
+GhostTags <- read_csv("./data/WGFP_GhostTags.csv", 
                            col_types = cols(TagID = col_character()))
 
 #metadata
