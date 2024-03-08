@@ -48,7 +48,6 @@ RS_Num,River,ReleaseSite,ReleaseDate,Species,Length,Weight,TagID,TagSize,Event,G
 13,Colorado River,Below Red Barn Diversion #1,10/7/2020,LOC,227,118,230000228959,32,Ghost,4/14/2021,409637,4438251,confirmed using encounter history; field confirmation needed; valid detections before ghost date
 13,Colorado River,Below Red Barn Diversion #1,10/7/2020,LOC,367,492,230000228976,32,Ghost,4/14/2021,412121,4439248,confirmed using encounter history; field confirmation needed
 19,Colorado River,Sheriff Ranch Fry Site,10/7/2020,RBT,243,158,230000229006,32,Ghost,7/28/2021,409166,4438036,confirmed using encounter history; field confirmation needed
-19,Colorado River,Sheriff Ranch Fry Site,10/7/2020,RBT,124,18,230000229014,32,Ghost,4/14/2021,409123,4438040,confirmed using encounter history; field confirmation needed
 15,Colorado River,Kinney Creek,10/7/2020,LOC,355,426,230000229058,32,Ghost,10/21/2020,412005,4439062,confirmed using encounter history; field confirmation needed
 15,Colorado River,Kinney Creek,10/7/2020,LOC,372,492,230000229074,32,Ghost,10/21/2020,411262,4438741,confirmed using encounter history; field confirmation needed
 19,Colorado River,Sheriff Ranch Fry Site,10/7/2020,LOC,276,243,230000229099,32,Ghost,4/14/2021,411506,4438897,confirmed using encounter history; field confirmation needed
@@ -79,7 +78,6 @@ RS_Num,River,ReleaseSite,ReleaseDate,Species,Length,Weight,TagID,TagSize,Event,G
 3,Colorado River,Upper River Run,10/5/2020,LOC,403,696,230000228494,32,Ghost,10/19/2020,418878,4439952,confirmed using encounter history; field confirmation needed
 6,Colorado River,Windy Gap Dam,10/6/2020,LOC,395,560,230000228607,32,Ghost,4/14/2021,415939,4440179,confirmed using encounter history; field confirmation needed
 6,Colorado River,Windy Gap Dam,10/6/2020,LOC,422,597,230000228689,32,Ghost,4/14/2021,413395,4440061,confirmed using encounter history; field confirmation needed
-7,Colorado River,Hitching Post,10/6/2020,LOC,361,386,230000228787,32,Ghost,7/28/2021,414534,4440272,confirmed using encounter history; field confirmation needed
 10,Colorado River,Upper Red Barn Fry Site,10/6/2020,LOC,404,606,230000228789,32,Ghost,4/14/2021,412635,4439498,confirmed using encounter history; field confirmation needed
 10,Colorado River,Upper Red Barn Fry Site,10/6/2020,LOC,367,572,230000228790,32,Ghost,4/14/2021,416010,4440187,confirmed using encounter history; field confirmation needed; valid detections before ghost date
 13,Colorado River,Below Red Barn Diversion #1,10/7/2020,LOC,272,192,230000228842,32,Ghost,10/21/2020,412106,4439238,confirmed using encounter history; field confirmation needed
