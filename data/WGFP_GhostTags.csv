@@ -268,3 +268,4 @@ TagID,Event,GhostDate,RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Len
 230000228087,Ghost,7/27/2021,2,Fraser River,Fraser River Ranch,9/1/2020,12:00:00,417229,4438617,LOC,307,286,HA,pass,32,Handheld,left pelvic + adp,0,confirmed using encounter history; field confirmation needed
 230000224169,Ghost,4/18/2022,4,Colorado River,Lower River Run,10/5/2021,18:00:00,418207,4439939,LOC,309,270,HA,pass,32,Handheld,adp,0,confirmed using encounter history; field confirmation needed
 230000142993,Ghost,4/18/2022,4,Colorado River,Lower River Run,10/5/2021,18:00:00,418207,4439939,RBT,419,634,HA,fail,32,Handheld,adp,0,confirmed using encounter history; field confirmation needed
+230000224360,Ghost,10/19/2021,2,Fraser River,Fraser River Ranch,9/1/2021,16:30:00,417229,4438617,LOC,428,655,HA,,32,Handheld,adp,0,confirmed using encounter history; field confirmation needed
