@@ -90,7 +90,7 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
                   rownames = FALSE,
                   selection = "single",
                   filter = 'top',
-                  caption = ("Ghost Tags To Double Check: each of these tags has moved >= 0m since its assigned Ghost Date."),
+                  caption = ("Ghost Tags To Double Check: each of these tags has moved > 0m since its assigned Ghost Date."),
                   options = list(
                     #statesave is restore table state on page reload
                     stateSave =TRUE,
