@@ -1,3 +1,348 @@
+library(readr)
+mobileDetect_2022 <- read_csv("mobileDetect_2022.csv")
+View(mobileDetect_2022)
+
+library(readr)
+mobileDetect_2023 <- read_csv("mobileDetect_2023.csv")
+View(mobileDetect_2023)
+
+mobileDetectDifTags <- mobileDetect_2023 %>%
+  anti_join(mobileDetect_2022, by = c("TagID","Fall 2020","Spring 2021", "Summer 2021", "Fall 2021","Spring 2022", "Fall 2022" )) %>%
+  mutate(Notes = "New tag from 2022")
+
+mobileDetectSameTags <- left_join(mobileDetect_2022, mobileDetect_2023, by = c("TagID","Fall 2020","Spring 2021", "Summer 2021", "Fall 2021",   "Spring 2022", "Fall 2022" ))
+
+mobileDetect2023 <- mobileDetectSameTags %>%
+  dplyr::rename(Total = Total.y, Ghost = Ghost.y, Notes = Notes.x) %>%
+  dplyr::select(TagID, `Fall 2020`, `Spring 2021`, `Summer 2021`, `Fall 2021`, `Spring 2022`, `Fall 2022`,`Summer 2023`, Total, Ghost, Notes) %>%
+  rbind(mobileDetectDifTags)
+
+write_csv(mobileDetect2023, "mobileDetect2023_with2022Data.csv")
+
+GhostTags <- read_csv("./data/WGFP_GhostTags.csv", 
+                      col_types = cols(TagID = col_character()))
+x <- GhostTags %>%
+  mutate(TagID = as.character(TagID)) %>%
+  select(TagID, Event, GhostDate, Comments) 
+
+ghostOrNot <- mobileDetect2023 %>%
+  mutate(TagID = as.character(TagID)) %>%
+  left_join(x, by = "TagID")
+
+
+confused <- ghostOrNot %>%
+  filter(is.na(Event), 
+         grepl("Confirmed Ghost", Notes))
+
+differences <- ghostTagsQAQC %>%
+  anti_join(confused, by = "TagID")
+
+tagsThatAreNotGhostTags <- unique(ghostTagsQAQC$TagID)
+
+ghostOrNotWithRevisedTags <- ghostOrNot %>%
+  mutate(Notes = ifelse(TagID %in% tagsThatAreNotGhostTags, "Not a Ghost Tag; revised based off movement after Ghost Date or other.", Notes)) %>%
+  mutate(Notes = ifelse(Notes == "New tag from 2022" & Event == "Ghost", "Confirmed Ghost", Notes)) %>%
+  arrange(Notes)
+
+
+
+test <- GhostTags  %>%
+  anti_join(ghostOrNotWithRevisedTags , by = "TagID")
+write_csv(test, "tagsToCheck.csv")
+
+write_csv(ghostOrNotWithRevisedTags, "ghostTagsUpToDateWithComments.csv")
+
+####check if qaqc function has notes
+x <- qaqcGhostTagMovements(GhostTags = GhostTags, Movements_df = Movements_df)
+
+#ghost tag df addin on release data
+GhostTags <- read_csv("./data/WGFP_GhostTags.csv", 
+                      col_types = cols(TagID = col_character()))
+
+x <- GhostTags %>%
+  select(TagID, Event, GhostDate, Comments) %>%
+  left_join(Release[,-which(names(Release) %in% c("Comments", "Event"))], by = "TagID")
+
+## get all comments from mobile sheet
+ghostTagsmobile2023ForCOmments <- read_csv("ghostTagsmobile2023ForCOmments.csv")
+
+ghostTagsJoined <- ghostTagsmobile2023ForCOmments %>%
+  select(TagID, Notes) %>%
+  mutate(TagID = as.character(TagID)) %>%
+  right_join(x, by = "TagID") %>%
+  mutate(Notes2 = ifelse(nchar(Notes) > nchar(Comments), Notes, Comments)) 
+
+
+write_csv(ghostTagsJoined, "ghostTagsJoined.csv")
+
+GhostTags <- GhostTags %>%
+  mutate(GhostDate = lubridate::mdy(GhostDate))
+
+movements <- movements_list$Movements_df
+ghosttagsCondensed <- GhostTags %>%
+  select(TagID, GhostDate) %>%
+  left_join(movements, by = c("TagID" = "TAG"))
+length(unique(ghsottagsCondensed$TagID))
+
+x <- ghosttagsCondensed %>%
+  group_by(TagID) %>%
+  filter(Date > GhostDate) %>%
+  summarise(total_distmovedAfterGhostDate = (sum(abs(dist_moved), na.rm = TRUE))) %>%
+  arrange(desc(total_distmovedAfterGhostDate))
+
+mobileDetect_2023 <- read_csv("mobileDetect_2023.csv")
+
+filtered <- mobileDetect_2023 %>%
+  filter(`Fall 2022` == 1, 
+         `Summer 2023` == 1) %>%
+  select(TagID, Total, Notes) 
+
+
+filteredMovemnetsGhostDate <- filtered  %>%
+  mutate(TagID = as.character(TagID)) %>%
+  left_join(ghosttagsCondensed, by = "TagID") %>%
+  group_by(TagID) %>%
+  filter(Date > "2022-10-25") %>%
+  summarise(
+    GhostDate = unique(GhostDate),
+    #antennasDetectedAfterGhostDate = paste(unique(det_type), collapse = ", "),
+    total_distmovedBetweenFall2022AndSummer2023 = (sum(dist_moved, na.rm = TRUE)),
+    #maxUpstreamDistMovedAfterGhost = max(dist_moved)
+  )
+
+write_csv(filteredMovemnetsGhostDate, "total_distmovedBetweenFall2022AndSummer2023.csv")
+movements <- movements_list$Movements_df
+################
+library(readr)
+WGFP_GhostTags_upTodate <- read_csv("WGFP_GhostTags_upTodate.csv")
+library(readr)
+WGFP_GhostTags_20220227 <- read_csv("WGFP_GhostTags_20220227.csv")
+#x <- setdiff(WGFP_GhostTags_upTodate, WGFP_GhostTags_20220227)
+ghostTagsInOldFileThatwereRemoved <- WGFP_GhostTags_20220227 %>%
+  anti_join(WGFP_GhostTags_upTodate, by = "TagID") %>%
+  distinct(TagID, .keep_all = TRUE)
+# x1 <- x %>%
+#    na.omit(ReleaseSite)
+temp_ghostTags <- ghostTagsInOldFileThatwereRemoved %>%
+  mutate(TagID = as.character(TagID)) %>%
+  mutate(GhostDate = lubridate::mdy(GhostDate))
+
+GhostTags <- temp_ghostTags
+ghostTagsQAQC <- qaqcGhostTagMovements(temp_ghostTags, Movements_df =Movements_df)
+
+write_csv(ghostTagsQAQC, "ghostTagsRemovedFromGhostTagFile.csv")
+
+#get tags between 2 ranges
+range1_tags <- ghosttagsCondensed %>%
+  filter(Date >= "2022-10-15" & Date <= "2022-10-21") %>%
+  distinct(TagID)
+
+# Filter the dataframe for the second date range
+range2_tags <- ghosttagsCondensed %>%
+  filter(Date >= "2023-07-20" & Date <= "2023-07-28") %>%
+  distinct(TagID)
+
+# Find the tags that appear in both ranges
+common_tags <- intersect(range1_tags$TagID, range2_tags$TagID)
+
+filtered_df <- ghosttagsCondensed %>%
+  filter(TagID %in% common_tags) %>%
+  # filter(det_type == "Mobile Run" & 
+  #          ((Date >= "2022-10-15" & Date <= "2022-10-21") & 
+  #             (Date >= "2023-05-03" & Date <= "2023-05-06"))) %>%
+  group_by(TagID) %>%
+  filter(Date > GhostDate) %>%
+  summarise(
+    GhostDate = unique(GhostDate),
+    antennasDetectedAfterGhostDate = paste(unique(det_type), collapse = ", "),
+    total_distmovedAfterGhostDate = (sum(dist_moved, na.rm = TRUE)),
+    maxUpstreamDistMovedAfterGhost = max(dist_moved))
+
+write_csv(filtered_df, "fall2022_Summer2023GhostDetectionsAndMovements.csv")
+################
+x <- Stationary %>%
+  dplyr::filter(TAG %in% c("900_230000004000"))
+
+x1 <- combinedData_df_list$All_Detections %>%
+  filter(str_detect(TAG, "228468"))
+x1 <- Biomark %>%
+  filter(str_detect(DEC.Tag.ID, "^999"))
+
+tag2323AtCD1 <- Stationary_Marker_tags %>%
+  dplyr::filter(TAG %in% c("00000000000000002323"),
+                SCD == "CD1")# %>%
+#dplyr::distinct(DTY)
+
+plot <- tag2323AtCD1 %>%
+  ggplot(aes(x = DTY, text = as.character(DTY))) +
+  geom_histogram()  +
+  ggtitle("Tag 2323 on CD1, Oct 18 2023 - Jan 27 2024") +
+  theme_classic()
+ggplotly(plot)
+
+############
+tag2323AtCD2 <- Stationary_Marker_tags %>%
+  dplyr::filter(TAG %in% c("00000000000000002323"),
+                SCD == "CD2") #%>%
+#dplyr::distinct(DTY)
+
+plot <- tag2323AtCD2 %>%
+  ggplot(aes(x = DTY, text = as.character(DTY))) +
+  geom_histogram()  +
+  ggtitle("Tag 2323 on CD2, Oct 18 2023 - Jan 27 2024") +
+  theme_classic()
+ggplotly(plot)
+
+############
+tag4948AtCD1 <- Stationary_Marker_tags %>%
+  dplyr::filter(TAG %in% c("00000000000000004948"),
+                SCD == "CD1"
+  )
+#library(plotly)
+plot <- tag4948AtCD1 %>%
+  ggplot(aes(x = DTY, text = as.character(DTY))) +
+  geom_histogram() +
+  ggtitle("Tag 4948 on CD1, Oct 18 2023 - Jan 27 2024") +
+  theme_classic()
+
+ggplotly(plot)
+
+tag4948AtCD2 <- Stationary_Marker_tags %>%
+  dplyr::filter(TAG %in% c("00000000000000004948"),
+                SCD == "CD2"
+  )
+plot <- tag4948AtCD2 %>%
+  ggplot(aes(x = DTY, text = as.character(DTY))) +
+  geom_histogram() +
+  ggtitle("Tag 4948 on CD2, Oct 18 2023 - Jan 27 2024") +
+  theme_classic()
+
+ggplotly(plot)
+###########3
+
+x <- Stationary_Marker_tags %>%
+  filter(SCD %in% c("CD1", "CD2"))
+
+#########
+ogStatoinary <- readRDS("./data/WGFP_Raw_20240213.rds")
+Stationary <- ogStatoinary %>%
+  filter(TAG == "900_226001581653",
+         SCD == "CF5",
+         DTY >= "2021-05-26" & DTY <= "2021-05-28")
+Stationary <- Stationary %>%
+  mutate(TAG = gsub("\\_", "", str_trim(TAG)), 
+         DTY = ifelse(str_detect(DTY, "/"),
+                      as.character(mdy(DTY)),
+                      DTY)) %>%
+  #taking out test_tags
+  filter(!TAG %in% test_tags)
+
+xx <- Stationary[Stationary$DTY == "2021-05-27" | Stationary$DTY == "2021-05-28",]
+
+# xx1 <- xx %>%
+#   mutate(ARR1 = case_when(str_detect(ARR, "AM") & str_detect(ARR, "^12:") ~ lubridate::hms(ARR) - hours(12),
+#                           str_detect(ARR, "PM") & str_detect(ARR, "^12:") ~ lubridate::hms(ARR),
+#                           
+#                           str_detect(ARR, "AM") & str_detect(ARR, "^12:", negate = TRUE) ~ lubridate::hms(ARR),
+#                           str_detect(ARR, "PM") & str_detect(ARR, "^12:", negate = TRUE) ~ lubridate::hms(ARR) + hours(12),
+#                           #if it doesn't detect PM or AM just do lubridate::hms(ARR)
+#                           str_detect(ARR, "PM|AM") == FALSE ~ lubridate::hms(ARR)),
+#   ) %>%
+#   #but that also means that as_datetime reads those as periods and doesn't play well with the 0s interval specifically
+#   #so we need to con
+#   mutate(ARR2 = as.character(as_datetime(ARR1))), 
+#          ARR = ifelse(ARR2 == "1970-01-01", "00:00:00", str_trim(str_sub(ARR2, start = 11, end = -1))) %>%
+#   select(-c(ARR1, ARR2))
+# mutate(ARR1 = dplyr::case_when(stringr::str_detect(ARR, "AM") & stringr::str_detect(ARR, "^12:") ~ lubridate::hms(ARR) - hours(12),
+#                         stringr::str_detect(ARR, "PM") & stringr::str_detect(ARR, "^12:") ~ lubridate::hms(ARR),
+#                         
+#                         stringr::str_detect(ARR, "AM") & stringr::str_detect(ARR, "^12:", negate = TRUE) ~ lubridate::hms(ARR),
+#                         stringr::str_detect(ARR, "PM") & stringr::str_detect(ARR, "^12:", negate = TRUE) ~ lubridate::hms(ARR) + hours(12),
+#                         #if it doesn't detect PM or AM just do lubridate::hms(ARR)
+#                         stringr::str_detect(ARR, "PM|AM") == FALSE ~ lubridate::hms(ARR)),
+# ) %>%
+# mutate(ARR2 = as.character(as_datetime(ARR1)))
+# , 
+
+#########
+Marker_Tag_data <- Stationary_Marker_tags
+
+x <- Stationary_Marker_tags %>%
+  dplyr::group_by(TAG, SCD) %>%
+  dplyr::summarise(totalDetectionsSinceProjectInception = n())
+
+y <- Stationary_Marker_tags %>%
+  dplyr::filter(SCD == "HP3") %>%
+  dplyr::count(SCD, TAG, name = "totalDetectionsSinceProjectInception")
+
+##########
+x = select(ENC_Release1, dplyr::matches(paste0("(", c(RedBarnCodes, HitchingPostCodes), ")_n")))
+x = rowSums(select(ENC_Release1, ends_with("_n")) == TRUE)
+
+
+
+x <- ENC_Release1 %>%
+  select(c(RedBarnCodes, HitchingPostCodes, ConfluenceCodes, 
+           ConnectivityChannelDownstreamCodes, ConnectivityChannelSideChannelCodes,
+           ConnectivityChannelUpstreamCodes, MobileRunCodes, 
+           WindyGapAntennaSiteCode, KaibabParkAntennaSiteCode,
+           RiverRunAntennaSiteCode, FraserRiverCanyonAntennaSiteCode, "Recapture"), TAG) %>%
+  mutate(
+    TotalEncounters = rowSums(select(., dplyr::ends_with(c(RedBarnCodes, HitchingPostCodes, ConfluenceCodes, 
+                                                           ConnectivityChannelDownstreamCodes, ConnectivityChannelSideChannelCodes,
+                                                           ConnectivityChannelUpstreamCodes, MobileRunCodes, 
+                                                           WindyGapAntennaSiteCode, KaibabParkAntennaSiteCode,
+                                                           RiverRunAntennaSiteCode, FraserRiverCanyonAntennaSiteCode, "Recapture"))) == TRUE)
+  ) %>%
+  mutate(test = case_when(select(c(RedBarnCodes)) == TRUE ~ "go"))
+
+x <- ENC_Release22 %>%
+  filter(TAG == "230000143638")
+
+og <- ENC_ReleaseOG %>%
+  select(TAG, through_dam) %>%
+  filter(through_dam == "Went through dam or Connectivity Channel")
+joined <- ENC_ReleaseJoined %>%
+  select(TAG, through_dam) %>%
+  filter(through_dam == "Went through dam or Connectivity Channel")
+
+xxx1 <- anti_join(og, joined, by = c("through_dam"))
+
+setdiff(joined, og)
+#########
+##separate b3 into 2 new antennas: schmuck channel (current location?) and auxiliary/dam
+Biomark_cleanDate <- Biomark %>%
+  #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy
+  # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
+  mutate(Scan.Date = ifelse(str_detect(Scan.Date, "/"),
+                            as.character(lubridate::mdy(Scan.Date)),
+                            Scan.Date)) 
+
+Biomark_cleanDateWG <- Biomark_cleanDate %>%
+  filter(!Reader.ID %in% c("A2", "B2"))
+
+SchmuckChannel <- Biomark_cleanDateWG %>%
+  filter(Scan.Date >= "2021-12-31") %>%
+  mutate(Reader.ID = "B1")
+
+Auxiliary <- Biomark_cleanDateWG %>%
+  filter(Scan.Date < "2021-12-31") %>%
+  mutate(Reader.ID = "A1")
+
+allBiom <- bind_rows(SchmuckChannel, Auxiliary)
+
+kaibabPark <- Biomark_cleanDate %>%
+  filter(Reader.ID %in% c("A2", "B2"))
+
+allBiom2 <- bind_rows(allBiom, kaibabPark)
+
+write_csv(allBiom2, "Biomark_Raw_20221102.csv")
+#####
+allDetectionsAndRecaptures %>%
+  filter(Event %in% c("WG1"))
+
+
+######stuff from 2021 and beyond
 library(tidyverse)
 library(readxl)
 library(lubridate)
