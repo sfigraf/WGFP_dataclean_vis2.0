@@ -48,3 +48,15 @@ CF1CF2Crosstalk <- CF1CF2 %>%
   filter(nchar(antennas) > 3)
 
 (1/417614)*100
+
+##CS Crosstalk
+CS1CS2 <- allDetections %>%
+  filter(Event %in% c("CS1", "CS2"), 
+         !str_detect(TAG, "^0000000|^999")) 
+
+CS1CS2Crosstalk <- CS1CS2 %>%
+  group_by(Datetime, TAG) %>%
+  summarise(antennas = paste(unique(Event), collapse = ", ")) %>%
+  filter(nchar(antennas) > 3)
+
+(1/417614)*100

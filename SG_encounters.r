@@ -1,3 +1,4 @@
+#########this is just a working playground for random code stuff
 library(readr)
 mobileDetect_2022 <- read_csv("mobileDetect_2022.csv")
 View(mobileDetect_2022)
