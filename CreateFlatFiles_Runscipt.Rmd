@@ -136,6 +136,30 @@ test_tags <- unique(wgfpMetadata$TestTags$TAG)
 fraserColoradoRiverConfluence <- as.numeric(wgfpMetadata$ImportantStationingVariables[wgfpMetadata$ImportantStationingVariables$Variable == "Fraser/Colorado River Confluence", "StationingLocation"])
 
 DamLocation <- as.numeric(wgfpMetadata$ImportantStationingVariables[wgfpMetadata$ImportantStationingVariables$Variable == "Windy Gap Dam", "StationingLocation"])
+
+metaDataVariableNames <- list(
+  "WindyGapBypassAntennaFrontendSiteCode" = WindyGapBypassAntennaFrontendSiteCode,
+  "WindyGapAuxiliaryAntennaFrontendSiteCode" = WindyGapAuxiliaryAntennaFrontendSiteCode,
+  "GranbyDiversionAntennaFrontendSiteCode" = GranbyDiversionAntennaFrontendSiteCode,
+  "RiverRunAntennaFrontendSiteCode" = RiverRunAntennaFrontendSiteCode,
+  "FraserRiverCanyonAntennaFrontendSiteCode" = FraserRiverCanyonAntennaFrontendSiteCode,
+  "RedBarnFrontendCodes" = RedBarnFrontendCodes,
+  "HitchingPostFrontendCodes" = HitchingPostFrontendCodes,
+  "ConfluenceFrontendCodes" = ConfluenceFrontendCodes,
+  "MobileRunFrontendCodes" = MobileRunFrontendCodes,
+  "ConnectivityChannelDownstreamFrontendCodes" = ConnectivityChannelDownstreamFrontendCodes,
+  "ConnectivityChannelSideChannelFrontendCodes" = ConnectivityChannelSideChannelFrontendCodes,
+  "ConnectivityChannelUpstreamFrontendCodes" = ConnectivityChannelUpstreamFrontendCodes,
+  "WindyGapBypassAntennaBackendSiteCode" = WindyGapBypassAntennaBackendSiteCode,
+  "WindyGapAuxiliaryAntennaBackendSiteCode" = WindyGapAuxiliaryAntennaBackendSiteCode,
+  "GranbyDiversionAntennaBackendSiteCode" = GranbyDiversionAntennaBackendSiteCode,
+  "RiverRunAntennaBackendSiteCode" = RiverRunAntennaBackendSiteCode,
+  "FraserRiverCanyonAntennaBackendSiteCode" = FraserRiverCanyonAntennaBackendSiteCode,
+  "test_tags" = test_tags,
+  "fraserColoradoRiverConfluence" = fraserColoradoRiverConfluence,
+  "DamLocation" = DamLocation
+)
+
 ```
 
 ```{r cleaningForFunctions, include=FALSE, echo=FALSE}
@@ -279,7 +303,8 @@ allFlatFiles <- list(
   "states_data_list" = states_data_list,
   "movements_list" = movements_list,
   "Marker_tags" = Cleaned_Marker_tags,
-  "unknown_tags" = unknown_tags
+  "unknown_tags" = unknown_tags, 
+  "metaDataVariableNames" = metaDataVariableNames
 
 )
 for(filename in names(allFlatFiles)){

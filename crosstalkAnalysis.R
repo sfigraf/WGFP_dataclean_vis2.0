@@ -1,7 +1,44 @@
 ####crosstalk analysis to see duplicate detections/exact same timestamp
 #want to add this qaqc tab
+crosstalkDF <- data.frame(
+  "AntennaCodes" = character(),
+  "PercentageOfDetectionsWithSameTimestamp" = numeric(),
+  stringsAsFactors = FALSE
+)
+# SelectedAllEvents = All_Events
+# antennaCodes <- metaDataVariableNames$RedBarnFrontendCodes
+calculateCrosstalkPercentage <- function(SelectedAllEvents, antennaCodes){
+  
+  antennaSpecificDetections <- SelectedAllEvents %>%
+    filter(Event %in% antennaCodes) 
+  
+  antennaCrosstalk <- antennaSpecificDetections %>%
+    group_by(Datetime, TAG) %>%
+    summarise(antennas = paste(unique(Event), collapse = ", ")) %>%
+    filter(grepl(",", antennas))
+  
+  percentageOccurance <- round((nrow(antennaCrosstalk)/nrow(antennaSpecificDetections))*100, 3)
+  
+  return(percentageOccurance)
+}
+
+for(codes in list(metaDataVariableNames$RedBarnFrontendCodes, metaDataVariableNames$HitchingPostFrontendCodes,
+                  metaDataVariableNames$ConfluenceFrontendCodes, metaDataVariableNames$ConnectivityChannelDownstreamFrontendCodes,
+                  metaDataVariableNames$ConnectivityChannelSideChannelFrontendCodes, metaDataVariableNames$ConnectivityChannelUpstreamFrontendCodes)){
+
+  crosstalkDF <- crosstalkDF %>%
+    add_row(
+      AntennaCodes = paste(codes, collapse = ", "), 
+      PercentageOfDetectionsWithSameTimestamp = calculateCrosstalkPercentage(SelectedAllEvents = All_Events, antennaCodes = codes)
+    )
+}
 
 
+crosstalkDFFilled <- crosstalkDF %>%
+  add_row(
+    AntennaCodes = paste(antennaCodes, collapse = ", "), 
+    PercentageOfDetectionsWithSameTimestamp = percentageOccurance
+  )
 
 metaDataVariableNames$ConnectivityChannelDownstreamFrontendCodes
 
