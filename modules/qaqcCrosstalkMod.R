@@ -17,17 +17,18 @@ qaqcCrosstalkMod_UI <- function(id, combinedData_df_list) {
       ),
       mainPanel(
         br(),
-        tabsetPanel(
-          tabPanel(
-            "Summary Table", 
-            box(
-              title = "Crosstalk Occurrance Percentage",
-              withSpinner(DT::dataTableOutput(ns("crosstalkTable"))),
-              footer = "May take a few seconds to load"
-            )
-          )
-          
-        )
+        tabsetPanel(id = ns("tabset"))
+        # tabsetPanel(
+        #   tabPanel(
+        #     "Summary Table", 
+        #     box(
+        #       title = "Crosstalk Occurrance Percentage",
+        #       withSpinner(DT::dataTableOutput(ns("crosstalkTable"))),
+        #       footer = "May take a few seconds to load"
+        #     )
+        #   ),
+           # uiOutput(ns("individualTables"))
+        # )
       )
     )
   )
@@ -85,24 +86,69 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
         )
       })
       
-      output$crosstalkTable <- renderDT({
-        datatable(
-          crosstalkData()$summaryTable,
-          rownames = FALSE,
-          selection = "single",
-          caption = "% of FISH detections on each antenna with the exact same timestamp. 
-          Detections in raw data may differ by milliseconds, but milliseconds are not used in the app data.", 
-          options = list(
-            #statesave is restore table state on page reload
-            stateSave = TRUE,
-            pageLength = 10,
-            info = TRUE,
-            dom = 'tri',
-            #had to add 'lowercase L' letter to display the page length again
-            language = list(emptyTable = "Enter inputs and press Render Table")
+      # output$crosstalkTable <- renderDT({
+      #   datatable(
+      #     crosstalkData()$summaryTable,
+      #     rownames = FALSE,
+      #     selection = "single",
+      #     caption = "% of FISH detections on each antenna with the exact same timestamp. 
+      #     Detections in raw data may differ by milliseconds, but milliseconds are not used in the app data.", 
+      #     options = list(
+      #       #statesave is restore table state on page reload
+      #       stateSave = TRUE,
+      #       pageLength = 10,
+      #       info = TRUE,
+      #       dom = 'tri',
+      #       #had to add 'lowercase L' letter to display the page length again
+      #       language = list(emptyTable = "Enter inputs and press Render Table")
+      #     )
+      #   ) %>%
+      #     formatPercentage(c("PercentageOfDetectionsWithSameTimestamp"), 2)
+      # })
+      
+      observe({
+        siteCodes <- unique(crosstalkData()$siteCodes)
+        # Generate tab panels for each site code
+        for (siteCode in siteCodes) {
+          
+          appendTab(inputId = "tabset", 
+                    tabPanel(
+                      title = siteCode, 
+                      "This is a dymnic tab"
+                    )
           )
-        ) %>%
-          formatPercentage(c("PercentageOfDetectionsWithSameTimestamp"), 2)
+        }
+      })
+      
+      output$individualTables <- renderUI({
+        
+        
+        # Initialize an empty list to store tab panels
+        tab_panels <- list()
+        
+        # Generate tab panels for each site code
+        for (siteCode in siteCodes) {
+          
+          appendTab(inputId = "tabset", 
+                    tabPanel(
+                      title = siteCode
+                    )
+                    )
+          # print(siteCode)
+          # tab_panels[[siteCode]] <- tabPanel(
+          #   title = siteCode
+            # You can put content specific to each tab here
+            # For example, a data table corresponding to each site code
+            #dataTableOutput(paste0("dataTable_", siteCode))
+          #)
+        }
+        
+        # # Wrap the tab panels in a tabsetPanel
+        # tabsetPanel(
+        #   id = "tabset",
+        #   do.call(tabsetPanel, tab_panels)  # Wrap the list of tab panels in do.call
+        # )
+        
       })
     }
   )
