@@ -42,6 +42,11 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
     function(input, output, session) {
       
       ns <- session$ns
+      #x <<- session
+      
+      siteCodesList <- list(metaDataVariableNames$RedBarnFrontendCodes, metaDataVariableNames$HitchingPostFrontendCodes,
+                          metaDataVariableNames$ConfluenceFrontendCodes, metaDataVariableNames$ConnectivityChannelDownstreamFrontendCodes,
+                          metaDataVariableNames$ConnectivityChannelSideChannelFrontendCodes, metaDataVariableNames$ConnectivityChannelUpstreamFrontendCodes)
       
       crosstalkData <- eventReactive(input$crosstalkRenderButton, ignoreNULL = FALSE,{
         
@@ -60,9 +65,7 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
         
         crosstalkIndividualList <- list()
         
-        for(codes in list(metaDataVariableNames$RedBarnFrontendCodes, metaDataVariableNames$HitchingPostFrontendCodes,
-                          metaDataVariableNames$ConfluenceFrontendCodes, metaDataVariableNames$ConnectivityChannelDownstreamFrontendCodes,
-                          metaDataVariableNames$ConnectivityChannelSideChannelFrontendCodes, metaDataVariableNames$ConnectivityChannelUpstreamFrontendCodes)){
+        for(codes in siteCodesList){
           
           crosstalkAnalyses <- calculateCrosstalkProportion(SelectedAllEvents = crosstalkData, antennaCodes = codes)
           
@@ -108,49 +111,27 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
           formatPercentage(c("PercentageOfDetectionsWithSameTimestamp"), 2)
       })
       
-      observe({
+      #this is kind of a hacky way and i kidna hate it
+      tabsCreated <- reactiveVal(FALSE)
+      observeEvent(!tabsCreated(), once = TRUE, {
+        #print(tabsCreated())
         siteCodes <- unique(crosstalkData()$siteCodes)
         # Generate tab panels for each site code
         for (siteCode in siteCodes) {
-          
           appendTab(inputId = "tabset", 
                     tabPanel(
                       title = siteCode, 
-                      "This is a dymnic tab"
+                      dataTableOutput(ns(paste0("dataTable_", siteCode)))
                     )
           )
         }
+        tabsCreated(TRUE)
       })
       
-      output$individualTables <- renderUI({
-        
-        
-        # Initialize an empty list to store tab panels
-        tab_panels <- list()
-        
-        # Generate tab panels for each site code
-        for (siteCode in siteCodes) {
-          
-          appendTab(inputId = "tabset", 
-                    tabPanel(
-                      title = siteCode
-                    )
-                    )
-          # print(siteCode)
-          # tab_panels[[siteCode]] <- tabPanel(
-          #   title = siteCode
-            # You can put content specific to each tab here
-            # For example, a data table corresponding to each site code
-            #dataTableOutput(paste0("dataTable_", siteCode))
-          #)
-        }
-        
-        # # Wrap the tab panels in a tabsetPanel
-        # tabsetPanel(
-        #   id = "tabset",
-        #   do.call(tabsetPanel, tab_panels)  # Wrap the list of tab panels in do.call
-        # )
-        
+      output$dataTable_RB <- renderDT({
+        datatable(
+          crosstalkData()[["crosstalkIndividualList"]][["RB"]]
+        )
       })
     }
   )
