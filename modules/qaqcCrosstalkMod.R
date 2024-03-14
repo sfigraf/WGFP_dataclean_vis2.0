@@ -17,15 +17,17 @@ qaqcCrosstalkMod_UI <- function(id, combinedData_df_list) {
       ),
       mainPanel(
         br(),
-        tabsetPanel(id = ns("tabset"))
+        tabsetPanel(id = ns("tabset"), 
         # tabsetPanel(
-        #   tabPanel(
-        #     "Summary Table", 
-        #     box(
-        #       title = "Crosstalk Occurrance Percentage",
-        #       withSpinner(DT::dataTableOutput(ns("crosstalkTable"))),
-        #       footer = "May take a few seconds to load"
-        #     )
+          tabPanel(
+            "Summary Table",
+            box(
+              title = "Crosstalk Occurrance Percentage",
+              withSpinner(DT::dataTableOutput(ns("crosstalkTable"))),
+              footer = "May take a few seconds to load"
+            )
+          )
+        )
         #   ),
            # uiOutput(ns("individualTables"))
         # )
@@ -86,25 +88,25 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
         )
       })
       
-      # output$crosstalkTable <- renderDT({
-      #   datatable(
-      #     crosstalkData()$summaryTable,
-      #     rownames = FALSE,
-      #     selection = "single",
-      #     caption = "% of FISH detections on each antenna with the exact same timestamp. 
-      #     Detections in raw data may differ by milliseconds, but milliseconds are not used in the app data.", 
-      #     options = list(
-      #       #statesave is restore table state on page reload
-      #       stateSave = TRUE,
-      #       pageLength = 10,
-      #       info = TRUE,
-      #       dom = 'tri',
-      #       #had to add 'lowercase L' letter to display the page length again
-      #       language = list(emptyTable = "Enter inputs and press Render Table")
-      #     )
-      #   ) %>%
-      #     formatPercentage(c("PercentageOfDetectionsWithSameTimestamp"), 2)
-      # })
+      output$crosstalkTable <- renderDT({
+        datatable(
+          crosstalkData()$summaryTable,
+          rownames = FALSE,
+          selection = "single",
+          caption = "% of FISH detections on each antenna with the exact same timestamp.
+          Detections in raw data may differ by milliseconds, but milliseconds are not used in the app data.",
+          options = list(
+            #statesave is restore table state on page reload
+            stateSave = TRUE,
+            pageLength = 10,
+            info = TRUE,
+            dom = 'tri',
+            #had to add 'lowercase L' letter to display the page length again
+            language = list(emptyTable = "Enter inputs and press Render Table")
+          )
+        ) %>%
+          formatPercentage(c("PercentageOfDetectionsWithSameTimestamp"), 2)
+      })
       
       observe({
         siteCodes <- unique(crosstalkData()$siteCodes)
