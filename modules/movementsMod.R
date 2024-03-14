@@ -68,7 +68,6 @@ movements_UI <- function(id, Movements_df, df_list) { #could just get dates in U
                   tabPanel("Map and Table",
                            hr(),
                            splitLayout(cellWidths = c("40%", "60%"),
-                                       
                                        withSpinner(DT::dataTableOutput(ns("movements1"))),
                                        withSpinner(leafletOutput(ns("map1"), height = 600))
                            ), #end of splitLayout

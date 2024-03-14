@@ -7,7 +7,7 @@ crosstalkDF <- data.frame(
 )
 # SelectedAllEvents = All_Events
 # antennaCodes <- metaDataVariableNames$RedBarnFrontendCodes
-calculateCrosstalkPercentage <- function(SelectedAllEvents, antennaCodes){
+calculateCrosstalkProportion <- function(SelectedAllEvents, antennaCodes){
   
   antennaSpecificDetections <- SelectedAllEvents %>%
     filter(Event %in% antennaCodes) 
@@ -29,7 +29,7 @@ for(codes in list(metaDataVariableNames$RedBarnFrontendCodes, metaDataVariableNa
   crosstalkDF <- crosstalkDF %>%
     add_row(
       AntennaCodes = paste(codes, collapse = ", "), 
-      PercentageOfDetectionsWithSameTimestamp = calculateCrosstalkPercentage(SelectedAllEvents = All_Events, antennaCodes = codes)
+      PercentageOfDetectionsWithSameTimestamp = calculateCrosstalkProportion(SelectedAllEvents = All_Events, antennaCodes = codes)
     )
 }
 
