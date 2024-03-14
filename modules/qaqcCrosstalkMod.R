@@ -17,10 +17,16 @@ qaqcCrosstalkMod_UI <- function(id, combinedData_df_list) {
       ),
       mainPanel(
         br(),
-        box(
-          title = "Crosstalk Occurrance Percentage",
-          withSpinner(DT::dataTableOutput(ns("crosstalkTable"))),
-          footer = "May take a few seconds to load"
+        tabsetPanel(
+          tabPanel(
+            "Summary Table", 
+            box(
+              title = "Crosstalk Occurrance Percentage",
+              withSpinner(DT::dataTableOutput(ns("crosstalkTable"))),
+              footer = "May take a few seconds to load"
+            )
+          )
+          
         )
       )
     )
@@ -31,35 +37,57 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
   moduleServer(
     id,
     function(input, output, session) {
+      
+      ns <- session$ns
+      
       crosstalkData <- eventReactive(input$crosstalkRenderButton, ignoreNULL = FALSE,{
         
         crosstalkData <- combinedData_df_list$All_Events %>%
           filter(
             Date >= input$crosstalkDateSlider[1] & Date <= input$crosstalkDateSlider[2]
           )
+        
         crosstalkDF <- data.frame(
           "AntennaCodes" = character(),
           "PercentageOfDetectionsWithSameTimestamp" = numeric(),
           stringsAsFactors = FALSE
         )
         
+        siteCodeVector <- c()
+        
+        crosstalkIndividualList <- list()
+        
         for(codes in list(metaDataVariableNames$RedBarnFrontendCodes, metaDataVariableNames$HitchingPostFrontendCodes,
                           metaDataVariableNames$ConfluenceFrontendCodes, metaDataVariableNames$ConnectivityChannelDownstreamFrontendCodes,
                           metaDataVariableNames$ConnectivityChannelSideChannelFrontendCodes, metaDataVariableNames$ConnectivityChannelUpstreamFrontendCodes)){
           
+          crosstalkAnalyses <- calculateCrosstalkProportion(SelectedAllEvents = crosstalkData, antennaCodes = codes)
+          
+          
           crosstalkDF <- crosstalkDF %>%
             add_row(
               AntennaCodes = paste(codes, collapse = ", "), 
-              PercentageOfDetectionsWithSameTimestamp = calculateCrosstalkProportion(SelectedAllEvents = crosstalkData, antennaCodes = codes)
+              PercentageOfDetectionsWithSameTimestamp = crosstalkAnalyses$proportionOccurance
             )
+          
+          siteCode = unique(gsub("\\d", "", codes))
+          siteCodeVector <- append(siteCodeVector, siteCode)
+          
+          crosstalkIndividualList[[siteCode]] <- crosstalkAnalyses$siteCodeCrosstalk
+          
         }
         
-        return(crosstalkDF)
+        return(
+          list("summaryTable" = crosstalkDF,
+               "siteCodes" = siteCodeVector, 
+               "crosstalkIndividualList" = crosstalkIndividualList
+               )
+        )
       })
       
       output$crosstalkTable <- renderDT({
         datatable(
-          crosstalkData(),
+          crosstalkData()$summaryTable,
           rownames = FALSE,
           selection = "single",
           caption = "% of FISH detections on each antenna with the exact same timestamp. 

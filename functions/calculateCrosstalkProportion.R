@@ -9,6 +9,10 @@ calculateCrosstalkProportion <- function(SelectedAllEvents, antennaCodes){
     filter(grepl(",", antennas))
   
   proportionOccurance <- nrow(antennaCrosstalk)/nrow(antennaSpecificDetections)
+
   
-  return(proportionOccurance)
+  return(list(
+    "proportionOccurance" = proportionOccurance,
+    "siteCodeCrosstalk" = antennaCrosstalk
+  ))
 }
