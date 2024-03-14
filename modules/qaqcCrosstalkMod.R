@@ -121,18 +121,44 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
           appendTab(inputId = "tabset", 
                     tabPanel(
                       title = siteCode, 
-                      dataTableOutput(ns(paste0("dataTable_", siteCode)))
+                      br(), 
+                      withSpinner(dataTableOutput(ns(paste0("dataTable_", siteCode))))
                     )
           )
         }
         tabsCreated(TRUE)
       })
       
-      output$dataTable_RB <- renderDT({
-        datatable(
-          crosstalkData()[["crosstalkIndividualList"]][["RB"]]
-        )
-      })
+      observe({
+        for(siteCode in unique(crosstalkData()$siteCodes)){
+          print(siteCode)
+          print(crosstalkData()[["crosstalkIndividualList"]][[siteCode]])
+          output[[paste0("dataTable_", siteCode)]] <- renderDT({
+            datatable(
+              crosstalkData()[["crosstalkIndividualList"]][[siteCode]],
+              rownames = FALSE,
+              selection = "single",
+              caption = "% of FISH detections on each antenna with the exact same timestamp.
+          Detections in raw data may differ by milliseconds, but milliseconds are not used in the app data.",
+              options = list(
+                #statesave is restore table state on page reload
+                stateSave = TRUE,
+                pageLength = 10,
+                info = TRUE,
+                dom = 'tri',
+                #had to add 'lowercase L' letter to display the page length again
+                language = list(emptyTable = "Enter inputs and press Render Table")
+              )
+            )
+              #crosstalkData()[["crosstalkIndividualList"]][[siteCode]]
+            #)
+            #print(crosstalkData()[["crosstalkIndividualList"]][[siteCode]])
+          })
+          x <<- crosstalkData()[["crosstalkIndividualList"]]
+        }
+     })
+      
+      
     }
   )
 }

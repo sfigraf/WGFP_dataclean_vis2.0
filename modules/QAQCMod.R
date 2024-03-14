@@ -49,6 +49,7 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
     id,
     function(input, output, session) {
       
+      
       MarkerTagQAQC_Server("StationaryMarkerTags", Marker_Tag_data)
       MarkerTagQAQC_Server("BiomarkMarkerTags", Marker_Tag_data)
       
