@@ -17,17 +17,18 @@ qaqcCrosstalkMod_UI <- function(id, combinedData_df_list) {
       ),
       mainPanel(
         br(),
-        tabsetPanel(id = ns("tabset"), 
-        # tabsetPanel(
-          tabPanel(
-            "Summary Table",
-            box(
-              title = "Crosstalk Occurrance Percentage",
-              withSpinner(DT::dataTableOutput(ns("crosstalkTable"))),
-              footer = "May take a few seconds to load"
-            )
-          )
-        )
+        uiOutput(ns("tabset"))
+        # tabsetPanel(id = ns("tabset"), 
+        # # tabsetPanel(
+        #   tabPanel(
+        #     "Summary Table",
+        #     box(
+        #       title = "Crosstalk Occurrance Percentage",
+        #       withSpinner(DT::dataTableOutput(ns("crosstalkTable"))),
+        #       footer = "May take a few seconds to load"
+        #     )
+        #   )
+        # )
         #   ),
            # uiOutput(ns("individualTables"))
         # )
@@ -48,7 +49,7 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
                           metaDataVariableNames$ConfluenceFrontendCodes, metaDataVariableNames$ConnectivityChannelDownstreamFrontendCodes,
                           metaDataVariableNames$ConnectivityChannelSideChannelFrontendCodes, metaDataVariableNames$ConnectivityChannelUpstreamFrontendCodes)
       
-      crosstalkData <- eventReactive(input$crosstalkRenderButton, ignoreNULL = FALSE,{
+      crosstalkData <- observeEvent(input$crosstalkRenderButton, {
         
         crosstalkData <- combinedData_df_list$All_Events %>%
           filter(
@@ -91,72 +92,96 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
         )
       })
       
-      output$crosstalkTable <- renderDT({
-        datatable(
-          crosstalkData()$summaryTable,
-          rownames = FALSE,
-          selection = "single",
-          caption = "% of FISH detections on each antenna with the exact same timestamp.
-          Detections in raw data may differ by milliseconds, but milliseconds are not used in the app data.",
-          options = list(
-            #statesave is restore table state on page reload
-            stateSave = TRUE,
-            pageLength = 10,
-            info = TRUE,
-            dom = 'tri',
-            #had to add 'lowercase L' letter to display the page length again
-            language = list(emptyTable = "Enter inputs and press Render Table")
-          )
-        ) %>%
-          formatPercentage(c("PercentageOfDetectionsWithSameTimestamp"), 2)
-      })
+      # output$crosstalkTable <- renderDT({
+      #   datatable(
+      #     crosstalkData()$summaryTable,
+      #     rownames = FALSE,
+      #     selection = "single",
+      #     caption = "% of FISH detections on each antenna with the exact same timestamp.
+      #     Detections in raw data may differ by milliseconds, but milliseconds are not used in the app data.",
+      #     options = list(
+      #       #statesave is restore table state on page reload
+      #       stateSave = TRUE,
+      #       pageLength = 10,
+      #       info = TRUE,
+      #       dom = 'tri',
+      #       #had to add 'lowercase L' letter to display the page length again
+      #       language = list(emptyTable = "Enter inputs and press Render Table")
+      #     )
+      #   ) %>%
+      #     formatPercentage(c("PercentageOfDetectionsWithSameTimestamp"), 2)
+      # })
       
       #this is kind of a hacky way and i kidna hate it
       tabsCreated <- reactiveVal(FALSE)
-      observeEvent(!tabsCreated(), once = TRUE, {
-        #print(tabsCreated())
+      # observeEvent(!tabsCreated(), once = TRUE, {
+      #   #print(tabsCreated())
+      #   siteCodes <- unique(crosstalkData()$siteCodes)
+      #   # Generate tab panels for each site code
+      #   for (siteCode in siteCodes) {
+      #     appendTab(inputId = "tabset",
+      #               tabPanel(
+      #                 title = siteCode,
+      #                 br(),
+      #                 withSpinner(dataTableOutput(ns(paste0("dataTable_", siteCode))))
+      #               )
+      #     )
+      #   }
+      #   tabsCreated(TRUE)
+      # })
+      
+      output$tabset <- renderUI({
         siteCodes <- unique(crosstalkData()$siteCodes)
-        # Generate tab panels for each site code
-        for (siteCode in siteCodes) {
-          appendTab(inputId = "tabset", 
-                    tabPanel(
-                      title = siteCode, 
-                      br(), 
-                      withSpinner(dataTableOutput(ns(paste0("dataTable_", siteCode))))
-                    )
+        myTabs = lapply(siteCodes, function(tabName) {
+          tabPanel(
+            tabName,
+            dataTableOutput(ns(paste0("table_", tabName)))
           )
-        }
-        tabsCreated(TRUE)
+        })
+        do.call(tabsetPanel, myTabs)
       })
       
       observe({
-        for(siteCode in unique(crosstalkData()$siteCodes)){
-          print(siteCode)
-          print(crosstalkData()[["crosstalkIndividualList"]][[siteCode]])
-          output[[paste0("dataTable_", siteCode)]] <- renderDT({
-            datatable(
-              crosstalkData()[["crosstalkIndividualList"]][[siteCode]],
-              rownames = FALSE,
-              selection = "single",
-              caption = "% of FISH detections on each antenna with the exact same timestamp.
-          Detections in raw data may differ by milliseconds, but milliseconds are not used in the app data.",
-              options = list(
-                #statesave is restore table state on page reload
-                stateSave = TRUE,
-                pageLength = 10,
-                info = TRUE,
-                dom = 'tri',
-                #had to add 'lowercase L' letter to display the page length again
-                language = list(emptyTable = "Enter inputs and press Render Table")
-              )
-            )
-              #crosstalkData()[["crosstalkIndividualList"]][[siteCode]]
-            #)
-            #print(crosstalkData()[["crosstalkIndividualList"]][[siteCode]])
+        siteCodes <- unique(crosstalkData()$siteCodes)
+        for (i in siteCodes) {
+          #print(crosstalkData()[["crosstalkIndividualList"]][[i]])
+          data <- crosstalkData()[["crosstalkIndividualList"]][[i]]
+          print(data)
+          output[[paste0("table_", i)]] <- renderDataTable({
+            # Replace with your own data for each table
+            
+              
+            
+            print(data)
+            datatable(data)
           })
-          x <<- crosstalkData()[["crosstalkIndividualList"]]
         }
-     })
+      })
+      
+      # observe({
+      #   siteCodes <- unique(crosstalkData()$siteCodes)
+      #   
+      #   for(siteCode in siteCodes) {
+      #     print(crosstalkData()[["crosstalkIndividualList"]][[siteCode]])
+      #     output[[paste0("dataTable_", siteCode)]] <- renderDT({
+      #       datatable(
+      #         crosstalkData()[["crosstalkIndividualList"]][[siteCode]]
+      #         # rownames = FALSE,
+      #         # selection = "single",
+      #         # caption = "% of FISH detections on each antenna with the exact same timestamp. Detections in raw data may differ by milliseconds, but milliseconds are not used in the app data.",
+      #         # options = list(
+      #         #   stateSave = TRUE,
+      #         #   pageLength = 10,
+      #         #   info = TRUE,
+      #         #   dom = 'tri',
+      #         #   language = list(emptyTable = "Enter inputs and press Render Table")
+      #         # )
+      #       )
+      #       
+      #     })
+      #   }
+      # })
+      
       
       
     }
