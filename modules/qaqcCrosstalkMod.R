@@ -145,21 +145,37 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
       #   tabsCreated(TRUE)
       # })
         
-
+      
+      # output$tabset <- renderUI({
+      #   # req(!is.null(values))
+      #   siteCodes <- unique(values$crosstalkData$siteCodes)
+      #   myTabs = lapply(siteCodes, function(tabName) {
+      #     tabPanel(
+      #       tabName,
+      #       dataTableOutput(ns(paste0("table_", tabName)))
+      #     )
+      #   })
+      #   do.call(tabsetPanel, myTabs)
+      # })
       observe({ #observeEvent(input$crosstalkRenderButton, ignoreNULL = FALSE, 
+
         siteCodes <- unique(values$crosstalkData$siteCodes)
         print(paste("site codes", siteCodes))
         for (i in siteCodes) {
+          local({
+            
+          local_i = i
           #print(crosstalkData()[["crosstalkIndividualList"]][[i]])
-          local_i <- local(i)  # Create a local copy of i
+           # Create a local copy of i
           data <- values[["crosstalkData"]][["crosstalkIndividualList"]][[local_i]]
           
           #print(data)
-          output[[paste0("table_", i)]] <- renderDataTable({
+          output[[paste0("table_", local_i)]] <- renderDataTable({
             # Replace with your own data for each table
             print(local_i)
             # print(data)
             datatable(data)
+          })
           })
           #x <<- values$crosstalkData
         }
