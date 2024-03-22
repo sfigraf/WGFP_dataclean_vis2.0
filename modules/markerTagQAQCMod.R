@@ -34,9 +34,9 @@ MarkerTagQAQC_UI <- function(id, Marker_Tag_data) {
         ), #end of picker 9 
         sliderInput(ns("slider3"),
                     "Date",
-                    min = min(Marker_Tag_data$Scan_Date -1),
-                    max = max(Marker_Tag_data$Scan_Date +1),  
-                    value = c(max(Marker_Tag_data$Scan_Date - 30), max(Marker_Tag_data$Scan_Date +1)),
+                    min = min(Marker_Tag_data$Scan_Date - 1),
+                    max = max(Marker_Tag_data$Scan_Date + 1),  
+                    value = c(max(Marker_Tag_data$Scan_Date - 30), max(Marker_Tag_data$Scan_Date + 1 )),
                     step = 1,
                     timeFormat = "%d %b %y",
                     #animate = animationOptions(interval = 500, loop = FALSE)

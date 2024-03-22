@@ -1,4 +1,4 @@
-QAQC_UI <- function(id, Marker_Tag_data) {
+QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
   ns <- NS(id)
   tagList(
     tabsetPanel(
@@ -35,19 +35,23 @@ QAQC_UI <- function(id, Marker_Tag_data) {
       tabPanel("Ghost Tag Movements",
                br(),
                withSpinner(DT::dataTableOutput(ns("ghostTags1")))
-      )#end of tab panel#end of tab panel
+      ), 
+      tabPanel("Crosstalk QAQC",
+               qaqcCrosstalkMod_UI(ns("qaqcCrosstalk"), combinedData_df_list)
+      )
     )#end of tabset Panel 
   )
 }
 
-QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_tags, ghostTagsWithMovementAfterGhostDate) {
+QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_tags, ghostTagsWithMovementAfterGhostDate, 
+                        combinedData_df_list, metaDataVariableNames) {
   moduleServer(
     id,
     function(input, output, session) {
       
+      
       MarkerTagQAQC_Server("StationaryMarkerTags", Marker_Tag_data)
       MarkerTagQAQC_Server("BiomarkMarkerTags", Marker_Tag_data)
-      
       
       
       # Release and Recap Data L/W Plot Output --------------------------------------------
@@ -100,6 +104,11 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
                   )
         ) 
       })
+      
+      ######
+      qaqcCrosstalkMod_Server("qaqcCrosstalk", combinedData_df_list, metaDataVariableNames)
+      
+        
     }
   )
 }
