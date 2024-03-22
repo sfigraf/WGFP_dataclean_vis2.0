@@ -44,25 +44,29 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
       
       ns <- session$ns
       #x <<- session
-      values <- reactiveValues()
+      #values <- reactiveValues()
       
       siteCodesList <- list(metaDataVariableNames$RedBarnFrontendCodes, metaDataVariableNames$HitchingPostFrontendCodes,
                           metaDataVariableNames$ConfluenceFrontendCodes, 
                           metaDataVariableNames$ConnectivityChannelSideChannelFrontendCodes, metaDataVariableNames$ConnectivityChannelUpstreamFrontendCodes, 
                           metaDataVariableNames$ConnectivityChannelDownstreamFrontendCodes)
+      
       output$tabset <- renderUI({
         # req(!is.null(values))
-        siteCodes <- unique(values$crosstalkData$siteCodes)
+        siteCodes <- unique(crosstalkData()$siteCodes)
         myTabs = lapply(siteCodes, function(tabName) {
           tabPanel(
             tabName,
             dataTableOutput(ns(paste0("table_", tabName)))
           )
         })
+        #tabsetPanel(
+          #id = "myTabset", 
         do.call(tabsetPanel, myTabs)
+        
       })
       
-      observeEvent(input$crosstalkRenderButton, ignoreNULL = FALSE,{
+      crosstalkData <- eventReactive(input$crosstalkRenderButton, ignoreNULL = FALSE,{
         
         crosstalkData <- combinedData_df_list$All_Events %>%
           filter(
@@ -97,14 +101,12 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
           
         }
         
-        #return(
-        print(paste("SC Vector:", siteCodeVector))
-         values$crosstalkData <- list("summaryTable" = crosstalkDF,
+        return(
+          list("summaryTable" = crosstalkDF,
                "siteCodes" = siteCodeVector, 
                "crosstalkIndividualList" = crosstalkIndividualList
-               )
-        #)
-         
+          )
+        )
       })
       
       # output$crosstalkTable <- renderDT({
@@ -126,6 +128,9 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
       #   ) %>%
       #     formatPercentage(c("PercentageOfDetectionsWithSameTimestamp"), 2)
       # })
+      # observe({
+      #   prependTab()
+      # })
       
       #this is kind of a hacky way and i kidna hate it
       #tabsCreated <- reactiveVal(FALSE)
@@ -144,40 +149,25 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
       #   }
       #   tabsCreated(TRUE)
       # })
-        
-      
-      # output$tabset <- renderUI({
-      #   # req(!is.null(values))
-      #   siteCodes <- unique(values$crosstalkData$siteCodes)
-      #   myTabs = lapply(siteCodes, function(tabName) {
-      #     tabPanel(
-      #       tabName,
-      #       dataTableOutput(ns(paste0("table_", tabName)))
-      #     )
-      #   })
-      #   do.call(tabsetPanel, myTabs)
-      # })
-      observe({ #observeEvent(input$crosstalkRenderButton, ignoreNULL = FALSE, 
 
-        siteCodes <- unique(values$crosstalkData$siteCodes)
-        print(paste("site codes", siteCodes))
+      observe({
+
+        siteCodes <- unique(crosstalkData()$siteCodes)
+        #print(paste("site codes", siteCodes))
         for (i in siteCodes) {
           local({
             
           local_i = i
-          #print(crosstalkData()[["crosstalkIndividualList"]][[i]])
-           # Create a local copy of i
-          data <- values[["crosstalkData"]][["crosstalkIndividualList"]][[local_i]]
+
+          data <- crosstalkData()[["crosstalkIndividualList"]][[local_i]]
           
           #print(data)
           output[[paste0("table_", local_i)]] <- renderDataTable({
             # Replace with your own data for each table
             print(local_i)
-            # print(data)
             datatable(data)
           })
           })
-          #x <<- values$crosstalkData
         }
       })
       
