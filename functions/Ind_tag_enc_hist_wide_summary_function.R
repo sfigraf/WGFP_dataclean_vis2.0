@@ -1,121 +1,95 @@
-#### ENC HIST summary table function
+# #### ENC HIST summary table function
 # allDetectionsAndRecaptures <- df_list$Recaps_detections
 # Release <- Release
+# markerTags = unique(Cleaned_Marker_tags$TAG)
 # combined_events_stations <- combined_events_stations #resulting df from combined_events and stations function
-# States_summarized <- states_summarized
+# States_summarized <- states_data_list$States_summarized
 #recaps and all detreitons comes from WGFP ENC_hist_function, release data is a read_in csv, all_events_condensed with stations comes from combine_stations_events function
 Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, Release, combined_events_stations, States_summarized, markerTags){
   
   start_time <- Sys.time()
   print("Running Ind_tag_enc_hist_wide_summary_function: Summarizes detection and movement data from each released Tag.")
   
-  all_enc12 <- allDetectionsAndRecaptures %>%
-    count(TAG, Event, name = "Encounters") 
+  allEncountersWide <- allDetectionsAndRecaptures %>%
+    count(TAG, Event, name = "Encounters") %>%
+    pivot_wider(id_cols = TAG, names_from = Event, values_from = Encounters) %>%
+    rename_with(~ paste0(., "_n"), -TAG) 
   
-  all_enc12 <- pivot_wider(data = all_enc12, id_cols = TAG, names_from = Event, values_from = Encounters)
-  
-  x <- all_enc12 %>%
-    replace_na(list(Species = "No Info", ReleaseSite = "No Info"))
-  
-  ENC_ALL <- all_enc12 %>%
-    rename(RB1_n = RB1,
-           RB2_n = RB2,
-           HP3_n = HP3,
-           HP4_n = HP4,
-           CF5_n = CF5,
-           CF6_n = CF6,
-           CD1_n = CD1,
-           CD2_n = CD2,
-           CS1_n = CS1,
-           CS2_n = CS2,
-           CU1_n = CU1,
-           CU2_n = CU2,
-           M1_n = M1,
-           M2_n = M2,
-           B3_n = B3,
-           B4_n = B4,
-           B5_n = B5,
-           B6_n = B6,
-           Recap_n = Recapture
-    ) %>%
-    select(TAG, RB1_n,RB2_n,HP3_n, HP4_n, CF5_n, CF6_n, CD1_n, CD2_n, CS1_n, CS2_n, CU1_n, CU2_n, M1_n, M2_n, B3_n, B4_n, B5_n, B6_n, Recap_n)
-  
+  #column order is just nice to have for the user
+  columnOrder <- c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes, ConnectivityChannelUpstreamFrontendCodes, 
+                   MobileRunFrontendCodes, WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode, GranbyDiversionAntennaFrontendSiteCode, RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode)
+  allEncountersWideOrdered <- allEncountersWide %>%
+    select(TAG, one_of(paste0(columnOrder, "_n")), Recapture_n)
+
   
   #### Combine Release data ###
-  Release1 <- Release %>%
-    rename(TAG = TagID) %>%
-    mutate(TAG = str_trim(TAG)) %>%
+  releasePreparedForJoin <- Release %>%
+    mutate(TAG = str_trim(TagID)) %>%
     replace_na(list(Species = "No Info", ReleaseSite = "No Info")) #replaced species and releasesite to follow the same convention as AllEvents
   
   # was geting a massive dataframe because the Release df is called TAGid not TAG.
   #need to actually join on full join not merge
-  ENC_Release <- full_join(Release1, ENC_ALL,  by = "TAG")
+  encountersAndRelease <- full_join(releasePreparedForJoin, allEncountersWideOrdered,  by = "TAG")
   
   #gets tag list that wasn't in release file or markerTags
-  unknown_tags <- ENC_Release %>%
+  unknown_tags <- encountersAndRelease %>%
     filter(is.na(ReleaseSite), 
            !TAG %in% markerTags) %>%
     select(TAG,where(is.numeric))
   
-  
-  #ENC_Release11$TAG[3433:nrow(ENC_Release11)]
-  ENC_Release[is.na(ENC_Release)]=0 #gets rest of the number count columns to 0 from NA
+  #gets rest of the number count columns to 0 from NA
+  encountersAndRelease[is.na(encountersAndRelease)] = 0 
   
   #### Make 1 or 0 for encounter history rather than counts ###
   #gets df with TF of whether a fish was detected at a antenna
-  ENC_Release1 <- ENC_Release %>%
-    mutate(RB1 = (RB1_n >0),
-           RB2 = (RB2_n >0),
-           HP3 = (HP3_n >0),
-           HP4 = (HP4_n >0),
-           CF5 = (CF5_n >0),
-           CF6 = (CF6_n >0),
-           CD1 = (CD1_n >0),
-           CD2 = (CD2_n >0),
-           CS1 = (CS1_n >0),
-           CS2 = (CS2_n >0),
-           CU1 = (CU1_n >0),
-           CU2 = (CU2_n >0),
-           M1 = (M1_n >0),
-           M2 = (M2_n >0),
-           B3 = (B3_n >0),
-           B4 = (B4_n>0),
-           B5 = (B5_n >0),
-           B6 = (B6_n>0),
-           Recapture = (Recap_n > 0))
-  
+  encountersAndReleasePreparedForRowSums <- encountersAndRelease %>%
+    #applies the mutation logic to all columns that end with "_n". 
+    #It checks if each value is greater than 0 
+    #creates a new column with the name obtained by removing "_n" from the original column name.
+    mutate(across(ends_with("_n"), ~ (. > 0), .names = "{sub('_n', '', .col)}"))
   
   #summary stats of each antenna encounter
-  #a little precariously built because Row numbers are used
-  #but also has release data
-  totalcols <- ncol(ENC_Release1)
   
-  ENC_Release2 <- ENC_Release1 %>%
-    #counts number of TRUE across specified rows. -SG
-    # need to have parentheses (totalcols-1) that's why i was getting bad numbers on biomark T/F initially
-    #added 8 new columns for new antennas
+  encountersAndReleaseRowsums <- encountersAndReleasePreparedForRowSums %>%
+    #counts number of TRUE across rows specified by antenna codes. -SG
     mutate(
-      TotalEncounters = rowSums(ENC_Release1[(totalcols-18):totalcols] == TRUE),
-      TotalAntennas1 = rowSums(ENC_Release1[(totalcols-18):(totalcols-1)] == TRUE),
-      TotalStationary = rowSums(ENC_Release1[(totalcols-18):(totalcols-7)] == TRUE),
-      TotalMobile = rowSums(ENC_Release1[(totalcols-6):(totalcols-5)] == TRUE),
-      TotalBiomark = rowSums(ENC_Release1[(totalcols-4):(totalcols-1)] == TRUE),
-      TotalRB = rowSums(ENC_Release1[(totalcols-18):(totalcols-17)] == TRUE),
-      TotalHP = rowSums(ENC_Release1[(totalcols-16):(totalcols-15)] == TRUE),
-      TotalCF = rowSums(ENC_Release1[(totalcols-14):(totalcols-13)] == TRUE),
-      TotalCD = rowSums(ENC_Release1[(totalcols-12):(totalcols-9)] == TRUE),
-      TotalCU = rowSums(ENC_Release1[(totalcols-8):(totalcols-7)] == TRUE),
+      TotalEncounters = rowSums(select(., all_of(c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, 
+                                                   ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes,
+                                                   ConnectivityChannelUpstreamFrontendCodes, MobileRunFrontendCodes, 
+                                                   WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode, GranbyDiversionAntennaFrontendSiteCode,
+                                                   RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode, "Recapture"))) == TRUE),
+      TotalAntennas = rowSums(select(., all_of(c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, 
+                                                 ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes,
+                                                 ConnectivityChannelUpstreamFrontendCodes, MobileRunFrontendCodes, 
+                                                 WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode,
+                                                 GranbyDiversionAntennaFrontendSiteCode,
+                                                 RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode))) == TRUE),
+      TotalStationary = rowSums(select(., all_of(c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, 
+                                                   ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes,
+                                                   ConnectivityChannelUpstreamFrontendCodes))) == TRUE),
+      
+      TotalMobile = rowSums(select(.,  all_of(MobileRunFrontendCodes)) == TRUE),
+      TotalBiomark = rowSums(select(., all_of(c(WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode,
+                                                GranbyDiversionAntennaFrontendSiteCode,
+                                                RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode))) == TRUE),
+      TotalRedBarn =rowSums(select(.,  all_of(RedBarnFrontendCodes)) == TRUE),
+      TotalHitchingPost = rowSums(select(.,  all_of(HitchingPostFrontendCodes)) == TRUE),
+      TotalConfluence = rowSums(select(.,  all_of(ConfluenceFrontendCodes)) == TRUE),
+      TotalConnectivityDownstream = rowSums(select(., all_of(ConnectivityChannelDownstreamFrontendCodes)) == TRUE),
+      TotalConnectivitySideChannel = rowSums(select(., all_of(ConnectivityChannelSideChannelFrontendCodes)) == TRUE),
+      TotalConnectivityUpstream = rowSums(select(., all_of(ConnectivityChannelUpstreamFrontendCodes)) == TRUE)
     ) %>%
     # just says if the fish was ever detected at these sites
-    mutate(RB = (RB1_n > 0 | RB2_n >0),
-           HP = (HP3_n > 0 | HP4_n >0),
-           CF = (CF5_n > 0 | CF6_n >0),
-           CD = (CD1_n > 0 | CD2_n >0),
-           CS = (CS1_n > 0 | CS2_n >0),
-           CU = (CU1_n > 0 | CU2_n >0),
-           Biomark = (B3_n > 0 | B4_n >0 | B5_n > 0 | B6_n >0),
-           Mobile = (M1_n > 0 | M2_n >0)) %>%
-    filter(!UTM_X %in% c(0, NA)) # one way to filter out tags that don't have any sort of release data; usually if they're entered in release file then they have UTM's
+    mutate(RedBarn = TotalRedBarn > 0,
+           HitchingPost = TotalHitchingPost > 0,
+           Confluence = TotalConfluence > 0,
+           ConnectivityDownstream = TotalConnectivityDownstream > 0,
+           ConnectivitySideChannel = TotalConnectivitySideChannel > 0,
+           ConnectivityUpstream = TotalConnectivityUpstream > 0,
+           Biomark = TotalBiomark > 0,
+           Mobile = TotalMobile > 0
+    ) %>%
+    filter(TAG %in% unique(releasePreparedForJoin$TAG)) 
   
   ###Bringing in Station data with info about ABOVE/BELOW dam for joining
   ### the release data isn't being brought in well; The tags aren't being brought in as full numbers, so when the release data is joined,
@@ -126,33 +100,36 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   # trying to go based on movements
   ### thinking of disbanding this and doing the same process but with the states in order to say if fish went above/below
   
-  above_below_counts <- combined_events_stations %>%
+  throughDamInfo <- combined_events_stations %>%
+    group_by(TAG) %>%
+    summarize(through_dam = if_else(all(above_below == "Above the Dam"), "Stayed Above the Dam", 
+                                             if_else(all(above_below == "Below the Dam"), "Stayed Below the Dam",
+                                                     "Went through dam or Connectivity Channel")))
+  
+  aboveAndBelowInfo <- combined_events_stations %>%
     count(TAG, det_type, above_below, name = "Encounters") %>%
     mutate(combined_event = paste(det_type, above_below),
            EncountersTF = ifelse(Encounters > 0, 
                                  TRUE,
                                  FALSE))
   
-  above_below_counts1 <- pivot_wider(data = above_below_counts, id_cols = TAG, names_from = combined_event, values_from = EncountersTF)
-  above_below_counts2 <- above_below_counts1 %>%
+  aboveAndBelowInfo1 <- pivot_wider(data = aboveAndBelowInfo, id_cols = TAG, names_from = combined_event, values_from = EncountersTF)
+  aboveAndBelowInfoRecapsAndMobile <- aboveAndBelowInfo1 %>%
     select(TAG, `Release Above the Dam`, `Release Below the Dam`,`Recapture Above the Dam`,`Recapture Below the Dam`,`Recapture and Release Above the Dam`,`Recapture and Release Below the Dam`, `Mobile Run Above the Dam`, `Mobile Run Below the Dam`)
   #turns all the NA's made to FALSE
-  above_below_counts2[is.na(above_below_counts2)] = FALSE
+  aboveAndBelowInfoRecapsAndMobile[is.na(aboveAndBelowInfoRecapsAndMobile)] = FALSE
 
-  ENC_Release3 <- left_join(ENC_Release2, above_below_counts2, by = "TAG")
+  encountersAndRelease3 <- encountersAndReleaseRowsums %>%
+    left_join(aboveAndBelowInfoRecapsAndMobile, by = "TAG")
   ### need to figure out how connectivity channel fits into this part?
-  ENC_Release4 <- ENC_Release3 %>%
-    mutate(through_dam = case_when(
-      (RB1|RB2|HP3|HP4|B3|`Release Below the Dam`|`Recapture Below the Dam`|`Recapture and Release Below the Dam`|`Mobile Run Below the Dam`) == TRUE & (CF5|CF6|B4|B5|B6|`Release Above the Dam`|`Recapture Above the Dam`|`Recapture and Release Above the Dam`|`Mobile Run Above the Dam`) == TRUE ~ "Went through dam",
-      (RB1|RB2|HP3|HP4|B3|`Release Below the Dam`|`Recapture Below the Dam`|`Recapture and Release Below the Dam`|`Mobile Run Below the Dam`) == TRUE & (CF5&CF6&B4&B5&B6&`Release Above the Dam`&`Recapture Above the Dam`&`Recapture and Release Above the Dam`&`Mobile Run Above the Dam`) == FALSE ~ "Stayed Below the Dam",
-      (RB1&RB2&HP3&HP4&B3&`Release Below the Dam`&`Recapture Below the Dam`&`Recapture and Release Below the Dam`&`Mobile Run Below the Dam`) == FALSE & (CF5|CF6|B4|B5|B6|`Release Above the Dam`|`Recapture Above the Dam`|`Recapture and Release Above the Dam`|`Mobile Run Above the Dam`) == TRUE ~ "Stayed Above the Dam",
-      
-    ))
-  # left joining states summary to enc_release
-  ENC_Release5 <- left_join(ENC_Release4, States_summarized, by = "TAG")
+  #currently counts the connectivity channel as going "through the dam" 
+  encountersAndRelease4 <- encountersAndRelease3 %>%
+    left_join(throughDamInfo, by = "TAG")
+  # left joining states summary to encountersAndRelease
+  encountersAndRelease5 <- left_join(encountersAndRelease4, States_summarized, by = "TAG")
   #rearranging so that Tag is first column shown
-  ENC_Release5<- ENC_Release5 %>%
-    select(TAG, 1:ncol(ENC_Release5))
+  encountersAndRelease5 <- encountersAndRelease5 %>%
+    select(TAG, 1:ncol(encountersAndRelease5))
   ###joining on column with sum data
   #same code appears in movements function
   sum_dist1 <- combined_events_stations %>%
@@ -164,21 +141,19 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
     distinct(TAG, .keep_all = TRUE) %>%
     select(TAG, sum_dist)
   
-  ENC_Release6 <- ENC_Release5 %>%
+  encountersAndRelease6 <- encountersAndRelease5 %>%
     left_join(sum_dist1, by = "TAG") %>%
     mutate(Date = ifelse(str_detect(Date, "/"),
                          as.character(mdy(Date)),
                          Date))
   
   #### dummy rows removal: 1/14/23
-  ENC_Release6 <- ENC_Release6 %>%
+  encountersAndRelease6 <- encountersAndRelease6 %>%
     filter(!TAG %in% c("230000999999"))
   
   
-  
-  
   enc_wide_list <- list(
-    "ENC_Release_wide_summary" = ENC_Release6, "Unknown_Tags" = unknown_tags
+    "encountersAndRelease_wide_summary" = encountersAndRelease6, "Unknown_Tags" = unknown_tags
   )
   
   end_time <- Sys.time()

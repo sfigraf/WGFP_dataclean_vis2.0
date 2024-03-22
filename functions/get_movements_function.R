@@ -1,6 +1,4 @@
 
-# the EVENT field is not super helpful here; for most it doesn't matter if it hit RB1 or RB2; can be misleading; maybe omit it? same idea for states DF
-library(PBSmapping)
 get_movements_function <- function(combined_events_stations) {
   start_time <- Sys.time()
   print("Running get_movements_function: Calculates movements of fish based off a change in station.")
@@ -18,13 +16,13 @@ get_movements_function <- function(combined_events_stations) {
     #if previous station is above the confluence and current station is above the confluence and you changed rivers, 
     #then take the previous station and subtract the confluence station to get distance travelled to the confluence (A), then subtract the new station minus confluence station to get distance travelled up the new river (B). Then add A + B to get total distance
     # otherwise, just subtract current station from previous
-    mutate(dist_moved = case_when(lag(ET_STATION, order_by = Datetime) > FraserColoradoRiverConfluence & ET_STATION >FraserColoradoRiverConfluence & River != lag(River, order_by = Datetime) ~ (lag(ET_STATION, order_by = Datetime) - FraserColoradoRiverConfluence) + (ET_STATION-FraserColoradoRiverConfluence),
+    mutate(dist_moved = case_when(lag(ET_STATION, order_by = Datetime) > fraserColoradoRiverConfluence & ET_STATION > fraserColoradoRiverConfluence & River != lag(River, order_by = Datetime) ~ (lag(ET_STATION, order_by = Datetime) - fraserColoradoRiverConfluence) + (ET_STATION - fraserColoradoRiverConfluence),
                                   TRUE ~ ET_STATION - lag(ET_STATION, order_by = Datetime)
                                   ),
            sum_dist = (sum(abs(dist_moved), na.rm = TRUE)),
            
            
-           movement_only = case_when(lag(ET_STATION, order_by = Datetime) > FraserColoradoRiverConfluence & ET_STATION >FraserColoradoRiverConfluence & River != lag(River, order_by = Datetime) ~ "Changed Rivers",
+           movement_only = case_when(lag(ET_STATION, order_by = Datetime) > fraserColoradoRiverConfluence & ET_STATION > fraserColoradoRiverConfluence & River != lag(River, order_by = Datetime) ~ "Changed Rivers",
                                      Event %in% c("Release", "Recapture and Release")  ~ "Initial Release",
                                      dist_moved == 0 ~ "No Movement",
                                      dist_moved > 0 ~ "Upstream Movement",
@@ -46,29 +44,30 @@ get_movements_function <- function(combined_events_stations) {
                                   str_detect(det_type, "Mobile Run") ~ "purple",
                                   det_type %in% c("Release", "Recapture and Release") ~ "blue",
                                   det_type == "Recapture" ~ "brown",
-           ),
-           X = as.numeric(UTM_X),
-           Y = as.numeric(UTM_Y)
-    ) #end of mutate
+           )
+    ) %>%
+  distinct(Date, TAG, det_type, movement_only, UTM_X, UTM_Y, .keep_all = TRUE)  #end of mutate
     
-  # assigning projection to ready df lat/longs for plotting
-  attr(movement_table_notrans, "zone") = "13"
-  attr(movement_table_notrans, "projection") = "UTM"
-  attr(movement_table_notrans, "datum") = "GRS80"
+  #######get lat/longs for plotting with leaflet
+  #convert events to sf object
+  #the utms are grs80 and utm zone 13, which corresponds to crs  32613
+  movement_table_notransSF <- sf::st_as_sf(movement_table_notrans, coords = c("UTM_X", "UTM_Y"), crs = 32613, remove = FALSE)
+  #convert to lat/long
+  movement_table_notransSFLatLong <- sf::st_transform(movement_table_notransSF, latLongCRS)
   
-  # need a column that has x and Y for this 
-  # converts lutms to lat/long
-  movement_table_notrans <- convUL(movement_table_notrans, km=FALSE, southern=NULL)
+  coordinates <- st_coordinates(movement_table_notransSFLatLong)
+  
+  # Convert the coordinates to a data frame
+  coordinatesDf <- as.data.frame(coordinates)
+  # # Extract the lat/long coordinates
+  movement_table_notransSFLatLong$X <- coordinatesDf$X
+  movement_table_notransSFLatLong$Y <- coordinatesDf$Y
+  
   #as of now, movement table still has rows reminiscent from first_last etc which are helpful when you want to know where it ended the day and stuff.
   #but if you want to know concise movments, then this will eliminate uneeded rows
   #example: 230000142723
-  movement_table_notrans1 <- movement_table_notrans %>%
-    distinct(Date, TAG, det_type, movement_only, UTM_X, UTM_Y, .keep_all = TRUE) %>%
+  movement_table_notrans1 <- as.data.frame(movement_table_notransSFLatLong) %>%
     select(Date, Datetime, TAG, movement_only, det_type, dist_moved, sum_dist, ET_STATION, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, UTM_X, UTM_Y, X, Y, marker_color, icon_color)
-  
-  #giving id column to make map proxy easier
-  # actually the id column needs to be remade every time a filter is applied. See the movements_df_reactives 
-  #movement_table_notrans1$id <- seq.int(nrow(movement_table_notrans1))
   
   end_time <- Sys.time()
   print(paste("Movements Function took", round(end_time-start_time,2), "Seconds"))
@@ -76,4 +75,3 @@ get_movements_function <- function(combined_events_stations) {
   return(movement_table_notrans1)
 }
 
-#mvts <- get_movements_function(combined_events_stations)
