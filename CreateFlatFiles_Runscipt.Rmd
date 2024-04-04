@@ -9,6 +9,8 @@ output: html_document
 library(tidyverse) 
 library(lubridate)
 library(readxl)
+library(dataRetrieval) #this is the usgs pacakge for getting instantanous data
+
 whole_doc_startTime <- Sys.time()
 start_time <- Sys.time()
 print("Reading in Stationary, Mobile, Biomark, Release, and Recapture csv files.....")
@@ -56,9 +58,32 @@ wgfpMetadata <- lapply(excel_sheets("./data/WGFP Metadata.xlsx"), function(x)
 )
 names(wgfpMetadata) <- excel_sheets("./data/WGFP Metadata.xlsx")
 
+###Pressure transducer Data
+pTList <- list()
+
+for (file in list.files("data/PressureTransducer")) {
+  filereadin <- read_csv(file.path("data/PressureTransducer/", file))
+  filename <- unique(filereadin$Site)
+  pTList[[filename]] <- filereadin
+}
+
+#reading in USGS data with upt to date data
+siteNo <- "09034250" #code for windy gap
+pCode <- "00060" #this is parameter code for discharge; more can be added if needed
+start.date <- "2020-08-06" #if you want to do times it is this format: "2014-10-10T00:00Z", "2014-10-10T23:59Z"
+end.date <- Sys.Date()
+timeZone =  "America/Denver"
+windyGap <- readNWISuv(siteNumbers = siteNo,
+                       parameterCd = pCode,
+                       startDate = start.date,
+                       endDate = end.date, 
+                       tz = timeZone)
+
 end_time = Sys.time()
 print(paste("Reading in files took", round((end_time-start_time),2)))
 ```
+
+
 
 ```{r QAQCduplicateTags, include = TRUE, echo = FALSE}
 #checking if ghost tags have 1 tag entry for each
