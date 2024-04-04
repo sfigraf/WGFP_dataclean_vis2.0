@@ -19,7 +19,7 @@ qaqcCrosstalkMod_UI <- function(id, combinedData_df_list) {
                     tabPanel(
                       "Summary Table",
                       box(
-                        title = "Crosstalk Occurrance Percentage",
+                        title = "Crosstalk Occurrence Percentage",
                         withSpinner(DT::dataTableOutput(ns("crosstalkTable"))),
                         footer = "May take a few seconds to load"
                       )
@@ -55,7 +55,7 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
                     tabPanel(
                       title = siteCode, 
                       box(
-                        title = paste("Crosstalk Occurrances Between ", input$crosstalkDateSlider[1],  "and", input$crosstalkDateSlider[2]),
+                        title = paste("Crosstalk Occurrences Between ", input$crosstalkDateSlider[1],  "and", input$crosstalkDateSlider[2]),
                         withSpinner(dataTableOutput(ns(paste0("dataTable_", siteCode)))),
                         footer = "May take a few seconds to load"
                       )
@@ -117,7 +117,7 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
           options = list(
             #statesave is restore table state on page reload
             stateSave = TRUE,
-            pageLength = 10,
+            pageLength = 100,
             info = TRUE,
             dom = 'tri',
             #had to add 'lowercase L' letter to display the page length again
@@ -147,7 +147,7 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
                   stateSave = TRUE,
                   pageLength = 10,
                   info = TRUE,
-                  dom = 'tri',
+                  dom = 'ltri',
                   #had to add 'lowercase L' letter to display the page length again
                   language = list(emptyTable = "Enter inputs and press Render Table")
                 )
