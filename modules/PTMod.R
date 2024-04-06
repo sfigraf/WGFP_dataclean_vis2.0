@@ -16,34 +16,24 @@ PT_UI <- function(id, PTData) {
                                label = "Variable to Plot",
                                choices = colnames(PTData)[grepl("_", colnames(PTData))],
                                selected = colnames(PTData)[grepl("_", colnames(PTData))][1],
-                               ), 
+                   ), 
                    sliderInput(ns("dateSlider"), "Date",
                                min = min(lubridate::date(PTData$DateTime) -1),
                                max = max(lubridate::date(PTData$DateTime) +1),  
                                value = c(min(lubridate::date(PTData$DateTime) -1), max(lubridate::date(PTData$DateTime) +1)),
                                step = 1,
-                               timeFormat = "%d %b %y",
-                               #animate = animationOptions(interval = 500, loop = FALSE)
-                   ),
-                   #want to make a date range input here
-
+                               timeFormat = "%d %b %y"
+                   )
       ),
       mainPanel(width = 10,
-        tabsetPanel(
-          #tabPanel("PT Data",
-        #                      br(),
-        #                      
-        # ),
-        tabPanel("PT Data Plot",
-                 box(
-                   width = 10,
-                   withSpinner(plotlyOutput(ns("PTPlot")))
-                 )
-                 
-                 #withSpinner(DT::dataTableOutput(ns("allevents1"))),
-        )
-        )#end of tabset panel
-
+                tabsetPanel(
+                  tabPanel("PT Data Plot",
+                           box(
+                             width = 10,
+                             withSpinner(plotlyOutput(ns("PTPlot")))
+                           )
+                  )
+                )#end of tabset panel
       )
     )
   )
