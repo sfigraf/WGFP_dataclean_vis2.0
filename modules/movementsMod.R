@@ -405,7 +405,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
         observe({
         #daily
         output$plot1 <- renderPlotly({
-          plot <- filtered_movements_data() %>%
+          filtered_movements_data() %>%
             ggplot(aes(x = Date, fill = movement_only,
                        text = paste('Date: ', as.character(Date), '\n'))
             ) +
@@ -418,7 +418,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
                                          "No Movement" = "black",
                                          "Initial Release" = "darkorange",
                                          "Changed Rivers" = "purple"))
-          #ggplotly(plot)
+          
           
         })
         output$plot6 <- renderPlotly({
