@@ -70,26 +70,28 @@ for (file in list.files("data/PressureTransducer")) {
 allPressureTransducerData <- bind_rows(pTList) %>%
   mutate(DateTime = lubridate::mdy_hm(DateTime))
 
-#reading in USGS data with upt to date data
-siteNo <- "09034250" #code for windy gap
-pCode <- "00060" #this is parameter code for discharge; more can be added if needed
-start.date <- "2020-08-06" #if you want to do times it is this format: "2014-10-10T00:00Z", "2014-10-10T23:59Z"
-end.date <- Sys.Date()
-timeZone =  "America/Denver"
-windyGap <- readNWISuv(siteNumbers = siteNo,
-                       parameterCd = pCode,
-                       startDate = start.date,
-                       endDate = end.date,
-                       tz = timeZone)
+end_time = Sys.time()
+print(paste("Reading in files took", round((end_time-start_time),2)))
 
+
+```
+
+```{r USGSData, include=FALSE, echo = FALSE}
+usgsTime <- Sys.time()
+#reading in USGS data with upt to date data
+windyGap <- readNWISuv(siteNumbers = "09034250", #code for windy gap
+                       parameterCd = "00060", #this is parameter code for discharge; more can be added if needed
+                       startDate = "2020-08-06", #if you want to do times it is this format: "2014-10-10T00:00Z",
+                       endDate = Sys.Date(),
+                       tz = "America/Denver")
+
+usgsTime2 <- Sys.time()
+print(paste("Reading in USGS Discharge Data took", round((usgsTime2-usgsTime),2)))
 windyGap <- renameNWISColumns(windyGap)
 
 allPressureTransducerData <- allPressureTransducerData %>%
   left_join(windyGap[,c("dateTime", "Flow_Inst")], by = c("DateTime" = "dateTime")) %>%
   rename(USGS_Discharge_at_HitchingPost = Flow_Inst)
-
-end_time = Sys.time()
-print(paste("Reading in files took", round((end_time-start_time),2)))
 ```
 
 
