@@ -77,7 +77,7 @@ AllEncounters_UI <- function(id, combinedData_df_list) {
                                )
                      )#end of tabset panel
                    )#end of all events and plot mainpanel
-                 ),# end of all events and plot sidebarLayout
+                 )# end of all events and plot sidebarLayout
   )
 }
 
@@ -94,6 +94,11 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
         updateDateRangeInput(session, "drangeinput2",
                              start = "2020-08-01",
                              end = max(combinedData_df_list$All_Events$Date) + 1)
+        
+        updateDateRangeInput(session, "drangeinput3",
+                             start = min(combinedData_df_list$All_Events$Release_Date, na.rm = TRUE) - 1,
+                             end = max(combinedData_df_list$All_Events$Release_Date, na.rm = TRUE) + 1
+                             )
 
         updatePickerInput(session, "picker1",
                           selected = unique(combinedData_df_list$All_Events$Event)
@@ -114,7 +119,21 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
                             value = NULL)
 
         updateSliderInput(session, "slider1",
-                          value = c(min(hour(All_events$Datetime)),max(hour(All_events$Datetime)))
+                          value = c(min(hour(combinedData_df_list$All_Events$Datetime)),max(hour(combinedData_df_list$All_Events$Datetime)))
+        )
+        
+        updateSliderInput(session, "slider6",
+                          value = c(
+                            min(combinedData_df_list$All_Events$Release_Length, na.rm = TRUE), 
+                            max(combinedData_df_list$All_Events$Release_Length, na.rm = TRUE)
+                          )
+        )
+        
+        updateSliderInput(session, "slider7",
+                          value = c(
+                            min(combinedData_df_list$All_Events$Release_Weight, na.rm = TRUE), 
+                            max(combinedData_df_list$All_Events$Release_Weight, na.rm = TRUE)
+                          )
         )
 
       }) #end of reset

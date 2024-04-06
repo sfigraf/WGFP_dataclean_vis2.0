@@ -85,7 +85,9 @@ if(!exists("metaDataVariableNames")){
   metaDataVariableNames <- readRDS("data/flatFilesforApp/metaDataVariableNames.rds")
 }
 
-
+if(!exists("PTData")){
+  PTData <- readRDS("data/flatFilesforApp/PTData.rds")
+}
 
 end_time <- Sys.time()
 print(paste("Static File Read-in took", round((end_time-start_time),2)))
@@ -155,6 +157,14 @@ ui <- fluidPage(
                      value = "MovementsTab",
                      movements_UI("MovementsTab1", movements_list$Movements_df, combinedData_df_list)
             ),
+
+
+# PT Data -----------------------------------------------------------------
+
+          tabPanel("Pressure Transducer and Temp Data",
+                   value = "PTtab",
+                   PT_UI("PTtab1", PTData)
+          ),
             
 
 # QAQC UI tab -------------------------------------------------------------
@@ -184,6 +194,8 @@ server <- function(input, output, session) {
       AllEncounters_Server("AllEncountersTab1", combinedData_df_list)
     
       States_Server("StatesTab1", states_data_list, weeks)
+      
+      PT_Server("PTtab1", PTData)
    
       QAQC_Server("QAQCTab1", Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
                   unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate,
