@@ -70,9 +70,6 @@ for (file in list.files("data/PressureTransducer")) {
 allPressureTransducerData <- bind_rows(pTList) %>%
   mutate(DateTime = lubridate::mdy_hm(DateTime))
 
-allPressureTransducerData <- allPressureTransducerData %>%
-  mutate(lubridate::mdy_hm(DateTime))
-
 #reading in USGS data with upt to date data
 siteNo <- "09034250" #code for windy gap
 pCode <- "00060" #this is parameter code for discharge; more can be added if needed

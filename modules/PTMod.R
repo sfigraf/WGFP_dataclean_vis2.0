@@ -52,7 +52,7 @@ PT_Server <- function(id, PTData) {
       
       output$PTPlot <- renderPlotly({
         filteredPTData() %>%
-          ggplot(aes(x = DateTime, y = input$variableSelect, color = Site
+          ggplot(aes_string(x = "DateTime", y = input$variableSelect, color = "Site"
                      #text = paste('Date: ', as.character(Date), '\n')
                      )
           ) +
