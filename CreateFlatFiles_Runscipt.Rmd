@@ -89,9 +89,13 @@ usgsTime2 <- Sys.time()
 print(paste("Reading in USGS Discharge Data took", round((usgsTime2-usgsTime),2)))
 windyGap <- renameNWISColumns(windyGap)
 
-allPressureTransducerData <- allPressureTransducerData %>%
-  left_join(windyGap[,c("dateTime", "Flow_Inst")], by = c("DateTime" = "dateTime")) %>%
+allPressureTransducerData <- windyGap[,c("dateTime", "Flow_Inst")] %>%
+  left_join(allPressureTransducerData, by = c("dateTime"= "DateTime")) %>%
   rename(USGS_Discharge_at_HitchingPost = Flow_Inst)
+
+# allPressureTransducerData <- allPressureTransducerData %>%
+#   left_join(windyGap[,c("dateTime", "Flow_Inst")], by = c("DateTime" = "dateTime")) %>%
+#   rename(USGS_Discharge_at_HitchingPost = Flow_Inst)
 ```
 
 
