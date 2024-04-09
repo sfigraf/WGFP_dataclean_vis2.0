@@ -113,7 +113,6 @@ PT_Server <- function(id, PTData, Movements_df, USGSDischargeData) {
           group_by(Date = date(dateTime), Site) %>%
           summarise(dailyAverage = round(mean(!!sym(input$variableSelect2)), 2)) %>%
           na.omit()
-        #x <<- filteredPTData
         return(filteredPTData)
       })
       
