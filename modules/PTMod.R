@@ -107,17 +107,20 @@ PT_Server <- function(id, PTData, Movements_df, USGSDischargeData) {
       })
       
       output$OverlayPlot <- renderPlotly({
-        ggplot() +
-          # # Bar plot (moves)
-          geom_bar(data = filteredMovementsDataCounts(), aes(x = Date, y = numberOfActivities,  fill = movement_only),
+        scalevalue <- max(windyGap1$dailyAverageFlow, na.rm = T)/max(filteredMovementsDataCounts()$numberOfActivities)
+        p <- ggplot() +
+          # # Bar plot (movements)
+          geom_bar(data = filteredMovementsDataCounts(), aes(x = Date, y = numberOfActivities, 
+                                                             #text = paste('Date: ', as.character(Date), '\n'),
+                                                             fill = movement_only),
                    stat = "identity", position = "dodge") +
           
           # # Line plot (windyGap)
-          geom_line(data = windyGap1, aes(x = Date, y = dailyAverageFlow), color = "blue") +
+          geom_line(data = windyGap1, aes(x = Date, y = dailyAverageFlow/scalevalue), color = "blue") +
           
           # Set labels and titles
           labs(title = "Overlay of Bar Plot and Line Plot",
-               x = "Date/Time", y = "Count/Flow") +
+               x = "Date", y = "Count") +
           
           # Customize legend and fill colors
           scale_fill_manual(values = c("Downstream Movement" = "red",
@@ -128,7 +131,21 @@ PT_Server <- function(id, PTData, Movements_df, USGSDischargeData) {
           guides(fill = guide_legend(title = "Movement")) +  # Legend for bar plot
           
           # Adjust theme
-          theme_minimal()
+          theme_classic()
+        
+        ay <- list(
+          tickfont = list(size=11.7),
+          titlefont=list(size=14.6),
+          overlaying = "y",
+          nticks = 5,
+          side = "right",
+          title = "Second y axis"
+        )
+        
+        ggplotly(p) %>%
+          add_lines(x=~Date, y=~dailyAverageFlow/scalevalue, colors=NULL, yaxis="y2", 
+                    data=windyGap1, showlegend=FALSE, inherit=FALSE) %>%
+          layout(yaxis2 = ay)
         
       })
 
