@@ -31,14 +31,16 @@ filteredPTData_Server <- function(id, PTData) {
     id,
     function(input, output, session) {
       ns <- session$ns
-      filteredPTDischargeDataForGraph <- reactive({
+      data <- reactiveVal()
+      filteredPTDischargeDataForGraph <- observe({
         
-        req(input$sitePicker)
-        
+        #req(input$sitePicker)
+        print(input$sitePicker)
         filteredPTDischargeDataForGraph <- PTData %>%
           select(Site, dateTime, input$variableSelect) %>%
           dplyr::filter(Site %in% input$sitePicker, 
                         lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2])
+        data <- reactiveVal(filteredPTDischargeDataForGraph)
         return(filteredPTDischargeDataForGraph)
       })
       # xx1 <<- filteredPTDischargeDataForGraph()
@@ -46,7 +48,7 @@ filteredPTData_Server <- function(id, PTData) {
       #ptList <- 
       return(
         list(
-          "filteredPTDischargeDataForGraph" = filteredPTDischargeDataForGraph(), 
+          "filteredPTDischargeDataForGraph" = data(), 
           "selectedVariable" = input$variableSelect
         )
         )
