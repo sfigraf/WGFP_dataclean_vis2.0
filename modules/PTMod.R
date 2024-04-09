@@ -1,41 +1,56 @@
 PT_UI <- function(id, PTData) {
   ns <- NS(id)
   tagList(
-    sidebarLayout(
-      sidebarPanel(width = 2,
-                   pickerInput(ns("sitePicker"),
-                               label = "Select Sites:",
-                               choices = sort(unique(PTData$Site)),
-                               selected = unique(PTData$Site)[1],
-                               multiple = TRUE,
-                               options = list(
-                                 `actions-box` = TRUE #this makes the "select/deselect all" option
-                               )
-                   ), 
-                   selectInput(ns("variableSelect"),
-                               label = "Variable to Plot",
-                               choices = colnames(PTData)[grepl("_", colnames(PTData))],
-                               selected = colnames(PTData)[grepl("_", colnames(PTData))][1],
-                   ), 
-                   sliderInput(ns("dateSlider"), "Date",
-                               min = min(lubridate::date(PTData$DateTime) -1),
-                               max = max(lubridate::date(PTData$DateTime) +1),  
-                               value = c(min(lubridate::date(PTData$DateTime) -1), max(lubridate::date(PTData$DateTime) +1)),
-                               step = 1,
-                               timeFormat = "%d %b %y"
-                   )
+    tabsetPanel(
+      tabPanel(
+        "Time Series",
+        sidebarLayout(
+          sidebarPanel(width = 2,
+                       pickerInput(ns("sitePicker"),
+                                   label = "Select Sites:",
+                                   choices = sort(unique(PTData$Site)),
+                                   selected = unique(PTData$Site)[1],
+                                   multiple = TRUE,
+                                   options = list(
+                                     `actions-box` = TRUE #this makes the "select/deselect all" option
+                                   )
+                       ), 
+                       selectInput(ns("variableSelect"),
+                                   label = "Variable to Plot",
+                                   choices = colnames(PTData)[grepl("_", colnames(PTData))],
+                                   selected = colnames(PTData)[grepl("_", colnames(PTData))][1],
+                       ), 
+                       sliderInput(ns("dateSlider"), "Date",
+                                   min = min(lubridate::date(PTData$DateTime) -1),
+                                   max = max(lubridate::date(PTData$DateTime) +1),  
+                                   value = c(min(lubridate::date(PTData$DateTime) -1), max(lubridate::date(PTData$DateTime) +1)),
+                                   step = 1,
+                                   timeFormat = "%d %b %y"
+                       )
+          ),
+          mainPanel(width = 10,
+                    box(
+                      width = 10,
+                      withSpinner(plotlyOutput(ns("PTPlot")))
+                    )
+                    #), 
+                    #tabPanel("Overlay",
+                    # box(
+                    #   width = 10,
+                    #   withSpinner(plotlyOutput(ns("OverlayPlot")))
+          )
+          #), 
+          #)#end of tabset panel
+          # )
+        )
+        
       ),
-      mainPanel(width = 10,
-                tabsetPanel(
-                  tabPanel("PT Data Plot",
-                           box(
-                             width = 10,
-                             withSpinner(plotlyOutput(ns("PTPlot")))
-                           )
-                  )
-                )#end of tabset panel
+      tabPanel(
+        "Movements Overlay",
+        
       )
     )
+    
   )
 }
 
