@@ -107,31 +107,23 @@ PT_Server <- function(id, PTData, Movements_df, USGSDischargeData) {
       })
       
       output$OverlayPlot <- renderPlotly({
+        
         scalevalue <- max(windyGap1$dailyAverageFlow, na.rm = T)/max(filteredMovementsDataCounts()$numberOfActivities)
-        p <- ggplot() +
-          # # Bar plot (movements)
-          geom_bar(data = filteredMovementsDataCounts(), aes(x = Date, y = numberOfActivities, 
-                                                             #text = paste('Date: ', as.character(Date), '\n'),
-                                                             fill = movement_only),
-                   stat = "identity", position = "dodge") +
-          
-          # # Line plot (windyGap)
-          geom_line(data = windyGap1, aes(x = Date, y = dailyAverageFlow/scalevalue), color = "blue") +
-          
-          # Set labels and titles
-          labs(title = "Overlay of Bar Plot and Line Plot",
-               x = "Date", y = "Count") +
-          
-          # Customize legend and fill colors
+        
+        p <- filteredMovementsDataCounts() %>%
+          ggplot(aes(x = Date, y = numberOfActivities,
+                     fill = movement_only,
+                      text = paste('Date: ', as.character(Date), '\n'))
+        ) +
+          geom_bar(stat = "identity", position = "dodge") +
+          theme_classic() +
+          labs(title="Fish Movement by Day",
+               x ="Date", y = "Count") +
           scale_fill_manual(values = c("Downstream Movement" = "red",
                                        "Upstream Movement" = "chartreuse3",
                                        "No Movement" = "black",
                                        "Initial Release" = "darkorange",
-                                       "Changed Rivers" = "purple")) +
-          guides(fill = guide_legend(title = "Movement")) +  # Legend for bar plot
-          
-          # Adjust theme
-          theme_classic()
+                                       "Changed Rivers" = "purple"))
         
         ay <- list(
           tickfont = list(size=11.7),
@@ -143,7 +135,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSDischargeData) {
         )
         
         ggplotly(p) %>%
-          add_lines(x=~Date, y=~dailyAverageFlow/scalevalue, colors=NULL, yaxis="y2", 
+          add_trace(x=~Date, y=~dailyAverageFlow/scalevalue, colors=NULL, yaxis="y2", 
                     data=windyGap1, showlegend=FALSE, inherit=FALSE) %>%
           layout(yaxis2 = ay)
         
