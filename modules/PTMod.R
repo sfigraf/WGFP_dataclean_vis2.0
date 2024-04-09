@@ -1,4 +1,4 @@
-PT_UI <- function(id, PTData, Movements_df) {
+PT_UI <- function(id, PTData, Movements_df, USGSDischargeData) {
   ns <- NS(id)
   tagList(
     tabsetPanel(
@@ -33,15 +33,7 @@ PT_UI <- function(id, PTData, Movements_df) {
                       width = 10,
                       withSpinner(plotlyOutput(ns("PTPlot")))
                     )
-                    #), 
-                    #tabPanel("Overlay",
-                    # box(
-                    #   width = 10,
-                    #   withSpinner(plotlyOutput(ns("OverlayPlot")))
           )
-          #), 
-          #)#end of tabset panel
-          # )
         )
         
       ),
@@ -55,11 +47,15 @@ PT_UI <- function(id, PTData, Movements_df) {
                      )
           ), 
           tabPanel("Variable Filters", 
-                   sidebarPanel(width = 2)
+                   sidebarPanel(width = 2
+                                )
                    )
           ), 
-          mainPanel(
-            
+          mainPanel(width = 10,
+                    box(
+                      width = 10,
+                      withSpinner(plotlyOutput(ns("OverlayPlot")))
+                    )
           )
         )
         
@@ -69,7 +65,7 @@ PT_UI <- function(id, PTData, Movements_df) {
   )
 }
 
-PT_Server <- function(id, PTData) {
+PT_Server <- function(id, PTData, Movements_df, USGSDischargeData) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -83,6 +79,19 @@ PT_Server <- function(id, PTData) {
         return(filteredPTData)
       })
       
+      filteredMovementsData <- movementsFiltered_Server("filteredMovementData", Movements_df)
+      
+      
+      filteredMovementsDataCounts <- reactive({
+        return(filteredMovementsData() %>%
+          count(Date, movement_only, name = "numberOfActivities")
+        )
+        })
+      
+      windyGap1 <- USGSDischargeData %>%
+        group_by(Date = date(dateTime)) %>%
+        summarise(dailyAverageFlow = round(mean(Flow_Inst), 2))
+      
       output$PTPlot <- renderPlotly({
         req(input$sitePicker)
           filteredPTData() %>%
@@ -94,6 +103,32 @@ PT_Server <- function(id, PTData) {
             labs(title="Pressure Transducer Data",
                  x = "Date", y = input$variableSelect)
         
+        
+      })
+      
+      output$OverlayPlot <- renderPlotly({
+        ggplot() +
+          # # Bar plot (moves)
+          geom_bar(data = filteredMovementsDataCounts(), aes(x = Date, y = numberOfActivities,  fill = movement_only),
+                   stat = "identity", position = "dodge") +
+          
+          # # Line plot (windyGap)
+          geom_line(data = windyGap1, aes(x = Date, y = dailyAverageFlow), color = "blue") +
+          
+          # Set labels and titles
+          labs(title = "Overlay of Bar Plot and Line Plot",
+               x = "Date/Time", y = "Count/Flow") +
+          
+          # Customize legend and fill colors
+          scale_fill_manual(values = c("Downstream Movement" = "red",
+                                       "Upstream Movement" = "chartreuse3",
+                                       "No Movement" = "black",
+                                       "Initial Release" = "darkorange",
+                                       "Changed Rivers" = "purple")) +
+          guides(fill = guide_legend(title = "Movement")) +  # Legend for bar plot
+          
+          # Adjust theme
+          theme_minimal()
         
       })
 
