@@ -1,4 +1,4 @@
-movementsFiltered_UI <- function(id, Movements_df, df_list) {
+movementsFiltered_UI <- function(id, Movements_df) {
   ns <- NS(id)
   tagList(
     textInput(ns("textinput3"), label = "Filter by TAG"),
@@ -41,9 +41,9 @@ movementsFiltered_UI <- function(id, Movements_df, df_list) {
     
     
     sliderInput(ns("slider2"), "Date",
-                min = min(df_list$All_Events$Date -1),
-                max = max(df_list$All_Events$Date +1),  
-                value = c(min(df_list$All_Events$Date -1),max(df_list$All_Events$Date +1)),
+                min = min(Movements_df$Date -1),
+                max = max(Movements_df$Date +1),  
+                value = c(min(Movements_df$Date -1),max(Movements_df$Date +1)),
                 step = 1,
                 timeFormat = "%d %b %y",
                 #animate = animationOptions(interval = 500, loop = FALSE)
@@ -56,8 +56,8 @@ movementsFiltered_UI <- function(id, Movements_df, df_list) {
                 step = 1,
                 
     ), #end of slider8
-    actionButton(ns("button7"), label = "Render Map and Data"), 
-    hr()
+    actionButton(ns("button7"), label = "Render"), 
+    h6("Note: entries with NA values in any of the filter fields are excluded from the results")
   
   )
 }
@@ -69,8 +69,7 @@ movementsFiltered_Server <- function(id, Movements_df) {
       ns <- session$ns
       
       filtered_movements_data <- eventReactive(input$button7, ignoreNULL = FALSE,{
-        #req(input$textinput3)
-        print(nrow(Movements_df))
+        
         if(input$textinput3 != ''){
           movements_data1 <- Movements_df %>%
             filter(TAG %in% trimws(input$textinput3),
@@ -83,7 +82,6 @@ movementsFiltered_Server <- function(id, Movements_df) {
                    
             ) %>%
             arrange(Datetime)
-          print(paste("rows after filter:", nrow(movements_data1)))
           #this id column is used for the map and datatable proxy and needs to be redone each time a filter is applied
           movements_data1$id <- seq.int(nrow(movements_data1))
           
@@ -99,13 +97,13 @@ movementsFiltered_Server <- function(id, Movements_df) {
               
             ) %>%
             arrange(Datetime)
-          print(paste("rows after filter:", nrow(movements_data1)))
-          #wtfff <<- movements_data1
+          
           movements_data1$id <- seq.int(nrow(movements_data1))
           
         }
         return(movements_data1)
       }) 
+      
       return(filtered_movements_data)
     }
   )

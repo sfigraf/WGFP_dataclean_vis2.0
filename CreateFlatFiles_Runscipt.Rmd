@@ -341,7 +341,8 @@ allFlatFiles <- list(
   "Marker_tags" = Cleaned_Marker_tags,
   "unknown_tags" = unknown_tags, 
   "metaDataVariableNames" = metaDataVariableNames,
-  "PTData" = allPressureTransducerData
+  "PTData" = allPressureTransducerData, 
+  "USGSDischargeData" = windyGap
 )
 
 for(filename in names(allFlatFiles)){

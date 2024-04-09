@@ -1,11 +1,11 @@
 #movementsMod
 ## movements module
-movements_UI <- function(id, Movements_df, df_list) { #could just get dates in UI and then just pass dates instead but no bigggie
+movements_UI <- function(id, Movements_df) { #could just get dates in UI and then just pass dates instead but no bigggie
   ns <- NS(id)
   tagList(
     sidebarLayout(
       sidebarPanel(width = 2,
-                   movementsFiltered_UI(ns("movementModFilters"), Movements_df, df_list)
+                   movementsFiltered_UI(ns("movementModFilters"), Movements_df)
       ),#end of sidebar panel
       mainPanel(width = 10,
                 tabsetPanel(
@@ -14,7 +14,7 @@ movements_UI <- function(id, Movements_df, df_list) { #could just get dates in U
                            splitLayout(cellWidths = c("40%", "60%"),
                                        withSpinner(DT::dataTableOutput(ns("movements1"))),
                                        withSpinner(leafletOutput(ns("map1"), height = 600))
-                           ), #end of splitLayout
+                           ),
                            hr(),
                            # downloadButton(ns("download6"), label = "Save movements data as CSV"),
                            # hr(),
@@ -88,6 +88,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
           markerColor = filtered_movements_data()$marker_color
         )
       })
+      
       output$movements1 <- renderDT({
         req(filtered_movements_data())
         datatable(

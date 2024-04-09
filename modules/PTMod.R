@@ -1,4 +1,4 @@
-PT_UI <- function(id, PTData) {
+PT_UI <- function(id, PTData, Movements_df) {
   ns <- NS(id)
   tagList(
     tabsetPanel(
@@ -47,6 +47,21 @@ PT_UI <- function(id, PTData) {
       ),
       tabPanel(
         "Movements Overlay",
+        sidebarLayout(
+          tabsetPanel(
+            tabPanel("Movements Filters",
+                     sidebarPanel(width = 2,
+                                  movementsFiltered_UI(ns("filteredMovementData"), Movements_df)
+                     )
+          ), 
+          tabPanel("Variable Filters", 
+                   sidebarPanel(width = 2)
+                   )
+          ), 
+          mainPanel(
+            
+          )
+        )
         
       )
     )
