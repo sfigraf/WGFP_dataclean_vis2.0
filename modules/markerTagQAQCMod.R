@@ -97,7 +97,7 @@ MarkerTagQAQC_Server <- function(id, Marker_Tag_data) {
       # MarkerTag Plot Output ---------------------------------------------------
       
       output$plot2 <- renderPlotly({
-        plot2 <- plotAndTableMarkerTagDataList()$markerTagDataForPlot %>%
+        plotAndTableMarkerTagDataList()$markerTagDataForPlot %>%
           ggplot(aes(x = Scan_Date, y = Scan_Time, color = Site_Code, text = paste(TAG) )) +
           geom_point() +
           labs(title = "Marker Tag Detection Times") +
@@ -109,7 +109,6 @@ MarkerTagQAQC_Server <- function(id, Marker_Tag_data) {
             axis.text.x = element_blank(),
             axis.ticks = element_blank())
         
-        ggplotly(p = plot2)
         
       })
       

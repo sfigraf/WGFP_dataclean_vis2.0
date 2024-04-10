@@ -1,67 +1,11 @@
 #movementsMod
 ## movements module
-movements_UI <- function(id, Movements_df, df_list) { #could just get dates in UI and then just pass dates instead but no bigggie
+movements_UI <- function(id, Movements_df) { #could just get dates in UI and then just pass dates instead but no bigggie
   ns <- NS(id)
   tagList(
     sidebarLayout(
       sidebarPanel(width = 2,
-                   textInput(ns("textinput3"), label = "Filter by TAG"),
-                   pickerInput(ns("picker6"),
-                               label = "Select Movement Type:",
-                               choices = sort(unique(Movements_df$movement_only)),
-                               selected = unique(Movements_df$movement_only),
-                               multiple = TRUE,
-                               options = list(
-                                 `actions-box` = TRUE #this makes the "select/deselect all" option
-                               )
-                   ), #end of picker 6 input
-                   
-                   pickerInput(ns("picker7"),
-                               label = "Select Detection Type",
-                               choices = sort(unique(Movements_df$det_type)),
-                               selected = unique(Movements_df$det_type),
-                               multiple = TRUE,
-                               options = list(
-                                 `actions-box` = TRUE #this makes the "select/deselect all" option
-                               )
-                   ), #end of picker 7 
-                   pickerInput(ns("picker10"),
-                               label = "Select Species Type",
-                               choices = sort(unique(Movements_df$Species)),
-                               selected = unique(Movements_df$Species),
-                               multiple = TRUE,
-                               options = list(
-                                 `actions-box` = TRUE #this makes the "select/deselect all" option
-                               )
-                   ), #end of picker 10 
-                   
-                   sliderInput(ns("slider10"), "Fish Release Length",
-                               min = min(Movements_df$Release_Length, na.rm = TRUE),
-                               max = max(Movements_df$Release_Length, na.rm = TRUE),  
-                               value = c(min(Movements_df$Release_Length, na.rm = TRUE),max(Movements_df$Release_Length, na.rm = TRUE)),
-                               step = 1,
-                               
-                   ), #end of slider8
-                   
-                   
-                   sliderInput(ns("slider2"), "Date",
-                               min = min(df_list$All_Events$Date -1),
-                               max = max(df_list$All_Events$Date +1),  
-                               value = c(min(df_list$All_Events$Date -1),max(df_list$All_Events$Date +1)),
-                               step = 1,
-                               timeFormat = "%d %b %y",
-                               #animate = animationOptions(interval = 500, loop = FALSE)
-                   ),
-                   
-                   sliderInput(ns("slider9"), "Total distance travelled (m)",
-                               min = min(Movements_df$sum_dist, na.rm = TRUE),
-                               max = max(Movements_df$sum_dist, na.rm = TRUE),  
-                               value = c(min(Movements_df$sum_dist, na.rm = TRUE),max(Movements_df$sum_dist, na.rm = TRUE)),
-                               step = 1,
-                               
-                   ), #end of slider8
-                   actionButton(ns("button7"), label = "Render Map and Data"), 
-                   hr(),
+                   movementsFiltered_UI(ns("movementModFilters"), Movements_df)
       ),#end of sidebar panel
       mainPanel(width = 10,
                 tabsetPanel(
@@ -70,7 +14,7 @@ movements_UI <- function(id, Movements_df, df_list) { #could just get dates in U
                            splitLayout(cellWidths = c("40%", "60%"),
                                        withSpinner(DT::dataTableOutput(ns("movements1"))),
                                        withSpinner(leafletOutput(ns("map1"), height = 600))
-                           ), #end of splitLayout
+                           ),
                            hr(),
                            # downloadButton(ns("download6"), label = "Save movements data as CSV"),
                            # hr(),
@@ -115,43 +59,8 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
     function(input, output, session) {
       ns <- session$ns
       
-      filtered_movements_data <- eventReactive(input$button7, ignoreNULL = FALSE,{
-        
-        
-        if(input$textinput3 != ''){
-          movements_data1 <- Movements_df %>%
-            filter(TAG %in% trimws(input$textinput3),
-                   Release_Length >= input$slider10[1] & Release_Length <= input$slider10[2],
-                   Date >= input$slider2[1] & Date <= input$slider2[2],
-                   movement_only %in% c(input$picker6),
-                   det_type %in% c(input$picker7),
-                   Species %in% c(input$picker10),
-                   sum_dist >= input$slider9[1] & sum_dist <= input$slider9[2],
-                   
-            ) %>%
-            arrange(Datetime)
-          #this id column is used for the map and datatable proxy and needs to be redone each time a filter is applied
-          movements_data1$id <- seq.int(nrow(movements_data1))
-          
-        } else {
-          movements_data1 <- Movements_df  %>% 
-            filter(
-              Release_Length >= input$slider10[1] & Release_Length <= input$slider10[2],
-              Date >= input$slider2[1] & Date <= input$slider2[2],
-              movement_only %in% c(input$picker6),
-              det_type %in% c(input$picker7),
-              Species %in% c(input$picker10),
-              sum_dist >= input$slider9[1] & sum_dist <= input$slider9[2]
-              
-            ) %>%
-            arrange(Datetime)
-          movements_data1$id <- seq.int(nrow(movements_data1))
-          
-        }
-        
-        
-        return(movements_data1)
-      }) 
+      
+      filtered_movements_data <- movementsFiltered_Server("movementModFilters", Movements_df)
       #seasonally
       seasonal_movts <- reactive({filtered_movements_data() %>%
           group_by(month(Date), day(Date), movement_only) %>%
@@ -179,8 +88,9 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
           markerColor = filtered_movements_data()$marker_color
         )
       })
+      
       output$movements1 <- renderDT({
-        
+        req(filtered_movements_data())
         datatable(
           filtered_movements_data(),
           rownames = FALSE,

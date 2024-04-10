@@ -89,6 +89,7 @@ if(!exists("PTData")){
   PTData <- readRDS("data/flatFilesforApp/PTData.rds")
 }
 
+
 end_time <- Sys.time()
 print(paste("Static File Read-in took", round((end_time-start_time),2)))
 
@@ -155,7 +156,7 @@ ui <- fluidPage(
 #picker wasn't working becuase I had 2 different pickers named the same
             tabPanel("Daily Movements Map, Plot, and Data",
                      value = "MovementsTab",
-                     movements_UI("MovementsTab1", movements_list$Movements_df, combinedData_df_list)
+                     movements_UI("MovementsTab1", movements_list$Movements_df)
             ),
 
 
@@ -163,7 +164,7 @@ ui <- fluidPage(
 
           tabPanel("Pressure Transducer and Temp Data",
                    value = "PTtab",
-                   PT_UI("PTtab1", PTData)
+                   PT_UI("PTtab1", PTData, movements_list$Movements_df)
           ),
             
 
@@ -195,7 +196,7 @@ server <- function(input, output, session) {
     
       States_Server("StatesTab1", states_data_list, weeks)
       
-      PT_Server("PTtab1", PTData)
+      PT_Server("PTtab1", PTData, movements_list$Movements_df)
    
       QAQC_Server("QAQCTab1", Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
                   unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate,
