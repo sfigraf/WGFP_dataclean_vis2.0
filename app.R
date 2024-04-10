@@ -85,6 +85,9 @@ if(!exists("metaDataVariableNames")){
   metaDataVariableNames <- readRDS("data/flatFilesforApp/metaDataVariableNames.rds")
 }
 
+if(!exists("PTData")){
+  PTData <- readRDS("data/flatFilesforApp/PTData.rds")
+}
 
 
 end_time <- Sys.time()
@@ -153,8 +156,16 @@ ui <- fluidPage(
 #picker wasn't working becuase I had 2 different pickers named the same
             tabPanel("Daily Movements Map, Plot, and Data",
                      value = "MovementsTab",
-                     movements_UI("MovementsTab1", movements_list$Movements_df, combinedData_df_list)
+                     movements_UI("MovementsTab1", movements_list$Movements_df)
             ),
+
+
+# PT Data -----------------------------------------------------------------
+
+          tabPanel("Pressure Transducer and Temp Data",
+                   value = "PTtab",
+                   PT_UI("PTtab1", PTData, movements_list$Movements_df)
+          ),
             
 
 # QAQC UI tab -------------------------------------------------------------
@@ -184,6 +195,8 @@ server <- function(input, output, session) {
       AllEncounters_Server("AllEncountersTab1", combinedData_df_list)
     
       States_Server("StatesTab1", states_data_list, weeks)
+      
+      PT_Server("PTtab1", PTData, movements_list$Movements_df)
    
       QAQC_Server("QAQCTab1", Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
                   unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate,

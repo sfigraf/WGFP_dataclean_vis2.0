@@ -9,6 +9,8 @@ output: html_document
 library(tidyverse) 
 library(lubridate)
 library(readxl)
+library(dataRetrieval) #this is the usgs pacakge for getting instantanous data
+
 whole_doc_startTime <- Sys.time()
 start_time <- Sys.time()
 print("Reading in Stationary, Mobile, Biomark, Release, and Recapture csv files.....")
@@ -29,7 +31,7 @@ for (i in list.files("./miscR/")) {
 # if column names change in any of these read-ins, might require some modification to code to get them to combine
 # also if you change read.csv to read_csv, it should read in quicker but column names will change
 # could be a later task
-Stationary <- readRDS("./data/WGFP_Raw_20240213.rds")
+Stationary <- readRDS("./data/WGFP_Raw_20240403.rds")
 
 Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
 
@@ -56,9 +58,44 @@ wgfpMetadata <- lapply(excel_sheets("./data/WGFP Metadata.xlsx"), function(x)
 )
 names(wgfpMetadata) <- excel_sheets("./data/WGFP Metadata.xlsx")
 
+###Pressure transducer Data
+pTList <- list()
+
+for (file in list.files("data/PressureTransducer")) {
+  filereadin <- read_csv(file.path("data/PressureTransducer/", file))
+  filename <- unique(filereadin$Site)
+  pTList[[filename]] <- filereadin
+}
+
+allPressureTransducerData <- bind_rows(pTList) %>%
+  mutate(DateTime = lubridate::mdy_hm(DateTime))
+
 end_time = Sys.time()
 print(paste("Reading in files took", round((end_time-start_time),2)))
+
+
 ```
+
+```{r USGSData, include=FALSE, echo = FALSE}
+usgsTime <- Sys.time()
+#reading in USGS data with upt to date data
+windyGap <- readNWISuv(siteNumbers = "09034250", #code for windy gap
+                       parameterCd = "00060", #this is parameter code for discharge; more can be added if needed
+                       startDate = "2020-08-06", #if you want to do times it is this format: "2014-10-10T00:00Z",
+                       endDate = Sys.Date(),
+                       tz = "America/Denver")
+
+usgsTime2 <- Sys.time()
+print(paste("Reading in USGS Discharge Data took", round((usgsTime2-usgsTime),2)))
+windyGap <- renameNWISColumns(windyGap)
+
+allPressureTransducerData <- windyGap[,c("dateTime", "Flow_Inst")] %>%
+  left_join(allPressureTransducerData, by = c("dateTime"= "DateTime")) %>%
+  rename(USGS_Discharge_at_HitchingPost = Flow_Inst)
+
+```
+
+
 
 ```{r QAQCduplicateTags, include = TRUE, echo = FALSE}
 #checking if ghost tags have 1 tag entry for each
@@ -304,9 +341,10 @@ allFlatFiles <- list(
   "movements_list" = movements_list,
   "Marker_tags" = Cleaned_Marker_tags,
   "unknown_tags" = unknown_tags, 
-  "metaDataVariableNames" = metaDataVariableNames
-
+  "metaDataVariableNames" = metaDataVariableNames,
+  "PTData" = allPressureTransducerData
 )
+
 for(filename in names(allFlatFiles)){
   saveRDS(allFlatFiles[[filename]], paste0("data/flatFilesforApp/", filename, ".rds"))
 }
