@@ -93,9 +93,6 @@ allPressureTransducerData <- windyGap[,c("dateTime", "Flow_Inst")] %>%
   left_join(allPressureTransducerData, by = c("dateTime"= "DateTime")) %>%
   rename(USGS_Discharge_at_HitchingPost = Flow_Inst)
 
-# allPressureTransducerData <- allPressureTransducerData %>%
-#   left_join(windyGap[,c("dateTime", "Flow_Inst")], by = c("DateTime" = "dateTime")) %>%
-#   rename(USGS_Discharge_at_HitchingPost = Flow_Inst)
 ```
 
 
@@ -345,8 +342,7 @@ allFlatFiles <- list(
   "Marker_tags" = Cleaned_Marker_tags,
   "unknown_tags" = unknown_tags, 
   "metaDataVariableNames" = metaDataVariableNames,
-  "PTData" = allPressureTransducerData, 
-  "USGSDischargeData" = windyGap
+  "PTData" = allPressureTransducerData
 )
 
 for(filename in names(allFlatFiles)){

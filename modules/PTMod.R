@@ -1,4 +1,4 @@
-PT_UI <- function(id, PTData, Movements_df, USGSDischargeData) {
+PT_UI <- function(id, PTData, Movements_df) {
   ns <- NS(id)
   tagList(
     tabsetPanel(
@@ -26,7 +26,9 @@ PT_UI <- function(id, PTData, Movements_df, USGSDischargeData) {
                                    value = c(min(lubridate::date(PTData$dateTime) -1), max(lubridate::date(PTData$dateTime) +1)),
                                    step = 1,
                                    timeFormat = "%d %b %y"
-                       )
+                       ), 
+                       h6("Note: Discharge is measured from USGS Gauge at Hitching Post and is the same across all sites")
+                       
           ),
           mainPanel(width = 10,
                     box(
@@ -39,6 +41,7 @@ PT_UI <- function(id, PTData, Movements_df, USGSDischargeData) {
       ),
       tabPanel(
         "Movements Overlay",
+        br(), 
         sidebarLayout(
           tabsetPanel(
             tabPanel("Movements Filters",
@@ -68,8 +71,8 @@ PT_UI <- function(id, PTData, Movements_df, USGSDischargeData) {
                                               value = c(min(lubridate::date(PTData$dateTime) -1), max(lubridate::date(PTData$dateTime) +1)),
                                               step = 1,
                                               timeFormat = "%d %b %y"
-                                  ), 
-                                  actionButton(ns("overlayRender"), label = "Render"), 
+                                  ),
+                                  #actionButton(ns("overlayRender"), label = "Render"), 
                                   h6("Note: Discharge is measured from USGS Gauge at Hitching Post and is the same across all sites")
                      )
             )
@@ -88,7 +91,7 @@ PT_UI <- function(id, PTData, Movements_df, USGSDischargeData) {
   )
 }
 
-PT_Server <- function(id, PTData, Movements_df, USGSDischargeData) {
+PT_Server <- function(id, PTData, Movements_df) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -103,13 +106,13 @@ PT_Server <- function(id, PTData, Movements_df, USGSDischargeData) {
         return(filteredPTData)
       })
       
-      filteredPTData2 <- eventReactive(input$overlayRender, {
+      filteredPTData2 <- reactive({
         req(input$sitePicker2)
         filteredPTData <- PTData %>%
           select(Site, dateTime, input$variableSelect2) %>%
           dplyr::filter(Site %in% input$sitePicker2, 
                         lubridate::date(dateTime) >= input$dateSlider2[1] & lubridate::date(dateTime) <= input$dateSlider2[2]) %>%
-          #na.omit() %>%
+          
           group_by(Date = date(dateTime), Site) %>%
           summarise(dailyAverage = round(mean(!!sym(input$variableSelect2)), 2)) %>%
           na.omit()
@@ -127,19 +130,21 @@ PT_Server <- function(id, PTData, Movements_df, USGSDischargeData) {
         })
 
       
-      output$PTPlot <- renderPlotly({
-        req(input$sitePicker)
-        filteredPTData() %>%
-          ggplot(aes_string(x = "dateTime", y = input$variableSelect, color = "Site"
-          )
-          ) +
-          geom_line() +
-          theme_classic() +
-          labs(title="Pressure Transducer Data",
-               x = "Date", y = input$variableSelect)
-        
-        
-      })
+        output$PTPlot <- renderPlotly({
+          req(input$sitePicker)
+          
+          filteredPTData() %>%
+            ggplot(aes_string(x = "dateTime", y = input$variableSelect, color = "Site"
+            )
+            ) +
+            geom_line() +
+            theme_classic() +
+            labs(title="Pressure Transducer Data",
+                 x = "Date", y = input$variableSelect)
+          
+          
+        })
+      
       
       output$OverlayPlot <- renderPlotly({
         
@@ -165,11 +170,10 @@ PT_Server <- function(id, PTData, Movements_df, USGSDischargeData) {
                                        "Initial Release" = "darkorange",
                                        "Changed Rivers" = "purple")) +
           guides(fill = guide_legend(title = "Movement")) +  # Legend for bar plot
-          
-          # Adjust theme
           theme_classic()
         
       })
+  
 
     }
   )
