@@ -97,7 +97,10 @@ PT_Server <- function(id, PTData, Movements_df) {
     function(input, output, session) {
       
       filteredPTData <- reactive({
-        req(input$sitePicker)
+        validate(
+          need(input$sitePicker, "Please select a site to display")
+        )
+        #req(input$sitePicker)
         filteredPTData <- PTData %>%
           select(Site, dateTime, input$variableSelect) %>%
           dplyr::filter(Site %in% input$sitePicker, 
@@ -131,7 +134,7 @@ PT_Server <- function(id, PTData, Movements_df) {
 
       
         output$PTPlot <- renderPlotly({
-          req(input$sitePicker)
+          
           
           filteredPTData() %>%
             ggplot(aes_string(x = "dateTime", y = input$variableSelect, color = "Site"
