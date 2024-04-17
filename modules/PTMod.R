@@ -27,7 +27,7 @@ PT_UI <- function(id, PTData, Movements_df) {
                                    step = 1,
                                    timeFormat = "%d %b %y"
                        ), 
-                       
+                       #if this needs to be used like 1 more time I would make these functions
                        checkboxInput(ns("dischargeOverlay"), "Overlay USGS Discharge Data"
                                      ),
                        uiOutput(ns("dischargeScaleValue")),
@@ -76,9 +76,11 @@ PT_UI <- function(id, PTData, Movements_df) {
                                               step = 1,
                                               timeFormat = "%d %b %y"
                                   ),
-                                  #actionButton(ns("overlayRender"), label = "Render"), 
-                                  h6("Note: Discharge is measured from USGS Gauge at Hitching Post and is the same across all sites")
-                     )
+                                  #if this needs to be used like 1 more time I would make these functions
+                                  checkboxInput(ns("dischargeOverlayMovements"), "Overlay USGS Discharge Data"
+                                  ),
+                                  uiOutput(ns("dischargeScaleValueMovements")),
+                                  h6("Note: Discharge is measured from USGS Gauge at Hitching Post and is the same across all sites")                     )
             )
           ), 
           mainPanel(width = 10,
@@ -103,6 +105,7 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
       ns <- session$ns
       
       filteredPTData <- reactive({
+        
         validate(
           need(input$sitePicker, "Please select a site to display")
         )
@@ -129,11 +132,33 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
         )
       })
       
+      output$dischargeScaleValueMovements <- renderUI({
+        req(input$dischargeOverlayMovements)
+        numericInput(
+          ns("dischargeScaleValueInputMovements"),
+          "Scale Discharge (dividing)",
+          1,
+          min = 0,
+          max = NA,
+          step = NA,
+          width = NULL
+        )
+      })
+      
       filteredDischargeData <- reactive({
         filteredDischargeData <- dischargeData %>%
           dplyr::filter(lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2])
         
         return(filteredDischargeData)
+      })
+      
+      filteredDischargeDataMovements <- reactive({
+        filteredDischargeDataMovements <- dischargeData %>%
+          dplyr::filter(lubridate::date(dateTime) >= input$dateSlider2[1] & lubridate::date(dateTime) <= input$dateSlider2[2]) %>%
+          group_by(Date = date(dateTime)) %>%
+          summarise(dailyAverageCFS = round(mean(Flow_Inst), 2))
+        #x <<- filteredDischargeDataMovements
+        return(filteredDischargeDataMovements)
       })
       
       filteredPTData2 <- reactive({
@@ -149,7 +174,6 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
       })
       
       
-      
       filteredMovementsData <- movementsFiltered_Server("filteredMovementData", Movements_df)
       
       filteredMovementsDataCounts <- reactive({
@@ -160,8 +184,7 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
 
       
         output$PTPlot <- renderPlotly({
-           #print(input$dischargeOverlay)
-          
+
           if(!input$dischargeOverlay){
             filteredPTData() %>%
               ggplot(aes_string(x = "dateTime", y = input$variableSelect, color = "Site")
@@ -173,7 +196,7 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
           } else{
             ggplot() + 
               geom_line(data = filteredPTData(), aes_string(x = "dateTime", y = input$variableSelect, color = "Site")) +
-              geom_line(data = filteredDischargeData(), aes(x = dateTime, y = round(Flow_Inst/input$dischargeScaleValueInput, 0))) +
+              geom_line(data = filteredDischargeData(), aes(x = dateTime, y = round(Flow_Inst/input$dischargeScaleValueInput, 2))) +
               theme_classic() +
               labs(title="Pressure Transducer and USGS Data",
                    x = "Date", y = paste0(input$variableSelect, "/CFS"))
@@ -184,7 +207,8 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
       
       output$OverlayPlot <- renderPlotly({
         
-        scalevalue <- max(filteredPTData2()$dailyAverage, na.rm = T)/max(filteredMovementsDataCounts()$numberOfActivities)
+        scalevalue <- round(max(filteredPTData2()$dailyAverage, na.rm = T)/max(filteredMovementsDataCounts()$numberOfActivities), 2)
+        
         plot <- ggplot() +
           # # Bar plot (movements)
           geom_bar(data = filteredMovementsDataCounts(), aes(x = Date, y = numberOfActivities, 
@@ -195,10 +219,6 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
           # # Line plot (windyGap)
           geom_line(data = filteredPTData2(), aes(x = Date, y = round(dailyAverage/scalevalue, 0), color = Site)) +
           
-          # Set labels and titles
-          labs(title = paste0("Daily Movements and Scaled ", input$variableSelect2),
-               x = "Date", y = "Count") +
-          
           # Customize legend and fill colors
           scale_fill_manual(values = c("Downstream Movement" = "red",
                                        "Upstream Movement" = "chartreuse3",
@@ -207,6 +227,20 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
                                        "Changed Rivers" = "purple")) +
           guides(fill = guide_legend(title = "Movement")) +  # Legend for bar plot
           theme_classic()
+        
+        if(input$dischargeOverlayMovements){
+          
+          plot <- plot +
+            geom_line(data = filteredDischargeDataMovements(), aes(x = Date, y = round(dailyAverageCFS/input$dischargeScaleValueInputMovements, 2))) +
+            labs(title = paste0("Daily Movements, ", input$variableSelect2, "/", scalevalue, ", and CFS/", input$dischargeScaleValueInputMovements),
+                 x = "Date", y = paste0("Count, ", input$variableSelect2, ", and CFS"))
+          
+          
+        } else{
+          plot <- plot +
+            labs(title = paste0("Daily Movements and ", input$variableSelect2, "/", scalevalue),
+                 x = "Date", y = "Count") 
+        }
         
         return(plot)
       })
