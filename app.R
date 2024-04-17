@@ -181,9 +181,6 @@ ui <- fluidPage(
     ) #end of navbar page
 ) #end of fluidpage
 
-
-
-
 # Define server logic
 # Warning: Error in validate_session_object: object 'session' not found solved by adding session to the part up here
 server <- function(input, output, session) {
