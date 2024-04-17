@@ -89,6 +89,10 @@ if(!exists("PTData")){
   PTData <- readRDS("data/flatFilesforApp/PTData.rds")
 }
 
+if(!exists("dischargeData")){
+  dischargeData <- readRDS("data/flatFilesforApp/dischargeData.rds")
+}
+
 
 end_time <- Sys.time()
 print(paste("Static File Read-in took", round((end_time-start_time),2)))
@@ -196,7 +200,7 @@ server <- function(input, output, session) {
     
       States_Server("StatesTab1", states_data_list, weeks)
       
-      PT_Server("PTtab1", PTData, movements_list$Movements_df)
+      PT_Server("PTtab1", PTData, movements_list$Movements_df, dischargeData)
    
       QAQC_Server("QAQCTab1", Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
                   unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate,

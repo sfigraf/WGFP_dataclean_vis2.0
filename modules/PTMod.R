@@ -27,6 +27,10 @@ PT_UI <- function(id, PTData, Movements_df) {
                                    step = 1,
                                    timeFormat = "%d %b %y"
                        ), 
+                       
+                       checkboxInput(ns("dischargeOverlay"), "Overlay USGS Discharge Data"
+                                     ),
+                       uiOutput(ns("dischargeScaleValue")),
                        h6("Note: Discharge is measured from USGS Gauge at Hitching Post and is the same across all sites")
                        
           ),
@@ -91,22 +95,45 @@ PT_UI <- function(id, PTData, Movements_df) {
   )
 }
 
-PT_Server <- function(id, PTData, Movements_df) {
+PT_Server <- function(id, PTData, Movements_df, dischargeData) {
   moduleServer(
     id,
     function(input, output, session) {
+      
+      ns <- session$ns
       
       filteredPTData <- reactive({
         validate(
           need(input$sitePicker, "Please select a site to display")
         )
-        #req(input$sitePicker)
+        
         filteredPTData <- PTData %>%
           select(Site, dateTime, input$variableSelect) %>%
           dplyr::filter(Site %in% input$sitePicker, 
                         lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2]) #%>%
           #na.omit()
         return(filteredPTData)
+      })
+      
+      
+      output$dischargeScaleValue <- renderUI({
+        req(input$dischargeOverlay)
+        numericInput(
+          ns("dischargeScaleValueInput"),
+          "Scale Discharge (dividing)",
+          1,
+          min = 0,
+          max = NA,
+          step = NA,
+          width = NULL
+        )
+      })
+      
+      filteredDischargeData <- reactive({
+        filteredDischargeData <- dischargeData %>%
+          dplyr::filter(lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2])
+        
+        return(filteredDischargeData)
       })
       
       filteredPTData2 <- reactive({
@@ -117,8 +144,7 @@ PT_Server <- function(id, PTData, Movements_df) {
                         lubridate::date(dateTime) >= input$dateSlider2[1] & lubridate::date(dateTime) <= input$dateSlider2[2]) %>%
           
           group_by(Date = date(dateTime), Site) %>%
-          summarise(dailyAverage = round(mean(!!sym(input$variableSelect2)), 2)) %>%
-          na.omit()
+          summarise(dailyAverage = round(mean(!!sym(input$variableSelect2)), 2)) 
         return(filteredPTData)
       })
       
@@ -134,25 +160,32 @@ PT_Server <- function(id, PTData, Movements_df) {
 
       
         output$PTPlot <- renderPlotly({
+           #print(input$dischargeOverlay)
           
-          
-          filteredPTData() %>%
-            ggplot(aes_string(x = "dateTime", y = input$variableSelect, color = "Site"
-            )
-            ) +
-            geom_line() +
-            theme_classic() +
-            labs(title="Pressure Transducer Data",
-                 x = "Date", y = input$variableSelect)
-          
-          
+          if(!input$dischargeOverlay){
+            filteredPTData() %>%
+              ggplot(aes_string(x = "dateTime", y = input$variableSelect, color = "Site")
+              ) +
+              geom_line() +
+              theme_classic() +
+              labs(title="Pressure Transducer Data",
+                   x = "Date", y = input$variableSelect)
+          } else{
+            ggplot() + 
+              geom_line(data = filteredPTData(), aes_string(x = "dateTime", y = input$variableSelect, color = "Site")) +
+              geom_line(data = filteredDischargeData(), aes(x = dateTime, y = round(Flow_Inst/input$dischargeScaleValueInput, 0))) +
+              theme_classic() +
+              labs(title="Pressure Transducer and USGS Data",
+                   x = "Date", y = paste0(input$variableSelect, "/CFS"))
+            
+          }
         })
       
       
       output$OverlayPlot <- renderPlotly({
         
         scalevalue <- max(filteredPTData2()$dailyAverage, na.rm = T)/max(filteredMovementsDataCounts()$numberOfActivities)
-        ggplot() +
+        plot <- ggplot() +
           # # Bar plot (movements)
           geom_bar(data = filteredMovementsDataCounts(), aes(x = Date, y = numberOfActivities, 
                                                              #text = paste('Date: ', as.character(Date), '\n'),
@@ -175,6 +208,7 @@ PT_Server <- function(id, PTData, Movements_df) {
           guides(fill = guide_legend(title = "Movement")) +  # Legend for bar plot
           theme_classic()
         
+        return(plot)
       })
   
 

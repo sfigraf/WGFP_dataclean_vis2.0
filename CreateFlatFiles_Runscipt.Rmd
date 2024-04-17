@@ -89,9 +89,10 @@ usgsTime2 <- Sys.time()
 print(paste("Reading in USGS Discharge Data took", round((usgsTime2-usgsTime),2)))
 windyGap <- renameNWISColumns(windyGap)
 
-allPressureTransducerData <- windyGap[,c("dateTime", "Flow_Inst")] %>%
+#this should be used to plot variabels against each other, but it doesn't make sense to have discharge data in the overlays
+allPressureTransducerDataWithDischarge <- windyGap[,c("dateTime", "Flow_Inst")] %>%
   left_join(allPressureTransducerData, by = c("dateTime"= "DateTime")) %>%
-  rename(USGS_Discharge_at_HitchingPost = Flow_Inst)
+  rename(USGSDischarge = Flow_Inst)
 
 ```
 
@@ -342,7 +343,8 @@ allFlatFiles <- list(
   "Marker_tags" = Cleaned_Marker_tags,
   "unknown_tags" = unknown_tags, 
   "metaDataVariableNames" = metaDataVariableNames,
-  "PTData" = allPressureTransducerData
+  "PTData" = allPressureTransducerDataWithDischarge, 
+  "dischargeData" = windyGap
 )
 
 for(filename in names(allFlatFiles)){
