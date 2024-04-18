@@ -88,6 +88,7 @@ PT_UI <- function(id, PTData, Movements_df) {
                       width = 10,
                       withSpinner(plotlyOutput(ns("OverlayPlot")))
                     )
+                    
           )
         )
         
@@ -134,7 +135,10 @@ PT_UI <- function(id, PTData, Movements_df) {
                            box(
                              width = 10,
                              withSpinner(plotlyOutput(ns("variableCorrelationPlot")))
-                           )
+                           ), 
+                           box(width = 10, 
+                               uiOutput(ns("caption")))
+                           
                  )
                )
       )
@@ -351,14 +355,26 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
       })
       
       output$variableCorrelationPlot <- renderPlotly({
-       
+        
+        
+        
         filteredPTData3() %>%
           ggplot(aes(x = variableX, y = variableY)) +
           geom_line() +
           theme_classic() +
           labs(title = paste0(input$variableSelectX, " vs ", input$variableSelectY), 
                x = input$variableSelectX, 
-               y = input$variableSelectY)
+               y = input$variableSelectY
+               )
+      })
+      
+      output$caption <- renderUI({
+        fit <- lm(variableX ~ variableY, data = filteredPTData3())
+        rsquared <- round(summary(fit)$r.squared, 2)
+        caption_html <- paste("<p style='font-style: italic; font-size: 12px;'>",
+                              "R-squared:",  rsquared,
+                              "</p>")
+        HTML(caption_html)
       })
       
     }
