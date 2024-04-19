@@ -137,6 +137,10 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   
   condensedAllEventsWithReleaseInfo <- left_join(Tags_only, condensedAllEventsWithReleaseInfo, by = "TAG")
   
+  ###add temp/environmental data to that
+  
+  
+  
   ### This is getting the events dataframe to only the data relevant for joining with stations
   
   allEventsRelevantToStations <- condensedAllEventsWithReleaseInfo %>%
