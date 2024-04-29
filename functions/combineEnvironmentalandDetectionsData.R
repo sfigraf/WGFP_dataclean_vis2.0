@@ -11,17 +11,17 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
     left_join(wgfpMetadata$AntennaMetadata[,c("FrontendSiteCode", "PressureTransducerSiteName")], by = c("Event" = "FrontendSiteCode")) %>%
     rename(SiteName = PressureTransducerSiteName)
   
-
-# df of data where PT timestamp doesn't exactly match a detection timestamp -----------------
-
-
+  
+  # df of data where PT timestamp doesn't exactly match a detection timestamp -----------------
+  
+  
   ###remove rows here that have NA's associated with every field except datetime
   keyColumns <- c("dateTime")
   
   #filters rows from the data frame allPressureTransducerDataWithDischarge based on whether they have missing values only in specified columns (keyColumns),
   #filtered_PTData is the dates where there all all NA values in rest of the colunms
   filtered_PTData <- allPressureTransducerDataWithDischarge[rowSums(is.na(allPressureTransducerDataWithDischarge[, setdiff(names(allPressureTransducerDataWithDischarge), keyColumns)])) == (ncol(allPressureTransducerDataWithDischarge) - length(keyColumns)), ]
- #then we anti_join that with the original PT data with discharge to get df of data with datetimes that have some sort of relevant data
+  #then we anti_join that with the original PT data with discharge to get df of data with datetimes that have some sort of relevant data
   allPressureTransducerDataWithDischargeNoNA <- anti_join(allPressureTransducerDataWithDischarge, filtered_PTData)
   
   PTData <- allPressureTransducerDataWithDischargeNoNA %>%
@@ -45,14 +45,14 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   keycols <- c("Datetime", "SiteName")
   setkeyv(notExactTimestampMatchesDetections, keycols)
   setkeyv(PTData, keycols)
-
+  
   #perform a rolling join from data.table
   #first joins on sitename then datetime
   #for data where we have a stationary site attached, discharge data is from the closest hour. Otherwise, dishcarge data is within 15 minutes
   #gives df of envrionmental data and detections with closest timestamps
   notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading <- PTData[notExactTimestampMatchesDetections, roll = "nearest", on = .(SiteName, Datetime), nomatch = NULL]
-
-    notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading <- notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading %>%
+  
+  notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading <- notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading %>%
     relocate(dateTime, Datetime) %>%
     rename(environmentalDataMeasurementTime = dateTime)
   
@@ -65,28 +65,8 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
            across(all_of(columnstoChange), ~ ifelse(timeDifference == 1, NA_real_, .))
     )
   
-#   #rows that didn't get joined: IE exact timestamp matches
-# exactTimestampMatches <- DetectionswithPTSiteName %>%
-#   anti_join(notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour, by = c("Datetime"))
-# 
-# exactTimestampandSiteMatchesWithEnvironmentaldata <- exactTimestampMatches %>%
-#   inner_join(allPressureTransducerDataWithDischarge, by = c("Datetime" = "dateTime", "SiteName" = "Site")) %>%
-#   mutate(environmentalDataMeasurementTime = Datetime)
-# 
-# #now which rows didn't get data, join those to just discharge data because there's no site associated with it
-# exactTimestampWithoutSiteMatch <- exactTimestampMatches %>%
-#   anti_join(allPressureTransducerDataWithDischarge, by = c("Datetime" = "dateTime", "SiteName" = "Site"))
-# 
-# #if no siteMatch, just add discharge data
-# exactTimestampWithoutSiteMatchWithEnvironmentaldata <- exactTimestampWithoutSiteMatch %>%
-#   inner_join(DischargeData, by = c("Datetime" = "dateTime")) %>%
-#   mutate(environmentalDataMeasurementTime = Datetime) %>%
-#   rename(USGSDischarge = Flow_Inst)
-
-
-
-# getting environmental data for non-stationary events --------------------
-
+  # getting environmental data for non-stationary events --------------------
+  
   #gives exact matches of detections NOT at the stationary sites: release, mobile rus, biomark
   #can only join with USGS data here
   #currently joins discharge data to this no matter if the event is above or below the dam
@@ -95,24 +75,24 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
     inner_join(DischargeData, by = c("Datetime" = "dateTime")) %>%
     mutate(environmentalDataMeasurementTime = Datetime) %>%
     rename(USGSDischarge = Flow_Inst)
-
-
-# getting environmental data for all other detections that do not  have a stationary antenna site attached --------
-
+  
+  
+  # getting environmental data for all other detections that do not  have a stationary antenna site attached --------
+  
   #this should be redundant when we actually have PT data from connectivity channel
-    #should be discharge only right now unless we add some stuff
+  #should be discharge only right now unless we add some stuff
   ptData_noSite <- PTData %>%
     filter(is.na(SiteName))
-
+  
   exactMatchesatSiteNoPTSite <- DetectionswithPTSiteName %>%
     filter(SiteName %in% na.omit(unique(wgfpMetadata$AntennaMetadata$PressureTransducerSiteName))) %>%
     inner_join(ptData_noSite, by = c("Datetime" = "dateTime")) %>%
     mutate(environmentalDataMeasurementTime = Datetime)
-
-
-# gets environmental data associated with stationry antenna sites attached to stationary sites that have an exact timestamp match -------------------------------------------------
-
-
+  
+  
+  # gets environmental data associated with stationry antenna sites attached to stationary sites that have an exact timestamp match -------------------------------------------------
+  
+  
   exactMatchesWithPTdata <- DetectionswithPTSiteName %>%
     filter(SiteName %in% na.omit(unique(wgfpMetadata$AntennaMetadata$PressureTransducerSiteName))) %>%
     inner_join(PTData, by = c("Datetime" = "dateTime", "SiteName")) %>%
@@ -125,26 +105,26 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   
   alignColumns <- function(detectionsWithEnvironmentalData, desiredColumns) {
     # Create missing columns in detectionsWithEnvironmentalData with NA values
-    missing_columns <- setdiff(desiredColumns, colnames(detectionsWithEnvironmentalData))
+    missingColumns <- setdiff(desiredColumns, colnames(detectionsWithEnvironmentalData))
     
-    if (length(missing_columns) > 0) {
-      for (col in missing_columns) {
+    if (length(missingColumns) > 0) {
+      for (col in missingColumns) {
         # Determine the expected column type based on desiredColumns
-        expected_type <- ifelse(col %in% colnames(Detections), 
-                                typeof(Detections[[col]]),
-                                ifelse(col %in% colnames(allPressureTransducerDataWithDischarge),
-                                       typeof(allPressureTransducerDataWithDischarge[[col]]),
-                                       typeof(detectionsWithEnvironmentalData[[col]])))  # Use existing type of detectionsWithEnvironmentalData's column
+        expectedType <- ifelse(col %in% colnames(Detections), 
+                               typeof(Detections[[col]]),
+                               ifelse(col %in% colnames(allPressureTransducerDataWithDischarge),
+                                      typeof(allPressureTransducerDataWithDischarge[[col]]),
+                                      typeof(detectionsWithEnvironmentalData[[col]])))  # Use existing type of detectionsWithEnvironmentalData's column
         
         # Create new column with NA values and enforce the expected type
         detectionsWithEnvironmentalData[[col]] <- NA  # Start with NA values
-        detectionsWithEnvironmentalData[[col]] <- switch(expected_type,
-                            "integer" = as.integer(detectionsWithEnvironmentalData[[col]]),
-                            "numeric" = as.numeric(detectionsWithEnvironmentalData[[col]]),
-                            "character" = as.character(detectionsWithEnvironmentalData[[col]]),
-                            "factor" = as.factor(detectionsWithEnvironmentalData[[col]]),
-                            "Date" = as.Date(detectionsWithEnvironmentalData[[col]]),
-                            detectionsWithEnvironmentalData[[col]])  # Retain original if type doesn't match known types
+        detectionsWithEnvironmentalData[[col]] <- switch(expectedType,
+                                                         "integer" = as.integer(detectionsWithEnvironmentalData[[col]]),
+                                                         "numeric" = as.numeric(detectionsWithEnvironmentalData[[col]]),
+                                                         "character" = as.character(detectionsWithEnvironmentalData[[col]]),
+                                                         "factor" = as.factor(detectionsWithEnvironmentalData[[col]]),
+                                                         "Date" = as.Date(detectionsWithEnvironmentalData[[col]]),
+                                                         detectionsWithEnvironmentalData[[col]])  # Retain original if type doesn't match known types
       }
     }
     
@@ -170,15 +150,17 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   #so that's why here we filter out those rows (out of 2.6 million, it was just 3 rows) based on having a different envrionmnetal timestamp
   allData <- dplyr::bind_rows(df_list) %>%
     distinct(across(-environmentalDataMeasurementTime), .keep_all = TRUE)
-
   
+  detach("package:data.table", unload=TRUE)
   return(allData)
 }
-# ###QAQC code if there are different rows for the functions
+
 # x <- combineEnvironmentalandDetectionsData(Detections = condensedAllEventsWithReleaseInfo,
 #                                            allPressureTransducerDataWithDischarge = allPressureTransducerDataWithDischarge,
 #                                            DischargeData = windyGap
 #                                            )
+# ###QAQC code if there are different rows for the functions
+
 # 
 # #make sure we get all rows that we don't have any environmental data for: 
 # #these are the "exact matches"
