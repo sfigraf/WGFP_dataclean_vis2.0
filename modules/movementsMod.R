@@ -63,7 +63,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
       filtered_movements_data <- movementsFiltered_Server("movementModFilters", Movements_df)
       #seasonally
       seasonal_movts <- reactive({filtered_movements_data() %>%
-          group_by(month(Date), day(Date), movement_only) %>%
+          group_by(lubridate::month(Date), day(Date), movement_only) %>%
           summarise(total_events = n())
       })
       
@@ -334,7 +334,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
         output$plot6 <- renderPlotly({
 
           plot <- seasonal_movts() %>%
-            mutate(merged = (parse_date_time(paste(`month(Date)`, `day(Date)`), "md"))) %>%
+            mutate(merged = (parse_date_time(paste(`lubridate::month(Date)`, `day(Date)`), "md"))) %>%
             ggplot(aes(x = merged, y = total_events, fill = movement_only)) +
             geom_bar(stat = "identity", position = "dodge") +
             theme_classic() +
@@ -379,7 +379,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
 
         output$plot9 <- renderPlotly({
           plot <- filtered_movements_data() %>%
-            ggplot(aes(x = hour(Datetime), fill = movement_only)) +
+            ggplot(aes(x = lubridate::hour(Datetime), fill = movement_only)) +
             geom_histogram(binwidth = 1) +
             theme_classic() +
             labs(title = "Detections by Hour")

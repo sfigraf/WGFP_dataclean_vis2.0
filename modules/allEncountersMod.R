@@ -8,9 +8,9 @@ AllEncounters_UI <- function(id, combinedData_df_list) {
                                     start = "2020-08-01",
                                     end = max(combinedData_df_list$All_Events$Date) + 1), #end of date range input
                      sliderInput(ns("slider1"), "Hour of Day",
-                                 min = min(hour(combinedData_df_list$All_Events$Datetime), na.rm = TRUE),
-                                 max = max(hour(combinedData_df_list$All_Events$Datetime), na.rm = TRUE),
-                                 value = c(min(hour(combinedData_df_list$All_Events$Datetime), na.rm = TRUE),max(hour(combinedData_df_list$All_Events$Datetime), na.rm = TRUE)),
+                                 min = min(lubridate::hour(combinedData_df_list$All_Events$Datetime), na.rm = TRUE),
+                                 max = max(lubridate::hour(combinedData_df_list$All_Events$Datetime), na.rm = TRUE),
+                                 value = c(min(lubridate::hour(combinedData_df_list$All_Events$Datetime), na.rm = TRUE),max(lubridate::hour(combinedData_df_list$All_Events$Datetime), na.rm = TRUE)),
                                  step = 1
                      ),
                      pickerInput(ns("picker1"),
@@ -119,7 +119,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
                             value = NULL)
 
         updateSliderInput(session, "slider1",
-                          value = c(min(hour(combinedData_df_list$All_Events$Datetime)),max(hour(combinedData_df_list$All_Events$Datetime)))
+                          value = c(min(lubridate::hour(combinedData_df_list$All_Events$Datetime)),max(lubridate::hour(combinedData_df_list$All_Events$Datetime)))
         )
         
         updateSliderInput(session, "slider6",
@@ -151,7 +151,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
 
                 TAG %in% c(input$textinput1),
                 Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
-                hour(Datetime) >= input$slider1[1] & hour(Datetime) <= input$slider1[2],
+                lubridate::hour(Datetime) >= input$slider1[1] & lubridate::hour(Datetime) <= input$slider1[2],
                 Event %in% input$picker1,
                 Species %in% input$picker2,
                 Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
@@ -167,7 +167,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
               filter(
 
                 Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
-                hour(Datetime) >= input$slider1[1] & hour(Datetime) <= input$slider1[2],
+                lubridate::hour(Datetime) >= input$slider1[1] & lubridate::hour(Datetime) <= input$slider1[2],
                 Event %in% input$picker1,
                 Species %in% input$picker2,
                 Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
@@ -193,7 +193,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
               filter(
                 TAG == input$textinput1,
                 Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
-                hour(Datetime) >= input$slider1[1] & hour(Datetime) <= input$slider1[2],
+                lubridate::hour(Datetime) >= input$slider1[1] & lubridate::hour(Datetime) <= input$slider1[2],
 
                 Event %in% input$picker1,
                 Species %in% input$picker2,
@@ -223,7 +223,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
 
               filter(
                 Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
-                hour(Datetime) >= input$slider1[1] & hour(Datetime) <= input$slider1[2],
+                lubridate::hour(Datetime) >= input$slider1[1] & lubridate::hour(Datetime) <= input$slider1[2],
 
                 Event %in% input$picker1,
                 Species %in% input$picker2,
@@ -251,7 +251,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
               filter(
                 
                 Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
-                hour(Datetime) >= input$slider1[1] & hour(Datetime) <= input$slider1[2],
+                lubridate::hour(Datetime) >= input$slider1[1] & lubridate::hour(Datetime) <= input$slider1[2],
 
                 Event %in% input$picker1,
                 Species %in% input$picker2,

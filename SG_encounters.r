@@ -821,7 +821,7 @@ Stationary12 <- Stationary %>%
 #gets the rows that are have probematic ARR
 problem_times <- Stationary %>%
   filter(str_length(ARR) < 8) %>%
-  mutate(month111 = month(DTY)) 
+  mutate(month111 = lubridate::month(DTY)) 
 
 #gets which ecat days are problematic
 problem_times %>%
@@ -850,7 +850,7 @@ diferences <- anti_join(new_Stationary, Stationary)
 write_csv(new_Stationary, "New_Stationary.csv")
 
 # 
-#   mutate(month111 = month(DTY)) %>%
+#   mutate(month111 = lubridate::month(DTY)) %>%
 #   distinct(month111, SCD, DTY, .keep_all = TRUE)
 
 new_Stationary <- read.csv("New_Stationary.csv", colClasses = c(rep("character",11)))
@@ -1936,18 +1936,18 @@ x1 <- Movements_df %>%
   # spread(movement_only, n()) 
   # pivot_wider(id_cols = Date, names_from = movement_only)
   #mutate(test = mday(Date))
-  group_by(month(Date), day(Date), movement_only) %>%
+  group_by(lubridate::month(Date), day(Date), movement_only) %>%
   #mutate(total_release = movement_only)
   summarise(total_events = n())
-  # # mutate(m_1 = month(Date),
+  # # mutate(m_1 = lubridate::month(Date),
   # #        d_1 = day(Date))
   
 plot <- x1 %>%
   # select(Datetime,`Downstream Movement`, `Initial Release`,`No Movement`,`Upstream Movement`) %>%
-  # group_by(month(Datetime), day(Datetime)) %>%
+  # group_by(lubridate::month(Datetime), day(Datetime)) %>%
   # summarise(n = n())
   #count(`Downstream Movement`, `Initial Release`,`No Movement`,`Upstream Movement`)
-  mutate(merged = (parse_date_time(paste(`month(Date)`, `day(Date)`), "md")), 
+  mutate(merged = (parse_date_time(paste(`lubridate::month(Date)`, `day(Date)`), "md")), 
          ) %>%
   ggplot(aes(x = merged, y = total_events, fill = movement_only)) +
   geom_bar(stat = "identity", position = "dodge") +
@@ -2325,9 +2325,9 @@ ggplotly(plot)
 plot <- Movements_df %>%
   filter(!det_type %in% c("Mobile Run", "Release"),
          ) %>%
-  # group_by(hour(Datetime)) %>%
+  # group_by(lubridate::hour(Datetime)) %>%
   # summarize(x1 = n()) %>%
-  ggplot(aes(x = hour(Datetime), fill = movement_only)) +
+  ggplot(aes(x = lubridate::hour(Datetime), fill = movement_only)) +
   geom_histogram(binwidth = 1) +
   theme_classic() +
   labs(title = "Detections by Hour") 
@@ -2485,7 +2485,7 @@ map_with_data
 
 x <- "2021-03-22 00:39:05"
 All_events1 <- All_events %>%
-  mutate(trest = min(hour(Datetime)))
+  mutate(trest = min(lubridate::hour(Datetime)))
 #sf instead of ogr
 # condensed_events1 <- st_as_sf(df_list$All_Events_most_relevant, coords = c("UTM_X", "UTM_Y"))
 

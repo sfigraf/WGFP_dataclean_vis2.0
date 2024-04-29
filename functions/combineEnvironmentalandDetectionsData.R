@@ -1,8 +1,8 @@
 
 combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransducerDataWithDischarge, DischargeData){
   #using this package for the main nearest naighbor timestamp join, but it has a lot of cross functionality with other packages especiallly lubridate
-  #sowe're going to detach it at the end
-  library(data.table)
+  #so we're going to detach it at the end
+  library(data.table, quietly = TRUE,warn.conflicts	= FALSE)
   #########joining to get PT siteNmae from metadata
   DetectionswithPTSiteName <- Detections %>%
     #add pressure transducer site name to have a key to join with PT data
@@ -138,10 +138,10 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   }
   
   df_list <- list(
-    "exactMatchesWithPTdata1" <- alignColumns(exactMatchesWithPTdata, desiredColumns),
-    "exactMatchesatSiteNoPTSite1" <- alignColumns(exactMatchesatSiteNoPTSite, desiredColumns),  
-    "exactMatchesNotPTdata1" <- alignColumns(exactMatchesNotPTdata, desiredColumns),
-    "notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour1" <- alignColumns(notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour, desiredColumns = desiredColumns)
+    "exactMatchesWithPTdata1" = alignColumns(exactMatchesWithPTdata, desiredColumns),
+    "exactMatchesatSiteNoPTSite1" = alignColumns(exactMatchesatSiteNoPTSite, desiredColumns),  
+    "exactMatchesNotPTdata1" = alignColumns(exactMatchesNotPTdata, desiredColumns),
+    "notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour1" = alignColumns(notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour, desiredColumns = desiredColumns)
   )
   
   ## some rows have an entry for ptData at an exact timestamp, but the variables are all NA so it gets put under "notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour1"
@@ -149,7 +149,7 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   #this leads to duplicate entries in the final df, just with different environmental timestamp fields
   #so that's why here we filter out those rows (out of 2.6 million, it was just 3 rows) based on having a different envrionmnetal timestamp
   allData <- dplyr::bind_rows(df_list) %>%
-    distinct(across(-environmentalDataMeasurementTime), .keep_all = TRUE)
+    dplyr::distinct(across(-environmentalDataMeasurementTime), .keep_all = TRUE)
   
   detach("package:data.table", unload=TRUE)
   return(allData)

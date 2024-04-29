@@ -161,7 +161,7 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
         )
         
         filteredPTData <- PTData %>%
-          select(Site, dateTime, input$variableSelect) %>%
+          dplyr::select(Site, dateTime, input$variableSelect) %>%
           dplyr::filter(Site %in% input$sitePicker, 
                         lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2]) #%>%
         #na.omit()
