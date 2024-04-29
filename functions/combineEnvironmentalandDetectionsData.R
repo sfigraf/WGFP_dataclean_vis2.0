@@ -59,9 +59,9 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   columnstoChange <- c(colnames(PTData)[grepl("_", colnames(PTData))], "USGSDischarge")
   
   notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour <- notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading %>%
-    mutate(timeDifference = ifelse(difftime(environmentalDataMeasurementTime, Datetime, units = c("hours")) >= 1, 1, 0), 
+    mutate(timeDifference = ifelse(abs(difftime(environmentalDataMeasurementTime, Datetime, units = c("hours"))) >= 1, 1, 0), 
            across(all_of(columnstoChange), ~ ifelse(timeDifference == 1, NA_real_, .))
-    ) #%>%
+    ) #%>% 
     #arrange(desc(SiteName))
   
   
