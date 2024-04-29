@@ -1,14 +1,12 @@
 library(data.table)
 combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransducerDataWithDischarge, DischargeData){
-  #########joining
+  #########joining to get siteName
   DetectionsWorking <- Detections %>%
+    #add pressure treansducer site name to have a key to join with PT data
     #this part works as long as the site name in the metadata is what is used in the PT files as well
-    left_join(wgfpMetadata$AntennaMetadata[,c("FrontendSiteCode", "SiteName")], by = c("Event" = "FrontendSiteCode")) %>%
-    #this will have to be adjusted/added to for when the other antennas PT data get put in
-    mutate(SiteName = case_when(SiteName == "Confluence Stationary Antenna" ~ "Confluence",
-                                SiteName == "Hitching Post Stationary Antenna" ~ "Hitching Post",
-                                SiteName == "Red Barn Stationary Antenna" ~ "Red Barn")
-    )
+    #as more sites are added, we'll have to make sure the names in the pressure transducer files are the same as in the metadata "PressureTransducerSiteName" field
+    left_join(wgfpMetadata$AntennaMetadata[,c("FrontendSiteCode", "PressureTransducerSiteName")], by = c("Event" = "FrontendSiteCode")) %>%
+    rename(SiteName = PressureTransducerSiteName)
     # add_row(Datetime = as.POSIXct("2019-09-16 07:15:00")) %>%
     # add_row(Datetime = as.POSIXct("2021-05-24 08:00:00"), SiteName = "Hitching Post")
   ###remove rows here that have NA's assoicatied with every field except datetime
@@ -16,11 +14,10 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   specified_columns <- c("dateTime")
   
   # Filter rows based on NA values in other columns
-  #x <- 
-  #filtered_df <- allPressureTransducerDataWithDischarge[complete.cases(allPressureTransducerDataWithDischarge[, !(names(allPressureTransducerDataWithDischarge) %in% retain_columns)]), ]
+  #filters rows from the data frame allPressureTransducerDataWithDischarge based on whether they have missing values only in specified columns (specified_columns),
+  #filtered_PTData is the dates where there all all NA values in rest of the colunms
   filtered_PTData <- allPressureTransducerDataWithDischarge[rowSums(is.na(allPressureTransducerDataWithDischarge[, setdiff(names(allPressureTransducerDataWithDischarge), specified_columns)])) == (ncol(allPressureTransducerDataWithDischarge) - length(specified_columns)), ]
-  # x <- allPressureTransducerDataWithDischarge %>%
-  #   filter(is.na(USGSDischarge) & is.na(Water_Temp_F))
+ #then we anti_join that with the original PT data with discharge to get df of data with datetiems that have some sort of relevant data
   allPressureTransducerDataWithDischargeNoNA <- anti_join(allPressureTransducerDataWithDischarge, filtered_PTData)
   
   
@@ -62,8 +59,11 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
     mutate(timeDifference = ifelse(abs(difftime(environmentalDataMeasurementTime, Datetime, units = c("hours"))) >= 1, 1, 0), 
            across(all_of(columnstoChange), ~ ifelse(timeDifference == 1, NA_real_, .))
     ) #%>% 
+    #filter(timeDifference )
     #arrange(desc(SiteName))
-  
+  # y <- notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour %>% filter(Datetime == "2023-12-26 15:00:00")
+  # y1 <- y %>%
+  #   mutate(time = abs(difftime(environmentalDataMeasurementTime, Datetime, units = c("hours"))))
   
   ####
   #selected data without releaseSites
@@ -143,7 +143,8 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
     "notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour1" <- alignColumns(notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour, desiredColumns = desiredColumns)
   )
   
-  allData <- dplyr::bind_rows(df_list)
+  allData <- dplyr::bind_rows(df_list) %>%
+    distinct()
   #make sure we get all rows that we don't have any environmental data for: 
   #these are the "exact matches"
   #this is the df 
@@ -157,18 +158,27 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   x2 <- anti_join(x1, Detections)
   # y <- allData %>%
   #   filter(is.na(Datetime))
-  x <- allData %>%
+  x <- x1 %>%
     distinct()
+  df2 <- x1
+  #
+  duplicate_rows <- df2[duplicated(df2) & !duplicated(df2, fromLast = TRUE), ]
   
   return(allData)
 }
 # x <- Detections %>%
 #   filter(TAG == 230000142723, 
 #          Date == "2024-03-10")
-# x <- combineEnvironmentalandDetectionsData(Detections = condensedAllEventsWithReleaseInfo,
-#                                            allPressureTransducerDataWithDischarge = allPressureTransducerDataWithDischarge,
-#                                            DischargeData = windyGap
-#                                            )
+x <- combineEnvironmentalandDetectionsData(Detections = condensedAllEventsWithReleaseInfo,
+                                           allPressureTransducerDataWithDischarge = allPressureTransducerDataWithDischarge,
+                                           DischargeData = windyGap
+                                           )
+x <- duplicate_rows[,c("TAG", "Datetime", "Event")] %>%
+  left_join(allData)
+
+dupesInAlldata <- allData %>%
+  filter(TAG %in% x)
+  
 # x1 <- x %>%
 #   select(all_of(colnames(condensedAllEventsWithReleaseInfo))) #%>%
 #   #mutate(Datetime = as.POSIXct(Datetime))
