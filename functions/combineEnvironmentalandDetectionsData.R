@@ -144,7 +144,7 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   )
   
   allData <- dplyr::bind_rows(df_list) %>%
-    distinct()
+    distinct(across(-environmentalDataMeasurementTime), .keep_all = TRUE)
   #make sure we get all rows that we don't have any environmental data for: 
   #these are the "exact matches"
   #this is the df 
