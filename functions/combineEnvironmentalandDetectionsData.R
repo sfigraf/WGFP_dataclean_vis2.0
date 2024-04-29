@@ -28,10 +28,11 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
       SiteName = Site)
   
   #check same timezone
-  attr(PTData$Datetime, "tzone")
-  attr(DetectionsWorking$Datetime, "tzone")
-  #force detection df to correct zone
-  DetectionsWorking$Datetime <- lubridate::force_tz(DetectionsWorking$Datetime, tzone = "America/Denver")
+  if(attr(PTData$Datetime, "tzone") != attr(DetectionsWorking$Datetime, "tzone")){
+    #force detection df to correct zone
+    DetectionsWorking$Datetime <- lubridate::force_tz(DetectionsWorking$Datetime, tzone = "America/Denver")
+    
+  }
   
   notExactTimestampMatchesDetections <- anti_join(DetectionsWorking,PTData, by = "Datetime") 
   
@@ -43,7 +44,7 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   setkeyv(PTData, keycols)
 
   #perform a rolling join from data.table
-  #for data where we have a stationary site attached, discharge data is from the closest hour. Otherwise, it's 15 minutes
+  #for data where we have a stationary site attached, discharge data is from the closest hour. Otherwise, dishcarge data is within 15 minutes
   notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading <- PTData[notExactTimestampMatchesDetections, roll = "nearest", on = .(SiteName, Datetime), nomatch = NULL]
 
   #gives df of envrionmental data and detections with closest timestamps
@@ -61,11 +62,11 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
     ) #%>% 
     #filter(timeDifference )
     #arrange(desc(SiteName))
-  # y <- notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour %>% filter(Datetime == "2023-12-26 15:00:00")
+  y <- notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading %>% filter(Datetime == "2023-12-26 15:00:00")
   # y1 <- y %>%
   #   mutate(time = abs(difftime(environmentalDataMeasurementTime, Datetime, units = c("hours"))))
   
-  ####
+  #####
   #selected data without releaseSites
   
   #gives exact matches of detections NOT at the stationary sites: release, mobile rus, biomark
@@ -77,6 +78,9 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
     inner_join(DischargeData, by = c("Datetime" = "dateTime")) %>%
     mutate(environmentalDataMeasurementTime = Datetime) %>%
     rename(USGSDischarge = Flow_Inst)
+  
+  # x <- exactMatchesNotPTdata %>%
+  #   filter(Datetime == "2023-12-26 15:00:00")
   
   #get ptdata for sites with exact matching timestamps between stationary antenna detections and PTdata
   #but there's not actually a site associated with the PT data on that side
@@ -142,7 +146,10 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
     "exactMatchesNotPTdata1" <- alignColumns(exactMatchesNotPTdata, desiredColumns),
     "notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour1" <- alignColumns(notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour, desiredColumns = desiredColumns)
   )
-  
+  ## some rows have an entry for ptData at an exact timestamp, but the variables are all NA so it gets put under "notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour1"
+  #however since there's an exact match it also gets put under "exactMatchesNotPTdata" 
+  #this leads to duplicate entries in the final df, just with different environmental timestamp fields
+  #so that's why here we filter out those rows (out of 2.6 million, it was just 3 rows) based on having a different envrionmnetal timestamp
   allData <- dplyr::bind_rows(df_list) %>%
     distinct(across(-environmentalDataMeasurementTime), .keep_all = TRUE)
   #make sure we get all rows that we don't have any environmental data for: 
@@ -162,6 +169,7 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
     distinct()
   df2 <- x1
   #
+  duplicate_rows <- read_rds("diplicaterows.rds")
   duplicate_rows <- df2[duplicated(df2) & !duplicated(df2, fromLast = TRUE), ]
   
   return(allData)
