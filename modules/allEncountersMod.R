@@ -134,10 +134,11 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
                       step = 1,
           ),
           
-          radioGroupButtons(ns("radioFilterIce"), label = "Filter Ice", 
+          checkboxGroupInput(ns("radioFilterIce"), label = "Filter Ice", 
                        choices = unique(combinedData_df_list$All_Events$Filter_Ice), 
-                       selected = unique(combinedData_df_list$All_Events$Filter_Ice)),
-          
+                       selected = unique(combinedData_df_list$All_Events$Filter_Ice), 
+                       inline = TRUE
+                       ),
           
           pickerInput(ns("environmentalSite"),
                       label = "Select PT Logger Site",
