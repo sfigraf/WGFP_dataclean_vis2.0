@@ -136,10 +136,19 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   #makes sure all events are from tags ONLY in the release file
   
   condensedAllEventsWithReleaseInfo <- left_join(Tags_only, condensedAllEventsWithReleaseInfo, by = "TAG")
+  #condensedAllEventsWithReleaseInfo
+  condensedAllEventsWithReleaseInfo$Datetime <- lubridate::force_tz(condensedAllEventsWithReleaseInfo$Datetime, tzone = "America/Denver")
+  
+  ###add temp/environmental data to that
+  condensedAllEventsWithReleaseandEnvironmentalInfo <- combineEnvironmentalandDetectionsData(Detections = condensedAllEventsWithReleaseInfo,
+                                             allPressureTransducerDataWithDischarge = allPressureTransducerDataWithDischarge,
+                                             DischargeData = windyGap
+                                             )
+  
   
   ### This is getting the events dataframe to only the data relevant for joining with stations
   
-  allEventsRelevantToStations <- condensedAllEventsWithReleaseInfo %>%
+  allEventsRelevantToStations <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
     #this part is for making sure the sequence of events will make sense
     # if there's no tag input then have to group_by TAG as well
     group_by(Date, TAG) %>% 
@@ -150,11 +159,11 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     ungroup() %>%
     distinct(TAG, Event, Date, first_last,  UTM_X, UTM_Y, .keep_all = TRUE) %>%
     arrange(Datetime) 
-  
+
   df_list <- list("All_Detections" = cleanedAllDetections, 
                   "All_Events_most_relevant" = allEventsRelevantToStations,
                   #allEvents has release and recapture along with detections. All Detections just has detections
-                  "All_Events" = condensedAllEventsWithReleaseInfo, 
+                  "All_Events" = condensedAllEventsWithReleaseandEnvironmentalInfo, 
                   "Recaps_detections" = recapturesAndDetections)
   
   end_time <- Sys.time()
