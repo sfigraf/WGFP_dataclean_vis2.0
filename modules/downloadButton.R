@@ -1,7 +1,8 @@
 downloadData_UI <- function(id) {
   ns <- NS(id)
   tagList(
-    actionButton(ns("downloadActionButton"), label = "Save Data")
+    actionButton(ns("downloadActionButton"), label = "Save Data"), 
+    hr(),
   )
 }
 
@@ -12,20 +13,47 @@ downloadData_Server <- function(id, data, fileName = "WGFPdataDownload") {
       ns <- session$ns
       
       observeEvent(input$downloadActionButton, {
+        
         showModal(modalDialog(
-          title = "Data Download",
-          downloadButton(ns("downloadCSV"), "Download as CSV"),
-          downloadButton(ns("downloadRDS"), "Download as RDS"),
+          fluidRow(
+            column(
+              width = 12,
+              align = "center", 
+              downloadButton(ns("downloadCSV"), "Download as CSV")
+            )
+          ), 
+          br(), 
+          fluidRow(
+            column(
+              width = 12,
+              align = "center", 
+              downloadButton(ns("downloadRDS"), "Download as RDS")
+            )
+          ),
+          br(),
           
-          #"Data 1 has been successfully downloaded."
+          footer = tagList(
+            fluidRow(
+              column(
+                width = 12,
+                align = "center", 
+                modalButton("Cancel")
+              )
+            )
+          ),
+          
+          easyClose = TRUE, 
+          size = "s"
+          
         ))
       })
       
       output$downloadCSV <- downloadHandler(
         filename = function() {
-          paste(fileName, Sys.Date(), ".csv", sep = "")
+          paste(fileName, "_", Sys.Date(), ".csv", sep = "")
         },
         content = function(file) {
+          on.exit(removeModal())
           write_csv(data, file, progress = TRUE)
           
         }
@@ -34,12 +62,14 @@ downloadData_Server <- function(id, data, fileName = "WGFPdataDownload") {
       
       output$downloadRDS <- downloadHandler(
         filename = function() {
-            paste(fileName, Sys.Date(), ".rds", sep = "")
+            paste(fileName, "_", Sys.Date(), ".rds", sep = "")
         },
         content = function(file) {
+          on.exit(removeModal())
             saveRDS(data, file = file)
         }
       )
+      
     }
   )
 }
