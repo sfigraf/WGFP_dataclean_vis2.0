@@ -85,6 +85,8 @@ windyGap <- readNWISuv(siteNumbers = "09034250", #code for windy gap
                        endDate = Sys.Date(),
                        tz = "America/Denver")
 
+windyGap$dateTime <- lubridate::force_tz(windyGap$dateTime, tzone = "UTC")
+
 usgsTime2 <- Sys.time()
 print(paste("Reading in USGS Discharge Data took", round((usgsTime2-usgsTime),2)))
 windyGap <- renameNWISColumns(windyGap)

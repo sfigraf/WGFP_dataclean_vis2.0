@@ -55,8 +55,11 @@ AllEncounters_UI <- function(id, combinedData_df_list) {
                                    `actions-box` = TRUE #this makes the "select/deselect all" option
                                  )
                      ), #end of picker 3 input
-                     checkboxInput(ns("environmentalFilters"), "Display Environmental Data Filters"),
-                     uiOutput(ns("environmentalFiltersUI")), 
+                     checkboxInput(ns("PTFilters"), "Display Environmental Data Filters"),
+                     uiOutput(ns("PTFiltersUI")), 
+                     
+                     checkboxInput(ns("dischargeDataFilter"), "DisplayUSGS Discharge Filter"),
+                     uiOutput(ns("DischargeFilterUI")), 
 
                      checkboxInput(ns("checkbox1"), "Remove Duplicate Days, TAGs, Events and UTMs"),
                      checkboxInput(ns("checkbox2"), "Remove Duplicate TAGs: doesn't work with TAG filter"), #deliberate decision not to add another if statement to have it actually work because it doesn't make sense you would use both at the same time
@@ -89,17 +92,24 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
       
       ns <- session$ns
       
-      output$environmentalFiltersUI <- renderUI({
-        req(input$environmentalFilters)
-        
+      output$DischargeFilterUI <- renderUI({
+        req(input$dischargeDataFilter)
         tagList(
-          
           sliderInput(ns("sliderDischarge"), "USGS Discharge (CFS)",
                       min = min(combinedData_df_list$All_Events$USGSDischarge, na.rm = TRUE),
                       max = max(combinedData_df_list$All_Events$USGSDischarge, na.rm = TRUE),
                       value = c(min(combinedData_df_list$All_Events$USGSDischarge, na.rm = TRUE),max(combinedData_df_list$All_Events$USGSDischarge, na.rm = TRUE)),
                       step = 1,
-          ),
+          )
+        )
+      })
+      
+      output$PTFiltersUI <- renderUI({
+        req(input$PTFilters)
+        
+        tagList(
+          
+         
           sliderInput(ns("sliderWaterPressure"), "Water Pressure (PSI)",
                       min = min(combinedData_df_list$All_Events$Water_Pres_psi, na.rm = TRUE),
                       max = max(combinedData_df_list$All_Events$Water_Pres_psi, na.rm = TRUE),
@@ -251,10 +261,16 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
         all_events_data <- eventReactive(input$button3,ignoreNULL = FALSE,{
           
           All_Events <- combinedData_df_list$All_Events
-          if(input$environmentalFilters){
+          if(input$dischargeDataFilter){
             All_Events <- All_Events %>%
-              filter(#environmental s
-                USGSDischarge >= input$sliderDischarge[1] & USGSDischarge <= input$sliderDischarge[2],
+              filter(
+                USGSDischarge >= input$sliderDischarge[1] & USGSDischarge <= input$sliderDischarge[2]
+              )
+          }
+          
+          if(input$PTFilters){
+            All_Events <- All_Events %>%
+              filter(
                 Water_Pres_psi >= input$sliderWaterPressure[1] & Water_Pres_psi <= input$sliderWaterPressure[2],
                 Water_Temp_F >= input$sliderWaterTemp[1] & Water_Temp_F <= input$sliderWaterTemp[2],
                 Barom_Pres_psi >= input$sliderBaromPres[1] & Barom_Pres_psi <= input$sliderBaromPres[2],

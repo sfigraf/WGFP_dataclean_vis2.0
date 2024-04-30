@@ -130,10 +130,10 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   #makes sure all events are from tags ONLY in the release file
   
   condensedAllEventsWithReleaseInfo <- left_join(Tags_only, condensedAllEventsWithReleaseInfo, by = "TAG")
-  #condensedAllEventsWithReleaseInfo
-  condensedAllEventsWithReleaseInfo$Datetime <- lubridate::force_tz(condensedAllEventsWithReleaseInfo$Datetime, tzone = "America/Denver")
+  #allPressureTransducerDataWithDischarge$dateTime <- lubridate::force_tz(allPressureTransducerDataWithDischarge$dateTime, tzone = "UTC")
   
   ###add temp/environmental data to that
+  #these arguments come from the createFlatFilesRunscript
   condensedAllEventsWithReleaseandEnvironmentalInfo <- combineEnvironmentalandDetectionsData(Detections = condensedAllEventsWithReleaseInfo,
                                              allPressureTransducerDataWithDischarge = allPressureTransducerDataWithDischarge,
                                              DischargeData = windyGap

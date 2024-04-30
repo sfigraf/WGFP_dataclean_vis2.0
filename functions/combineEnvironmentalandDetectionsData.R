@@ -31,7 +31,7 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   #check timezone
   if(attr(PTData$Datetime, "tzone") != attr(DetectionswithPTSiteName$Datetime, "tzone")){
     #force detection df to correct zone
-    DetectionswithPTSiteName$Datetime <- lubridate::force_tz(DetectionswithPTSiteName$Datetime, tzone = "America/Denver")
+    PTData$Datetime <- lubridate::force_tz(PTData$Datetime, tzone = "UTC")
     
   }
   #these are all the detections from the original Detection file that do not exactly match a PT or discharge recording timestamp
