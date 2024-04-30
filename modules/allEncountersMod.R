@@ -249,12 +249,29 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
         # enc_release_data wasn't registering bc i used reactive() instead of reactive ({}).
         # i guess reactive ({}) makes it so you can make multiple expressions within a reactive context whereas reactive() can only do 1
         all_events_data <- eventReactive(input$button3,ignoreNULL = FALSE,{
+          
+          All_Events <- combinedData_df_list$All_Events
+          if(input$environmentalFilters){
+            All_Events <- All_Events %>%
+              filter(#environmental s
+                USGSDischarge >= input$sliderDischarge[1] & USGSDischarge <= input$sliderDischarge[2],
+                Water_Pres_psi >= input$sliderWaterPressure[1] & Water_Pres_psi <= input$sliderWaterPressure[2],
+                Water_Temp_F >= input$sliderWaterTemp[1] & Water_Temp_F <= input$sliderWaterTemp[2],
+                Barom_Pres_psi >= input$sliderBaromPres[1] & Barom_Pres_psi <= input$sliderBaromPres[2],
+                Air_Temp_F >= input$sliderAirTemp[1] & Air_Temp_F <= input$sliderAirTemp[2],
+                Water_Level_ft >= input$sliderWaterLevel[1] & Water_Level_ft <= input$sliderWaterLevel[2],
+                (!is.null(input$radioFilterIce) & Filter_Ice %in% input$radioFilterIce),
+                (Site %in% input$environmentalSite))
+              
+          }
+            
+          
           # if the Tag filter is used or not
           if(input$textinput1 !=''){
             #all events
-            all_events_filtered <- combinedData_df_list$All_Events  %>%
+            all_events_filtered <- All_Events  %>%
               filter(
-
+                
                 TAG %in% c(input$textinput1),
                 Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
                 lubridate::hour(Datetime) >= input$slider1[1] & lubridate::hour(Datetime) <= input$slider1[2],
@@ -263,13 +280,14 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
                 Release_Length >= input$slider6[1] & Release_Length <= input$slider6[2],
                 Release_Weight >= input$slider7[1] & Release_Weight <= input$slider7[2],
                 ReleaseSite %in% input$picker3,
-                Release_Date >= input$drangeinput3[1] & Release_Date <= input$drangeinput3[2]
+                Release_Date >= input$drangeinput3[1] & Release_Date <= input$drangeinput3[2],
+                
               ) %>%
               arrange(Datetime)
 
 
           } else {
-            all_events_filtered <- combinedData_df_list$All_Events  %>%
+            all_events_filtered <- All_Events  %>%
               filter(
 
                 Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
@@ -293,7 +311,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
           #if there is a tag input along with the first box checked
           if (input$checkbox1 == TRUE & input$checkbox2 == FALSE & input$textinput1 !='') {
 
-            all_events_filtered <- combinedData_df_list$All_Events %>%
+            all_events_filtered <- All_Events %>%
 
               filter(
                 TAG == input$textinput1,
@@ -324,7 +342,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
           #if there isn't a tag input along with first box checked
           if (input$checkbox1 == TRUE & input$checkbox2 == FALSE & input$textinput1 =='') {
 
-            all_events_filtered <- combinedData_df_list$All_Events %>%
+            all_events_filtered <- All_Events %>%
 
               filter(
                 Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
@@ -352,7 +370,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
 
           if (input$checkbox2 == TRUE) {
 
-            all_events_filtered <- combinedData_df_list$All_Events %>%
+            all_events_filtered <- All_Events %>%
               filter(
                 
                 Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
