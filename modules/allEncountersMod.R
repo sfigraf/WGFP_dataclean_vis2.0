@@ -56,7 +56,7 @@ AllEncounters_UI <- function(id, combinedData_df_list) {
                                  )
                      ), #end of picker 3 input
                      
-                     checkboxInput(ns("dischargeDataFilter"), "DisplayUSGS Discharge Filter"),
+                     checkboxInput(ns("dischargeDataFilter"), "Display USGS Discharge Filter"),
                      uiOutput(ns("DischargeFilterUI")), 
                      
                      
