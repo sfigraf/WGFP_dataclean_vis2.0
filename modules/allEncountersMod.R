@@ -55,15 +55,19 @@ AllEncounters_UI <- function(id, combinedData_df_list) {
                                    `actions-box` = TRUE #this makes the "select/deselect all" option
                                  )
                      ), #end of picker 3 input
-                     checkboxInput(ns("PTFilters"), "Display Environmental Data Filters"),
-                     uiOutput(ns("PTFiltersUI")), 
                      
                      checkboxInput(ns("dischargeDataFilter"), "DisplayUSGS Discharge Filter"),
                      uiOutput(ns("DischargeFilterUI")), 
+                     
+                     
+                     
+                     checkboxInput(ns("PTFilters"), "Display Environmental Data Filters"),
+                     uiOutput(ns("PTFiltersUI")), 
 
                      checkboxInput(ns("checkbox1"), "Remove Duplicate Days, TAGs, Events and UTMs"),
                      checkboxInput(ns("checkbox2"), "Remove Duplicate TAGs: doesn't work with TAG filter"), #deliberate decision not to add another if statement to have it actually work because it doesn't make sense you would use both at the same time
                      actionButton(ns("button2"), "Reset Filters"),
+                     h6("Note: If there are any NA entries in any of the applicable filters (especially the numeric ones), those rows are excluded from the table."),
                      hr(),
 
                      actionButton(ns("button3"), label = "Render Table", width = "100%")
@@ -95,6 +99,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
       output$DischargeFilterUI <- renderUI({
         req(input$dischargeDataFilter)
         tagList(
+          h6("Note: Discharge is measured from USGS Gauge at Hitching Post and is associated with detections if measurement was within 13 hours of detection"),
           sliderInput(ns("sliderDischarge"), "USGS Discharge (CFS)",
                       min = min(combinedData_df_list$All_Events$USGSDischarge, na.rm = TRUE),
                       max = max(combinedData_df_list$All_Events$USGSDischarge, na.rm = TRUE),
@@ -108,7 +113,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
         req(input$PTFilters)
         
         tagList(
-          
+          h6("For detections at specific Stationary Site, PT data is associated if detection was within 1 hour of measurement."),
          
           sliderInput(ns("sliderWaterPressure"), "Water Pressure (PSI)",
                       min = min(combinedData_df_list$All_Events$Water_Pres_psi, na.rm = TRUE),
