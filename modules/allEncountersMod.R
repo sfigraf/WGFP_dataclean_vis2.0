@@ -91,6 +91,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
       
       output$environmentalFiltersUI <- renderUI({
         req(input$environmentalFilters)
+        
         tagList(
           
           sliderInput(ns("sliderDischarge"), "USGS Discharge (CFS)",
@@ -103,7 +104,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
                       min = min(combinedData_df_list$All_Events$Water_Pres_psi, na.rm = TRUE),
                       max = max(combinedData_df_list$All_Events$Water_Pres_psi, na.rm = TRUE),
                       value = c(min(combinedData_df_list$All_Events$Water_Pres_psi, na.rm = TRUE),max(combinedData_df_list$All_Events$Water_Pres_psi, na.rm = TRUE)),
-                      step = 1,
+                      
           ),
           
           sliderInput(ns("sliderWaterTemp"), "Water Temp (F)",
@@ -117,7 +118,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
                       min = min(combinedData_df_list$All_Events$Barom_Pres_psi, na.rm = TRUE),
                       max = max(combinedData_df_list$All_Events$Barom_Pres_psi, na.rm = TRUE),
                       value = c(min(combinedData_df_list$All_Events$Barom_Pres_psi, na.rm = TRUE),max(combinedData_df_list$All_Events$Barom_Pres_psi, na.rm = TRUE)),
-                      step = 1,
+                      
           ),
           
           sliderInput(ns("sliderAirTemp"), "Air Temp (F)",
@@ -131,7 +132,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
                       min = min(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE),
                       max = max(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE),
                       value = c(min(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE), max(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE)),
-                      step = 1,
+                      
           ),
           
           checkboxGroupInput(ns("radioFilterIce"), label = "Filter Ice", 
@@ -155,10 +156,10 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
       })
       
       observeEvent(input$button2, {
-
+        
         updateTextInput(session, "textinput1",
                         value = "")
-
+        
         updateDateRangeInput(session, "drangeinput2",
                              start = "2020-08-01",
                              end = max(combinedData_df_list$All_Events$Date) + 1)
@@ -166,26 +167,26 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
         updateDateRangeInput(session, "drangeinput3",
                              start = min(combinedData_df_list$All_Events$Release_Date, na.rm = TRUE) - 1,
                              end = max(combinedData_df_list$All_Events$Release_Date, na.rm = TRUE) + 1
-                             )
-
+        )
+        
         updatePickerInput(session, "picker1",
                           selected = unique(combinedData_df_list$All_Events$Event)
         )
-
+        
         updatePickerInput(session, "picker2",
                           selected = unique(combinedData_df_list$All_Events$Species)
         )
-
+        
         updatePickerInput(session, "picker3",
                           selected = unique(combinedData_df_list$All_Events$ReleaseSite)
         )
-
+        
         updateCheckboxInput(session, "checkbox1",
                             value = NULL)
-
+        
         updateCheckboxInput(session, "checkbox2",
                             value = NULL)
-
+        
         updateSliderInput(session, "slider1",
                           value = c(min(lubridate::hour(combinedData_df_list$All_Events$Datetime)),max(lubridate::hour(combinedData_df_list$All_Events$Datetime)))
         )
@@ -203,7 +204,44 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
                             max(combinedData_df_list$All_Events$Release_Weight, na.rm = TRUE)
                           )
         )
-
+        
+        updateSliderInput(session, "sliderDischarge",
+                          value = c(min(combinedData_df_list$All_Events$USGSDischarge, na.rm = TRUE),max(combinedData_df_list$All_Events$USGSDischarge, na.rm = TRUE)),
+                          
+        )
+        updateSliderInput(session,"sliderWaterPressure",
+                          value = c(min(combinedData_df_list$All_Events$Water_Pres_psi, na.rm = TRUE),max(combinedData_df_list$All_Events$Water_Pres_psi, na.rm = TRUE)),
+                          
+        )
+        
+        updateSliderInput(session,"sliderWaterTemp",
+                          value = c(min(combinedData_df_list$All_Events$Water_Temp_F, na.rm = TRUE),max(combinedData_df_list$All_Events$Water_Temp_F, na.rm = TRUE)),
+                          
+        )
+        
+        updateSliderInput(session, "sliderBaromPres",
+                          value = c(min(combinedData_df_list$All_Events$Barom_Pres_psi, na.rm = TRUE),max(combinedData_df_list$All_Events$Barom_Pres_psi, na.rm = TRUE)),
+                          
+        )
+        
+        updateSliderInput(session, "sliderAirTemp",
+                          value = c(min(combinedData_df_list$All_Events$Air_Temp_F, na.rm = TRUE), max(combinedData_df_list$All_Events$Air_Temp_F, na.rm = TRUE)),
+                          
+        )
+        
+        updateSliderInput(session,"sliderWaterLevel",
+                          value = c(min(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE), max(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE)),
+                          
+        )
+        
+        updateCheckboxGroupInput(session, "radioFilterIce",
+                                 selected = unique(combinedData_df_list$All_Events$Filter_Ice)
+        )
+        
+        updatePickerInput(session, "environmentalSite",
+                    selected = unique(combinedData_df_list$All_Events$Site)
+        )
+        
       }) #end of reset
       
 #ALL Events and Plot Reactive --------------------------------------------
