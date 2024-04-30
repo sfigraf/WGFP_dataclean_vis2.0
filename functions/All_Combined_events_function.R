@@ -107,11 +107,6 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   #fills in release info so it is known at any row of detection
   allEventsWithReleaseInfo <- left_join(allEvents, cleanedRelease, by = c("TAG"))
   
-  #this is the final df 
-  
-  #Change na to "No info" in select columns so that it will register with the Picker input in the app
-  #pretty sure that's just a bug on the DT or shinyWidgets end that it can't select by NA
-  # 87 rows were not even showing up on the all_events app because the Species was NA -12/14/21 SG
   
   condensedAllEventsWithReleaseInfo <- allEventsWithReleaseInfo %>%
     select(Date.x, Time.x, DateTime.x, TAG, Event.x, Species.y, Length.y, Weight.y, ReleaseSite.y, Date.y, RecaptureSite, Recap_Length, Recap_Weight, UTM_X.x, UTM_Y.x) %>%
@@ -127,8 +122,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
            UTM_X = UTM_X.x,
            UTM_Y = UTM_Y.x) %>%
     #gets rid of all duplicate rows but keeps all info
-    distinct(Datetime, TAG, Event, .keep_all = TRUE) %>%
-    replace_na(list(Species = "No Info", ReleaseSite = "No Info"))
+    distinct(Datetime, TAG, Event, .keep_all = TRUE) 
   
   Tags_only <- cleanedRelease %>%
     select(TAG)
@@ -144,7 +138,14 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
                                              allPressureTransducerDataWithDischarge = allPressureTransducerDataWithDischarge,
                                              DischargeData = windyGap
                                              )
+  #this is the final df 
   
+  #Change na to "No info" in select columns so that it will register with the Picker input in the app
+  #pretty sure that's just a bug on the DT or shinyWidgets end that it can't select by NA
+  # 87 rows were not even showing up on the all_events app because the Species was NA -12/14/21 SG
+  condensedAllEventsWithReleaseandEnvironmentalInfo <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
+    replace_na(list(Species = "No Info", ReleaseSite = "No Info", 
+                    Site = "No Site Associated"))
   
   ### This is getting the events dataframe to only the data relevant for joining with stations
   
