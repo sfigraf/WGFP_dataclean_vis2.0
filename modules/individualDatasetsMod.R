@@ -15,6 +15,7 @@ IndividualDatasets_UI <- function(id, df_list, Release_05) {
                  withSpinner(DT::dataTableOutput(ns("mobile1")))),
         tabPanel("Recaptures",
                  br(), 
+                 downloadData_UI(ns("downloadrecaps")),
                  withSpinner(DT::dataTableOutput(ns("recaps1")))),
         tabPanel("Release",
                  br(), 
@@ -47,6 +48,8 @@ IndividualDatasets_Server <- function(id, indiv_datasets_list) {
   moduleServer(
     id,
     function(input, output, session) {
+      
+      downloadData_Server("downloadrecaps", indiv_datasets_list$recapdata)
       
       output$stationary1 <- DT::renderDataTable(
         
@@ -98,6 +101,8 @@ IndividualDatasets_Server <- function(id, indiv_datasets_list) {
           #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
         )
       )
+      
+      
       
       output$recaps1 <- renderDataTable(
         
