@@ -28,10 +28,13 @@ States_UI <- function(id,states_data_list) {
         tabPanel("States Dataframe",
                  
                  br(),
+                 downloadData_UI(ns("downloadstates1")), 
+                 
                  withSpinner(DT::dataTableOutput(ns("states1")))),
         tabPanel("States and Weeks Wide",
                   br(),
-                  withSpinner(DT::dataTableOutput(ns("states2")))
+                 downloadData_UI(ns("downloadstates2")), 
+                 withSpinner(DT::dataTableOutput(ns("states2")))
                           
                  )
                  
@@ -95,6 +98,9 @@ States_Server <- function(id, states_data_list, weeks) {
         return(states_data_list)
       }) 
       
+      downloadData_Server("downloadstates1", filtered_states_data()$filtered_states, "AllStatesData")
+      
+      
       output$states1 <- renderDT({
         
         datatable(
@@ -109,7 +115,7 @@ States_Server <- function(id, states_data_list, weeks) {
             pageLength = 10,
             info = TRUE,
             lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
-            dom = 'Blfrtip',
+            dom = 'lfrtip',
             #had to add 'lowercase L' letter to display the page length again
             language = list(emptyTable = "Enter inputs and press Render Table")
             
@@ -123,6 +129,8 @@ States_Server <- function(id, states_data_list, weeks) {
           )
       })
       
+      downloadData_Server("downloadstates2", filtered_states_data()$filtered_wide, "StatesWideData")
+      
       
       output$states2 <- renderDT({
         
@@ -133,7 +141,7 @@ States_Server <- function(id, states_data_list, weeks) {
                   filter = 'top',
                   options = list(
                     pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-                    dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
+                    dom = 'lfrtip', #had to add 'lowercase L' letter to display the page length again
                     language = list(emptyTable = "Enter inputs and press Render Table")
                     
                     #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))

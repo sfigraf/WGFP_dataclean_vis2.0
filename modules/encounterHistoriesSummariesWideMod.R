@@ -66,7 +66,8 @@ EncounterHistoriesSummariesWide_UI <- function(id, Enc_release_data) {
                    ), #end of picker 13 input
                    actionButton(ns("button6"), label = "Render Table/Data", width = "100%")
                  ), #end of sidebar panel for enc_release wide_summary
-                 mainPanel(hr(),
+                 mainPanel(                           br(),
+                           downloadData_UI(ns("downloadenc_release1")), 
                            
                            withSpinner(DT::dataTableOutput(ns("enc_release1"))),
                            )#end of mainpanel for enc_hist_wide
@@ -79,6 +80,8 @@ EncounterHistoriesSummariesWide_Server <- function(id, Enc_release_data) {
   moduleServer(
     id,
     function(input, output, session) {
+      
+      
       enc_hist_wide_filtered <- eventReactive(input$button6,ignoreNULL = FALSE,{
             ##gona have to change a lot of outputs later based on what this is named
 
@@ -115,6 +118,8 @@ EncounterHistoriesSummariesWide_Server <- function(id, Enc_release_data) {
             return(Enc_release_data_filtered)
           }) #end ns(of ENC data list eventReactive
       
+      downloadData_Server("downloadenc_release1", enc_hist_wide_filtered(), "EncounterHistoriesSummaryData")
+      
       output$enc_release1 <- renderDataTable({
         
         datatable(enc_hist_wide_filtered(),
@@ -124,7 +129,7 @@ EncounterHistoriesSummariesWide_Server <- function(id, Enc_release_data) {
         filter = 'top',
         options = list(
           pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-          dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again #errorin list: arg 5 is empty because I had a comma after the dom argument so it thought there was gonna be another argument input
+          dom = 'lfrtip', #had to add 'lowercase L' letter to display the page length again #errorin list: arg 5 is empty because I had a comma after the dom argument so it thought there was gonna be another argument input
           language = list(emptyTable = "Enter inputs and press Render Table")
         )
         )

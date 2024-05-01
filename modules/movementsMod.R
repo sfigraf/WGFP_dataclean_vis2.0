@@ -16,8 +16,7 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                                        withSpinner(leafletOutput(ns("map1"), height = 600))
                            ),
                            hr(),
-                           # downloadButton(ns("download6"), label = "Save movements data as CSV"),
-                           # hr(),
+                           downloadData_UI(ns("downloadmovements1")),
                   ), # end of Map and table tabPanel
                   tabPanel("Minicharts Map",
                            fluidRow(
@@ -31,7 +30,7 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                            withSpinner(plotlyOutput(ns("plot1"))),
                            hr(),
                            withSpinner(plotlyOutput(ns("plot6"))),
-                           # downloadButton(ns("download8"), label = "Save seasonal plot data as CSV"),
+                           downloadData_UI(ns("downloadplot6")),
                            hr(),
                            withSpinner(plotlyOutput(ns("plot7"))),
                            hr(),
@@ -88,6 +87,8 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
           markerColor = filtered_movements_data()$marker_color
         )
       })
+      
+      downloadData_Server("downloadmovements1", filtered_movements_data(), "MovementsData")
       
       output$movements1 <- renderDT({
         req(filtered_movements_data())
@@ -199,25 +200,25 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
       #   return(WeeklyMovementsbyType2)
       # })
       
-  output$map2 <- renderLeaflet({
-    leaflet() %>%
-      addProviderTiles(providers$Esri.WorldImagery,
-                       options = providerTileOptions(maxZoom = 19.5)
-      ) %>%
-      ###minicharts
-      addMinicharts(
-        lng =  WeeklyMovementsbyType$X,
-        lat = WeeklyMovementsbyType$Y,
-        #layerId = WeeklyMovementsbyType$det_type,
-        type = "bar",
-        maxValues = 50,
-        height = 45,
-        width = 45,
-        chartdata = WeeklyMovementsbyType[,c("Initial Release", "No Movement", "Downstream Movement", "Upstream Movement", "Changed Rivers")],
-        time = WeeklyMovementsbyType$date_week
-
-      )
-  })
+  # output$map2 <- renderLeaflet({
+  #   leaflet() %>%
+  #     addProviderTiles(providers$Esri.WorldImagery,
+  #                      options = providerTileOptions(maxZoom = 19.5)
+  #     ) %>%
+  #     ###minicharts
+  #     addMinicharts(
+  #       lng =  WeeklyMovementsbyType$X,
+  #       lat = WeeklyMovementsbyType$Y,
+  #       #layerId = WeeklyMovementsbyType$det_type,
+  #       type = "bar",
+  #       maxValues = 50,
+  #       height = 45,
+  #       width = 45,
+  #       chartdata = WeeklyMovementsbyType[,c("Initial Release", "No Movement", "Downstream Movement", "Upstream Movement", "Changed Rivers")],
+  #       time = WeeklyMovementsbyType$date_week
+  # 
+  #     )
+  # })
 
       
 # Movements Map Output ----------------------------------------------------
@@ -331,6 +332,9 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
           
           
         })
+        
+        downloadData_Server("downloadplot6", seasonal_movts(), "SeasonalMovementsData")
+        
         output$plot6 <- renderPlotly({
 
           plot <- seasonal_movts() %>%

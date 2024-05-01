@@ -57,6 +57,7 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
                       box(
                         title = paste("Crosstalk Occurrences Between ", input$crosstalkDateSlider[1],  "and", input$crosstalkDateSlider[2]),
                         withSpinner(dataTableOutput(ns(paste0("dataTable_", siteCode)))),
+                        downloadData_UI(ns(paste0("downloaddataTable_", siteCode))),
                         footer = "May take a few seconds to load"
                       )
                     )
@@ -110,6 +111,7 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
       output$crosstalkTable <- renderDT({
         datatable(
           crosstalkData()$summaryTable,
+          extensions = c("Buttons"),
           rownames = FALSE,
           selection = "single",
           caption = "% of FISH detections on each antenna with the exact same timestamp.
@@ -119,7 +121,7 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
             stateSave = TRUE,
             pageLength = 100,
             info = TRUE,
-            dom = 'tri',
+            dom = 'Btri',
             #had to add 'lowercase L' letter to display the page length again
             language = list(emptyTable = "Enter inputs and press Render Table")
           )
@@ -133,8 +135,9 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
         
         for (siteCode in siteCodes) {
           local({
-            #in order to et th efor-loop to run, have to create a local instance of "i" everytime
+            #in order to get the for-loop to run, have to create a local instance of "i" everytime
             localSiteCodeInstance <- siteCode
+            downloadData_Server(paste0("downloaddataTable_", localSiteCodeInstance), crosstalkData()[["crosstalkIndividualList"]][[localSiteCodeInstance]], paste0("crosstalkOccurences_", localSiteCodeInstance))
             
             output[[paste0("dataTable_", localSiteCodeInstance)]] <- renderDataTable({
               
