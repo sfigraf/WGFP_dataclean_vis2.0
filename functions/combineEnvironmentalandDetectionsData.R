@@ -31,26 +31,35 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   #check timezone
   if(attr(PTData$Datetime, "tzone") != attr(DetectionswithPTSiteName$Datetime, "tzone")){
     #force detection df to correct zone
-    DetectionswithPTSiteName$Datetime <- lubridate::force_tz(DetectionswithPTSiteName$Datetime, tzone = "America/Denver")
+    PTData$Datetime <- lubridate::force_tz(PTData$Datetime, tzone = "UTC")
     
   }
-  #these are all the detections from the original file that do not exactly match a PT or discharge recording
-  notExactTimestampMatchesDetections <- anti_join(DetectionswithPTSiteName, PTData, by = "Datetime") 
+  #these are all the detections from the original Detection file that do not exactly match a PT or discharge recording timestamp
+  notExactTimestampMatchesDetections <- anti_join(DetectionswithPTSiteName, PTData, by = c("Datetime") )
+  
+
+# rolling join on just specific site stuff --------------------------------
+  #the rolling join with 2 can only take those with the 
+  notExactTimestampMatchesDetectionsStationaryOnly <- notExactTimestampMatchesDetections %>%
+    filter(!is.na(SiteName))
   
   #make PT data and timestamps into data.table objects so that we can perform rolling join
-  notExactTimestampMatchesDetections <- data.table(notExactTimestampMatchesDetections)
+  notExactTimestampMatchesDetectionsStationaryOnly <- data.table(notExactTimestampMatchesDetectionsStationaryOnly)
   PTData <- data.table(PTData)
   
   #set keycols
   keycols <- c("Datetime", "SiteName")
-  setkeyv(notExactTimestampMatchesDetections, keycols)
+  setkeyv(notExactTimestampMatchesDetectionsStationaryOnly, keycols)
   setkeyv(PTData, keycols)
   
   #perform a rolling join from data.table
   #first joins on sitename then datetime
   #for data where we have a stationary site attached, discharge data is from the closest hour. Otherwise, dishcarge data is within 15 minutes
   #gives df of envrionmental data and detections with closest timestamps
-  notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading <- PTData[notExactTimestampMatchesDetections, roll = "nearest", on = .(SiteName, Datetime), nomatch = NULL]
+  notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading <- PTData[notExactTimestampMatchesDetectionsStationaryOnly, roll = "nearest", on = .(SiteName,Datetime), nomatch = NULL]
+  
+  # x <- as.data.frame(notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading) %>%
+  #   dplyr::filter(Datetime == as.POSIXct("2020-11-28 11:58:27"))
   
   notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading <- notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading %>%
     relocate(dateTime, Datetime) %>%
@@ -63,9 +72,60 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour <- notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading %>%
     mutate(timeDifference = ifelse(abs(difftime(environmentalDataMeasurementTime, Datetime, units = c("hours"))) >= 1, 1, 0), 
            across(all_of(columnstoChange), ~ ifelse(timeDifference == 1, NA_real_, .))
-    )
+    ) 
+  #this is one of the df's to join
+  #this is stationary PT readings for all detections within 1 hour, including discharge
+  #if there is 1 valid reading in any of the speificed columns, the row is kept
+  #but rows are removed if all the entires in the specified columns are NA
+  notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1HourValidDataOnly <- as.data.frame(notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour) %>%
+    filter(rowSums(is.na(.[columnstoChange])) < length(columnstoChange))
   
-  # getting environmental data for non-stationary events --------------------
+  
+  #now we need to do a rolling join with just discharge
+
+# rolling join 2 just discharge -------------------------------------------
+  # outsideOf1hr <- notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour %>%
+  #   filter(is.na(USGSDischarge))
+  #want to buffer by 13 hours for just discharge
+  
+  
+  restOftheNotExactTimestampMatches <- anti_join(notExactTimestampMatchesDetections, notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1HourValidDataOnly, 
+                 by = c("Datetime", "Event", "TAG", "UTM_X", "UTM_Y")) %>%
+    arrange(SiteName)
+  
+  restOftheNotExactTimestampMatches <- data.table(restOftheNotExactTimestampMatches)
+  DischargeDataforJoin <- data.table(DischargeData) %>%
+    mutate(Datetime = dateTime)
+  
+  #set keycols
+  keycols <- c("Datetime")
+  setkeyv(restOftheNotExactTimestampMatches, keycols)
+  setkeyv(DischargeDataforJoin, keycols)
+
+  restOftheNotExactTimestampMatchesWithDischargeReading <- DischargeDataforJoin[restOftheNotExactTimestampMatches, roll = "nearest", on = .(Datetime), nomatch = NULL]
+
+  
+  restOftheNotExactTimestampMatchesWithDischargeReading <- restOftheNotExactTimestampMatchesWithDischargeReading %>%
+    relocate(dateTime, Datetime) %>%
+    rename(environmentalDataMeasurementTime = dateTime, 
+          USGSDischarge = Flow_Inst)
+  
+  #change environmental data columns to NA that are outside 13 hour time frame
+  #cols to change to NA: includes USGSDischarge
+  columnstoChange <- c("USGSDischarge")
+  
+  
+  ##this is the rest of the not exact time stamp entries to fill in the gaps 
+  restOftheNotExactTimestampMatchesWithDischargeReading <- restOftheNotExactTimestampMatchesWithDischargeReading %>%
+    mutate(timeDifference = ifelse(abs(difftime(environmentalDataMeasurementTime, Datetime, units = c("hours"))) >= 13, 1, 0), 
+           across(all_of(columnstoChange), ~ ifelse(timeDifference == 1, NA_real_, .))
+    ) 
+  #qaqc: these should have same amount of rows as all not exact timestamps. Can check to see if they all have discharge data as well
+  #nrow(restOftheNotExactTimestampMatchesWithDischargeReading) + nrow(notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1HourValidDataOnly)
+  
+  
+  
+# getting environmental data for non-stationary events with exact timestamp matches--------------------
   
   #gives exact matches of detections NOT at the stationary sites: release, mobile rus, biomark
   #can only join with USGS data here
@@ -138,11 +198,12 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   }
   
   df_list <- list(
-    "exactMatchesWithPTdata1" = alignColumns(exactMatchesWithPTdata, desiredColumns),
-    "exactMatchesatSiteNoPTSite1" = alignColumns(exactMatchesatSiteNoPTSite, desiredColumns),  
-    "exactMatchesNotPTdata1" = alignColumns(exactMatchesNotPTdata, desiredColumns),
-    "notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour1" = alignColumns(notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour, desiredColumns = desiredColumns)
-  )
+    "exactTimestampMatchesWithPTdata1" = alignColumns(exactMatchesWithPTdata, desiredColumns),
+    "exactTimestampMatchesatSiteNoPTSite1" = alignColumns(exactMatchesatSiteNoPTSite, desiredColumns),  
+    "exactTimestampMatchesNotPTdata1" = alignColumns(exactMatchesNotPTdata, desiredColumns),
+    "notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour1" = alignColumns(notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1HourValidDataOnly, desiredColumns = desiredColumns), 
+    "notExactTimestampMatchesDetectionsStationaryValidDataWithClosestEnvironmentalReadingWithin1Hour1" = alignColumns(restOftheNotExactTimestampMatchesWithDischargeReading,desiredColumns)
+    )
   
   ## some rows have an entry for ptData at an exact timestamp, but the variables are all NA so it gets put under "notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour1"
   #however since there's an exact match it also gets put under "exactMatchesNotPTdata" 

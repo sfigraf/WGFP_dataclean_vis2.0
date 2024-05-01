@@ -52,11 +52,13 @@ MarkerTagQAQC_UI <- function(id, Marker_Tag_data) {
           withSpinner(plotlyOutput(ns("plot2")))
           
         ),
+        downloadData_UI(ns("downloadmarkerTagsPlotData")),
         br(),
         shinydashboard::box(
           title = "Summarized Marker tag Data for Selected Tags and Sites",
           width = "600px",
-          withSpinner(DT::dataTableOutput(ns("summarizedMarkerTagData")))
+          withSpinner(DT::dataTableOutput(ns("summarizedMarkerTagData"))), 
+          downloadData_UI(ns("downloadsummarizedMarkerTagData")),
         )
       )#end of mainpanel
     )#end of sidebar layout
@@ -109,8 +111,8 @@ MarkerTagQAQC_Server <- function(id, Marker_Tag_data) {
             axis.text.x = element_blank(),
             axis.ticks = element_blank())
         
-        
       })
+      downloadData_Server("downloadmarkerTagsPlotData", plotAndTableMarkerTagDataList()$markerTagDataForPlot, "MarkerTagData")
       
       
       output$markerTagsPlotData <- renderDT({
@@ -133,6 +135,7 @@ MarkerTagQAQC_Server <- function(id, Marker_Tag_data) {
           )
         )
       })
+      downloadData_Server("downloadsummarizedMarkerTagData", plotAndTableMarkerTagDataList()$summarizedMarkerTagDataForTable, "SummarizedMarkerTagData")
       
       output$summarizedMarkerTagData <- renderDT({
         
@@ -148,7 +151,7 @@ MarkerTagQAQC_Server <- function(id, Marker_Tag_data) {
             pageLength = 10,
             info = TRUE,
             lengthMenu = list(c(10, 25, 50), c("10", "25", "50")),
-            dom = 'Blrtip',
+            dom = 'lrtip',
             #had to add 'lowercase L' letter to display the page length again
             language = list(emptyTable = "Enter inputs and press Render Table")
           )
