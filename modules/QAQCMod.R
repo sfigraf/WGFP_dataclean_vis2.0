@@ -34,6 +34,7 @@ QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
       ),
       tabPanel("Ghost Tag Movements",
                br(),
+               downloadData_UI(ns("downloadghostTags1")),
                withSpinner(DT::dataTableOutput(ns("ghostTags1")))
       ), 
       tabPanel("Crosstalk QAQC",
@@ -88,6 +89,8 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
                   )
         ) 
       })
+      
+      downloadData_Server("downloadghostTags1", ghostTagsWithMovementAfterGhostDate, "Post-GhostDateMovements")
       
       output$ghostTags1 <- renderDT({
         datatable(ghostTagsWithMovementAfterGhostDate,

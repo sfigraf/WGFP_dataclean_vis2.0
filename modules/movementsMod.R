@@ -16,8 +16,7 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                                        withSpinner(leafletOutput(ns("map1"), height = 600))
                            ),
                            hr(),
-                           # downloadButton(ns("download6"), label = "Save movements data as CSV"),
-                           # hr(),
+                           downloadData_UI(ns("downloadmovements1")),
                   ), # end of Map and table tabPanel
                   tabPanel("Minicharts Map",
                            fluidRow(
@@ -31,7 +30,7 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                            withSpinner(plotlyOutput(ns("plot1"))),
                            hr(),
                            withSpinner(plotlyOutput(ns("plot6"))),
-                           # downloadButton(ns("download8"), label = "Save seasonal plot data as CSV"),
+                           downloadData_UI(ns("downloadplot6")),
                            hr(),
                            withSpinner(plotlyOutput(ns("plot7"))),
                            hr(),
@@ -63,7 +62,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
       filtered_movements_data <- movementsFiltered_Server("movementModFilters", Movements_df)
       #seasonally
       seasonal_movts <- reactive({filtered_movements_data() %>%
-          group_by(month(Date), day(Date), movement_only) %>%
+          group_by(lubridate::month(Date), day(Date), movement_only) %>%
           summarise(total_events = n())
       })
       
@@ -88,6 +87,8 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
           markerColor = filtered_movements_data()$marker_color
         )
       })
+      
+      downloadData_Server("downloadmovements1", filtered_movements_data(), "MovementsData")
       
       output$movements1 <- renderDT({
         req(filtered_movements_data())
@@ -199,25 +200,25 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
       #   return(WeeklyMovementsbyType2)
       # })
       
-  output$map2 <- renderLeaflet({
-    leaflet() %>%
-      addProviderTiles(providers$Esri.WorldImagery,
-                       options = providerTileOptions(maxZoom = 19.5)
-      ) %>%
-      ###minicharts
-      addMinicharts(
-        lng =  WeeklyMovementsbyType$X,
-        lat = WeeklyMovementsbyType$Y,
-        #layerId = WeeklyMovementsbyType$det_type,
-        type = "bar",
-        maxValues = 50,
-        height = 45,
-        width = 45,
-        chartdata = WeeklyMovementsbyType[,c("Initial Release", "No Movement", "Downstream Movement", "Upstream Movement", "Changed Rivers")],
-        time = WeeklyMovementsbyType$date_week
-
-      )
-  })
+  # output$map2 <- renderLeaflet({
+  #   leaflet() %>%
+  #     addProviderTiles(providers$Esri.WorldImagery,
+  #                      options = providerTileOptions(maxZoom = 19.5)
+  #     ) %>%
+  #     ###minicharts
+  #     addMinicharts(
+  #       lng =  WeeklyMovementsbyType$X,
+  #       lat = WeeklyMovementsbyType$Y,
+  #       #layerId = WeeklyMovementsbyType$det_type,
+  #       type = "bar",
+  #       maxValues = 50,
+  #       height = 45,
+  #       width = 45,
+  #       chartdata = WeeklyMovementsbyType[,c("Initial Release", "No Movement", "Downstream Movement", "Upstream Movement", "Changed Rivers")],
+  #       time = WeeklyMovementsbyType$date_week
+  # 
+  #     )
+  # })
 
       
 # Movements Map Output ----------------------------------------------------
@@ -331,10 +332,13 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
           
           
         })
+        
+        downloadData_Server("downloadplot6", seasonal_movts(), "SeasonalMovementsData")
+        
         output$plot6 <- renderPlotly({
 
           plot <- seasonal_movts() %>%
-            mutate(merged = (parse_date_time(paste(`month(Date)`, `day(Date)`), "md"))) %>%
+            mutate(merged = (parse_date_time(paste(`lubridate::month(Date)`, `day(Date)`), "md"))) %>%
             ggplot(aes(x = merged, y = total_events, fill = movement_only)) +
             geom_bar(stat = "identity", position = "dodge") +
             theme_classic() +
@@ -379,7 +383,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
 
         output$plot9 <- renderPlotly({
           plot <- filtered_movements_data() %>%
-            ggplot(aes(x = hour(Datetime), fill = movement_only)) +
+            ggplot(aes(x = lubridate::hour(Datetime), fill = movement_only)) +
             geom_histogram(binwidth = 1) +
             theme_classic() +
             labs(title = "Detections by Hour")

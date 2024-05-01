@@ -6,17 +6,27 @@ IndividualDatasets_UI <- function(id, df_list, Release_05) {
         tabsetPanel(
         tabPanel("Stationary Clean",
                  br(), 
+                 downloadData_UI(ns("downloadstationary1")),
+                 br(), 
                  withSpinner(DT::dataTableOutput(ns("stationary1")))),
         tabPanel("Biomark",
+                 br(), 
+                 downloadData_UI(ns("downloadbiomark1")),
                  br(), 
                  withSpinner(DT::dataTableOutput(ns("biomark1")))),
         tabPanel("Mobile",
                  br(), 
+                 downloadData_UI(ns("downloadmobile1")),
+                 br(), 
                  withSpinner(DT::dataTableOutput(ns("mobile1")))),
         tabPanel("Recaptures",
                  br(), 
+                 downloadData_UI(ns("downloadrecaps1")),
+                 br(), 
                  withSpinner(DT::dataTableOutput(ns("recaps1")))),
         tabPanel("Release",
+                 br(), 
+                 downloadData_UI(ns("downloadrelease1")),
                  br(), 
                  withSpinner(DT::dataTableOutput(ns("release1"))),
                  sliderInput(ns("slider11"), "Length Binwidth",
@@ -33,8 +43,12 @@ IndividualDatasets_UI <- function(id, df_list, Release_05) {
                  hr()),
         tabPanel("Ghost Tags",
                  br(), 
+                 downloadData_UI(ns("downloadghost1")),
+                 br(), 
                  withSpinner(DT::dataTableOutput(ns("ghost1")))),
         tabPanel("Aviation Predation Tags",
+                 br(), 
+                 downloadData_UI(ns("downloadav_pred1")),
                  br(), 
                  withSpinner(DT::dataTableOutput(ns("av_pred1"))))
       
@@ -48,6 +62,14 @@ IndividualDatasets_Server <- function(id, indiv_datasets_list) {
     id,
     function(input, output, session) {
       
+      downloadData_Server("downloadstationary1", indiv_datasets_list$stationarycleandata, "StationaryData")
+      downloadData_Server("downloadbiomark1", indiv_datasets_list$biomarkdata, "BiomarkData")
+      downloadData_Server("downloadmobile1", indiv_datasets_list$mobiledata, "MobileData")
+      downloadData_Server("downloadrecaps1", indiv_datasets_list$recapdata, "RecaptureData")
+      downloadData_Server("downloadrelease1", indiv_datasets_list$releasedata, "ReleaseData")
+      downloadData_Server("downloadghost1", indiv_datasets_list$ghostdata, "GhostTagData")
+      downloadData_Server("downloadav_pred1", indiv_datasets_list$avian_preddata, "AvianPredationData")
+      
       output$stationary1 <- DT::renderDataTable(
         
         
@@ -58,7 +80,7 @@ IndividualDatasets_Server <- function(id, indiv_datasets_list) {
         filter = 'top',
         options = list(
           pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-          dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
+          dom = 'lfrtip', #had to add 'lowercase L' letter to display the page length again
           language = list(emptyTable = "Enter inputs and press Render Table")
           #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
         )
@@ -75,7 +97,7 @@ IndividualDatasets_Server <- function(id, indiv_datasets_list) {
         filter = 'top',
         options = list(
           pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-          dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
+          dom = 'lfrtip', #had to add 'lowercase L' letter to display the page length again
           language = list(emptyTable = "Enter inputs and press Render Table")
           
           #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
@@ -92,12 +114,14 @@ IndividualDatasets_Server <- function(id, indiv_datasets_list) {
         filter = 'top',
         options = list(
           pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-          dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
+          dom = 'lfrtip', #had to add 'lowercase L' letter to display the page length again
           language = list(emptyTable = "Enter inputs and press Render Table")
           
           #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
         )
       )
+      
+      
       
       output$recaps1 <- renderDataTable(
         
@@ -108,7 +132,7 @@ IndividualDatasets_Server <- function(id, indiv_datasets_list) {
         filter = 'top',
         options = list(
           pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-          dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
+          dom = 'lfrtip', #had to add 'lowercase L' letter to display the page length again
           language = list(emptyTable = "Enter inputs and press Render Table")
           
           #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
@@ -124,7 +148,7 @@ IndividualDatasets_Server <- function(id, indiv_datasets_list) {
         filter = 'top',
         options = list(
           pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-          dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
+          dom = 'lfrtip', #had to add 'lowercase L' letter to display the page length again
           language = list(emptyTable = "Enter inputs and press Render Table")
           
           #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
@@ -154,7 +178,7 @@ IndividualDatasets_Server <- function(id, indiv_datasets_list) {
         filter = 'top',
         options = list(
           pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-          dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
+          dom = 'lfrtip', #had to add 'lowercase L' letter to display the page length again
           language = list(emptyTable = "Enter inputs and press Render Table")
           
           #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
@@ -168,7 +192,7 @@ IndividualDatasets_Server <- function(id, indiv_datasets_list) {
         filter = 'top',
         options = list(
           pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-          dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
+          dom = 'lfrtip', #had to add 'lowercase L' letter to display the page length again
           language = list(emptyTable = "Enter inputs and press Render Table")
           
           #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))

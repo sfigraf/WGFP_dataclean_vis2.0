@@ -85,13 +85,15 @@ windyGap <- readNWISuv(siteNumbers = "09034250", #code for windy gap
                        endDate = Sys.Date(),
                        tz = "America/Denver")
 
+windyGap$dateTime <- lubridate::force_tz(windyGap$dateTime, tzone = "UTC")
+
 usgsTime2 <- Sys.time()
 print(paste("Reading in USGS Discharge Data took", round((usgsTime2-usgsTime),2)))
 windyGap <- renameNWISColumns(windyGap)
 
-allPressureTransducerData <- windyGap[,c("dateTime", "Flow_Inst")] %>%
+allPressureTransducerDataWithDischarge <- windyGap[,c("dateTime", "Flow_Inst")] %>%
   left_join(allPressureTransducerData, by = c("dateTime"= "DateTime")) %>%
-  rename(USGS_Discharge_at_HitchingPost = Flow_Inst)
+  rename(USGSDischarge = Flow_Inst)
 
 ```
 
@@ -99,7 +101,7 @@ allPressureTransducerData <- windyGap[,c("dateTime", "Flow_Inst")] %>%
 
 ```{r QAQCduplicateTags, include = TRUE, echo = FALSE}
 #checking if ghost tags have 1 tag entry for each
-#troubleShootingMessage <- ""
+
 
 problemGhostTags <- GhostTags %>%
   count(TagID) %>%
@@ -241,12 +243,11 @@ GhostTags <- GhostTags %>%
   mutate(GhostDate = lubridate::mdy(GhostDate))
 ```
 
-```{r wrangling, include=TRUE, echo = FALSE}
+```{r wrangling, include=FALSE, echo = FALSE}
 
 
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
 df_list <- All_combined_events_function(Stationary = utmsStationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
-All_events <- df_list$All_Events
 
 #separating to marker tag file and fish detections file
 
@@ -269,7 +270,7 @@ if(nrow(DailyMovements_withStations$noUTMS) > 0){
 }
 
 #prepares joined stations and relevant Movements dataset for movements summaries and states
-#it appears it's calulcating this right
+
 combined_events_stations <- PrepareforStatesMovementsandSummary(DailyMovements_withStations$stationData)
 
 # states
@@ -333,6 +334,10 @@ movements_list <- list(
 )
 
 
+
+```
+```{r saveFiles, include = TRUE, echo=FALSE}
+
 allFlatFiles <- list(
   "combinedData_df_list" = df_list,
   "indiv_datasets_list" = indiv_datasets_list,
@@ -342,7 +347,8 @@ allFlatFiles <- list(
   "Marker_tags" = Cleaned_Marker_tags,
   "unknown_tags" = unknown_tags, 
   "metaDataVariableNames" = metaDataVariableNames,
-  "PTData" = allPressureTransducerData
+  "PTData" = allPressureTransducerDataWithDischarge, 
+  "dischargeData" = windyGap
 )
 
 for(filename in names(allFlatFiles)){
@@ -350,7 +356,7 @@ for(filename in names(allFlatFiles)){
 }
 
 whole_doc_endTime <- Sys.time()
-
 ```
+
 
 ## `r paste("The whole document took", round(whole_doc_endTime-whole_doc_startTime,2), "minutes to run.  Flat Files are saved to the flat files directory and the data vis app is ready to run with the most updated data.")`
