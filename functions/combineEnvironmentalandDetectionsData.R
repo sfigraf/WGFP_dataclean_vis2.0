@@ -75,8 +75,10 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
     ) 
   #this is one of the df's to join
   #this is stationary PT readings for all detections within 1 hour, including discharge
-  notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1HourValidDataOnly <- notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour %>%
-    filter(!is.na(USGSDischarge))
+  #if there is 1 valid reading in any of the speificed columns, the row is kept
+  #but rows are removed if all the entires in the specified columns are NA
+  notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1HourValidDataOnly <- as.data.frame(notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour) %>%
+    filter(rowSums(is.na(.[columnstoChange])) < length(columnstoChange))
   
   
   #now we need to do a rolling join with just discharge
