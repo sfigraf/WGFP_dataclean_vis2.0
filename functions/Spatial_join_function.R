@@ -27,7 +27,7 @@ spatial_join_stations_detections <- function(condensedEvents, simpleStations) {
   stationData <- sf::st_join(condensedEventsSFLatLong, simpleStations, st_nearest_feature)
   spatialList <- list("stationData" = stationData, "noUTMS" = problemRows)
   end_time <- Sys.time()
-  print(paste("Spatial_join_stations_detections took", round(end_time-start_time,2), "Seconds"))
+  print(paste("Spatial_join_stations_detections took", round(difftime(end_time, start_time, units = "mins"),2), "minutes"))
   
   return(spatialList)
   

@@ -55,7 +55,6 @@ for (i in list.files("./miscR/")) {
 }
 
 # Data Read Ins -----------------------------------------------------------
-
  
 start_time <- Sys.time()
 print("Reading in Static Files for app.....")
@@ -89,8 +88,8 @@ if(!exists("PTData")){
   PTData <- readRDS("data/flatFilesforApp/PTData.rds")
 }
 
-if(!exists("dischargeData")){
-  dischargeData <- readRDS("data/flatFilesforApp/dischargeData.rds")
+if(!exists("USGSData")){
+  USGSData <- readRDS("data/flatFilesforApp/USGSData.rds")
 }
 
 
@@ -197,7 +196,7 @@ server <- function(input, output, session) {
     
       States_Server("StatesTab1", states_data_list, weeks)
       
-      PT_Server("PTtab1", PTData, movements_list$Movements_df, dischargeData)
+      PT_Server("PTtab1", PTData, movements_list$Movements_df, USGSData$USGSDischarge15Min)
    
       QAQC_Server("QAQCTab1", Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
                   unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate,

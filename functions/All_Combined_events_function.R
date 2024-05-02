@@ -168,7 +168,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
                   "Recaps_detections" = recapturesAndDetections)
   
   end_time <- Sys.time()
-  print(paste("All_combined_events_function took", round((end_time-start_time),2)))
+  print(paste("All_combined_events_function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes"))
   
   return(df_list)
 }

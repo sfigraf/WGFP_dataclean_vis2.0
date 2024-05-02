@@ -22,7 +22,9 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   #filtered_PTData is the dates where there all all NA values in rest of the colunms
   filtered_PTData <- allPressureTransducerDataWithDischarge[rowSums(is.na(allPressureTransducerDataWithDischarge[, setdiff(names(allPressureTransducerDataWithDischarge), keyColumns)])) == (ncol(allPressureTransducerDataWithDischarge) - length(keyColumns)), ]
   #then we anti_join that with the original PT data with discharge to get df of data with datetimes that have some sort of relevant data
-  allPressureTransducerDataWithDischargeNoNA <- anti_join(allPressureTransducerDataWithDischarge, filtered_PTData)
+  allPressureTransducerDataWithDischargeNoNA <- allPressureTransducerDataWithDischarge %>% 
+    anti_join(filtered_PTData) %>%
+    suppressMessages()
   
   PTData <- allPressureTransducerDataWithDischargeNoNA %>%
     mutate(Datetime = as.POSIXct(dateTime)) %>%
@@ -35,7 +37,9 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
     
   }
   #these are all the detections from the original Detection file that do not exactly match a PT or discharge recording timestamp
-  notExactTimestampMatchesDetections <- anti_join(DetectionswithPTSiteName, PTData, by = c("Datetime") )
+  notExactTimestampMatchesDetections <- DetectionswithPTSiteName %>%
+    anti_join(PTData, by = c("Datetime")) %>%
+    suppressMessages() 
   
 
 # rolling join on just specific site stuff --------------------------------
@@ -89,9 +93,11 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   #want to buffer by 13 hours for just discharge
   
   
-  restOftheNotExactTimestampMatches <- anti_join(notExactTimestampMatchesDetections, notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1HourValidDataOnly, 
+  restOftheNotExactTimestampMatches <- notExactTimestampMatchesDetections %>%
+    anti_join(notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1HourValidDataOnly, 
                  by = c("Datetime", "Event", "TAG", "UTM_X", "UTM_Y")) %>%
-    arrange(SiteName)
+    arrange(SiteName) %>%
+    suppressMessages() 
   
   restOftheNotExactTimestampMatches <- data.table(restOftheNotExactTimestampMatches)
   DischargeDataforJoin <- data.table(DischargeData) %>%
@@ -147,6 +153,7 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   exactMatchesatSiteNoPTSite <- DetectionswithPTSiteName %>%
     filter(SiteName %in% na.omit(unique(wgfpMetadata$AntennaMetadata$PressureTransducerSiteName))) %>%
     inner_join(ptData_noSite, by = c("Datetime" = "dateTime")) %>%
+    suppressMessages() %>%
     mutate(environmentalDataMeasurementTime = Datetime)
   
   
