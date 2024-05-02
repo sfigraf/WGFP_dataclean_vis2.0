@@ -56,6 +56,12 @@ movementsFiltered_UI <- function(id, Movements_df) {
                 step = 1,
                 
     ), #end of slider8
+    checkboxInput(ns("dischargeDataFilter"), "Display USGS Discharge Filter"),
+    uiOutput(ns("DischargeFilterUI")), 
+    
+    checkboxInput(ns("tempDataFilter"), "Display USGS Water Temp Filter"),
+    uiOutput(ns("TempFilterUI")),
+    
     actionButton(ns("button7"), label = "Render"), 
     h6("Note: entries with NA values in any of the filter fields are excluded from the results")
   
@@ -67,11 +73,52 @@ movementsFiltered_Server <- function(id, Movements_df) {
     id,
     function(input, output, session) {
       ns <- session$ns
+      #USGSDischargeDaily, WtempF, 
+      output$DischargeFilterUI <- renderUI({
+        req(input$dischargeDataFilter)
+        tagList(
+          h6("Note: Daily Discharge is measured from USGS Gauge at Hitching Post"),
+          sliderInput(ns("sliderDischarge"), "USGS Discharge (CFS)",
+                      min = min(Movements_df$USGSDischargeDaily, na.rm = TRUE),
+                      max = max(Movements_df$USGSDischargeDaily, na.rm = TRUE),
+                      value = c(min(Movements_df$USGSDischargeDaily, na.rm = TRUE), max(Movements_df$USGSDischargeDaily, na.rm = TRUE)),
+                      step = 1,
+          )
+        )
+      })
+      
+      output$TempFilterUI <- renderUI({
+        req(input$tempDataFilter)
+        tagList(
+          h6("Note: Daily Water Temp is measured from USGS Gauge at Hitching Post"),
+          sliderInput(ns("sliderTemp"), "USGS Discharge (CFS)",
+                      min = min(Movements_df$WtempF, na.rm = TRUE),
+                      max = max(Movements_df$WtempF, na.rm = TRUE),
+                      value = c(min(Movements_df$WtempF, na.rm = TRUE), max(Movements_df$WtempF, na.rm = TRUE)),
+                      step = 1,
+          )
+        )
+      })
       
       filtered_movements_data <- eventReactive(input$button7, ignoreNULL = FALSE,{
         
+        Movements_df1 <- Movements_df
+        
+        if(input$dischargeDataFilter){
+          Movements_df1 <- Movements_df1 %>%
+            filter(
+              USGSDischargeDaily >= input$sliderDischarge[1] & USGSDischargeDaily <= input$sliderDischarge[2]
+            )
+        }
+        if(input$tempDataFilter){
+          Movements_df1 <- Movements_df1 %>%
+            filter(
+              WtempF >= input$sliderTemp[1] & WtempF <= input$sliderTemp[2]
+            )
+        }
+        
         if(input$textinput3 != ''){
-          movements_data1 <- Movements_df %>%
+          movements_data1 <- Movements_df1 %>%
             filter(TAG %in% trimws(input$textinput3),
                    Release_Length >= input$slider10[1] & Release_Length <= input$slider10[2],
                    Date >= input$slider2[1] & Date <= input$slider2[2],
@@ -86,7 +133,7 @@ movementsFiltered_Server <- function(id, Movements_df) {
           movements_data1$id <- seq.int(nrow(movements_data1))
           
         } else {
-          movements_data1 <- Movements_df  %>% 
+          movements_data1 <- Movements_df1  %>% 
             filter(
               Release_Length >= input$slider10[1] & Release_Length <= input$slider10[2],
               Date >= input$slider2[1] & Date <= input$slider2[2],

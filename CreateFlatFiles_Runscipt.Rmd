@@ -287,7 +287,7 @@ enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(df_list$Recaps_dete
 unknown_tags <- enc_hist_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$encountersAndRelease_wide_summary
 # applies get_movements_function
-Movements_df <- get_movements_function(combined_events_stations, windyGapDaily)
+Movements_df <- get_movements_function(combined_events_stations, dailyUSGSData = windyGapDaily)
 WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_df)
 
 ###QAQC ghost tags

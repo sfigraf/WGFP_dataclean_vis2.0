@@ -53,9 +53,9 @@ get_movements_function <- function(combined_events_stations, dailyUSGSData) {
     distinct(Date, TAG, det_type, movement_only, UTM_X, UTM_Y, .keep_all = TRUE)
   
   ##add on environmental Data
-  x <- dailyMovementsTable %>%
+  dailyMovementsTable <- dailyMovementsTable %>%
     left_join(dailyUSGSData[,c("Date", "WtempF", "Flow")], by = "Date") %>%
-    rename()
+    rename(USGSDischargeDaily = Flow)
   
   
   #######get lat/longs for plotting with leaflet
@@ -77,7 +77,7 @@ get_movements_function <- function(combined_events_stations, dailyUSGSData) {
   #but if you want to know concise movments, then this will eliminate uneeded rows
   #example: 230000142723
   dailyMovementsTable1 <- as.data.frame(dailyMovementsTableSFLatLong) %>%
-    select(Date, Datetime, TAG, movement_only, det_type, dist_moved, MPerSecondBetweenDetections, sum_dist, ET_STATION, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, UTM_X, UTM_Y, X, Y, marker_color, icon_color)
+    select(Date, Datetime, TAG, movement_only, det_type, dist_moved, MPerSecondBetweenDetections, sum_dist, ET_STATION, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, USGSDischargeDaily, WtempF, UTM_X, UTM_Y, X, Y, marker_color, icon_color)
   
   end_time <- Sys.time()
   
