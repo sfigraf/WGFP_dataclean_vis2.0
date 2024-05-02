@@ -31,15 +31,6 @@ movementsFiltered_UI <- function(id, Movements_df) {
                 )
     ), #end of picker 10 
     
-    sliderInput(ns("slider10"), "Fish Release Length",
-                min = min(Movements_df$Release_Length, na.rm = TRUE),
-                max = max(Movements_df$Release_Length, na.rm = TRUE),  
-                value = c(min(Movements_df$Release_Length, na.rm = TRUE),max(Movements_df$Release_Length, na.rm = TRUE)),
-                step = 1,
-                
-    ), #end of slider8
-    
-    
     sliderInput(ns("slider2"), "Date",
                 min = min(Movements_df$Date -1),
                 max = max(Movements_df$Date +1),  
@@ -56,6 +47,10 @@ movementsFiltered_UI <- function(id, Movements_df) {
                 step = 1,
                 
     ), #end of slider8
+    
+    checkboxInput(ns("releaseLengthFilter"), "Display Release Length Filter"),
+    uiOutput(ns("releaseLengthFilterUI")), 
+    
     checkboxInput(ns("dischargeDataFilter"), "Display USGS Discharge Filter"),
     uiOutput(ns("DischargeFilterUI")), 
     
@@ -73,7 +68,22 @@ movementsFiltered_Server <- function(id, Movements_df) {
     id,
     function(input, output, session) {
       ns <- session$ns
-      #USGSDischargeDaily, WtempF, 
+      
+      output$releaseLengthFilterUI <- renderUI({
+        req(input$releaseLengthFilter)
+        tagList(
+          h6("Note: adding this filter autmotically removes detections for fish who have NA for Release Length"),
+          
+          sliderInput(ns("slider10"), "Fish Release Length",
+                      min = min(Movements_df$Release_Length, na.rm = TRUE),
+                      max = max(Movements_df$Release_Length, na.rm = TRUE),  
+                      value = c(min(Movements_df$Release_Length, na.rm = TRUE), max(Movements_df$Release_Length, na.rm = TRUE)),
+                      step = 1
+          )
+        )
+      })
+      
+      
       output$DischargeFilterUI <- renderUI({
         req(input$dischargeDataFilter)
         tagList(
@@ -91,7 +101,7 @@ movementsFiltered_Server <- function(id, Movements_df) {
         req(input$tempDataFilter)
         tagList(
           h6("Note: Daily Water Temp is measured from USGS Gauge at Hitching Post"),
-          sliderInput(ns("sliderTemp"), "USGS Discharge (CFS)",
+          sliderInput(ns("sliderTemp"), "USGS Water Temp (f)",
                       min = min(Movements_df$WtempF, na.rm = TRUE),
                       max = max(Movements_df$WtempF, na.rm = TRUE),
                       value = c(min(Movements_df$WtempF, na.rm = TRUE), max(Movements_df$WtempF, na.rm = TRUE)),
@@ -103,6 +113,13 @@ movementsFiltered_Server <- function(id, Movements_df) {
       filtered_movements_data <- eventReactive(input$button7, ignoreNULL = FALSE,{
         
         Movements_df1 <- Movements_df
+        
+        if(input$releaseLengthFilter){
+          Movements_df1 <- Movements_df1 %>%
+            filter(
+              Release_Length >= input$slider10[1] & Release_Length <= input$slider10[2]
+            )
+        }
         
         if(input$dischargeDataFilter){
           Movements_df1 <- Movements_df1 %>%
@@ -120,7 +137,6 @@ movementsFiltered_Server <- function(id, Movements_df) {
         if(input$textinput3 != ''){
           movements_data1 <- Movements_df1 %>%
             filter(TAG %in% trimws(input$textinput3),
-                   Release_Length >= input$slider10[1] & Release_Length <= input$slider10[2],
                    Date >= input$slider2[1] & Date <= input$slider2[2],
                    movement_only %in% c(input$picker6),
                    det_type %in% c(input$picker7),
@@ -135,7 +151,6 @@ movementsFiltered_Server <- function(id, Movements_df) {
         } else {
           movements_data1 <- Movements_df1  %>% 
             filter(
-              Release_Length >= input$slider10[1] & Release_Length <= input$slider10[2],
               Date >= input$slider2[1] & Date <= input$slider2[2],
               movement_only %in% c(input$picker6),
               det_type %in% c(input$picker7),
