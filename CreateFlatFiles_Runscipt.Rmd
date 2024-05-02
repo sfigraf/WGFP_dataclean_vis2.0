@@ -79,12 +79,19 @@ print(paste("Reading in files took", round((end_time-start_time),2)))
 ```{r USGSData, include=FALSE, echo = FALSE}
 usgsTime <- Sys.time()
 #reading in USGS data with upt to date data
+windyGapDaily <- readNWISdv(siteNumbers = "09034250", #code for windy gap
+                       parameterCd = c("00060", "00010"), #this is parameter codes for discharge and celsius water temp; more can be added if needed. https://help.waterdata.usgs.gov/codes-and-parameters/parameters
+                       startDate = "2020-08-06", 
+                       endDate = Sys.Date())
+windyGapDaily <- renameNWISColumns(windyGapDaily) %>%
+  mutate(WtempF = (Wtemp * 9/5) + 32)
+
 windyGap <- readNWISuv(siteNumbers = "09034250", #code for windy gap
                        parameterCd = "00060", #this is parameter code for discharge; more can be added if needed
                        startDate = "2020-08-06", #if you want to do times it is this format: "2014-10-10T00:00Z",
                        endDate = Sys.Date(),
                        tz = "America/Denver")
-
+#this is to make attaching these readings to detections later
 windyGap$dateTime <- lubridate::force_tz(windyGap$dateTime, tzone = "UTC")
 
 usgsTime2 <- Sys.time()
@@ -243,7 +250,7 @@ GhostTags <- GhostTags %>%
   mutate(GhostDate = lubridate::mdy(GhostDate))
 ```
 
-```{r wrangling, include=FALSE, echo = FALSE}
+```{r wrangling, include=TRUE, echo = FALSE}
 
 
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
@@ -280,7 +287,7 @@ enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(df_list$Recaps_dete
 unknown_tags <- enc_hist_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$encountersAndRelease_wide_summary
 # applies get_movements_function
-Movements_df <- get_movements_function(combined_events_stations)
+Movements_df <- get_movements_function(combined_events_stations, windyGapDaily)
 WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_df)
 
 ###QAQC ghost tags
@@ -333,11 +340,17 @@ movements_list <- list(
   "ghostTagsWithMovementAfterGhostDate" = ghostTagsWithMovementAfterGhostDate
 )
 
+USGSData <- list(
+  "USGSDischarge15Min" = windyGap, 
+  "USGSDaily" = windyGapDaily
+)
+
 
 
 ```
-```{r saveFiles, include = TRUE, echo=FALSE}
 
+```{r saveFiles, include = TRUE, echo=FALSE}
+saveFilestartTime <- Sys.time()
 allFlatFiles <- list(
   "combinedData_df_list" = df_list,
   "indiv_datasets_list" = indiv_datasets_list,
@@ -348,12 +361,15 @@ allFlatFiles <- list(
   "unknown_tags" = unknown_tags, 
   "metaDataVariableNames" = metaDataVariableNames,
   "PTData" = allPressureTransducerDataWithDischarge, 
-  "dischargeData" = windyGap
+  "USGSData" = USGSData
 )
 
 for(filename in names(allFlatFiles)){
   saveRDS(allFlatFiles[[filename]], paste0("data/flatFilesforApp/", filename, ".rds"))
 }
+saveFilesEndTime <- Sys.time()
+
+print(paste("Saving Files took", round(difftime(saveFilesEndTime, saveFilestartTime, units = "mins"),2), "minutes"))
 
 whole_doc_endTime <- Sys.time()
 ```

@@ -91,7 +91,7 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
   
   states_df_list <- list("All_States" = cleanedWeeklyStates, "Flagged_movements" = unknown_states, "States_summarized" = summarizedStates)
   end_time <- Sys.time()
-  print(paste("States Function took", round(end_time-start_time,2)))
+  print(paste("States Function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes"))
   
   return(states_df_list)
   

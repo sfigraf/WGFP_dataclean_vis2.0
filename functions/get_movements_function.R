@@ -1,5 +1,5 @@
 
-get_movements_function <- function(combined_events_stations) {
+get_movements_function <- function(combined_events_stations, dailyUSGSData) {
   start_time <- Sys.time()
   print("Running get_movements_function: Calculates movements of fish based off a change in station.")
   
@@ -20,18 +20,10 @@ get_movements_function <- function(combined_events_stations) {
                                   TRUE ~ ET_STATION - lag(ET_STATION, order_by = Datetime)
     ),
     sum_dist = (sum(abs(dist_moved), na.rm = TRUE)),
-    lagD = lag(Datetime),
-    secsBetween = round(as.numeric(difftime(Datetime, lag(Datetime), units = "secs")), 2),
     #learned that you need to specify units = "" not just provide the arguments
     MPerSecondBetweenDetections = ifelse(dist_moved == 0, 0, 
                              dist_moved/(as.numeric(difftime(Datetime, lag(Datetime), units = "secs")))
     ),
-  #   relocate(lagD, secsBetween, MPerSecondBetweenDetections, dist_moved)
-  # 
-  # x <- dailyMovementsTable %>%
-  #   filter(!TAG %in% indiv_datasets_list$avian_preddata$TagID, 
-  #          !det_type %in% c("Mobile Run"))
-  #          as.numeric(difftime("2022-10-06 04:16:32", "2022-10-04 16:50:00", units = "secs"))
     
     movement_only = case_when(lag(ET_STATION, order_by = Datetime) > fraserColoradoRiverConfluence & ET_STATION > fraserColoradoRiverConfluence & River != lag(River, order_by = Datetime) ~ "Changed Rivers",
                               Event %in% c("Release", "Recapture and Release")  ~ "Initial Release",
@@ -60,6 +52,11 @@ get_movements_function <- function(combined_events_stations) {
     #takes “movement” into account instead of “first/last”, this is why this df winds up with less rows than combined_events_stations
     distinct(Date, TAG, det_type, movement_only, UTM_X, UTM_Y, .keep_all = TRUE)
   
+  ##add on environmental Data
+  x <- dailyMovementsTable %>%
+    left_join(dailyUSGSData[,c("Date", "WtempF", "Flow")], by = "Date") %>%
+    rename()
+  
   
   #######get lat/longs for plotting with leaflet
   #convert events to sf object
@@ -83,7 +80,8 @@ get_movements_function <- function(combined_events_stations) {
     select(Date, Datetime, TAG, movement_only, det_type, dist_moved, MPerSecondBetweenDetections, sum_dist, ET_STATION, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, UTM_X, UTM_Y, X, Y, marker_color, icon_color)
   
   end_time <- Sys.time()
-  print(paste("Movements Function took", round(end_time-start_time,2), "Seconds"))
+  
+  print(paste("Movements Function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes"))
   
   return(dailyMovementsTable1)
 }

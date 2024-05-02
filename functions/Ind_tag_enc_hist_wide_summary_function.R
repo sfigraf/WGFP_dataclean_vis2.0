@@ -157,7 +157,7 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   )
   
   end_time <- Sys.time()
-  print(paste("Encounter Histories Summary Wide Function took", round(end_time-start_time,2), "Seconds"))
+  print(paste("Encounter Histories Summary Wide Function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes"))
   
   return(enc_wide_list)
 }

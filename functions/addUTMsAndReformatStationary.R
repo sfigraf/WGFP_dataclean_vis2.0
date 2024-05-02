@@ -18,7 +18,7 @@ addUTMsAndReformatStationary <- function(Stationary){
     distinct() 
     
   end_time = Sys.time()
-  print(paste("Adding UTMs and reformatting Statoinary Detection file took", round((end_time-start_time),2), "seconds."))
+  print(paste("Adding UTMs and reformatting Statoinary Detection file took", round(difftime(end_time, start_time, units = "mins"),2), "minutes"))
   
   return(Stationary_withUTMS)
 }
