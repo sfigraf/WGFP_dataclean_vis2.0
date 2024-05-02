@@ -18,36 +18,41 @@ get_movements_function <- function(combined_events_stations) {
     # otherwise, just subtract current station from previous
     mutate(dist_moved = case_when(lag(ET_STATION, order_by = Datetime) > fraserColoradoRiverConfluence & ET_STATION > fraserColoradoRiverConfluence & River != lag(River, order_by = Datetime) ~ (lag(ET_STATION, order_by = Datetime) - fraserColoradoRiverConfluence) + (ET_STATION - fraserColoradoRiverConfluence),
                                   TRUE ~ ET_STATION - lag(ET_STATION, order_by = Datetime)
-                                  ),
-           sum_dist = (sum(abs(dist_moved), na.rm = TRUE)),
-           
-           
-           movement_only = case_when(lag(ET_STATION, order_by = Datetime) > fraserColoradoRiverConfluence & ET_STATION > fraserColoradoRiverConfluence & River != lag(River, order_by = Datetime) ~ "Changed Rivers",
-                                     Event %in% c("Release", "Recapture and Release")  ~ "Initial Release",
-                                     dist_moved == 0 ~ "No Movement",
-                                     dist_moved > 0 ~ "Upstream Movement",
-                                     dist_moved < 0 ~ "Downstream Movement"),
-           #this is for mapping later on
-           #MARKERCOLOR options: limited because markers rely on static image
-           #red", "darkred", "lightred", "orange", "beige", "green", "darkgreen", "lightgreen", "blue", "darkblue", "lightblue", "purple", "darkpurple", "pink", "cadetblue", "white", "gray", "lightgray", "black"
-            # these also correspond to the movements maps, so if you add or change a color you should change it on the movements map as well. 
-           marker_color = case_when(movement_only == "No Movement" ~ "black",
-                                    movement_only == "Upstream Movement" ~ "green",
-                                    movement_only == "Downstream Movement" ~ "red",
-                                    movement_only == "Initial Release" ~ "orange",
-                                    movement_only == "Changed Rivers" ~ "purple",
-                                    #str_detect(movement_only, "Initial Release (or recapture and release)") ~ "yellow"
-                                    ),
-           
-           icon_color = case_when(str_detect(det_type, "Stationary Antenna") ~ "orange",
-                                  str_detect(det_type, "Biomark Antenna") ~ "yellow",
-                                  str_detect(det_type, "Mobile Run") ~ "purple",
-                                  det_type %in% c("Release", "Recapture and Release") ~ "blue",
-                                  det_type == "Recapture" ~ "brown",
-           )
-    ) %>%
-  distinct(Date, TAG, det_type, movement_only, UTM_X, UTM_Y, .keep_all = TRUE)  #end of mutate
+    ),
+    sum_dist = (sum(abs(dist_moved), na.rm = TRUE)),
     
+    #learned that you need to specify units = "" not just provide the arguments
+    speedMPerSecond = round(dist_moved/(as.numeric(difftime(Datetime, lag(Datetime), units = "secs"))), 2),
+    # relocate(lagD, speedMPerSecond, dist_moved, secsBetween)
+    #        as.numeric(difftime("2022-10-06 04:16:32", "2022-10-04 16:50:00", units = "secs"))
+    
+    movement_only = case_when(lag(ET_STATION, order_by = Datetime) > fraserColoradoRiverConfluence & ET_STATION > fraserColoradoRiverConfluence & River != lag(River, order_by = Datetime) ~ "Changed Rivers",
+                              Event %in% c("Release", "Recapture and Release")  ~ "Initial Release",
+                              dist_moved == 0 ~ "No Movement",
+                              dist_moved > 0 ~ "Upstream Movement",
+                              dist_moved < 0 ~ "Downstream Movement"),
+    #this is for mapping later on
+    #MARKERCOLOR options: limited because markers rely on static image
+    #red", "darkred", "lightred", "orange", "beige", "green", "darkgreen", "lightgreen", "blue", "darkblue", "lightblue", "purple", "darkpurple", "pink", "cadetblue", "white", "gray", "lightgray", "black"
+    # these also correspond to the movements maps, so if you add or change a color you should change it on the movements map as well.
+    marker_color = case_when(movement_only == "No Movement" ~ "black",
+                             movement_only == "Upstream Movement" ~ "green",
+                             movement_only == "Downstream Movement" ~ "red",
+                             movement_only == "Initial Release" ~ "orange",
+                             movement_only == "Changed Rivers" ~ "purple",
+                             #str_detect(movement_only, "Initial Release (or recapture and release)") ~ "yellow"
+    ),
+    
+    icon_color = case_when(str_detect(det_type, "Stationary Antenna") ~ "orange",
+                           str_detect(det_type, "Biomark Antenna") ~ "yellow",
+                           str_detect(det_type, "Mobile Run") ~ "purple",
+                           det_type %in% c("Release", "Recapture and Release") ~ "blue",
+                           det_type == "Recapture" ~ "brown",
+    )
+    ) %>%
+    distinct(Date, TAG, det_type, movement_only, UTM_X, UTM_Y, .keep_all = TRUE)
+  
+  
   #######get lat/longs for plotting with leaflet
   #convert events to sf object
   #the utms are grs80 and utm zone 13, which corresponds to crs  32613
