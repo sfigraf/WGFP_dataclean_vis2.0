@@ -67,7 +67,7 @@ PT_UI <- function(id, PTData, Movements_df) {
                                   ),
                                   selectInput(ns("variableSelect2"),
                                               label = "Variable to Plot",
-                                              choices = c(colnames(PTData)[grepl("_", colnames(PTData))], "USGSDischarge"),
+                                              choices = c(colnames(PTData)[grepl("_", colnames(PTData))], "USGSDischarge", "USGSWatertemp"),
                                               selected = colnames(PTData)[grepl("_", colnames(PTData))][1],
                                   ), 
                                   sliderInput(ns("dateSlider2"), "Date",
@@ -161,7 +161,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
       
       observeEvent(input$variableSelect2, {
         
-        if(input$variableSelect2 == "USGSDischarge"){
+        if(input$variableSelect2 %in% c("USGSDischarge", "USGSWatertemp")){
           updatePickerInput(session, "sitePicker2", choices = character(0))
         } else{
           updatePickerInput(session, "sitePicker2", 
@@ -214,7 +214,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
       
       filteredPTData2 <- reactive({
 
-        if(input$variableSelect2 != "USGSDischarge"){
+        if(!input$variableSelect2 %in% c("USGSDischarge", "USGSWatertemp")){
           validate(
             need(input$sitePicker2, "Please select a site to display")
           )
@@ -231,7 +231,8 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
             
         } else{
           filteredData <- USGSData$USGSDaily %>%
-            rename(dailyAverage = Flow)
+            rename(dailyAverage = case_when(input$variableSelect2 == "USGSDischarge" ~ "Flow", 
+                                            input$variableSelect2 == "USGSWatertemp" ~ "WtempF"))
         }
          
         
@@ -259,11 +260,12 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
             add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect]], 
                       color = ~Site,
                       colors = site_colors) %>%
-            layout(title = "Pressure Transducer Data",
+            layout(title = "Environmental Time Series Data",
                    xaxis = list(title = "Date"),
                    yaxis = list(title = input$variableSelect, side = "left", showgrid = FALSE)
             )
         } else {
+          
           req(input$primaryYAxis)
           if (input$primaryYAxis == "Pressure Transducer Data") {
             
@@ -276,7 +278,8 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
                         color = I("#87CEEB"),
                         name = "USGS Discharge",
                         yaxis = "y2") %>%
-              layout(title = "Time Series Data Visualization",
+              layout(title = "Environmental Time Series Data",
+                     legend = list(x = 1.05, y = 1),
                      xaxis = list(title = "Date"),
                      yaxis = list(title = input$variableSelect, side = "left", showgrid = FALSE),
                      yaxis2 = list(title = "Discharge (CFS)", side = "right", overlaying = "y",
@@ -291,7 +294,8 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
                         color = I("#87CEEB"),
                         name = "USGS Discharge",
                         yaxis = "y1") %>%
-              layout(title = "Time Series Data Visualization",
+              layout(title = "Environmental Time Series Data",
+                     legend = list(x = 1.05, y = 1),
                      xaxis = list(title = "Date"),
                      yaxis = list(title = "Discharge (CFS)", side = "left", showgrid = FALSE),
                      yaxis2 = list(title = input$variableSelect, side = "right", overlaying = "y",
@@ -312,12 +316,13 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
                             "Initial Release" = "darkorange",
                             "Changed Rivers" = "purple")
       
-        if(input$variableSelect2 != "USGSDischarge"){
+        if(!input$variableSelect2 %in% c("USGSDischarge", "USGSWatertemp")){
           line_color = ~Site
           nameOfLine = ~Site
         } else{
           line_color = I("#87CEEB")
-          nameOfLine = "USGS Discharge"
+          nameOfLine = case_when(input$variableSelect2 == "USGSDischarge" ~ "USGS Discharge", 
+                                 input$variableSelect2 == "USGSWatertemp" ~ "USGS Water Temp (F)")
         }
         
         if(input$YaxisSelect2 == "Movement Data"){
@@ -349,7 +354,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
                     hoverinfo = "text",
                     text = ~paste('Date: ', as.character(Date), '<br>Number of Activities: ', numberOfActivities),
                     type = 'bar') %>%
-          layout(title = "Time Series Data Visualization",
+          layout(title = "Environmental Data and Movements",
                  legend = list(x = 1.05, y = 1),
                  barmode = "overlay",
                  xaxis = list(title = "Date"),
