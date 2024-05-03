@@ -305,7 +305,6 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
         rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF8C00", "#4682B4")
         site_colors <- setNames(rainbow_trout_colors[0:length(sort(unique(PTData$Site)))], sort(unique(PTData$Site)))
         
-        print(site_colors)
         scalevalue <- round(max(filteredPTData2()$dailyAverage, na.rm = T)/max(filteredMovementsDataCounts()$numberOfActivities), 2)
         movementColors <- c("Downstream Movement" = "red",
                             "Upstream Movement" = "chartreuse3",
@@ -351,56 +350,12 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
                     text = ~paste('Date: ', as.character(Date), '<br>Number of Activities: ', numberOfActivities),
                     type = 'bar') %>%
           layout(title = "Time Series Data Visualization",
+                 legend = list(x = 1.05, y = 1),
                  barmode = "overlay",
                  xaxis = list(title = "Date"),
                  yaxis = list(title = primaryYaxisName, side = "left", showgrid = FALSE),
                  yaxis2 = list(title = SecondaryYaxisName, side = "right", overlaying = "y",
                                showgrid = FALSE))
-          
-        # 
-        # plot <- ggplot() +
-        #   # # Bar plot (movements)
-        #   geom_bar(data = filteredMovementsDataCounts(), aes(x = Date, y = numberOfActivities,
-        #                                                      #text = paste('Date: ', as.character(Date), '\n'),
-        #                                                      fill = movement_only),
-        #            stat = "identity", position = "dodge") +
-        # 
-        #   # # Line plot (windyGap)
-        #   geom_line(data = filteredPTData2(), aes(x = Date, y = dailyAverage, color = Site)) +
-        # 
-        #   # Customize legend and fill colors
-        #   scale_fill_manual(values = c("Downstream Movement" = "red",
-        #                                "Upstream Movement" = "chartreuse3",
-        #                                "No Movement" = "black",
-        #                                "Initial Release" = "darkorange",
-        #                                "Changed Rivers" = "purple")) +
-        #   guides(fill = guide_legend(title = "Movement")) +  # Legend for bar plot
-        #   theme_classic()
-        # 
-        # plot <- ggplotly(plot) 
-        # plot %>%
-        #   layout(title = "Time Series Data Visualization",
-        #         #barmode = "overlay", 
-        #         xaxis = list(title = "Date"),
-        #         yaxis = list(title = "Discharge (CFS)", side = "left", showgrid = FALSE),
-        #         yaxis2 = list(title = "test", side = "right", overlaying = "y",
-        #                       showgrid = FALSE))
-        
-        # if(input$dischargeOverlayMovements){
-        #   
-        #   plot <- plot +
-        #     geom_line(data = filteredDischargeDataMovements(), aes(x = Date, y = round(dailyAverageCFS/input$dischargeScaleValueInputMovements, 2))) +
-        #     labs(title = paste0("Daily Movements, ", input$variableSelect2, "/", scalevalue, ", and CFS/", input$dischargeScaleValueInputMovements),
-        #          x = "Date", y = paste0("Count, ", input$variableSelect2, ", and CFS"))
-        #   
-        #   
-        # } else{
-        #   plot <- plot +
-        #     labs(title = paste0("Daily Movements and ", input$variableSelect2, "/", scalevalue),
-        #          x = "Date", y = "Count") 
-        # }
-        
-        #return(plot)
       })
       
       
