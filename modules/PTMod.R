@@ -236,22 +236,40 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
       output$PTPlot <- renderPlotly({
         
         if(!input$dischargeOverlay){
-          filteredPTData() %>%
-            ggplot(aes_string(x = "dateTime", y = input$variableSelect, color = "Site")
-            ) +
-            geom_line() +
-            theme_classic() +
-            labs(title="Pressure Transducer Data",
-                 x = "Date", y = input$variableSelect)
-        } else{
-          ggplot() + 
-            geom_line(data = filteredPTData(), aes_string(x = "dateTime", y = input$variableSelect, color = "Site")) +
-            geom_line(data = filteredDischargeData(), aes(x = dateTime, y = round(Flow_Inst/input$dischargeScaleValueInput, 2))) +
-            theme_classic() +
-            labs(title="Pressure Transducer and USGS Data",
-                 x = "Date", y = paste0(input$variableSelect, "/CFS"))
-          
+          plot_ly() %>%
+            add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect2]], color = ~Site) %>%
+            layout(title = "Pressure Transducer Data",
+                   xaxis = list(title = "Date"),
+                   yaxis = list(title = "Primary Y Axis", side = "left", showgrid = FALSE)
+            )
+        } else {
+          plot_ly() %>%
+            add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect2]], color = ~Site, yaxis = "y1") %>%
+            add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~Flow_Inst, yaxis = "y2") %>%
+            layout(title = "Time Series Data Visualization",
+                   xaxis = list(title = "Date"),
+                   yaxis = list(title = input$variableSelect2, side = "left", showgrid = FALSE),
+                   yaxis2 = list(title = "Discharge (CFS)", side = "right", overlaying = "y",
+                                 showgrid = FALSE))
         }
+        
+        # if(!input$dischargeOverlay){
+        #   filteredPTData() %>%
+        #     ggplot(aes_string(x = "dateTime", y = input$variableSelect, color = "Site")
+        #     ) +
+        #     geom_line() +
+        #     theme_classic() +
+        #     labs(title="Pressure Transducer Data",
+        #          x = "Date", y = input$variableSelect)
+        # } else{
+        #   ggplot() + 
+        #     geom_line(data = filteredPTData(), aes_string(x = "dateTime", y = input$variableSelect, color = "Site")) +
+        #     geom_line(data = filteredDischargeData(), aes(x = dateTime, y = round(Flow_Inst/input$dischargeScaleValueInput, 2))) +
+        #     theme_classic() +
+        #     labs(title="Pressure Transducer and USGS Data",
+        #          x = "Date", y = paste0(input$variableSelect, "/CFS"))
+        #   
+        # }
       })
       
       
