@@ -305,15 +305,22 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
                               y = ~dailyAverage,
                               color = ~Site, 
                     type = "scatter",
+                    yaxis = "y1",
                     mode = "lines+markers"
                              # colors = site_colors
                     ) %>%
           add_trace(data = filteredMovementsDataCounts(), x = ~Date, y = ~numberOfActivities,
-                    #yaxis = "y1",
+                    yaxis = "y2",
                     color = ~movement_only, colors = movementColors,
                     hoverinfo = "text",
                     text = ~paste('Date: ', as.character(Date), '<br>Number of Activities: ', numberOfActivities),
-                    type = 'bar')
+                    type = 'bar') %>%
+          layout(title = "Time Series Data Visualization",
+                 barmode = "overlay",
+                 xaxis = list(title = "Date"),
+                 yaxis = list(title = "Discharge (CFS)", side = "left", showgrid = FALSE),
+                 yaxis2 = list(title = "test", side = "right", overlaying = "y",
+                               showgrid = FALSE))
           
           # add_lines(data = filteredPTData2(), x = ~Date,
           #           y = ~dailyAverage,
