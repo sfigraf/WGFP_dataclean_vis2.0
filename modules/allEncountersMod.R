@@ -140,15 +140,16 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
                       min = min(combinedData_df_list$All_Events$Air_Temp_F, na.rm = TRUE),
                       max = max(combinedData_df_list$All_Events$Air_Temp_F, na.rm = TRUE),
                       value = c(min(combinedData_df_list$All_Events$Air_Temp_F, na.rm = TRUE), max(combinedData_df_list$All_Events$Air_Temp_F, na.rm = TRUE)),
-                      step = 1,
+                      step = 1
           ),
           
           sliderInput(ns("sliderWaterLevel"), "Water Level (ft)",
-                      min = min(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE),
-                      max = max(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE),
-                      value = c(min(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE), max(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE)),
+                      min = min(combinedData_df_list$All_Events$Water_Level_NoIce_ft, na.rm = TRUE),
+                      max = max(combinedData_df_list$All_Events$Water_Level_NoIce_ft, na.rm = TRUE),
+                      value = c(min(combinedData_df_list$All_Events$Water_Level_NoIce_ft, na.rm = TRUE), max(combinedData_df_list$All_Events$Water_Level_NoIce_ft, na.rm = TRUE)),
                       
           ),
+          h6("This is Water_Level_NoIce_ft. Readings of 0 are Ice-on."),
           
           checkboxGroupInput(ns("radioFilterIce"), label = "Filter Ice", 
                        choices = unique(combinedData_df_list$All_Events$Filter_Ice), 
@@ -245,7 +246,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
         )
         
         updateSliderInput(session,"sliderWaterLevel",
-                          value = c(min(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE), max(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE)),
+                          value = c(min(combinedData_df_list$All_Events$Water_Level_NoIce_ft, na.rm = TRUE), max(combinedData_df_list$All_Events$Water_Level_NoIce_ft, na.rm = TRUE)),
                           
         )
         
@@ -280,7 +281,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
                 Water_Temp_F >= input$sliderWaterTemp[1] & Water_Temp_F <= input$sliderWaterTemp[2],
                 Barom_Pres_psi >= input$sliderBaromPres[1] & Barom_Pres_psi <= input$sliderBaromPres[2],
                 Air_Temp_F >= input$sliderAirTemp[1] & Air_Temp_F <= input$sliderAirTemp[2],
-                Water_Level_ft >= input$sliderWaterLevel[1] & Water_Level_ft <= input$sliderWaterLevel[2],
+                Water_Level_NoIce_ft >= input$sliderWaterLevel[1] & Water_Level_NoIce_ft <= input$sliderWaterLevel[2],
                 (!is.null(input$radioFilterIce) & Filter_Ice %in% input$radioFilterIce),
                 (Site %in% input$environmentalSite))
               
