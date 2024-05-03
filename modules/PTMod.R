@@ -216,7 +216,9 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
                         lubridate::date(dateTime) >= input$dateSlider2[1] & lubridate::date(dateTime) <= input$dateSlider2[2]) %>%
           
           group_by(Date = date(dateTime), Site) %>%
-          summarise(dailyAverage = round(mean(!!sym(input$variableSelect2)), 2)) 
+          summarise(dailyAverage = round(mean(!!sym(input$variableSelect2)), 2)) %>%
+          #need to ungroup to get data to show for plotly plots (overlay plot)
+          ungroup()
         return(filteredPTData)
       })
       
@@ -264,9 +266,6 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
                      yaxis2 = list(title = "Discharge (CFS)", side = "right", overlaying = "y",
                                    showgrid = FALSE))
           } else if(input$primaryYAxis == "Discharge Data") {
-            #site_colors1 <- setNames(rainbow_trout_colors[0:length(sort(unique(PTData$Site)))], sort(unique(PTData$Site)))
-            #print(site_colors1)
-            #print(sort(unique(PTData$Site)))
             plot_ly() %>%
               add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect]], 
                         color = ~Site,
@@ -282,81 +281,104 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
                      yaxis2 = list(title = input$variableSelect, side = "right", overlaying = "y",
                                    showgrid = FALSE))
           }
-          # plot_ly() %>%
-          #   add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect]], 
-          #             color = ~Site,
-          #             colors = site_colors,
-          #             yaxis = "y1") %>%
-          #   
-          #   add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~Flow_Inst,
-          #             color = I("#87CEEB"),
-          #             name = "USGS Discharge",
-          #             yaxis = "y2") %>%
-          #   layout(title = "Pressure Transducer Data",
-          #          xaxis = list(title = "Date"),
-          #          yaxis = list(title = input$variableSelect, side = "left", showgrid = FALSE),
-          #          yaxis2 = list(title = "Discharge (CFS)", side = "right", overlaying = "y",
-          #                        showgrid = FALSE))
         }
-        
-        # if(!input$dischargeOverlay){
-        #   filteredPTData() %>%
-        #     ggplot(aes_string(x = "dateTime", y = input$variableSelect, color = "Site")
-        #     ) +
-        #     geom_line() +
-        #     theme_classic() +
-        #     labs(title="Pressure Transducer Data",
-        #          x = "Date", y = input$variableSelect)
-        # } else{
-        #   ggplot() + 
-        #     geom_line(data = filteredPTData(), aes_string(x = "dateTime", y = input$variableSelect, color = "Site")) +
-        #     geom_line(data = filteredDischargeData(), aes(x = dateTime, y = round(Flow_Inst/input$dischargeScaleValueInput, 2))) +
-        #     theme_classic() +
-        #     labs(title="Pressure Transducer and USGS Data",
-        #          x = "Date", y = paste0(input$variableSelect, "/CFS"))
-        #   
-        # }
       })
       
       
       output$OverlayPlot <- renderPlotly({
+        rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF8C00", "#4682B4")
+        site_colors <- setNames(rainbow_trout_colors[0:length(sort(unique(PTData$Site)))], sort(unique(PTData$Site)))
         
+        print(site_colors)
         scalevalue <- round(max(filteredPTData2()$dailyAverage, na.rm = T)/max(filteredMovementsDataCounts()$numberOfActivities), 2)
+        movementColors <- c("Downstream Movement" = "red",
+                            "Upstream Movement" = "chartreuse3",
+                            "No Movement" = "black",
+                            "Initial Release" = "darkorange",
+                            "Changed Rivers" = "purple")
+        # plot_ly() %>%
+        #   add_lines(data = filteredPTData2(), x = ~dateTime, y = ~.data[[dailyAverage]], 
+        #             color = ~Site,
+        #             colors = site_colors)
+        plot_ly() %>%
+          add_trace(data = filteredPTData2(), x = ~Date,
+                              y = ~dailyAverage,
+                              color = ~Site, 
+                    type = "scatter",
+                    mode = "lines+markers"
+                             # colors = site_colors
+                    ) %>%
+          add_trace(data = filteredMovementsDataCounts(), x = ~Date, y = ~numberOfActivities,
+                    #yaxis = "y1",
+                    color = ~movement_only, colors = movementColors,
+                    hoverinfo = "text",
+                    text = ~paste('Date: ', as.character(Date), '<br>Number of Activities: ', numberOfActivities),
+                    type = 'bar')
+          
+          # add_lines(data = filteredPTData2(), x = ~Date,
+          #           y = ~dailyAverage,
+          #           color = ~Site,
+          #           colors = site_colors,
+          #           #axis = "y2"
+          # ) %>%
+          # add_bars(data = filteredMovementsDataCounts(), x = ~Date, y = ~numberOfActivities,
+          #          #yaxis = "y1",
+          #        color = ~movement_only, colors = movementColors,
+          #        hoverinfo = "text",
+          #        text = ~paste('Date: ', as.character(Date), '<br>Number of Activities: ', numberOfActivities)) %>%
+          
+          # layout(title = "Time Series Data Visualization",
+          #        barmode = "overlay", 
+          #        xaxis = list(title = "Date"),
+          #        yaxis = list(title = "Discharge (CFS)", side = "left", showgrid = FALSE),
+          #        yaxis2 = list(title = "test", side = "right", overlaying = "y",
+          #                      showgrid = FALSE))
+          
+          
+        # 
+        # plot <- ggplot() +
+        #   # # Bar plot (movements)
+        #   geom_bar(data = filteredMovementsDataCounts(), aes(x = Date, y = numberOfActivities,
+        #                                                      #text = paste('Date: ', as.character(Date), '\n'),
+        #                                                      fill = movement_only),
+        #            stat = "identity", position = "dodge") +
+        # 
+        #   # # Line plot (windyGap)
+        #   geom_line(data = filteredPTData2(), aes(x = Date, y = dailyAverage, color = Site)) +
+        # 
+        #   # Customize legend and fill colors
+        #   scale_fill_manual(values = c("Downstream Movement" = "red",
+        #                                "Upstream Movement" = "chartreuse3",
+        #                                "No Movement" = "black",
+        #                                "Initial Release" = "darkorange",
+        #                                "Changed Rivers" = "purple")) +
+        #   guides(fill = guide_legend(title = "Movement")) +  # Legend for bar plot
+        #   theme_classic()
+        # 
+        # plot <- ggplotly(plot) 
+        # plot %>%
+        #   layout(title = "Time Series Data Visualization",
+        #         #barmode = "overlay", 
+        #         xaxis = list(title = "Date"),
+        #         yaxis = list(title = "Discharge (CFS)", side = "left", showgrid = FALSE),
+        #         yaxis2 = list(title = "test", side = "right", overlaying = "y",
+        #                       showgrid = FALSE))
         
-        plot <- ggplot() +
-          # # Bar plot (movements)
-          geom_bar(data = filteredMovementsDataCounts(), aes(x = Date, y = numberOfActivities, 
-                                                             #text = paste('Date: ', as.character(Date), '\n'),
-                                                             fill = movement_only),
-                   stat = "identity", position = "dodge") +
-          
-          # # Line plot (windyGap)
-          geom_line(data = filteredPTData2(), aes(x = Date, y = round(dailyAverage/scalevalue, 0), color = Site)) +
-          
-          # Customize legend and fill colors
-          scale_fill_manual(values = c("Downstream Movement" = "red",
-                                       "Upstream Movement" = "chartreuse3",
-                                       "No Movement" = "black",
-                                       "Initial Release" = "darkorange",
-                                       "Changed Rivers" = "purple")) +
-          guides(fill = guide_legend(title = "Movement")) +  # Legend for bar plot
-          theme_classic()
+        # if(input$dischargeOverlayMovements){
+        #   
+        #   plot <- plot +
+        #     geom_line(data = filteredDischargeDataMovements(), aes(x = Date, y = round(dailyAverageCFS/input$dischargeScaleValueInputMovements, 2))) +
+        #     labs(title = paste0("Daily Movements, ", input$variableSelect2, "/", scalevalue, ", and CFS/", input$dischargeScaleValueInputMovements),
+        #          x = "Date", y = paste0("Count, ", input$variableSelect2, ", and CFS"))
+        #   
+        #   
+        # } else{
+        #   plot <- plot +
+        #     labs(title = paste0("Daily Movements and ", input$variableSelect2, "/", scalevalue),
+        #          x = "Date", y = "Count") 
+        # }
         
-        if(input$dischargeOverlayMovements){
-          
-          plot <- plot +
-            geom_line(data = filteredDischargeDataMovements(), aes(x = Date, y = round(dailyAverageCFS/input$dischargeScaleValueInputMovements, 2))) +
-            labs(title = paste0("Daily Movements, ", input$variableSelect2, "/", scalevalue, ", and CFS/", input$dischargeScaleValueInputMovements),
-                 x = "Date", y = paste0("Count, ", input$variableSelect2, ", and CFS"))
-          
-          
-        } else{
-          plot <- plot +
-            labs(title = paste0("Daily Movements and ", input$variableSelect2, "/", scalevalue),
-                 x = "Date", y = "Count") 
-        }
-        
-        return(plot)
+        #return(plot)
       })
       
       
