@@ -232,10 +232,10 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
       
       output$PTPlot <- renderPlotly({
         rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF8C00", "#4682B4")
-        #site_colors <- setNames(rainbow_trout_colors[0:length(unique(PTData$Site))], sort(unique(PTData$Site)))
+        site_colors <- setNames(rainbow_trout_colors[0:length(unique(PTData$Site))], sort(unique(PTData$Site)))
         
         if(!input$dischargeOverlay){
-          site_colors <- setNames(rainbow_trout_colors[0:length(unique(PTData$Site))], sort(unique(PTData$Site)))
+          #site_colors <- setNames(rainbow_trout_colors[0:length(unique(PTData$Site))], sort(unique(PTData$Site)))
           
           plot_ly() %>%
             add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect]], 
@@ -248,7 +248,6 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
         } else {
           req(input$primaryYAxis)
           if (input$primaryYAxis == "Pressure Transducer Data") {
-            site_colors <- setNames(rainbow_trout_colors[0:length(unique(PTData$Site))], sort(unique(PTData$Site)))
             
             plot_ly() %>%
               add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect]], 
@@ -265,8 +264,8 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
                      yaxis2 = list(title = "Discharge (CFS)", side = "right", overlaying = "y",
                                    showgrid = FALSE))
           } else if(input$primaryYAxis == "Discharge Data") {
-            site_colors1 <- setNames(rainbow_trout_colors[0:length(sort(unique(PTData$Site)))], sort(unique(PTData$Site)))
-            print(site_colors1)
+            #site_colors1 <- setNames(rainbow_trout_colors[0:length(sort(unique(PTData$Site)))], sort(unique(PTData$Site)))
+            #print(site_colors1)
             #print(sort(unique(PTData$Site)))
             plot_ly() %>%
               add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect]], 
