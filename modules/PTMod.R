@@ -269,14 +269,14 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
             print(site_colors1)
             #print(sort(unique(PTData$Site)))
             plot_ly() %>%
+              add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect]], 
+                        color = ~Site,
+                        colors = site_colors,
+                        yaxis = "y2") %>%
               add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~Flow_Inst,
                         color = I("#87CEEB"),
                         name = "USGS Discharge",
                         yaxis = "y1") %>%
-              add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect]], 
-                        color = ~Site,
-                        colors = site_colors1,
-                        yaxis = "y2") %>%
               layout(title = "Time Series Data Visualization",
                      xaxis = list(title = "Date"),
                      yaxis = list(title = "Discharge (CFS)", side = "left", showgrid = FALSE),
