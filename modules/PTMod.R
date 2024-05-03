@@ -55,18 +55,20 @@ PT_UI <- function(id, PTData, Movements_df) {
             ), 
             tabPanel("Variable Filters", 
                      sidebarPanel(width = 2,
-                                  pickerInput(ns("sitePicker2"),
-                                              label = "Select Sites:",
-                                              choices = sort(unique(PTData$Site)),
-                                              selected = sort(unique(PTData$Site)),
-                                              multiple = TRUE,
-                                              options = list(
-                                                `actions-box` = TRUE #this makes the "select/deselect all" option
-                                              )
-                                  ), 
+                                  #conditionalPanel(condition = "input.variableSelect2 != 'USGSDischarge'",
+                                                   pickerInput(ns("sitePicker2"),
+                                                               label = "Select Sites:",
+                                                               choices = sort(unique(PTData$Site)),
+                                                               selected = sort(unique(PTData$Site)),
+                                                               multiple = TRUE,
+                                                               options = list(
+                                                                 `actions-box` = TRUE #this makes the "select/deselect all" option
+                                                               )
+                                                   #)
+                                                   ),
                                   selectInput(ns("variableSelect2"),
                                               label = "Variable to Plot",
-                                              choices = colnames(PTData)[grepl("_", colnames(PTData))],
+                                              choices = c(colnames(PTData)[grepl("_", colnames(PTData))], "USGSDischarge"),
                                               selected = colnames(PTData)[grepl("_", colnames(PTData))][1],
                                   ), 
                                   sliderInput(ns("dateSlider2"), "Date",
@@ -147,12 +149,25 @@ PT_UI <- function(id, PTData, Movements_df) {
   )
 }
 
-PT_Server <- function(id, PTData, Movements_df, dischargeData) {
+PT_Server <- function(id, PTData, Movements_df, USGSData) {
   moduleServer(
     id,
     function(input, output, session) {
       
       ns <- session$ns
+      
+      observeEvent(input$variableSelect2, {
+        #print(input$variableSelect2)
+        if(input$variableSelect2 == "USGSDischarge"){
+          updatePickerInput(session, "sitePicker2", choices = character(0))
+        } else{
+          updatePickerInput(session, "sitePicker2", 
+                            choices = sort(unique(PTData$Site)),
+                            selected = sort(unique(PTData$Site))
+                            )
+          
+        }
+      })
       
       filteredPTData <- reactive({
         
@@ -193,7 +208,7 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
       })
       
       filteredDischargeData <- reactive({
-        filteredDischargeData <- dischargeData %>%
+        filteredDischargeData <- USGSData$USGSDischarge15Min %>%
           dplyr::filter(lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2])
         
         return(filteredDischargeData)
@@ -201,7 +216,7 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
       
       filteredDischargeDataMovements <- reactive({
         
-        filteredDischargeDataMovements <- dischargeData %>%
+        filteredDischargeDataMovements <- USGSData$USGSDischarge15Min %>%
           dplyr::filter(lubridate::date(dateTime) >= input$dateSlider2[1] & lubridate::date(dateTime) <= input$dateSlider2[2]) %>%
           group_by(Date = date(dateTime)) %>%
           summarise(dailyAverageCFS = round(mean(Flow_Inst), 2))
@@ -209,17 +224,29 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
       })
       
       filteredPTData2 <- reactive({
-        req(input$sitePicker2)
-        filteredPTData <- PTData %>%
-          select(Site, dateTime, input$variableSelect2) %>%
-          dplyr::filter(Site %in% input$sitePicker2, 
-                        lubridate::date(dateTime) >= input$dateSlider2[1] & lubridate::date(dateTime) <= input$dateSlider2[2]) %>%
+
+        if(input$variableSelect2 != "USGSDischarge"){
+          req(input$sitePicker2)
+          print("not usgs discharge")
+          filteredData <- PTData %>%
+            filter(lubridate::date(dateTime) >= input$dateSlider2[1] & 
+                     lubridate::date(dateTime) <= input$dateSlider2[2])
           
-          group_by(Date = date(dateTime), Site) %>%
-          summarise(dailyAverage = round(mean(!!sym(input$variableSelect2)), 2)) %>%
-          #need to ungroup to get data to show for plotly plots (overlay plot)
-          ungroup()
-        return(filteredPTData)
+          filteredData <- filteredData %>%
+            dplyr::filter(Site %in% input$sitePicker2) %>%
+            group_by(Date = date(dateTime), Site) %>%
+            summarise(dailyAverage = round(mean(!!sym(input$variableSelect2)), 2)) %>%
+            #need to ungroup to get data to show for plotly plots (overlay plot)
+            ungroup()
+            
+        } else{
+          print("yes usgs dishcarge")
+          filteredData <- USGSData$USGSDaily %>%
+            rename(dailyAverage = Flow)
+        }
+         
+        
+        return(filteredData)
       })
       
       
@@ -296,19 +323,25 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
                             "No Movement" = "black",
                             "Initial Release" = "darkorange",
                             "Changed Rivers" = "purple")
-        # plot_ly() %>%
-        #   add_lines(data = filteredPTData2(), x = ~dateTime, y = ~.data[[dailyAverage]], 
-        #             color = ~Site,
-        #             colors = site_colors)
+      
+        if(input$variableSelect2 != "USGSDischarge"){
+          line_color = ~Site
+          nameOfLine = ~Site
+        } else{
+          line_color = I("#87CEEB")
+          nameOfLine = "USGS Discharge"
+        }
+        
         plot_ly() %>%
           add_trace(data = filteredPTData2(), x = ~Date,
-                              y = ~dailyAverage,
-                              color = ~Site, 
+                    y = ~dailyAverage,
+                    name = nameOfLine,
+                    color = line_color, # #ifelse(input$variableSelect2 != "USGSDischarge", 
                     type = "scatter",
                     yaxis = "y1",
-                    mode = "lines+markers"
-                             # colors = site_colors
-                    ) %>%
+                    mode = "lines"
+                    #colors = site_colors
+          ) %>%
           add_trace(data = filteredMovementsDataCounts(), x = ~Date, y = ~numberOfActivities,
                     yaxis = "y2",
                     color = ~movement_only, colors = movementColors,
