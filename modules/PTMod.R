@@ -30,7 +30,7 @@ PT_UI <- function(id, PTData, Movements_df) {
                        #if this needs to be used like 1 more time I would make these functions
                        checkboxInput(ns("dischargeOverlay"), "Overlay USGS Discharge Data"
                        ),
-                       uiOutput(ns("dischargeScaleValue")),
+                       #uiOutput(ns("dischargeScaleValue")),
                        h6("Note: Discharge is measured from USGS Gauge at Hitching Post and is the same across all sites")
                        
           ),
@@ -169,18 +169,18 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
       })
       
       
-      output$dischargeScaleValue <- renderUI({
-        req(input$dischargeOverlay)
-        numericInput(
-          ns("dischargeScaleValueInput"),
-          "Scale Discharge (dividing)",
-          1,
-          min = 0,
-          max = NA,
-          step = NA,
-          width = NULL
-        )
-      })
+      # output$dischargeScaleValue <- renderUI({
+      #   req(input$dischargeOverlay)
+      #   numericInput(
+      #     ns("dischargeScaleValueInput"),
+      #     "Scale Discharge (dividing)",
+      #     1,
+      #     min = 0,
+      #     max = NA,
+      #     step = NA,
+      #     width = NULL
+      #   )
+      # })
       
       output$dischargeScaleValueMovements <- renderUI({
         req(input$dischargeOverlayMovements)
@@ -234,21 +234,32 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
       
       
       output$PTPlot <- renderPlotly({
+        rainbow_trout_colors <- c( "#32CD32", "#008080", "#FF69B4", "#8B8000", "#FF4500", "#6A5ACD", "#20B2AA", "#FF8C00",  "#4682B4")
+        site_colors <- setNames(rainbow_trout_colors[0:length(unique(PTData$Site))], unique(PTData$Site))
         
         if(!input$dischargeOverlay){
           plot_ly() %>%
-            add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect2]], color = ~Site) %>%
+            add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect]], 
+                      color = ~Site,
+                      colors = site_colors) %>%
             layout(title = "Pressure Transducer Data",
                    xaxis = list(title = "Date"),
-                   yaxis = list(title = "Primary Y Axis", side = "left", showgrid = FALSE)
+                   yaxis = list(title = input$variableSelect, side = "left", showgrid = FALSE)
             )
         } else {
           plot_ly() %>%
-            add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect2]], color = ~Site, yaxis = "y1") %>%
-            add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~Flow_Inst, yaxis = "y2") %>%
-            layout(title = "Time Series Data Visualization",
+            add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect]], 
+                      color = ~Site,
+                      colors = site_colors,
+                      yaxis = "y1") %>%
+            
+            add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~Flow_Inst,
+                      color = I("#87CEEB"),
+                      name = "USGS Discharge",
+                      yaxis = "y2") %>%
+            layout(title = "Pressure Transducer Data",
                    xaxis = list(title = "Date"),
-                   yaxis = list(title = input$variableSelect2, side = "left", showgrid = FALSE),
+                   yaxis = list(title = input$variableSelect, side = "left", showgrid = FALSE),
                    yaxis2 = list(title = "Discharge (CFS)", side = "right", overlaying = "y",
                                  showgrid = FALSE))
         }
