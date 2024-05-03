@@ -92,7 +92,6 @@ if(!exists("USGSData")){
   USGSData <- readRDS("data/flatFilesforApp/USGSData.rds")
 }
 
-
 end_time <- Sys.time()
 print(paste("Static File Read-in took", round((end_time-start_time),2)))
 
