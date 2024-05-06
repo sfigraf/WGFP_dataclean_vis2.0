@@ -302,16 +302,19 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
       
       output$OverlayPlot <- renderPlotly({
         
-       # rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF8C00", "#4682B4")
+       rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF8C00", "#4682B4")
         #site_colors <- setNames(rainbow_trout_colors[0:length(sort(unique(PTData$Site)))], sort(unique(PTData$Site)))
         
         movementColors <- setNames(object = c("purple", "red", "darkorange", "black", "chartreuse3"),
-                             nm = sort(unique(filteredMovementsDataCounts()$movement_only)))
-        # movementColors <- c("Downstream Movement" = "red",
-        #                     "Upstream Movement" = "chartreuse3",
-        #                     "No Movement" = "black",
-        #                     "Initial Release" = "darkorange",
-        #                     "Changed Rivers" = "purple")
+                             nm = sort(unique(Movements_df$movement_only)))
+        movementColors <- c("purple", "red", "darkorange", "black", "chartreuse3")
+        allcolors <- c("Downstream Movement" = "red",
+                            "Upstream Movement" = "chartreuse3",
+                            "No Movement" = "black",
+                            "Initial Release" = "darkorange",
+                            "Changed Rivers" = "purple", rainbow_trout_colors)
+        allcolors <- setNames(c(movementColors, rainbow_trout_colors[0:length(unique(PTData$Site))]), c(sort(unique(Movements_df$movement_only)), sort(unique(PTData$Site))))
+        
         #xx <<- filteredMovementsDataCounts()
         print(movementColors)
       
@@ -345,12 +348,13 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
                     type = "scatter",
                     yaxis = envYaxis,
                     mode = "lines",
-                    colors = c("purple", "red", "darkorange", "black", "chartreuse3")
+                    colors = allcolors
+                    #colors = c("purple", "red", "darkorange", "black", "chartreuse3")
           ) %>%
           add_trace(data = filteredMovementsDataCounts(), x = ~Date, y = ~numberOfActivities,
                     yaxis = movYaxis,
                     color = ~movement_only, 
-                    #colors = c("purple", "red", "darkorange", "black", "chartreuse3"),
+                    colors = allcolors,
                     hoverinfo = "text",
                     text = ~paste('Date: ', as.character(Date), '<br>Number of Activities: ', numberOfActivities),
                     type = 'bar') %>%
