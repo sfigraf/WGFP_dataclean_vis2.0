@@ -27,7 +27,6 @@ PT_UI <- function(id, PTData, Movements_df) {
                                    step = 1,
                                    timeFormat = "%d %b %y"
                        ), 
-                       #if this needs to be used like 1 more time I would make these functions
                        checkboxInput(ns("dischargeOverlay"), "Overlay USGS Discharge Data"
                        ),
                        uiOutput(ns("YaxisSelect")),
@@ -77,10 +76,6 @@ PT_UI <- function(id, PTData, Movements_df) {
                                               step = 1,
                                               timeFormat = "%d %b %y"
                                   ),
-                                  #if this needs to be used like 1 more time I would make these functions
-                                  # checkboxInput(ns("dischargeOverlayMovements"), "Overlay USGS Discharge Data"
-                                  # ),
-                                  #uiOutput(ns("dischargeScaleValueMovements")),
                                   h6("Note: Discharge is measured from USGS Gauge at Hitching Post and is the same across all sites")                     )
             )
           ), 
@@ -306,15 +301,19 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
       
       
       output$OverlayPlot <- renderPlotly({
-        rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF8C00", "#4682B4")
-        site_colors <- setNames(rainbow_trout_colors[0:length(sort(unique(PTData$Site)))], sort(unique(PTData$Site)))
         
-        scalevalue <- round(max(filteredPTData2()$dailyAverage, na.rm = T)/max(filteredMovementsDataCounts()$numberOfActivities), 2)
-        movementColors <- c("Downstream Movement" = "red",
-                            "Upstream Movement" = "chartreuse3",
-                            "No Movement" = "black",
-                            "Initial Release" = "darkorange",
-                            "Changed Rivers" = "purple")
+       # rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF8C00", "#4682B4")
+        #site_colors <- setNames(rainbow_trout_colors[0:length(sort(unique(PTData$Site)))], sort(unique(PTData$Site)))
+        
+        movementColors <- setNames(object = c("purple", "red", "darkorange", "black", "chartreuse3"),
+                             nm = sort(unique(filteredMovementsDataCounts()$movement_only)))
+        # movementColors <- c("Downstream Movement" = "red",
+        #                     "Upstream Movement" = "chartreuse3",
+        #                     "No Movement" = "black",
+        #                     "Initial Release" = "darkorange",
+        #                     "Changed Rivers" = "purple")
+        #xx <<- filteredMovementsDataCounts()
+        print(movementColors)
       
         if(!input$variableSelect2 %in% c("USGSDischarge", "USGSWatertemp")){
           line_color = ~Site
@@ -345,12 +344,13 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
                     color = line_color, 
                     type = "scatter",
                     yaxis = envYaxis,
-                    mode = "lines"
-                    #colors = site_colors
+                    mode = "lines",
+                    colors = c("purple", "red", "darkorange", "black", "chartreuse3")
           ) %>%
           add_trace(data = filteredMovementsDataCounts(), x = ~Date, y = ~numberOfActivities,
                     yaxis = movYaxis,
-                    color = ~movement_only, colors = movementColors,
+                    color = ~movement_only, 
+                    #colors = c("purple", "red", "darkorange", "black", "chartreuse3"),
                     hoverinfo = "text",
                     text = ~paste('Date: ', as.character(Date), '<br>Number of Activities: ', numberOfActivities),
                     type = 'bar') %>%
