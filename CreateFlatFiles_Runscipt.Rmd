@@ -70,6 +70,11 @@ for (file in list.files("data/PressureTransducer")) {
 allPressureTransducerData <- bind_rows(pTList) %>%
   mutate(DateTime = lubridate::mdy_hm(DateTime))
 
+## detection distance
+
+WGFP_SiteVisits_FieldData <- read_csv("data/WGFP_SiteVisits_FieldData.csv", 
+    skip = 2)
+#
 end_time = Sys.time()
 print(paste("Reading in files took", round((end_time-start_time),2)))
 
