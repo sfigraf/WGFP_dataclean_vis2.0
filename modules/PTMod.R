@@ -1,3 +1,7 @@
+rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF8C00", "#4682B4")
+movementColors <- c("purple", "red", "darkorange", "black", "chartreuse3")
+
+
 PT_UI <- function(id, PTData, Movements_df) {
   ns <- NS(id)
   tagList(
@@ -27,15 +31,14 @@ PT_UI <- function(id, PTData, Movements_df) {
                                    step = 1,
                                    timeFormat = "%d %b %y"
                        ), 
-                       #if this needs to be used like 1 more time I would make these functions
                        checkboxInput(ns("dischargeOverlay"), "Overlay USGS Discharge Data"
                        ),
-                       uiOutput(ns("dischargeScaleValue")),
+                       uiOutput(ns("YaxisSelect")),
                        h6("Note: Discharge is measured from USGS Gauge at Hitching Post and is the same across all sites")
                        
           ),
           mainPanel(width = 10,
-                    box(
+                    box(title = "Environmental Time Series Data",
                       width = 10,
                       withSpinner(plotlyOutput(ns("PTPlot")))
                     )
@@ -48,12 +51,12 @@ PT_UI <- function(id, PTData, Movements_df) {
         br(), 
         sidebarLayout(
           tabsetPanel(
-            tabPanel("Movements Filters",
+            tabPanel("Movement Filters",
                      sidebarPanel(width = 2,
                                   movementsFiltered_UI(ns("filteredMovementData"), Movements_df)
                      )
             ), 
-            tabPanel("Variable Filters", 
+            tabPanel("Environmental Filters", 
                      sidebarPanel(width = 2,
                                   pickerInput(ns("sitePicker2"),
                                               label = "Select Sites:",
@@ -63,10 +66,11 @@ PT_UI <- function(id, PTData, Movements_df) {
                                               options = list(
                                                 `actions-box` = TRUE #this makes the "select/deselect all" option
                                               )
-                                  ), 
+                                              
+                                  ),
                                   selectInput(ns("variableSelect2"),
                                               label = "Variable to Plot",
-                                              choices = colnames(PTData)[grepl("_", colnames(PTData))],
+                                              choices = c(colnames(PTData)[grepl("_", colnames(PTData))], "USGSDischarge", "USGSWatertemp"),
                                               selected = colnames(PTData)[grepl("_", colnames(PTData))][1],
                                   ), 
                                   sliderInput(ns("dateSlider2"), "Date",
@@ -76,19 +80,19 @@ PT_UI <- function(id, PTData, Movements_df) {
                                               step = 1,
                                               timeFormat = "%d %b %y"
                                   ),
-                                  #if this needs to be used like 1 more time I would make these functions
-                                  checkboxInput(ns("dischargeOverlayMovements"), "Overlay USGS Discharge Data"
-                                  ),
-                                  uiOutput(ns("dischargeScaleValueMovements")),
                                   h6("Note: Discharge is measured from USGS Gauge at Hitching Post and is the same across all sites")                     )
             )
           ), 
           mainPanel(width = 10,
-                    box(
+                    box(title = "Environmental and Movement Data",
                       width = 10,
-                      withSpinner(plotlyOutput(ns("OverlayPlot")))
+                      withSpinner(plotlyOutput(ns("OverlayPlot"))), 
+                      radioButtons(ns("YaxisSelect2"), 
+                                   "Primary Y Axis Data",
+                                   choices = c("Movement Data", 
+                                               "Environmental Data"),
+                                   selected = "Movement Data")
                     )
-                    
           )
         )
         
@@ -134,6 +138,7 @@ PT_UI <- function(id, PTData, Movements_df) {
                  mainPanel(width = 10,
                            box(
                              width = 10,
+                             br(),
                              withSpinner(plotlyOutput(ns("variableCorrelationPlot")))
                            ), 
                            box(width = 10, 
@@ -147,12 +152,25 @@ PT_UI <- function(id, PTData, Movements_df) {
   )
 }
 
-PT_Server <- function(id, PTData, Movements_df, dischargeData) {
+PT_Server <- function(id, PTData, Movements_df, USGSData) {
   moduleServer(
     id,
     function(input, output, session) {
       
       ns <- session$ns
+      
+      observeEvent(input$variableSelect2, {
+        
+        if(input$variableSelect2 %in% c("USGSDischarge", "USGSWatertemp")){
+          updatePickerInput(session, "sitePicker2", choices = character(0))
+        } else{
+          updatePickerInput(session, "sitePicker2", 
+                            choices = sort(unique(PTData$Site)),
+                            selected = sort(unique(PTData$Site))
+                            )
+          
+        }
+      })
       
       filteredPTData <- reactive({
         
@@ -164,39 +182,22 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
           dplyr::select(Site, dateTime, input$variableSelect) %>%
           dplyr::filter(Site %in% input$sitePicker, 
                         lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2]) #%>%
-        #na.omit()
         return(filteredPTData)
       })
       
       
-      output$dischargeScaleValue <- renderUI({
+      output$YaxisSelect <- renderUI({
         req(input$dischargeOverlay)
-        numericInput(
-          ns("dischargeScaleValueInput"),
-          "Scale Discharge (dividing)",
-          1,
-          min = 0,
-          max = NA,
-          step = NA,
-          width = NULL
-        )
-      })
-      
-      output$dischargeScaleValueMovements <- renderUI({
-        req(input$dischargeOverlayMovements)
-        numericInput(
-          ns("dischargeScaleValueInputMovements"),
-          "Scale Discharge (dividing)",
-          1,
-          min = 0,
-          max = NA,
-          step = NA,
-          width = NULL
-        )
+        
+        radioButtons(ns("primaryYAxis"),
+                     "Primary Y Axis Data",
+                     choices = c("Pressure Transducer Data", 
+                                 "Discharge Data"),
+                     selected = "Pressure Transducer Data")
       })
       
       filteredDischargeData <- reactive({
-        filteredDischargeData <- dischargeData %>%
+        filteredDischargeData <- USGSData$USGSDischarge15Min %>%
           dplyr::filter(lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2])
         
         return(filteredDischargeData)
@@ -204,7 +205,7 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
       
       filteredDischargeDataMovements <- reactive({
         
-        filteredDischargeDataMovements <- dischargeData %>%
+        filteredDischargeDataMovements <- USGSData$USGSDischarge15Min %>%
           dplyr::filter(lubridate::date(dateTime) >= input$dateSlider2[1] & lubridate::date(dateTime) <= input$dateSlider2[2]) %>%
           group_by(Date = date(dateTime)) %>%
           summarise(dailyAverageCFS = round(mean(Flow_Inst), 2))
@@ -212,15 +213,30 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
       })
       
       filteredPTData2 <- reactive({
-        req(input$sitePicker2)
-        filteredPTData <- PTData %>%
-          select(Site, dateTime, input$variableSelect2) %>%
-          dplyr::filter(Site %in% input$sitePicker2, 
-                        lubridate::date(dateTime) >= input$dateSlider2[1] & lubridate::date(dateTime) <= input$dateSlider2[2]) %>%
+
+        if(!input$variableSelect2 %in% c("USGSDischarge", "USGSWatertemp")){
+          validate(
+            need(input$sitePicker2, "Please select a site to display")
+          )
+          filteredData <- PTData %>%
+            filter(lubridate::date(dateTime) >= input$dateSlider2[1] & 
+                     lubridate::date(dateTime) <= input$dateSlider2[2])
           
-          group_by(Date = date(dateTime), Site) %>%
-          summarise(dailyAverage = round(mean(!!sym(input$variableSelect2)), 2)) 
-        return(filteredPTData)
+          filteredData <- filteredData %>%
+            dplyr::filter(Site %in% input$sitePicker2) %>%
+            group_by(Date = date(dateTime), Site) %>%
+            summarise(dailyAverage = round(mean(!!sym(input$variableSelect2)), 2)) %>%
+            #need to ungroup to get data to show for plotly plots (overlay plot)
+            ungroup()
+            
+        } else{
+          filteredData <- USGSData$USGSDaily %>%
+            rename(dailyAverage = case_when(input$variableSelect2 == "USGSDischarge" ~ "Flow", 
+                                            input$variableSelect2 == "USGSWatertemp" ~ "WtempF"))
+        }
+         
+        
+        return(filteredData)
       })
       
       
@@ -234,65 +250,105 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
       
       
       output$PTPlot <- renderPlotly({
+        site_colors <- setNames(rainbow_trout_colors[0:length(unique(PTData$Site))], sort(unique(PTData$Site)))
         
         if(!input$dischargeOverlay){
-          filteredPTData() %>%
-            ggplot(aes_string(x = "dateTime", y = input$variableSelect, color = "Site")
-            ) +
-            geom_line() +
-            theme_classic() +
-            labs(title="Pressure Transducer Data",
-                 x = "Date", y = input$variableSelect)
-        } else{
-          ggplot() + 
-            geom_line(data = filteredPTData(), aes_string(x = "dateTime", y = input$variableSelect, color = "Site")) +
-            geom_line(data = filteredDischargeData(), aes(x = dateTime, y = round(Flow_Inst/input$dischargeScaleValueInput, 2))) +
-            theme_classic() +
-            labs(title="Pressure Transducer and USGS Data",
-                 x = "Date", y = paste0(input$variableSelect, "/CFS"))
+
+          plot_ly() %>%
+            add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect]], 
+                      color = ~Site,
+                      colors = site_colors) %>%
+            layout(xaxis = list(title = "Date"),
+                   yaxis = list(title = input$variableSelect, side = "left", showgrid = FALSE)
+            )
+        } else {
           
+          req(input$primaryYAxis)
+          if (input$primaryYAxis == "Pressure Transducer Data") {
+            
+            plot_ly() %>%
+              add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect]], 
+                        color = ~Site,
+                        colors = site_colors,
+                        yaxis = "y1") %>%
+              add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~Flow_Inst,
+                        color = I("#87CEEB"),
+                        name = "USGS Discharge",
+                        yaxis = "y2") %>%
+              layout(legend = list(x = 1.05, y = 1),
+                     xaxis = list(title = "Date"),
+                     yaxis = list(title = input$variableSelect, side = "left", showgrid = FALSE),
+                     yaxis2 = list(title = "Discharge (CFS)", side = "right", overlaying = "y",
+                                   showgrid = FALSE))
+          } else if(input$primaryYAxis == "Discharge Data") {
+            plot_ly() %>%
+              add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect]], 
+                        color = ~Site,
+                        colors = site_colors,
+                        yaxis = "y2") %>%
+              add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~Flow_Inst,
+                        color = I("#87CEEB"),
+                        name = "USGS Discharge",
+                        yaxis = "y1") %>%
+              layout(legend = list(x = 1.05, y = 1),
+                     xaxis = list(title = "Date"),
+                     yaxis = list(title = "Discharge (CFS)", side = "left", showgrid = FALSE),
+                     yaxis2 = list(title = input$variableSelect, side = "right", overlaying = "y",
+                                   showgrid = FALSE))
+          }
         }
       })
       
       
       output$OverlayPlot <- renderPlotly({
-        
-        scalevalue <- round(max(filteredPTData2()$dailyAverage, na.rm = T)/max(filteredMovementsDataCounts()$numberOfActivities), 2)
-        
-        plot <- ggplot() +
-          # # Bar plot (movements)
-          geom_bar(data = filteredMovementsDataCounts(), aes(x = Date, y = numberOfActivities, 
-                                                             #text = paste('Date: ', as.character(Date), '\n'),
-                                                             fill = movement_only),
-                   stat = "identity", position = "dodge") +
-          
-          # # Line plot (windyGap)
-          geom_line(data = filteredPTData2(), aes(x = Date, y = round(dailyAverage/scalevalue, 0), color = Site)) +
-          
-          # Customize legend and fill colors
-          scale_fill_manual(values = c("Downstream Movement" = "red",
-                                       "Upstream Movement" = "chartreuse3",
-                                       "No Movement" = "black",
-                                       "Initial Release" = "darkorange",
-                                       "Changed Rivers" = "purple")) +
-          guides(fill = guide_legend(title = "Movement")) +  # Legend for bar plot
-          theme_classic()
-        
-        if(input$dischargeOverlayMovements){
-          
-          plot <- plot +
-            geom_line(data = filteredDischargeDataMovements(), aes(x = Date, y = round(dailyAverageCFS/input$dischargeScaleValueInputMovements, 2))) +
-            labs(title = paste0("Daily Movements, ", input$variableSelect2, "/", scalevalue, ", and CFS/", input$dischargeScaleValueInputMovements),
-                 x = "Date", y = paste0("Count, ", input$variableSelect2, ", and CFS"))
-          
-          
+
+        allColors <- setNames(c(movementColors, rainbow_trout_colors[0:length(unique(PTData$Site))]), c(sort(unique(Movements_df$movement_only)), sort(unique(PTData$Site))))
+      
+        if(!input$variableSelect2 %in% c("USGSDischarge", "USGSWatertemp")){
+          line_color = ~Site
+          nameOfLine = ~Site
         } else{
-          plot <- plot +
-            labs(title = paste0("Daily Movements and ", input$variableSelect2, "/", scalevalue),
-                 x = "Date", y = "Count") 
+          line_color = I("#87CEEB")
+          nameOfLine = case_when(input$variableSelect2 == "USGSDischarge" ~ "USGS Discharge", 
+                                 input$variableSelect2 == "USGSWatertemp" ~ "USGS Water Temp (F)")
         }
         
-        return(plot)
+        if(input$YaxisSelect2 == "Movement Data"){
+          movYaxis = "y1"
+          envYaxis = "y2"
+          primaryYaxisName = "Movement Data (Daily Counts)"
+          SecondaryYaxisName = input$variableSelect2
+          
+        } else{
+          movYaxis = "y2"
+          envYaxis = "y1"
+          primaryYaxisName = input$variableSelect2
+          SecondaryYaxisName = "Movement Data (Daily Counts)"
+        }
+        
+        plot_ly() %>%
+          add_trace(data = filteredPTData2(), x = ~Date,
+                    y = ~dailyAverage,
+                    name = nameOfLine,
+                    color = line_color, 
+                    type = "scatter",
+                    yaxis = envYaxis,
+                    mode = "lines",
+                    colors = allColors
+          ) %>%
+          add_trace(data = filteredMovementsDataCounts(), x = ~Date, y = ~numberOfActivities,
+                    yaxis = movYaxis,
+                    color = ~movement_only, 
+                    colors = allColors,
+                    hoverinfo = "text",
+                    text = ~paste('Date: ', as.character(Date), '<br>Number of Activities: ', numberOfActivities),
+                    type = 'bar') %>%
+          layout(legend = list(x = 1.05, y = 1),
+                 barmode = "overlay",
+                 xaxis = list(title = "Date"),
+                 yaxis = list(title = primaryYaxisName, side = "left", showgrid = FALSE),
+                 yaxis2 = list(title = SecondaryYaxisName, side = "right", overlaying = "y",
+                               showgrid = FALSE))
       })
       
       
@@ -355,17 +411,17 @@ PT_Server <- function(id, PTData, Movements_df, dischargeData) {
       })
       
       output$variableCorrelationPlot <- renderPlotly({
-        
-        
+
+        site_colors <- setNames(rainbow_trout_colors[0:length(unique(PTData$Site))], sort(unique(PTData$Site)))
         
         filteredPTData3() %>%
           ggplot(aes(x = variableX, y = variableY)) +
-          geom_line() +
+          geom_line(color = site_colors[[input$siteSelect]]) +
           theme_classic() +
           labs(title = paste0(input$variableSelectX, " vs ", input$variableSelectY), 
                x = input$variableSelectX, 
                y = input$variableSelectY
-               )
+               ) 
       })
       
       output$caption <- renderUI({
