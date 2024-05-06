@@ -138,6 +138,7 @@ PT_UI <- function(id, PTData, Movements_df) {
                  mainPanel(width = 10,
                            box(
                              width = 10,
+                             br(),
                              withSpinner(plotlyOutput(ns("variableCorrelationPlot")))
                            ), 
                            box(width = 10, 
@@ -410,11 +411,12 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
       })
       
       output$variableCorrelationPlot <- renderPlotly({
-        
+
+        site_colors <- setNames(rainbow_trout_colors[0:length(unique(PTData$Site))], sort(unique(PTData$Site)))
         
         filteredPTData3() %>%
           ggplot(aes(x = variableX, y = variableY)) +
-          geom_line() +
+          geom_line(color = site_colors[[input$siteSelect]]) +
           theme_classic() +
           labs(title = paste0(input$variableSelectX, " vs ", input$variableSelectY), 
                x = input$variableSelectX, 

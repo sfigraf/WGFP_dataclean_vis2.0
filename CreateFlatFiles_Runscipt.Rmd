@@ -99,10 +99,10 @@ print(paste("Reading in USGS Discharge Data took", round((usgsTime2-usgsTime),2)
 windyGap <- renameNWISColumns(windyGap)
 
 allPressureTransducerDataWithDischarge <- windyGap[,c("dateTime", "Flow_Inst")] %>%
-  #we're going to get a "many" relatoinship here because the discharge is joined to each site reading so it causes each disharge timestamp that has a matching PT logger reading to get multiplied by at least 3 (1 for RB, HP, and CF)
+  #we're going to get a "many" relationship here because the discharge is joined to each site reading so it causes each disharge timestamp that has a matching PT logger reading to get multiplied by at least 3 (1 for RB, HP, and CF)
   left_join(allPressureTransducerData, by = c("dateTime"= "DateTime")) %>%
   rename(USGSDischarge = Flow_Inst) %>%
-  #we are gertting rid of the "ice" entries here by turning them to 0
+  #we are getting rid of the "ice" entries here by turning them to 0
   mutate(Water_Level_NoIce_ft = as.numeric(case_when(Water_Level_NoIce_ft == "Ice" ~ "0", 
                                           TRUE ~ Water_Level_NoIce_ft)))
 
