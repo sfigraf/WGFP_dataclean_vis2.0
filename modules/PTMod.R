@@ -1,3 +1,7 @@
+rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF8C00", "#4682B4")
+movementColors <- c("purple", "red", "darkorange", "black", "chartreuse3")
+
+
 PT_UI <- function(id, PTData, Movements_df) {
   ns <- NS(id)
   tagList(
@@ -34,7 +38,7 @@ PT_UI <- function(id, PTData, Movements_df) {
                        
           ),
           mainPanel(width = 10,
-                    box(
+                    box(title = "Environmental Time Series Data",
                       width = 10,
                       withSpinner(plotlyOutput(ns("PTPlot")))
                     )
@@ -47,12 +51,12 @@ PT_UI <- function(id, PTData, Movements_df) {
         br(), 
         sidebarLayout(
           tabsetPanel(
-            tabPanel("Movements Filters",
+            tabPanel("Movement Filters",
                      sidebarPanel(width = 2,
                                   movementsFiltered_UI(ns("filteredMovementData"), Movements_df)
                      )
             ), 
-            tabPanel("Variable Filters", 
+            tabPanel("Environmental Filters", 
                      sidebarPanel(width = 2,
                                   pickerInput(ns("sitePicker2"),
                                               label = "Select Sites:",
@@ -80,7 +84,7 @@ PT_UI <- function(id, PTData, Movements_df) {
             )
           ), 
           mainPanel(width = 10,
-                    box(
+                    box(title = "Environmental and Movement Data",
                       width = 10,
                       withSpinner(plotlyOutput(ns("OverlayPlot"))), 
                       radioButtons(ns("YaxisSelect2"), 
@@ -245,18 +249,15 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
       
       
       output$PTPlot <- renderPlotly({
-        rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF8C00", "#4682B4")
         site_colors <- setNames(rainbow_trout_colors[0:length(unique(PTData$Site))], sort(unique(PTData$Site)))
         
         if(!input$dischargeOverlay){
-          #site_colors <- setNames(rainbow_trout_colors[0:length(unique(PTData$Site))], sort(unique(PTData$Site)))
-          
+
           plot_ly() %>%
             add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect]], 
                       color = ~Site,
                       colors = site_colors) %>%
-            layout(title = "Environmental Time Series Data",
-                   xaxis = list(title = "Date"),
+            layout(xaxis = list(title = "Date"),
                    yaxis = list(title = input$variableSelect, side = "left", showgrid = FALSE)
             )
         } else {
@@ -273,8 +274,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
                         color = I("#87CEEB"),
                         name = "USGS Discharge",
                         yaxis = "y2") %>%
-              layout(title = "Environmental Time Series Data",
-                     legend = list(x = 1.05, y = 1),
+              layout(legend = list(x = 1.05, y = 1),
                      xaxis = list(title = "Date"),
                      yaxis = list(title = input$variableSelect, side = "left", showgrid = FALSE),
                      yaxis2 = list(title = "Discharge (CFS)", side = "right", overlaying = "y",
@@ -289,8 +289,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
                         color = I("#87CEEB"),
                         name = "USGS Discharge",
                         yaxis = "y1") %>%
-              layout(title = "Environmental Time Series Data",
-                     legend = list(x = 1.05, y = 1),
+              layout(legend = list(x = 1.05, y = 1),
                      xaxis = list(title = "Date"),
                      yaxis = list(title = "Discharge (CFS)", side = "left", showgrid = FALSE),
                      yaxis2 = list(title = input$variableSelect, side = "right", overlaying = "y",
@@ -301,22 +300,8 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
       
       
       output$OverlayPlot <- renderPlotly({
-        
-       rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF8C00", "#4682B4")
-        #site_colors <- setNames(rainbow_trout_colors[0:length(sort(unique(PTData$Site)))], sort(unique(PTData$Site)))
-        
-        movementColors <- setNames(object = c("purple", "red", "darkorange", "black", "chartreuse3"),
-                             nm = sort(unique(Movements_df$movement_only)))
-        movementColors <- c("purple", "red", "darkorange", "black", "chartreuse3")
-        allcolors <- c("Downstream Movement" = "red",
-                            "Upstream Movement" = "chartreuse3",
-                            "No Movement" = "black",
-                            "Initial Release" = "darkorange",
-                            "Changed Rivers" = "purple", rainbow_trout_colors)
-        allcolors <- setNames(c(movementColors, rainbow_trout_colors[0:length(unique(PTData$Site))]), c(sort(unique(Movements_df$movement_only)), sort(unique(PTData$Site))))
-        
-        #xx <<- filteredMovementsDataCounts()
-        print(movementColors)
+
+        allColors <- setNames(c(movementColors, rainbow_trout_colors[0:length(unique(PTData$Site))]), c(sort(unique(Movements_df$movement_only)), sort(unique(PTData$Site))))
       
         if(!input$variableSelect2 %in% c("USGSDischarge", "USGSWatertemp")){
           line_color = ~Site
@@ -348,18 +333,16 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
                     type = "scatter",
                     yaxis = envYaxis,
                     mode = "lines",
-                    colors = allcolors
-                    #colors = c("purple", "red", "darkorange", "black", "chartreuse3")
+                    colors = allColors
           ) %>%
           add_trace(data = filteredMovementsDataCounts(), x = ~Date, y = ~numberOfActivities,
                     yaxis = movYaxis,
                     color = ~movement_only, 
-                    colors = allcolors,
+                    colors = allColors,
                     hoverinfo = "text",
                     text = ~paste('Date: ', as.character(Date), '<br>Number of Activities: ', numberOfActivities),
                     type = 'bar') %>%
-          layout(title = "Environmental Data and Movements",
-                 legend = list(x = 1.05, y = 1),
+          layout(legend = list(x = 1.05, y = 1),
                  barmode = "overlay",
                  xaxis = list(title = "Date"),
                  yaxis = list(title = primaryYaxisName, side = "left", showgrid = FALSE),
@@ -429,7 +412,6 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
       output$variableCorrelationPlot <- renderPlotly({
         
         
-        
         filteredPTData3() %>%
           ggplot(aes(x = variableX, y = variableY)) +
           geom_line() +
@@ -437,7 +419,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
           labs(title = paste0(input$variableSelectX, " vs ", input$variableSelectY), 
                x = input$variableSelectX, 
                y = input$variableSelectY
-               )
+               ) 
       })
       
       output$caption <- renderUI({
