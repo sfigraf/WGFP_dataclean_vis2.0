@@ -81,8 +81,16 @@ AllEncounters_UI <- function(id, combinedData_df_list) {
                       ),
                       tabPanel("Plot",
                                br(),
-                               withSpinner(plotlyOutput(ns("plot5")))
-                               )
+                               box(title = "Raw Detections Time Series", 
+                                   width = 10, 
+                                   withSpinner(plotlyOutput(ns("plot5")))
+                                   ),
+                               box(title = "Raw Detection Frequencies by Event", 
+                                   width = 10, 
+                                   withSpinner(DT::dataTableOutput(ns("alleventsfrequencies1")))
+                                   )
+                               
+                               ),
                      )#end of tabset panel
                    )#end of all events and plot mainpanel
                  )# end of all events and plot sidebarLayout
@@ -437,7 +445,6 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
                   
                 )
 
-
             })
 
             # Enc Hist Plot Render ----------------------------------------------------
@@ -448,12 +455,32 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
                            text = paste('Date: ', as.character(Date), '\n')
                 )) +
                 geom_bar(stat = "count", position = "dodge") +
-                theme_classic() +
-                labs(title = "Raw Detections Frequency")
+                theme_classic() 
 
               ggplotly(p = plot)
 
             })
+        
+        output$alleventsfrequencies1 <- renderDataTable({
+          frequenciesSummarized <- all_events_data() %>%
+            filter(!TAG %in% c(230000999999)) %>%
+            count(Event, name = "Raw Detections")
+          
+          datatable(frequenciesSummarized,
+                    rownames = FALSE,
+                    extensions = c('Buttons'),
+                    #for slider filter instead of text input
+                    filter = 'top',
+                    options = list(
+                      pageLength = 10, info = TRUE, lengthMenu = list(c(10,25), c("10", "25")),
+                      dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again #errorin list: arg 5 is empty because I had a comma after the dom argument so it thought there was gonna be another argument input
+                      language = list(emptyTable = "Enter inputs and press Render Table")
+                    ) #end of options list
+          )
+          
+        })
+        
+        
 
       
     }
