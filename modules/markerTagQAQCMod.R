@@ -45,13 +45,13 @@ MarkerTagQAQC_UI <- function(id, Marker_Tag_data) {
       ), #end of sidebar panel
       mainPanel(
         br(),
-        splitLayout(
-          
+        #splitLayout(
+        withSpinner(plotlyOutput(ns("plot2"))),
           withSpinner(DT::dataTableOutput(ns("markerTagsPlotData"))),
           
-          withSpinner(plotlyOutput(ns("plot2")))
           
-        ),
+          
+        #),
         downloadData_UI(ns("downloadmarkerTagsPlotData")),
         br(),
         shinydashboard::box(
