@@ -74,6 +74,13 @@ allPressureTransducerData <- bind_rows(pTList) %>%
 
 WGFP_SiteVisits_FieldData <- read_csv("data/WGFP_SiteVisits_FieldData.csv", 
     skip = 2)
+
+WGFP_SiteVisits_FieldData <- WGFP_SiteVisits_FieldData %>%
+  mutate(Datetime = lubridate::ymd_hms(paste(mdy(Date), Time)),
+         Date = mdy(Date),
+         across(.cols = contains("mm"), .fns = as.numeric)
+        
+  )
 #
 end_time = Sys.time()
 print(paste("Reading in files took", round((end_time-start_time),2)))
@@ -370,7 +377,8 @@ allFlatFiles <- list(
   "unknown_tags" = unknown_tags, 
   "metaDataVariableNames" = metaDataVariableNames,
   "PTData" = allPressureTransducerDataWithDischarge, 
-  "USGSData" = USGSData
+  "USGSData" = USGSData, 
+  "WGFPSiteVisitsFieldData" = WGFP_SiteVisits_FieldData
 )
 
 for(filename in names(allFlatFiles)){

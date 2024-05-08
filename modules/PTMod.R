@@ -2,7 +2,7 @@ rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD",
 movementColors <- c("purple", "red", "darkorange", "black", "chartreuse3")
 
 
-PT_UI <- function(id, PTData, Movements_df) {
+PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
   ns <- NS(id)
   tagList(
     tabsetPanel(
@@ -39,8 +39,8 @@ PT_UI <- function(id, PTData, Movements_df) {
           ),
           mainPanel(width = 10,
                     box(title = "Environmental Time Series Data",
-                      width = 10,
-                      withSpinner(plotlyOutput(ns("PTPlot")))
+                        width = 10,
+                        withSpinner(plotlyOutput(ns("PTPlot")))
                     )
           )
         )
@@ -85,55 +85,55 @@ PT_UI <- function(id, PTData, Movements_df) {
           ), 
           mainPanel(width = 10,
                     box(title = "Environmental and Movement Data",
-                      width = 10,
-                      withSpinner(plotlyOutput(ns("OverlayPlot"))), 
-                      radioButtons(ns("YaxisSelect2"), 
-                                   "Primary Y Axis Data",
-                                   choices = c("Movement Data", 
-                                               "Environmental Data"),
-                                   selected = "Movement Data")
+                        width = 10,
+                        withSpinner(plotlyOutput(ns("OverlayPlot"))), 
+                        radioButtons(ns("YaxisSelect2"), 
+                                     "Primary Y Axis Data",
+                                     choices = c("Movement Data", 
+                                                 "Environmental Data"),
+                                     selected = "Movement Data")
                     )
           )
         )
         
       ), 
-
-# variable correlations ui ------------------------------------------------
-
+      
+      # variable correlations ui ------------------------------------------------
+      
       
       tabPanel("Variable Correlations", 
                sidebarLayout(
                  sidebarPanel(width = 2,
-                   selectInput(ns("siteSelect"),
-                               label = "Select a Site",
-                               choices = sort(unique(PTData$Site)),
-                               selected = sort(unique(PTData$Site))[1],
-                   ), 
-                   selectInput(ns("variableSelectX"),
-                               label = "X Axis Variable",
-                               choices = c(colnames(PTData)[grepl("_", colnames(PTData))], "USGSDischarge"),
-                               selected = colnames(PTData)[grepl("_", colnames(PTData))][1],
-                   ), 
-                   
-                   
-                   selectInput(ns("variableSelectY"),
-                               label = "Y Axis Variable",
-                               choices = c(colnames(PTData)[grepl("_", colnames(PTData))], "USGSDischarge"),
-                               selected = colnames(PTData)[grepl("_", colnames(PTData))][2],
-                   ),
-                   sliderInput(ns("dateSlider3"), "Date",
-                               min = min(lubridate::date(PTData$dateTime) -1),
-                               max = max(lubridate::date(PTData$dateTime) +1),  
-                               value = c(min(lubridate::date(PTData$dateTime) -1), max(lubridate::date(PTData$dateTime) +1)),
-                               step = 1,
-                               timeFormat = "%d %b %y"
-                   ), 
-                   checkboxInput(ns("summarizeByTimeframe"), "Summarize by Timeframe"
-                   ),
-                   uiOutput(ns("timeFrameSummaryOptions")),
-                   
-                   h6("Note: Discharge is measured from USGS Gauge at Hitching Post and is the same across all sites")
-                   
+                              selectInput(ns("siteSelect"),
+                                          label = "Select a Site",
+                                          choices = sort(unique(PTData$Site)),
+                                          selected = sort(unique(PTData$Site))[1],
+                              ), 
+                              selectInput(ns("variableSelectX"),
+                                          label = "X Axis Variable",
+                                          choices = c(colnames(PTData)[grepl("_", colnames(PTData))], "USGSDischarge"),
+                                          selected = colnames(PTData)[grepl("_", colnames(PTData))][1],
+                              ), 
+                              
+                              
+                              selectInput(ns("variableSelectY"),
+                                          label = "Y Axis Variable",
+                                          choices = c(colnames(PTData)[grepl("_", colnames(PTData))], "USGSDischarge"),
+                                          selected = colnames(PTData)[grepl("_", colnames(PTData))][2],
+                              ),
+                              sliderInput(ns("dateSlider3"), "Date",
+                                          min = min(lubridate::date(PTData$dateTime) -1),
+                                          max = max(lubridate::date(PTData$dateTime) +1),  
+                                          value = c(min(lubridate::date(PTData$dateTime) -1), max(lubridate::date(PTData$dateTime) +1)),
+                                          step = 1,
+                                          timeFormat = "%d %b %y"
+                              ), 
+                              checkboxInput(ns("summarizeByTimeframe"), "Summarize by Timeframe"
+                              ),
+                              uiOutput(ns("timeFrameSummaryOptions")),
+                              
+                              h6("Note: Discharge is measured from USGS Gauge at Hitching Post and is the same across all sites")
+                              
                  ), 
                  mainPanel(width = 10,
                            box(
@@ -146,13 +146,54 @@ PT_UI <- function(id, PTData, Movements_df) {
                            
                  )
                )
+      ), 
+      
+
+# Detection Distances -----------------------------------------------------
+
+      
+      tabPanel("Detection Distance", 
+               sidebarLayout(
+                 sidebarPanel(width = 2,
+                              pickerInput(ns("sitePicker3"),
+                                          label = "Select Sites:",
+                                          choices = sort(unique(WGFPSiteVisitsFieldData$Site)),
+                                          selected = unique(WGFPSiteVisitsFieldData$Site),
+                                          multiple = TRUE,
+                                          options = list(
+                                            `actions-box` = TRUE #this makes the "select/deselect all" option
+                                          )
+                              ), 
+                              selectInput(ns("variableSelect3"),
+                                          label = "Reading to Plot",
+                                          choices = colnames(WGFPSiteVisitsFieldData)[grepl("mm", colnames(WGFPSiteVisitsFieldData))],
+                                          selected = colnames(WGFPSiteVisitsFieldData)[grepl("mm", colnames(WGFPSiteVisitsFieldData))][1],
+                              ),
+                              sliderInput(ns("detectionDistanceSlider"), "Date",
+                                          min = min(lubridate::date(WGFPSiteVisitsFieldData$Date) -1),
+                                          max = max(lubridate::date(WGFPSiteVisitsFieldData$Date) +1),  
+                                          value = c(min(lubridate::date(WGFPSiteVisitsFieldData$Date) -1), max(lubridate::date(WGFPSiteVisitsFieldData$Date) +1)),
+                                          step = 1,
+                                          timeFormat = "%d %b %y"
+                              ) 
+                              
+                 ),
+                 mainPanel(width = 10,
+                           box(
+                             width = 10,
+                             br(),
+                             withSpinner(plotlyOutput(ns("DetectionDistancePlot")))
+                           )
+                   
+                 )
+               )
       )
     )
     
   )
 }
 
-PT_Server <- function(id, PTData, Movements_df, USGSData) {
+PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldData) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -234,7 +275,6 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
             rename(dailyAverage = case_when(input$variableSelect2 == "USGSDischarge" ~ "Flow", 
                                             input$variableSelect2 == "USGSWatertemp" ~ "WtempF"))
         }
-         
         
         return(filteredData)
       })
@@ -246,6 +286,37 @@ PT_Server <- function(id, PTData, Movements_df, USGSData) {
         return(filteredMovementsData() %>%
                  count(Date, movement_only, name = "numberOfActivities")
         )
+      })
+      
+
+# Detection distance filters ----------------------------------------------
+
+      
+      
+      filteredDetectionDistanceData <- reactive({
+        WGFP_SiteVisits_FieldData2 <- WGFPSiteVisitsFieldData %>%
+          pivot_longer(cols = contains("mm"), names_to = "Detection Distance Description", values_to = "Reading (ft)")
+        
+        WGFPSiteVisitsFieldData3 <- WGFPSiteVisitsFieldData %>%
+          filter(Site %in% input$sitePicker3, 
+                 lubridate::date(Date) >= input$detectionDistanceSlider[1] & 
+                   lubridate::date(Date) <= input$detectionDistanceSlider[2])
+        #xx <<- WGFPSiteVisitsFieldData3
+        return(WGFPSiteVisitsFieldData3)
+        
+      })
+      
+      output$DetectionDistancePlot <- renderPlotly({
+        plot_ly() %>%
+          add_trace(data = filteredDetectionDistanceData(), x = ~Date, y = ~.data[[input$variableSelect3]], 
+                    color = ~Site, 
+                    type = "scatter", 
+                    #colors = site_colors
+                    mode = "lines+markers"
+                    ) %>%
+          layout(xaxis = list(title = "Date"),
+                 yaxis = list(title = input$variableSelect3, side = "left", showgrid = FALSE)
+          )
       })
       
       
