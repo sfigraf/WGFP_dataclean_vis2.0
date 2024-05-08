@@ -165,8 +165,14 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
                      )
                    ), 
                    tabPanel("PT Data", 
-                            filteredPTData_UI(ns("detectionDistancePT"), PTDataLong)
+                            sidebarPanel(
+                              width = 2,
+                              checkboxInput(ns("PTDataOverlay"), "Overlay PT Data"
+                              ),
+                              uiOutput(ns("ptFilters"))
+                              #uiOutput(ns("YaxisSelect")
                             )
+                   )
                  ),
                  
                  mainPanel(width = 10,
@@ -206,6 +212,13 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       
       filteredPTData <- filteredPTData_Server("timeSeriesPT", PTDataLong)
       
+      output$ptFilters <- renderUI({
+        
+        req(input$PTDataOverlay)
+        
+        filteredPTData_UI(ns("detectionDistancePT"), PTDataLong)
+        
+      })
       
       output$YaxisSelect <- renderUI({
         req(input$dischargeOverlay)
@@ -274,11 +287,12 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
 # Detection distance filters ----------------------------------------------
 
       
+      filteredPTForDetectionDistance <- filteredPTData_Server("detectionDistancePT", PTDataLong)
       
       filteredDetectionDistanceData <- reactive({
-        WGFP_SiteVisits_FieldData2 <- WGFPSiteVisitsFieldData %>%
-          pivot_longer(cols = contains("mm"), names_to = "Detection Distance Description", values_to = "Reading (ft)")
-        
+        # WGFP_SiteVisits_FieldData2 <- WGFPSiteVisitsFieldData %>%
+        #   pivot_longer(cols = contains("mm"), names_to = "Detection Distance Description", values_to = "Reading (ft)")
+        # 
         WGFPSiteVisitsFieldData3 <- WGFPSiteVisitsFieldData %>%
           filter(Site %in% input$sitePicker3, 
                  lubridate::date(Date) >= input$detectionDistanceSlider[1] & 
@@ -288,16 +302,44 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       })
       
       output$DetectionDistancePlot <- renderPlotly({
-        plot_ly() %>%
+        site_colors <- setNames(rainbow_trout_colors[0:length(unique(WGFPSiteVisitsFieldData$Site))], sort(unique(WGFPSiteVisitsFieldData$Site)))
+        
+        plot <- plot_ly() 
+        DetectionDataYAxis <- "y1"
+        
+        if(input$PTDataOverlay){
+          plot <- plot %>%
+            add_lines(data = filteredPTForDetectionDistance$filteredPTData(), x = ~dateTime, y = ~Reading, 
+                      color = ~Site,
+                      #type = "scatter", 
+                      colors = site_colors,
+                      yaxis = "y2"
+                      #mode = "lines+markers"
+                      ) 
+          DetectionDataYAxis <- "y1"
+          
+          layout1 <- list(xaxis = list(title = "Date"),
+                   yaxis = list(title = input$variableSelect3, side = "left", showgrid = FALSE), 
+                   yaxis2 = list(title = filteredPTData$Variable, side = "right", overlaying = "y",
+                                 showgrid = FALSE)
+            )
+                   
+        } else{
+          layout1 <- list(xaxis = list(title = "Date"),
+                          yaxis = list(title = input$variableSelect3, side = "left", showgrid = FALSE)
+          )
+          }
+        
+        
+        plot %>%
           add_trace(data = filteredDetectionDistanceData(), x = ~Date, y = ~.data[[input$variableSelect3]], 
                     color = ~Site, 
                     type = "scatter", 
-                    #colors = site_colors
+                    yaxis = DetectionDataYAxis,
+                    colors = site_colors,
                     mode = "lines+markers"
-                    ) %>%
-          layout(xaxis = list(title = "Date"),
-                 yaxis = list(title = input$variableSelect3, side = "left", showgrid = FALSE)
-          )
+          ) %>%
+          layout(layout1)
       })
       
       

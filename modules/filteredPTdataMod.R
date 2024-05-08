@@ -2,7 +2,6 @@ filteredPTData_UI <- function(id, PTDataLong, includeDischarge = TRUE) {
   ns <- NS(id)
   
   if(!includeDischarge){
-    print("Dishacrge not included")
     PTDataLong <- PTDataLong %>%
       filter(!EnvVariable %in% c("USGSDischarge"))
   }
