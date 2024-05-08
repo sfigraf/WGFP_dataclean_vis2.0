@@ -10,7 +10,7 @@ filteredPTData_UI <- function(id, PTDataLong, includeDischarge = TRUE) {
     pickerInput(ns("sitePicker"),
                 label = "Select Sites:",
                 choices = sort(unique(PTDataLong$Site)),
-                selected = unique(PTDataLong$Site)[1],
+                selected = unique(PTDataLong$Site),
                 multiple = TRUE,
                 options = list(
                   `actions-box` = TRUE #this makes the "select/deselect all" option
@@ -49,7 +49,7 @@ filteredPTData_Server <- function(id, PTDataLong) {
                         lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2]) #%>%
         return(filteredPTData)
       })
-      
+      print("new data")
       
       
       return(list(

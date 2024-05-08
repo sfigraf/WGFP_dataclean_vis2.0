@@ -212,13 +212,18 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       
       filteredPTData <- filteredPTData_Server("timeSeriesPT", PTDataLong)
       
-      output$ptFilters <- renderUI({
-        
-        req(input$PTDataOverlay)
-        
-        filteredPTData_UI(ns("detectionDistancePT"), PTDataLong)
-        
+      observeEvent(input$PTDataOverlay, once = TRUE, {
+        print(input$PTDataOverlay)
+        output$ptFilters <- renderUI({
+          
+          req(input$PTDataOverlay)
+          print("pt ui rendered")
+          
+          filteredPTData_UI(ns("detectionDistancePT"), PTDataLong)
+          
+        })
       })
+      
       
       output$YaxisSelect <- renderUI({
         req(input$dischargeOverlay)
@@ -287,29 +292,42 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
 # Detection distance filters ----------------------------------------------
 
       
-      filteredPTForDetectionDistance <- filteredPTData_Server("detectionDistancePT", PTDataLong)
       
-      filteredDetectionDistanceData <- reactive({
+      
+      AllfilteredDetectionDistanceData <- reactive({
         # WGFP_SiteVisits_FieldData2 <- WGFPSiteVisitsFieldData %>%
         #   pivot_longer(cols = contains("mm"), names_to = "Detection Distance Description", values_to = "Reading (ft)")
         # 
+        filteredPTForDetectionDistance <- filteredPTData_Server("detectionDistancePT", PTDataLong)
+        
         WGFPSiteVisitsFieldData3 <- WGFPSiteVisitsFieldData %>%
           filter(Site %in% input$sitePicker3, 
                  lubridate::date(Date) >= input$detectionDistanceSlider[1] & 
                    lubridate::date(Date) <= input$detectionDistanceSlider[2])
-        return(WGFPSiteVisitsFieldData3)
+        return(list(
+          "WGFPSiteVisitsFieldData3" = WGFPSiteVisitsFieldData3,
+          "filteredPTForDetectionDistance" = filteredPTForDetectionDistance
+          )
+               )
         
       })
       
       output$DetectionDistancePlot <- renderPlotly({
         site_colors <- setNames(rainbow_trout_colors[0:length(unique(WGFPSiteVisitsFieldData$Site))], sort(unique(WGFPSiteVisitsFieldData$Site)))
         
-        plot <- plot_ly() 
+        plot <- plot_ly() %>%
+          add_trace(data = AllfilteredDetectionDistanceData()$WGFPSiteVisitsFieldData3, x = ~Date, y = ~.data[[input$variableSelect3]], 
+                    color = ~Site, 
+                    type = "scatter", 
+                    yaxis = "y1",
+                    colors = site_colors,
+                    mode = "lines+markers"
+          )
         DetectionDataYAxis <- "y1"
         
         if(input$PTDataOverlay){
           plot <- plot %>%
-            add_lines(data = filteredPTForDetectionDistance$filteredPTData(), x = ~dateTime, y = ~Reading, 
+            add_lines(data = AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$filteredPTData(), x = ~dateTime, y = ~Reading, 
                       color = ~Site,
                       #type = "scatter", 
                       colors = site_colors,
@@ -317,10 +335,10 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
                       #mode = "lines+markers"
                       ) 
           DetectionDataYAxis <- "y1"
-          
+          print(AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable)
           layout1 <- list(xaxis = list(title = "Date"),
                    yaxis = list(title = input$variableSelect3, side = "left", showgrid = FALSE), 
-                   yaxis2 = list(title = filteredPTData$Variable, side = "right", overlaying = "y",
+                   yaxis2 = list(title = AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable, side = "right", overlaying = "y",
                                  showgrid = FALSE)
             )
                    
@@ -332,13 +350,6 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
         
         
         plot %>%
-          add_trace(data = filteredDetectionDistanceData(), x = ~Date, y = ~.data[[input$variableSelect3]], 
-                    color = ~Site, 
-                    type = "scatter", 
-                    yaxis = DetectionDataYAxis,
-                    colors = site_colors,
-                    mode = "lines+markers"
-          ) %>%
           layout(layout1)
       })
       
