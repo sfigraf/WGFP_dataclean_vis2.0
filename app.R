@@ -88,6 +88,10 @@ if(!exists("PTData")){
   PTData <- readRDS("data/flatFilesforApp/PTData.rds")
 }
 
+if(!exists("PTDataLong")){
+  PTDataLong <- readRDS("data/flatFilesforApp/PTDataLong.rds")
+}
+
 if(!exists("USGSData")){
   USGSData <- readRDS("data/flatFilesforApp/USGSData.rds")
 }
@@ -170,7 +174,7 @@ ui <- fluidPage(
 
           tabPanel("Pressure Transducer and Temp Data",
                    value = "PTtab",
-                   PT_UI("PTtab1", PTData, movements_list$Movements_df, WGFPSiteVisitsFieldData)
+                   PT_UI("PTtab1", PTData, movements_list$Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
           ),
             
 
@@ -199,7 +203,7 @@ server <- function(input, output, session) {
     
       States_Server("StatesTab1", states_data_list, weeks)
       
-      PT_Server("PTtab1", PTData, movements_list$Movements_df, USGSData, WGFPSiteVisitsFieldData)
+      PT_Server("PTtab1", PTData, movements_list$Movements_df, USGSData, WGFPSiteVisitsFieldData, PTDataLong)
    
       QAQC_Server("QAQCTab1", Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
                   unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate,

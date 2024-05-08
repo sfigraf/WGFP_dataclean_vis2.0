@@ -118,6 +118,9 @@ allPressureTransducerDataWithDischarge <- windyGap[,c("dateTime", "Flow_Inst")] 
   mutate(Water_Level_NoIce_ft = as.numeric(case_when(Water_Level_NoIce_ft == "Ice" ~ "0", 
                                           TRUE ~ Water_Level_NoIce_ft)))
 
+allPressureTransducerDataWithDischarge_Long <- allPressureTransducerDataWithDischarge %>%
+  pivot_longer(cols = c(contains("_"), "USGSDischarge"), names_to = "EnvVariable", values_to = "Reading")
+
 ```
 
 
@@ -377,6 +380,7 @@ allFlatFiles <- list(
   "unknown_tags" = unknown_tags, 
   "metaDataVariableNames" = metaDataVariableNames,
   "PTData" = allPressureTransducerDataWithDischarge, 
+  "PTDataLong" = allPressureTransducerDataWithDischarge_Long,
   "USGSData" = USGSData, 
   "WGFPSiteVisitsFieldData" = WGFP_SiteVisits_FieldData
 )

@@ -2,7 +2,7 @@ rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD",
 movementColors <- c("purple", "red", "darkorange", "black", "chartreuse3")
 
 
-PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
+PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong) {
   ns <- NS(id)
   tagList(
     tabsetPanel(
@@ -10,27 +10,7 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
         "Time Series",
         sidebarLayout(
           sidebarPanel(width = 2,
-                       pickerInput(ns("sitePicker"),
-                                   label = "Select Sites:",
-                                   choices = sort(unique(PTData$Site)),
-                                   selected = unique(PTData$Site)[1],
-                                   multiple = TRUE,
-                                   options = list(
-                                     `actions-box` = TRUE #this makes the "select/deselect all" option
-                                   )
-                       ), 
-                       selectInput(ns("variableSelect"),
-                                   label = "Variable to Plot",
-                                   choices = colnames(PTData)[grepl("_", colnames(PTData))],
-                                   selected = colnames(PTData)[grepl("_", colnames(PTData))][1],
-                       ), 
-                       sliderInput(ns("dateSlider"), "Date",
-                                   min = min(lubridate::date(PTData$dateTime) -1),
-                                   max = max(lubridate::date(PTData$dateTime) +1),  
-                                   value = c(min(lubridate::date(PTData$dateTime) -1), max(lubridate::date(PTData$dateTime) +1)),
-                                   step = 1,
-                                   timeFormat = "%d %b %y"
-                       ), 
+                       filteredPTData_UI(ns("timeSeriesPT"), PTDataLong),
                        checkboxInput(ns("dischargeOverlay"), "Overlay USGS Discharge Data"
                        ),
                        uiOutput(ns("YaxisSelect")),
@@ -193,7 +173,7 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
   )
 }
 
-PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldData) {
+PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldData, PTDataLong) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -213,18 +193,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
         }
       })
       
-      filteredPTData <- reactive({
-        
-        validate(
-          need(input$sitePicker, "Please select a site to display")
-        )
-        
-        filteredPTData <- PTData %>%
-          dplyr::select(Site, dateTime, input$variableSelect) %>%
-          dplyr::filter(Site %in% input$sitePicker, 
-                        lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2]) #%>%
-        return(filteredPTData)
-      })
+      filteredPTData <- filteredPTData_Server("timeSeriesPT", PTDataLong, USGSData)
       
       
       output$YaxisSelect <- renderUI({
@@ -239,10 +208,12 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       
       filteredDischargeData <- reactive({
         filteredDischargeData <- USGSData$USGSDischarge15Min %>%
-          dplyr::filter(lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2])
+          dplyr::filter(lubridate::date(dateTime) >= filteredPTData$Dates[1] & lubridate::date(dateTime) <= filteredPTData$Dates[2])
         
         return(filteredDischargeData)
       })
+      
+      
       
       filteredDischargeDataMovements <- reactive({
         
@@ -326,11 +297,11 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
         if(!input$dischargeOverlay){
 
           plot_ly() %>%
-            add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect]], 
+            add_lines(data = filteredPTData$filteredPTData(), x = ~dateTime, y = ~Reading, 
                       color = ~Site,
                       colors = site_colors) %>%
             layout(xaxis = list(title = "Date"),
-                   yaxis = list(title = input$variableSelect, side = "left", showgrid = FALSE)
+                   yaxis = list(title = "test", side = "left", showgrid = FALSE)
             )
         } else {
           
@@ -338,7 +309,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
           if (input$primaryYAxis == "Pressure Transducer Data") {
             
             plot_ly() %>%
-              add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect]], 
+              add_lines(data = filteredPTData$filteredPTData(), x = ~dateTime, y = ~Reading, 
                         color = ~Site,
                         colors = site_colors,
                         yaxis = "y1") %>%
@@ -348,12 +319,12 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
                         yaxis = "y2") %>%
               layout(legend = list(x = 1.05, y = 1),
                      xaxis = list(title = "Date"),
-                     yaxis = list(title = input$variableSelect, side = "left", showgrid = FALSE),
+                     yaxis = list(title = "test", side = "left", showgrid = FALSE),
                      yaxis2 = list(title = "Discharge (CFS)", side = "right", overlaying = "y",
                                    showgrid = FALSE))
           } else if(input$primaryYAxis == "Discharge Data") {
             plot_ly() %>%
-              add_lines(data = filteredPTData(), x = ~dateTime, y = ~.data[[input$variableSelect]], 
+              add_lines(data = filteredPTData$filteredPTData(), x = ~dateTime, y = ~Reading, 
                         color = ~Site,
                         colors = site_colors,
                         yaxis = "y2") %>%
@@ -364,7 +335,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
               layout(legend = list(x = 1.05, y = 1),
                      xaxis = list(title = "Date"),
                      yaxis = list(title = "Discharge (CFS)", side = "left", showgrid = FALSE),
-                     yaxis2 = list(title = input$variableSelect, side = "right", overlaying = "y",
+                     yaxis2 = list(title = "test", side = "right", overlaying = "y",
                                    showgrid = FALSE))
           }
         }
