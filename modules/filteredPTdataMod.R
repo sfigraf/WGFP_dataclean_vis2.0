@@ -1,5 +1,12 @@
-filteredPTData_UI <- function(id, PTDataLong) {
+filteredPTData_UI <- function(id, PTDataLong, includeDischarge = TRUE) {
   ns <- NS(id)
+  
+  if(!includeDischarge){
+    print("Dishacrge not included")
+    PTDataLong <- PTDataLong %>%
+      filter(!EnvVariable %in% c("USGSDischarge"))
+  }
+  
   tagList(
     pickerInput(ns("sitePicker"),
                 label = "Select Sites:",
@@ -26,7 +33,7 @@ filteredPTData_UI <- function(id, PTDataLong) {
   )
 }
 
-filteredPTData_Server <- function(id, PTDataLong, USGSData) {
+filteredPTData_Server <- function(id, PTDataLong) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -38,7 +45,6 @@ filteredPTData_Server <- function(id, PTDataLong, USGSData) {
         )
         
         filteredPTData <- PTDataLong %>%
-          #dplyr::select(Site, dateTime, input$variableSelect) %>%
           dplyr::filter(Site %in% input$sitePicker, 
                         EnvVariable %in% input$variableSelect,
                         lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2]) #%>%
@@ -49,6 +55,7 @@ filteredPTData_Server <- function(id, PTDataLong, USGSData) {
       
       return(list(
         "filteredPTData" = filteredPTData, 
+        "Variable" = input$variableSelect,
         "Dates" = input$dateSlider
       )
       )

@@ -10,7 +10,7 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
         "Time Series",
         sidebarLayout(
           sidebarPanel(width = 2,
-                       filteredPTData_UI(ns("timeSeriesPT"), PTDataLong),
+                       filteredPTData_UI(ns("timeSeriesPT"), PTDataLong, includeDischarge = FALSE),
                        checkboxInput(ns("dischargeOverlay"), "Overlay USGS Discharge Data"
                        ),
                        uiOutput(ns("YaxisSelect")),
@@ -134,30 +134,41 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
       
       tabPanel("Detection Distance", 
                sidebarLayout(
-                 sidebarPanel(width = 2,
-                              pickerInput(ns("sitePicker3"),
-                                          label = "Select Sites:",
-                                          choices = sort(unique(WGFPSiteVisitsFieldData$Site)),
-                                          selected = unique(WGFPSiteVisitsFieldData$Site),
-                                          multiple = TRUE,
-                                          options = list(
-                                            `actions-box` = TRUE #this makes the "select/deselect all" option
-                                          )
-                              ), 
-                              selectInput(ns("variableSelect3"),
-                                          label = "Reading to Plot",
-                                          choices = colnames(WGFPSiteVisitsFieldData)[grepl("mm", colnames(WGFPSiteVisitsFieldData))],
-                                          selected = colnames(WGFPSiteVisitsFieldData)[grepl("mm", colnames(WGFPSiteVisitsFieldData))][1],
-                              ),
-                              sliderInput(ns("detectionDistanceSlider"), "Date",
-                                          min = min(lubridate::date(WGFPSiteVisitsFieldData$Date) -1),
-                                          max = max(lubridate::date(WGFPSiteVisitsFieldData$Date) +1),  
-                                          value = c(min(lubridate::date(WGFPSiteVisitsFieldData$Date) -1), max(lubridate::date(WGFPSiteVisitsFieldData$Date) +1)),
-                                          step = 1,
-                                          timeFormat = "%d %b %y"
-                              ) 
-                              
+                 tabsetPanel(
+                   tabPanel("Detection Distance", 
+                     sidebarPanel(
+                       width = 2,
+                       
+                       pickerInput(ns("sitePicker3"),
+                                   label = "Select Sites:",
+                                   choices = sort(unique(WGFPSiteVisitsFieldData$Site)),
+                                   selected = unique(WGFPSiteVisitsFieldData$Site),
+                                   multiple = TRUE,
+                                   options = list(
+                                     `actions-box` = TRUE #this makes the "select/deselect all" option
+                                   )
+                       ), 
+                       selectInput(ns("variableSelect3"),
+                                   label = "Reading to Plot",
+                                   choices = colnames(WGFPSiteVisitsFieldData)[grepl("mm", colnames(WGFPSiteVisitsFieldData))],
+                                   selected = colnames(WGFPSiteVisitsFieldData)[grepl("mm", colnames(WGFPSiteVisitsFieldData))][1],
+                       ),
+                       sliderInput(ns("detectionDistanceSlider"), "Date",
+                                   min = min(lubridate::date(WGFPSiteVisitsFieldData$Date) -1),
+                                   max = max(lubridate::date(WGFPSiteVisitsFieldData$Date) +1),  
+                                   value = c(min(lubridate::date(WGFPSiteVisitsFieldData$Date) -1), max(lubridate::date(WGFPSiteVisitsFieldData$Date) +1)),
+                                   step = 1,
+                                   timeFormat = "%d %b %y"
+                       ) 
+                       
+                       
+                     )
+                   ), 
+                   tabPanel("PT Data", 
+                            filteredPTData_UI(ns("detectionDistancePT"), PTDataLong)
+                            )
                  ),
+                 
                  mainPanel(width = 10,
                            box(
                              width = 10,
@@ -193,7 +204,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
         }
       })
       
-      filteredPTData <- filteredPTData_Server("timeSeriesPT", PTDataLong, USGSData)
+      filteredPTData <- filteredPTData_Server("timeSeriesPT", PTDataLong)
       
       
       output$YaxisSelect <- renderUI({
@@ -272,7 +283,6 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
           filter(Site %in% input$sitePicker3, 
                  lubridate::date(Date) >= input$detectionDistanceSlider[1] & 
                    lubridate::date(Date) <= input$detectionDistanceSlider[2])
-        #xx <<- WGFPSiteVisitsFieldData3
         return(WGFPSiteVisitsFieldData3)
         
       })
@@ -301,7 +311,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
                       color = ~Site,
                       colors = site_colors) %>%
             layout(xaxis = list(title = "Date"),
-                   yaxis = list(title = "test", side = "left", showgrid = FALSE)
+                   yaxis = list(title = filteredPTData$Variable, side = "left", showgrid = FALSE)
             )
         } else {
           
@@ -319,7 +329,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
                         yaxis = "y2") %>%
               layout(legend = list(x = 1.05, y = 1),
                      xaxis = list(title = "Date"),
-                     yaxis = list(title = "test", side = "left", showgrid = FALSE),
+                     yaxis = list(title = filteredPTData$Variable, side = "left", showgrid = FALSE),
                      yaxis2 = list(title = "Discharge (CFS)", side = "right", overlaying = "y",
                                    showgrid = FALSE))
           } else if(input$primaryYAxis == "Discharge Data") {
@@ -335,7 +345,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
               layout(legend = list(x = 1.05, y = 1),
                      xaxis = list(title = "Date"),
                      yaxis = list(title = "Discharge (CFS)", side = "left", showgrid = FALSE),
-                     yaxis2 = list(title = "test", side = "right", overlaying = "y",
+                     yaxis2 = list(title = filteredPTData$Variable, side = "right", overlaying = "y",
                                    showgrid = FALSE))
           }
         }
