@@ -167,9 +167,10 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
                    tabPanel("PT Data", 
                             sidebarPanel(
                               width = 2,
-                              checkboxInput(ns("PTDataOverlay"), "Overlay PT Data"
-                              ),
-                              uiOutput(ns("ptFilters"))
+                              filteredPTData_UI(ns("detectionDistancePT"), PTDataLong)
+                              # checkboxInput(ns("PTDataOverlay"), "Overlay PT Data"
+                              # ),
+                              # uiOutput(ns("ptFilters"))
                               #uiOutput(ns("YaxisSelect")
                             )
                    )
@@ -212,17 +213,17 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       
       filteredPTData <- filteredPTData_Server("timeSeriesPT", PTDataLong)
       
-      observeEvent(input$PTDataOverlay, once = TRUE, {
-        print(input$PTDataOverlay)
-        output$ptFilters <- renderUI({
-          
-          req(input$PTDataOverlay)
-          print("pt ui rendered")
-          
-          filteredPTData_UI(ns("detectionDistancePT"), PTDataLong)
-          
-        })
-      })
+      # observeEvent(input$PTDataOverlay, once = TRUE, {
+      #   print(input$PTDataOverlay)
+      #   output$ptFilters <- renderUI({
+      #     
+      #     req(input$PTDataOverlay)
+      #     print("pt ui rendered")
+      #     
+      #     filteredPTData_UI(ns("detectionDistancePT"), PTDataLong)
+      #     
+      #   })
+      # })
       
       
       output$YaxisSelect <- renderUI({
@@ -303,7 +304,8 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
         WGFPSiteVisitsFieldData3 <- WGFPSiteVisitsFieldData %>%
           filter(Site %in% input$sitePicker3, 
                  lubridate::date(Date) >= input$detectionDistanceSlider[1] & 
-                   lubridate::date(Date) <= input$detectionDistanceSlider[2])
+                   lubridate::date(Date) <= input$detectionDistanceSlider[2]) %>%
+          dplyr::ungroup()
         return(list(
           "WGFPSiteVisitsFieldData3" = WGFPSiteVisitsFieldData3,
           "filteredPTForDetectionDistance" = filteredPTForDetectionDistance
@@ -314,43 +316,60 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       
       output$DetectionDistancePlot <- renderPlotly({
         site_colors <- setNames(rainbow_trout_colors[0:length(unique(WGFPSiteVisitsFieldData$Site))], sort(unique(WGFPSiteVisitsFieldData$Site)))
-        
+        DetectionDataYAxis <- "y1"
         plot <- plot_ly() %>%
           add_trace(data = AllfilteredDetectionDistanceData()$WGFPSiteVisitsFieldData3, x = ~Date, y = ~.data[[input$variableSelect3]], 
                     color = ~Site, 
                     type = "scatter", 
-                    yaxis = "y1",
+                    yaxis = "y2",
                     colors = site_colors,
                     mode = "lines+markers"
+          ) %>%
+          add_trace(data = AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$filteredPTData(), x = ~dateTime, y = ~Reading, 
+                    color = ~Site,
+                    type = "scatter", 
+                    colors = site_colors,
+                    yaxis = "y1",
+                    mode = "lines"
+          ) %>%
+          layout(xaxis = list(title = "Date"),
+                      yaxis = list(title = "test", side = "left", showgrid = FALSE), #as.character(input$variableSelect3)
+                      yaxis2 = list(title = "testing y2", side = "right", overlaying = "y", #AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable
+                                    showgrid = FALSE)
           )
-        DetectionDataYAxis <- "y1"
+        PTDataTest <<- AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$filteredPTData()
+        SiteDataTest <<- AllfilteredDetectionDistanceData()$WGFPSiteVisitsFieldData3
         
-        if(input$PTDataOverlay){
-          plot <- plot %>%
-            add_lines(data = AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$filteredPTData(), x = ~dateTime, y = ~Reading, 
-                      color = ~Site,
-                      #type = "scatter", 
-                      colors = site_colors,
-                      yaxis = "y2"
-                      #mode = "lines+markers"
-                      ) 
-          DetectionDataYAxis <- "y1"
-          print(AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable)
-          layout1 <- list(xaxis = list(title = "Date"),
-                   yaxis = list(title = input$variableSelect3, side = "left", showgrid = FALSE), 
-                   yaxis2 = list(title = AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable, side = "right", overlaying = "y",
-                                 showgrid = FALSE)
-            )
-                   
-        } else{
-          layout1 <- list(xaxis = list(title = "Date"),
-                          yaxis = list(title = input$variableSelect3, side = "left", showgrid = FALSE)
-          )
-          }
+        # if(input$PTDataOverlay){
+        #   plot <- plot %>%
+        #     add_trace(data = AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$filteredPTData(), x = ~dateTime, y = ~Reading, 
+        #               color = ~Site,
+        #               #type = "scatter", 
+        #               colors = site_colors,
+        #               yaxis = "y2"
+        #               #mode = "lines+markers"
+        #               ) 
+        #   #DetectionDataYAxis <- "y1"
+        #   print(AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable)
+        #   layout1 <- list(xaxis = list(title = "Date"),
+        #            yaxis = list(title = input$variableSelect3, side = "left", showgrid = FALSE), 
+        #            yaxis2 = list(title = AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable, side = "right", overlaying = "y",
+        #                          showgrid = FALSE)
+        #     )
+        #            
+        # } else{
+        #   layout1 <- list(xaxis = list(title = "Date"),
+        #                   yaxis = list(title = input$variableSelect3, side = "left", showgrid = FALSE)
+        #   )
+        #   }
         
         
-        plot %>%
-          layout(layout1)
+        plot #%>%
+          # layout(list(xaxis = list(title = "Date"),
+          #             yaxis = list(title = input$variableSelect3, side = "left", showgrid = FALSE), 
+          #             yaxis2 = list(title = AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable, side = "right", overlaying = "y",
+          #                           showgrid = FALSE))
+          # )
       })
       
       

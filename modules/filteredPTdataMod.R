@@ -46,7 +46,8 @@ filteredPTData_Server <- function(id, PTDataLong) {
         filteredPTData <- PTDataLong %>%
           dplyr::filter(Site %in% input$sitePicker, 
                         EnvVariable %in% input$variableSelect,
-                        lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2]) #%>%
+                        lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2]) %>%
+          dplyr::ungroup()
         return(filteredPTData)
       })
       print("new data")
