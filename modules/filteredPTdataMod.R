@@ -48,8 +48,17 @@ filteredPTData_Server <- function(id, PTDataLong, needValidation = TRUE) {
         filteredPTData <- PTDataLong %>%
           dplyr::filter(Site %in% input$sitePicker, 
                         EnvVariable %in% input$variableSelect,
-                        lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2]) 
-        return(filteredPTData)
+                        lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2]
+                        #!is.na(EnvVariable)
+          )
+        filteredPTDataWithNAs <- filteredPTData %>%
+          group_by(Site) %>%  # Ensure this operation is done separately for each site
+          complete(dateTime = seq(min(dateTime), max(dateTime), by = "hour")) %>%
+          ungroup()
+        
+        xx <<- filteredPTDataWithNAs
+          
+        return(filteredPTDataWithNAs)
       })
       
       
