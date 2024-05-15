@@ -32,25 +32,26 @@ filteredPTData_UI <- function(id, PTDataLong, includeDischarge = TRUE) {
   )
 }
 
-filteredPTData_Server <- function(id, PTDataLong) {
+filteredPTData_Server <- function(id, PTDataLong, needValidation = TRUE) {
   moduleServer(
     id,
     function(input, output, session) {
       
       filteredPTData <- reactive({
-        
-        validate(
-          need(input$sitePicker, "Please select a site to display")
-        )
+        if(needValidation){
+          validate(
+            need(input$sitePicker, "Please select a site to display")
+          )
+          
+        }
         
         filteredPTData <- PTDataLong %>%
           dplyr::filter(Site %in% input$sitePicker, 
                         EnvVariable %in% input$variableSelect,
-                        lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2]) %>%
-          dplyr::ungroup()
+                        lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2]) 
         return(filteredPTData)
       })
-      print("new data")
+      
       
       
       return(list(

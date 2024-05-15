@@ -299,13 +299,12 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
         # WGFP_SiteVisits_FieldData2 <- WGFPSiteVisitsFieldData %>%
         #   pivot_longer(cols = contains("mm"), names_to = "Detection Distance Description", values_to = "Reading (ft)")
         # 
-        filteredPTForDetectionDistance <- filteredPTData_Server("detectionDistancePT", PTDataLong)
+        filteredPTForDetectionDistance <- filteredPTData_Server("detectionDistancePT", PTDataLong, needValidation = FALSE)
         
         WGFPSiteVisitsFieldData3 <- WGFPSiteVisitsFieldData %>%
           filter(Site %in% input$sitePicker3, 
                  lubridate::date(Date) >= input$detectionDistanceSlider[1] & 
-                   lubridate::date(Date) <= input$detectionDistanceSlider[2]) %>%
-          dplyr::ungroup()
+                   lubridate::date(Date) <= input$detectionDistanceSlider[2]) 
         return(list(
           "WGFPSiteVisitsFieldData3" = WGFPSiteVisitsFieldData3,
           "filteredPTForDetectionDistance" = filteredPTForDetectionDistance
@@ -316,7 +315,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       
       output$DetectionDistancePlot <- renderPlotly({
         site_colors <- setNames(rainbow_trout_colors[0:length(unique(WGFPSiteVisitsFieldData$Site))], sort(unique(WGFPSiteVisitsFieldData$Site)))
-        DetectionDataYAxis <- "y1"
+        #DetectionDataYAxis <- "y1"
         plot <- plot_ly() %>%
           add_trace(data = AllfilteredDetectionDistanceData()$WGFPSiteVisitsFieldData3, x = ~Date, y = ~.data[[input$variableSelect3]], 
                     color = ~Site, 
@@ -327,6 +326,8 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
           ) %>%
           add_trace(data = AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$filteredPTData(), x = ~dateTime, y = ~Reading, 
                     color = ~Site,
+                    line = list(shape = 'linear', width = 2, dash = 'dash'),
+                    connectgaps = FALSE,
                     type = "scatter", 
                     colors = site_colors,
                     yaxis = "y1",
@@ -337,8 +338,8 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
                       yaxis2 = list(title = "testing y2", side = "right", overlaying = "y", #AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable
                                     showgrid = FALSE)
           )
-        PTDataTest <<- AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$filteredPTData()
-        SiteDataTest <<- AllfilteredDetectionDistanceData()$WGFPSiteVisitsFieldData3
+        # PTDataTest <<- AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$filteredPTData()
+        # SiteDataTest <<- AllfilteredDetectionDistanceData()$WGFPSiteVisitsFieldData3
         
         # if(input$PTDataOverlay){
         #   plot <- plot %>%
