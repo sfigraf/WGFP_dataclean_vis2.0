@@ -3,7 +3,7 @@ filteredPTData_UI <- function(id, PTDataLong, includeDischarge = TRUE) {
   
   if(!includeDischarge){
     PTDataLong <- PTDataLong %>%
-      filter(!EnvVariable %in% c("USGSDischarge"))
+      filter(!EnvVariable %in% c("USGSDischarge", ""))
   }
   
   tagList(

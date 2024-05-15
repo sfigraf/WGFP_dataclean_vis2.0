@@ -28,27 +28,6 @@ library(leaflet.minicharts)
 
 #suppresses grouping messages ie `summarise()` has grouped output by 'Datetime'. You can override using the `.groups` argument.
 options(dplyr.summarise.inform = FALSE)
-# # Functions Read-in -------------------------------------------------------
-# 
-# 
-# #functions
-neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R")
-
-for (i in neededFunctions) {
-    source(paste0("./functions/",i))
-}
-# 
-for (i in list.files("./modules/")) {
-  if (grepl(".R", i)) {
-    source(paste0("./modules/",i))
-  }
-}
-# 
-for (i in list.files("./miscR/")) {
-  if (grepl(".R", i)) {
-    source(paste0("./miscR/",i))
-  }
-}
 
 # Data Read Ins -----------------------------------------------------------
  
@@ -94,6 +73,28 @@ if(!exists("USGSData")){
 
 if(!exists("WGFPSiteVisitsFieldData")){
   WGFPSiteVisitsFieldData <- readRDS("data/flatFilesforApp/WGFPSiteVisitsFieldData.rds")
+}
+
+# # Functions Read-in -------------------------------------------------------
+# 
+# 
+# #functions
+neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R")
+
+for (i in neededFunctions) {
+  source(paste0("./functions/",i))
+}
+# 
+for (i in list.files("./modules/")) {
+  if (grepl(".R", i)) {
+    source(paste0("./modules/",i))
+  }
+}
+# 
+for (i in list.files("./miscR/")) {
+  if (grepl(".R", i)) {
+    source(paste0("./miscR/",i))
+  }
 }
 
 end_time <- Sys.time()

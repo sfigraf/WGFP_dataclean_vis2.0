@@ -77,6 +77,7 @@ WGFP_SiteVisits_FieldData <- read_csv("data/WGFP_SiteVisits_FieldData.csv",
 
 WGFP_SiteVisits_FieldData <- WGFP_SiteVisits_FieldData %>%
   mutate(Date = mdy(Date),
+         #there should be NAs inudced here if there are data that aren't numbers in these columns
          across(.cols = contains("mm"), .fns = as.numeric)
         
   )
@@ -98,7 +99,7 @@ windyGapDaily <- renameNWISColumns(windyGapDaily) %>%
   mutate(WtempF = (Wtemp * 9/5) + 32)
 #sometimes this can fail if USGS is having issues on their end
 windyGap <- readNWISuv(siteNumbers = "09034250", #code for windy gap
-                       parameterCd = c("00060"), #this is parameter code for discharge; more can be added if needed
+                       parameterCd = c("00060", "00010"), #this is parameter code for discharge; more can be added if needed
                        startDate = "2020-08-06", #if you want to do times it is this format: "2014-10-10T00:00Z",
                        endDate = Sys.Date(),
                        tz = "America/Denver")
@@ -106,19 +107,20 @@ windyGap <- readNWISuv(siteNumbers = "09034250", #code for windy gap
 windyGap$dateTime <- lubridate::force_tz(windyGap$dateTime, tzone = "UTC")
 
 usgsTime2 <- Sys.time()
-print(paste("Reading in USGS Discharge Data took", round((usgsTime2-usgsTime),2)))
+print(paste("Reading in USGS Data took", round((usgsTime2-usgsTime),2)))
 windyGap <- renameNWISColumns(windyGap)
 
-allPressureTransducerDataWithDischarge <- windyGap[,c("dateTime", "Flow_Inst")] %>%
+allPressureTransducerDataWithDischarge <- windyGap[,c("dateTime", "Flow_Inst", "Wtemp_Inst")] %>%
   #we're going to get a "many" relationship here because the discharge is joined to each site reading so it causes each disharge timestamp that has a matching PT logger reading to get multiplied by at least 3 (1 for RB, HP, and CF)
-  left_join(allPressureTransducerData, by = c("dateTime"= "DateTime")) %>%
-  rename(USGSDischarge = Flow_Inst) %>%
+  left_join(allPressureTransducerData, by = c("dateTime"= "DateTime"), relationship = "many-to-many") %>%
+  rename(USGSDischarge = Flow_Inst, 
+         USGSWtempF = Wtemp_Inst) %>%
   #we are getting rid of the "ice" entries here by turning them to 0
   mutate(Water_Level_NoIce_ft = as.numeric(case_when(Water_Level_NoIce_ft == "Ice" ~ "0", 
                                           TRUE ~ Water_Level_NoIce_ft)))
 
 allPressureTransducerDataWithDischarge_Long <- allPressureTransducerDataWithDischarge %>%
-  pivot_longer(cols = c(contains("_"), "USGSDischarge"), names_to = "EnvVariable", values_to = "Reading")
+  pivot_longer(cols = c(contains("_"), "USGSDischarge", "USGSWtempF"), names_to = "EnvVariable", values_to = "Reading")
 
 ```
 
@@ -219,6 +221,7 @@ metaDataVariableNames <- list(
   "GranbyDiversionAntennaBackendSiteCode" = GranbyDiversionAntennaBackendSiteCode,
   "RiverRunAntennaBackendSiteCode" = RiverRunAntennaBackendSiteCode,
   "FraserRiverCanyonAntennaBackendSiteCode" = FraserRiverCanyonAntennaBackendSiteCode,
+  "allPressureTransducerSiteNames" = sort(unique(wgfpMetadata$AntennaMetadata$PressureTransducerSiteName)),
   "test_tags" = test_tags,
   "fraserColoradoRiverConfluence" = fraserColoradoRiverConfluence,
   "DamLocation" = DamLocation
