@@ -37,6 +37,19 @@ filteredPTData_Server <- function(id, PTDataLong, needValidation = TRUE) {
     id,
     function(input, output, session) {
       
+      observeEvent(input$variableSelect, {
+        
+        if(input$variableSelect %in% c("USGSDischarge", "USGSWatertemp")){
+          updatePickerInput(session, "sitePicker", choices = character(0))
+        } else{
+          updatePickerInput(session, "sitePicker", 
+                            choices = sort(unique(PTDataLong$Site)),
+                            selected = sort(unique(PTDataLong$Site))
+          )
+          
+        }
+      })
+      
       filteredPTData <- reactive({
         if(needValidation){
           validate(
@@ -45,17 +58,26 @@ filteredPTData_Server <- function(id, PTDataLong, needValidation = TRUE) {
         }
         
         filteredPTData <- PTDataLong %>%
-          dplyr::filter(Site %in% input$sitePicker, 
+          dplyr::filter(
                         EnvVariable %in% input$variableSelect,
                         lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2]
           )
+        if(!input$variableSelect %in% c("USGSDischarge", "USGSWatertemp")){
+          req(input$sitePicker)
+          #complete sequence so lines don't connect in plotly
+          filteredPTData <- filteredPTData %>%
+            dplyr::filter(Site %in% input$sitePicker) %>%
+            group_by(Site) %>%  # Ensure this operation is done separately for each site
+            complete(dateTime = seq(min(dateTime), max(dateTime), by = "hour")) %>%
+            ungroup()
+        } else{
+          filteredPTData <- filteredPTData %>%
+            select(-Site) %>%
+            dplyr::distinct()
+        }
         
-        filteredPTDataWithNAs <- filteredPTData %>%
-          group_by(Site) %>%  # Ensure this operation is done separately for each site
-          complete(dateTime = seq(min(dateTime), max(dateTime), by = "hour")) %>%
-          ungroup()
-          
-        return(filteredPTDataWithNAs)
+          #xx <<- filteredPTData
+        return(filteredPTData)
       })
       
       return(list(
