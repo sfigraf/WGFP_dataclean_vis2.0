@@ -179,9 +179,7 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
                  ),
                  
                  mainPanel(width = 10,
-                           box(title = "Detection Distances", 
-                             width = 10,
-                             br(),
+                           br(),
                              withSpinner(plotlyOutput(ns("DetectionDistancePlot"))), 
                              br(), 
                              radioButtons(ns("YaxisSelect3"), 
@@ -189,7 +187,6 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
                                           choices = c("Detection Distance Data", 
                                                       "Environmental Data"),
                                           selected = "Detection Distance Data")
-                           )
                    
                  )
                )
@@ -372,7 +369,8 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
                     yaxis = envYaxis,
                     mode = "lines"
           ) %>%
-          layout(legend = list(x = 1.05, y = 1),
+          layout(legend = list(x = 1.1, y = 1),
+                 title = "Detection Distances and PT Data", 
                  xaxis = list(title = "Date"),
                  yaxis = list(title = primaryYaxisName, side = "left", showgrid = FALSE), 
                  yaxis2 = list(title = SecondaryYaxisName, side = "right", overlaying = "y", 
