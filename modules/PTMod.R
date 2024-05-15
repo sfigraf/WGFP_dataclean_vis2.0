@@ -129,7 +129,7 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
       ), 
       
 
-# Detection Distances -----------------------------------------------------
+# Detection Distances UI -----------------------------------------------------
 
       
       tabPanel("Detection Distance", 
@@ -183,7 +183,12 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
                              width = 10,
                              br(),
                              withSpinner(plotlyOutput(ns("DetectionDistancePlot"))), 
-                             br()
+                             br(), 
+                             radioButtons(ns("YaxisSelect3"), 
+                                          "Primary Y Axis Data",
+                                          choices = c("Detection Distance Data", 
+                                                      "Environmental Data"),
+                                          selected = "Detection Distance Data")
                            )
                    
                  )
@@ -319,12 +324,25 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       output$DetectionDistancePlot <- renderPlotly({
         site_colors <- setNames(rainbow_trout_colors[0:length(unique(WGFPSiteVisitsFieldData$Site))], sort(unique(WGFPSiteVisitsFieldData$Site)))
         
+        if(input$YaxisSelect3 == "Detection Distance Data"){
+          ddYaxis = "y1"
+          envYaxis = "y2"
+          primaryYaxisName = input$variableSelect3
+          SecondaryYaxisName = AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable
+          
+        } else{
+          ddYaxis = "y2"
+          envYaxis = "y1"
+          primaryYaxisName = AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable
+          SecondaryYaxisName = input$variableSelect3
+        }
+        
         plot <- plot_ly() %>%
           add_trace(data = AllfilteredDetectionDistanceData()$WGFPSiteVisitsFieldData3, x = ~Date, y = ~.data[[input$variableSelect3]], 
                     color = ~Site, 
                     name = ~paste0(input$variableSelect3, ": ", Site),   #paste0(input$variableSelect3, ": ", ~Site),
                     type = "scatter", 
-                    yaxis = "y1",
+                    yaxis = ddYaxis,
                     opacity = input$SiteDataOpacity,
                     colors = site_colors,
                     mode = "lines+markers"
@@ -337,18 +355,16 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
                     opacity = input$PTDataOpacity,
                     type = "scatter", 
                     colors = site_colors,
-                    yaxis = "y2",
+                    yaxis = envYaxis,
                     mode = "lines"
           ) %>%
           layout(legend = list(x = 1.05, y = 1),
                  xaxis = list(title = "Date"),
-                 yaxis = list(title = input$variableSelect3, side = "left", showgrid = FALSE), #as.character(input$variableSelect3)
-                 yaxis2 = list(title = AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable, side = "right", overlaying = "y", #AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable
+                 yaxis = list(title = primaryYaxisName, side = "left", showgrid = FALSE), 
+                 yaxis2 = list(title = SecondaryYaxisName, side = "right", overlaying = "y", 
                                showgrid = FALSE)
           )
-        # PTDataTest <<- AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$filteredPTData()
-        # SiteDataTest <<- AllfilteredDetectionDistanceData()$WGFPSiteVisitsFieldData3
-        
+
         # if(input$PTDataOverlay){
         #   plot <- plot %>%
         #     add_trace(data = AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$filteredPTData(), x = ~dateTime, y = ~Reading, 
