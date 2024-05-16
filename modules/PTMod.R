@@ -15,7 +15,7 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
         "Time Series",
         sidebarLayout(
           sidebarPanel(width = 2,
-                       filteredPTData_UI(ns("timeSeriesPT"), PTDataLong, includeDischarge = FALSE),
+                       filteredPTData_UI(ns("timeSeriesPT"), PTDataLong, includeUSGS = FALSE),
                        checkboxInput(ns("dischargeOverlay"), "Overlay USGS Discharge Data"
                        ),
                        uiOutput(ns("YaxisSelect")),

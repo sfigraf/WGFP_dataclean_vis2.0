@@ -1,9 +1,9 @@
-filteredPTData_UI <- function(id, PTDataLong, includeDischarge = TRUE) {
+filteredPTData_UI <- function(id, PTDataLong, includeUSGS = TRUE) {
   ns <- NS(id)
   
-  if(!includeDischarge){
+  if(!includeUSGS){
     PTDataLong <- PTDataLong %>%
-      filter(!EnvVariable %in% c("USGSDischarge", ""))
+      filter(!EnvVariable %in% c("USGSDischarge", "USGSWatertemp"))
   }
   
   tagList(

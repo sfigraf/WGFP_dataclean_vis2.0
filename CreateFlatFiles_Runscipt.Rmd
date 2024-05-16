@@ -88,7 +88,7 @@ print(paste("Reading in files took", round((end_time-start_time),2)))
 
 ```
 
-```{r USGSData, include=FALSE, echo = FALSE}
+```{r USGSData, include=TRUE, echo = FALSE}
 usgsTime <- Sys.time()
 #reading in USGS data with upt to date data
 windyGapDaily <- readNWISdv(siteNumbers = "09034250", #code for windy gap
@@ -106,21 +106,23 @@ windyGap <- readNWISuv(siteNumbers = "09034250", #code for windy gap
 #this is to make attaching these readings to detections later
 windyGap$dateTime <- lubridate::force_tz(windyGap$dateTime, tzone = "UTC")
 
-usgsTime2 <- Sys.time()
-print(paste("Reading in USGS Data took", round((usgsTime2-usgsTime),2)))
+
 windyGap <- renameNWISColumns(windyGap)
 
 allPressureTransducerDataWithDischarge <- windyGap[,c("dateTime", "Flow_Inst", "Wtemp_Inst")] %>%
   #we're going to get a "many" relationship here because the discharge is joined to each site reading so it causes each disharge timestamp that has a matching PT logger reading to get multiplied by at least 3 (1 for RB, HP, and CF)
   left_join(allPressureTransducerData, by = c("dateTime"= "DateTime"), relationship = "many-to-many") %>%
   rename(USGSDischarge = Flow_Inst, 
-         USGSWtempF = Wtemp_Inst) %>%
+         USGSWatertemp = Wtemp_Inst) %>%
   #we are getting rid of the "ice" entries here by turning them to 0
   mutate(Water_Level_NoIce_ft = as.numeric(case_when(Water_Level_NoIce_ft == "Ice" ~ "0", 
                                           TRUE ~ Water_Level_NoIce_ft)))
 
 allPressureTransducerDataWithDischarge_Long <- allPressureTransducerDataWithDischarge %>%
-  pivot_longer(cols = c(contains("_"), "USGSDischarge", "USGSWtempF"), names_to = "EnvVariable", values_to = "Reading")
+  pivot_longer(cols = c(contains("_"), "USGSDischarge", "USGSWatertemp"), names_to = "EnvVariable", values_to = "Reading")
+
+usgsTime2 <- Sys.time()
+print(paste("Reading in USGS Data took", round((usgsTime2-usgsTime),2)))
 
 ```
 
