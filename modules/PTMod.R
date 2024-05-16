@@ -66,7 +66,7 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
                                               step = 1,
                                               timeFormat = "%d %b %y"
                                   ),
-                                  h6("Note: Discharge is measured from USGS Gauge at Hitching Post and is the same across all sites")                     )
+                                  h6("Note: USGS data is measured from USGS Gauge at Hitching Post and is the same across all sites")                     )
             )
           ), 
           mainPanel(width = 10,
@@ -118,7 +118,7 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
                               ),
                               uiOutput(ns("timeFrameSummaryOptions")),
                               
-                              h6("Note: Discharge is measured from USGS Gauge at Hitching Post and is the same across all sites")
+                              h6("Note: USGS data is measured from USGS Gauge at Hitching Post and is the same across all sites")
                               
                  ), 
                  mainPanel(width = 10,
