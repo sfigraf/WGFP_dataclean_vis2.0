@@ -16,10 +16,6 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
         sidebarLayout(
           sidebarPanel(width = 2,
                        filteredPTData_UI(ns("timeSeriesPT"), PTData$PTDataLong, includeUSGS = FALSE),
-                       radioButtons(ns("graphTypeSelectTimeSeries"), "Select Graph Type", 
-                                       choices = c("lines+markers", "lines"), 
-                                       selected = "lines+markers"),
-                       h6("Note: Line Graph only will not display all data points, particularly in winter"),
                        
                        checkboxInput(ns("dischargeOverlay"), "Overlay USGS Data"
                        ),
@@ -263,9 +259,9 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
           plot_ly() %>%
             add_trace(data = filteredPTData$filteredPTData(), x = ~dateTime, y = ~Reading, 
                       color = ~Site,
-                      mode = input$graphTypeSelectTimeSeries, #making this lines and markers because there's some readings that occur irregularly especially in winter and we still want those to show up on the graph (they wont show up if they're straight lines)
+                      mode = "lines", 
                       type = "scatter", 
-                      connectgaps = FALSE,
+                      connectgaps = TRUE,
                       #marker = list(size = 5, opacity = 0.6),
                       colors = allColors) %>%
             layout(xaxis = list(title = "Date"),
@@ -280,9 +276,9 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
               add_trace(data = filteredPTData$filteredPTData(), x = ~dateTime, y = ~Reading, 
                         color = ~Site,
                         colors = allColors,
-                        mode = input$graphTypeSelectTimeSeries,
+                        mode = "lines", 
                         type = "scatter", 
-                        connectgaps = FALSE,
+                        connectgaps = TRUE,
                         #marker = list(size = 5, opacity = 0.6),
                         yaxis = "y1") %>%
               add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~.data[[input$USGSOverlaySelect]],
@@ -300,10 +296,9 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
               add_trace(data = filteredPTData$filteredPTData(), x = ~dateTime, y = ~Reading, 
                         color = ~Site,
                         colors = allColors,
-                        mode = input$graphTypeSelectTimeSeries,
+                        mode = "lines", 
                         type = "scatter", 
-                        connectgaps = FALSE,
-                        #marker = list(size = 5, opacity = 0.6),
+                        connectgaps = TRUE,
                         yaxis = "y2") %>%
               add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~.data[[input$USGSOverlaySelect]],
                         color = I("#87CEEB"),
@@ -356,6 +351,9 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
             #need to ungroup to get data to show for plotly plots (overlay plot)
             ungroup() 
           #makes sure there isn't links in the data 
+          #this is how the connectgaps argument is funcoitnal: need to have these NAs in data
+          #if the mode is lines it makes sense to connect the gaps because otherwise single data points without connection won't show up
+          
           filteredData <- filteredData %>%
             group_by(Site) %>%  # Ensure this operation is done separately for each site
             complete(Date = seq(min(Date), max(Date), by = "day")) %>%
@@ -418,7 +416,8 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
                     color = line_color, 
                     type = "scatter",
                     yaxis = envYaxis,
-                    mode = "lines+markers",
+                    connectgaps = TRUE,
+                    mode = "lines",
                     colors = allColors
           ) %>%
           add_trace(data = filteredMovementsDataCounts(), x = ~Date, y = ~numberOfActivities,

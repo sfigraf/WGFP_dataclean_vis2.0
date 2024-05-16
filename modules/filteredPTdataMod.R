@@ -81,7 +81,11 @@ filteredPTData_Server <- function(id, PTDataLong, needValidation = TRUE) {
           )
         if(!input$variableSelect %in% c("USGSDischarge", "USGSWatertemp")){
           req(input$sitePicker)
+          
           #complete sequence so lines don't connect in plotly
+          #this is how the connectgaps argument is funcoitnal: need to have these NAs in data
+          #if the mode is lines it makes sense to connect the gaps because otherwise single data points without connection won't show up
+          
           filteredPTData <- filteredPTData %>%
             dplyr::filter(Site %in% input$sitePicker) %>%
             group_by(Site) %>%  # Ensure this operation is done separately for each site
