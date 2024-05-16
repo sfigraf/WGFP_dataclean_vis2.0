@@ -55,14 +55,12 @@ GhostTags <- read_csv("./data/WGFP_GhostTags.csv",
 
 wgfpMetadata <- lapply(excel_sheets("./data/WGFP Metadata.xlsx"), function(x)
   if(x == "MarkerTagIssues"){
-    read_excel("./data/WGFP Metadata.xlsx", sheet = x)
+    read_excel("./data/WGFP Metadata.xlsx", sheet = x, col_types = c("guess", "date", "date", "guess", "guess"))
   } else{
     read_excel("./data/WGFP Metadata.xlsx", sheet = x, col_types = "text")
   }
 )
 names(wgfpMetadata) <- excel_sheets("./data/WGFP Metadata.xlsx")
-# wgfpMetadata$MarkerTagIssues$IssueStartDatetime <- as.POSIXct(wgfpMetadata$MarkerTagIssues$IssueStartDatetime, format = "%m/%d/%Y %I:%M:%S %p")
-x <- wgfpMetadata$MarkerTagIssues
 
 ###Pressure transducer Data
 pTList <- list()

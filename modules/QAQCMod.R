@@ -11,6 +11,7 @@ QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
                         MarkerTagQAQC_UI(ns("BiomarkMarkerTags"), Marker_Tag_data)
                         ), 
                tabPanel("Downtime Periods",
+                        br(),
                         dataTableOutput(ns("markerTagDowntimeTable"))
                )
               )
@@ -56,6 +57,7 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
       
       MarkerTagQAQC_Server("StationaryMarkerTags", Marker_Tag_data)
       MarkerTagQAQC_Server("BiomarkMarkerTags", Marker_Tag_data)
+      
       output$markerTagDowntimeTable <- renderDT({
         
         datatable(wgfpMetadata$MarkerTagIssues,
