@@ -159,9 +159,9 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
                                    selected = colnames(WGFPSiteVisitsFieldData)[grepl("mm", colnames(WGFPSiteVisitsFieldData))][1],
                        ),
                        sliderInput(ns("detectionDistanceSlider"), "Date",
-                                   min = min(lubridate::date(WGFPSiteVisitsFieldData$Date) -1),
-                                   max = max(lubridate::date(WGFPSiteVisitsFieldData$Date) +1),  
-                                   value = c(min(lubridate::date(WGFPSiteVisitsFieldData$Date) -1), max(lubridate::date(WGFPSiteVisitsFieldData$Date) +1)),
+                                   min = min(lubridate::date(WGFPSiteVisitsFieldData$Date) -1, na.rm = TRUE),
+                                   max = max(lubridate::date(WGFPSiteVisitsFieldData$Date) +1, na.rm = TRUE),  
+                                   value = c(min(lubridate::date(WGFPSiteVisitsFieldData$Date) -1, na.rm = TRUE), max(lubridate::date(WGFPSiteVisitsFieldData$Date) +1, na.rm = TRUE)),
                                    step = 1,
                                    timeFormat = "%d %b %y"
                        ),
