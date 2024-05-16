@@ -113,9 +113,10 @@ windyGap$dateTime <- lubridate::force_tz(windyGap$dateTime, tzone = "UTC")
 
 allPressureTransducerDataWithDischarge <- windyGap[,c("dateTime", "USGSDischarge", "USGSWatertemp")] %>%
   #we're going to get a "many" relationship here because the discharge is joined to each site reading so it causes each disharge timestamp that has a matching PT logger reading to get multiplied by at least 3 (1 for RB, HP, and CF)
+  #another weird thing here: sometimes there is instances where USGSdischarge is recorded twice at the same time ie (2022-11-06 01:00:00)
+  #but the values are within like 2 cfs of each other so it seems fine
+  #this doesn't seem to happen with temperature
   left_join(allPressureTransducerData, by = c("dateTime"= "DateTime"), relationship = "many-to-many") %>%
-  # rename(USGSDischarge = Flow_Inst, 
-  #        USGSWatertemp = Wtemp_Inst) %>%
   #we are getting rid of the "ice" entries here by turning them to 0
   mutate(Water_Level_NoIce_ft = as.numeric(case_when(Water_Level_NoIce_ft == "Ice" ~ "0", 
                                           TRUE ~ Water_Level_NoIce_ft)))

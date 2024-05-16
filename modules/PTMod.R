@@ -210,25 +210,40 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       
       filteredPTData <- filteredPTData_Server("timeSeriesPT", PTDataLong)
       
-      
-      output$YaxisSelect <- renderUI({
-        req(input$dischargeOverlay)
-        # print(paste("sorted", sort(c(colnames(USGSData$USGS15Min)[grepl("USGS", colnames(USGSData$USGS15Min))]))))
-        # print(paste("selected", colnames(USGSData$USGS15Min)[grepl("USGS", colnames(USGSData$USGS15Min))][1]))
-        tagList(
-          selectInput(ns("USGSOverlaySelect"), 
-                      "Select USGS Variable", 
-                      choices = sort(c(colnames(USGSData$USGS15Min)[grepl("USGS", colnames(USGSData$USGS15Min))])), 
-                      selected = colnames(USGSData$USGS15Min)[grepl("USGS", colnames(USGSData$USGS15Min))][1]
-          ),
+      selectedUSGSVar <- reactiveVal(NULL)
+      selectedYaxisVar <- reactiveVal(NULL)
+      observeEvent(input$USGSOverlaySelect, {
+        selectedYaxisVar(input$primaryYAxis)
+        selectedUSGSVar(input$USGSOverlaySelect)
+      }, ignoreNULL = FALSE)
+       
+        
+        output$YaxisSelect <- renderUI({
+          req(input$dischargeOverlay)
           
-          radioButtons(ns("primaryYAxis"),
-                       "Primary Y Axis Data",
-                       choices = c("Pressure Transducer Data", 
-                                   "USGS Data"),
-                       selected = "Pressure Transducer Data")
-        )
-      })
+          # Use the previously stored value if available, otherwise use the first available choice
+          # specify a fallback value if the left-hand side is Null
+          selectedUSGSChoice <- selectedUSGSVar() %||% colnames(USGSData$USGS15Min)[grepl("USGS", colnames(USGSData$USGS15Min))][1]
+          selectedYaxisChoice <- selectedYaxisVar() %||% "Pressure Transducer Data"
+          
+          
+          tagList(
+            selectInput(ns("USGSOverlaySelect"), 
+                        "Select USGS Variable", 
+                        choices = sort(c(colnames(USGSData$USGS15Min)[grepl("USGS", colnames(USGSData$USGS15Min))])), 
+                        selected = selectedUSGSChoice
+            ),
+            
+            radioButtons(ns("primaryYAxis"),
+                         "Primary Y Axis Data",
+                         choices = c("Pressure Transducer Data", 
+                                     "USGS Data"),
+                         selected = selectedYaxisChoice)
+          )
+        })
+        
+      
+      
       
       
       filteredDischargeData <- reactive({

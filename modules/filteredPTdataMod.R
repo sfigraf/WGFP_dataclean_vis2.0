@@ -39,14 +39,31 @@ filteredPTData_Server <- function(id, PTDataLong, needValidation = TRUE) {
       
       observeEvent(input$variableSelect, {
         
-        if(input$variableSelect %in% c("USGSDischarge", "USGSWatertemp")){
-          updatePickerInput(session, "sitePicker", choices = character(0))
-        } else{
-          updatePickerInput(session, "sitePicker", 
-                            choices = sort(unique(PTDataLong$Site)),
-                            selected = sort(unique(PTDataLong$Site))
-          )
+        # Capture current selected sites without triggering reactive dependencies
+        currentSelectedSites <- isolate(input$sitePicker)
+        
+        # If the selected variable is either "USGSDischarge" or "USGSWatertemp",
+        # clear the site picker because these variables do not require site selection
+        if (input$variableSelect %in% c("USGSDischarge", "USGSWatertemp")) {
+          updatePickerInput(session, "sitePicker", choices = character(0), selected = character(0))
+        } else {
+          # For other variables, update the picker input with available sites
+          # Extract unique site names from the dataset and sort them
+          availableSites <- sort(unique(PTDataLong$Site))
           
+          # Check if the currently selected sites are still available in the new choices
+          validSelectedSites <- currentSelectedSites[currentSelectedSites %in% availableSites]
+          
+          # If no valid selected sites are found, default to selecting all available sites
+          if (length(validSelectedSites) == 0) {
+            validSelectedSites <- availableSites
+          }
+          
+          # Update the picker input with the available sites and the valid selected sites
+          updatePickerInput(session, "sitePicker", 
+                            choices = availableSites,
+                            selected = validSelectedSites
+          )
         }
       })
       
