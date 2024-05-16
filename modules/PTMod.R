@@ -282,6 +282,8 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
                         #marker = list(size = 5, opacity = 0.6),
                         yaxis = "y1") %>%
               add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~.data[[input$USGSOverlaySelect]],
+                        #these gaps don't need to be connected becuase there is more consistent gaps in the data: ie no reading between december and march
+                        connectgaps = FALSE,
                         color = I("#87CEEB"),
                         name = case_when(input$USGSOverlaySelect == "USGSDischarge" ~ "USGS Discharge", 
                                          input$USGSOverlaySelect == "USGSWatertemp" ~ "USGS Water Temp (F)"),
@@ -301,6 +303,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
                         connectgaps = TRUE,
                         yaxis = "y2") %>%
               add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~.data[[input$USGSOverlaySelect]],
+                        connectgaps = FALSE,
                         color = I("#87CEEB"),
                         name = case_when(input$USGSOverlaySelect == "USGSDischarge" ~ "USGS Discharge", 
                                          input$USGSOverlaySelect == "USGSWatertemp" ~ "USGS Water Temp (F)"),
