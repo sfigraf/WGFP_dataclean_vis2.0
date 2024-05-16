@@ -16,6 +16,11 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
         sidebarLayout(
           sidebarPanel(width = 2,
                        filteredPTData_UI(ns("timeSeriesPT"), PTData$PTDataLong, includeUSGS = FALSE),
+                       radioButtons(ns("graphTypeSelectTimeSeries"), "Select Graph Type", 
+                                       choices = c("lines+markers", "lines"), 
+                                       selected = "lines+markers"),
+                       h6("Note: Line Graph only will not display all data points, particularly in winter"),
+                       
                        checkboxInput(ns("dischargeOverlay"), "Overlay USGS Data"
                        ),
                        uiOutput(ns("YaxisSelect")),
@@ -206,8 +211,6 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       
       # PTdata Time series ------------------------------------------------------
       
-      
-      
       filteredPTData <- filteredPTData_Server("timeSeriesPT", PTData$PTDataLong)
       
       selectedUSGSVar <- reactiveVal(NULL)
@@ -258,8 +261,12 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
         if(!input$dischargeOverlay){
           
           plot_ly() %>%
-            add_lines(data = filteredPTData$filteredPTData(), x = ~dateTime, y = ~Reading, 
+            add_trace(data = filteredPTData$filteredPTData(), x = ~dateTime, y = ~Reading, 
                       color = ~Site,
+                      mode = input$graphTypeSelectTimeSeries, #making this lines and markers because there's some readings that occur irregularly especially in winter and we still want those to show up on the graph (they wont show up if they're straight lines)
+                      type = "scatter", 
+                      connectgaps = FALSE,
+                      #marker = list(size = 5, opacity = 0.6),
                       colors = allColors) %>%
             layout(xaxis = list(title = "Date"),
                    yaxis = list(title = filteredPTData$Variable, side = "left", showgrid = FALSE)
@@ -270,9 +277,13 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
           if (input$primaryYAxis == "Pressure Transducer Data") {
             
             plot_ly() %>%
-              add_lines(data = filteredPTData$filteredPTData(), x = ~dateTime, y = ~Reading, 
+              add_trace(data = filteredPTData$filteredPTData(), x = ~dateTime, y = ~Reading, 
                         color = ~Site,
                         colors = allColors,
+                        mode = input$graphTypeSelectTimeSeries,
+                        type = "scatter", 
+                        connectgaps = FALSE,
+                        #marker = list(size = 5, opacity = 0.6),
                         yaxis = "y1") %>%
               add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~.data[[input$USGSOverlaySelect]],
                         color = I("#87CEEB"),
@@ -286,9 +297,13 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
                                    showgrid = FALSE))
           } else if(input$primaryYAxis == "USGS Data") {
             plot_ly() %>%
-              add_lines(data = filteredPTData$filteredPTData(), x = ~dateTime, y = ~Reading, 
+              add_trace(data = filteredPTData$filteredPTData(), x = ~dateTime, y = ~Reading, 
                         color = ~Site,
                         colors = allColors,
+                        mode = input$graphTypeSelectTimeSeries,
+                        type = "scatter", 
+                        connectgaps = FALSE,
+                        #marker = list(size = 5, opacity = 0.6),
                         yaxis = "y2") %>%
               add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~.data[[input$USGSOverlaySelect]],
                         color = I("#87CEEB"),
@@ -403,7 +418,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
                     color = line_color, 
                     type = "scatter",
                     yaxis = envYaxis,
-                    mode = "lines",
+                    mode = "lines+markers",
                     colors = allColors
           ) %>%
           add_trace(data = filteredMovementsDataCounts(), x = ~Date, y = ~numberOfActivities,
