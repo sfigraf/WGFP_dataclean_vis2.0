@@ -21,38 +21,13 @@ library(leaflet.minicharts)
 # to do: put qaqc stuff from combine files app in this file as well to see when biomark shits the bed
 #continue with how-to
 # make mini charts on leaflet# 
-#make "varaibels" file with station info of antennas based off spatial join, point of fraser river/CO river confluence, windy gap dam, antenna UTM's, 
 
-#Biomark is temporarily labelled as B3 and B4 to make data filtering easier
-# tieh the site_code %in% picker1 line, because B1 and B2 are technically "in" RB1 and Rb2, it would include them to be part of it 
-# so for now this is easier. but actually idk if this is true, it could have been some other problem
 # cntrl + shft + A to reformat chunks of code
 # rsconnect::showLogs(appName="WGFP_dataclean_vis",streaming=TRUE) will show logs when trying to load app browser
 # had "application failed to start" error and fixed both times with above command. both times because packages in local environment (tidyverse and lubridate) weren't called with library() command 
 
-
-# 
-# # Functions Read-in -------------------------------------------------------
-# 
-# 
-# #functions
-neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R")
-
-for (i in neededFunctions) {
-    source(paste0("./functions/",i))
-}
-# 
-for (i in list.files("./modules/")) {
-  if (grepl(".R", i)) {
-    source(paste0("./modules/",i))
-  }
-}
-# 
-for (i in list.files("./miscR/")) {
-  if (grepl(".R", i)) {
-    source(paste0("./miscR/",i))
-  }
-}
+#suppresses grouping messages ie `summarise()` has grouped output by 'Datetime'. You can override using the `.groups` argument.
+options(dplyr.summarise.inform = FALSE)
 
 # Data Read Ins -----------------------------------------------------------
  
@@ -80,6 +55,10 @@ if(!exists("unknown_tags")){
   unknown_tags <- readRDS("data/flatFilesforApp/unknown_tags.rds")
 }
 
+if(!exists("wgfpMetadata")){
+  wgfpMetadata <- readRDS("data/flatFilesforApp/wgfpMetadata.rds")
+}
+
 if(!exists("metaDataVariableNames")){
   metaDataVariableNames <- readRDS("data/flatFilesforApp/metaDataVariableNames.rds")
 }
@@ -88,8 +67,35 @@ if(!exists("PTData")){
   PTData <- readRDS("data/flatFilesforApp/PTData.rds")
 }
 
+
 if(!exists("USGSData")){
   USGSData <- readRDS("data/flatFilesforApp/USGSData.rds")
+}
+
+if(!exists("WGFPSiteVisitsFieldData")){
+  WGFPSiteVisitsFieldData <- readRDS("data/flatFilesforApp/WGFPSiteVisitsFieldData.rds")
+}
+
+# # Functions Read-in -------------------------------------------------------
+# 
+# 
+# #functions
+neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R")
+
+for (i in neededFunctions) {
+  source(paste0("./functions/",i))
+}
+# 
+for (i in list.files("./modules/")) {
+  if (grepl(".R", i)) {
+    source(paste0("./modules/",i))
+  }
+}
+# 
+for (i in list.files("./miscR/")) {
+  if (grepl(".R", i)) {
+    source(paste0("./miscR/",i))
+  }
 }
 
 end_time <- Sys.time()
@@ -166,7 +172,7 @@ ui <- fluidPage(
 
           tabPanel("Pressure Transducer and Temp Data",
                    value = "PTtab",
-                   PT_UI("PTtab1", PTData, movements_list$Movements_df)
+                   PT_UI("PTtab1", PTData, movements_list$Movements_df, WGFPSiteVisitsFieldData)
           ),
             
 
@@ -195,11 +201,11 @@ server <- function(input, output, session) {
     
       States_Server("StatesTab1", states_data_list, weeks)
       
-      PT_Server("PTtab1", PTData, movements_list$Movements_df, USGSData)
+      PT_Server("PTtab1", PTData, movements_list$Movements_df, USGSData, WGFPSiteVisitsFieldData)
    
       QAQC_Server("QAQCTab1", Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
                   unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate,
-                  combinedData_df_list, metaDataVariableNames)
+                  combinedData_df_list, wgfpMetadata, metaDataVariableNames)
     
   })
   

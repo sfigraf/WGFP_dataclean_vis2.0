@@ -54,7 +54,11 @@ GhostTags <- read_csv("./data/WGFP_GhostTags.csv",
 #metadata
 
 wgfpMetadata <- lapply(excel_sheets("./data/WGFP Metadata.xlsx"), function(x)
-  read_excel("./data/WGFP Metadata.xlsx", sheet = x, col_types = "text")
+  if(x == "MarkerTagIssues"){
+    read_excel("./data/WGFP Metadata.xlsx", sheet = x, col_types = c("guess", "date", "date", "guess", "guess"))
+  } else{
+    read_excel("./data/WGFP Metadata.xlsx", sheet = x, col_types = "text")
+  }
 )
 names(wgfpMetadata) <- excel_sheets("./data/WGFP Metadata.xlsx")
 
@@ -70,13 +74,25 @@ for (file in list.files("data/PressureTransducer")) {
 allPressureTransducerData <- bind_rows(pTList) %>%
   mutate(DateTime = lubridate::mdy_hm(DateTime))
 
+## detection distance
+
+WGFP_SiteVisits_FieldData <- read_csv("data/WGFP_SiteVisits_FieldData.csv", 
+    skip = 2)
+
+WGFP_SiteVisits_FieldData <- WGFP_SiteVisits_FieldData %>%
+  mutate(Date = mdy(Date),
+         #there should be NAs inudced here if there are data that aren't numbers in these columns
+         across(.cols = contains("mm"), .fns = as.numeric)
+        
+  )
+#
 end_time = Sys.time()
 print(paste("Reading in files took", round((end_time-start_time),2)))
 
 
 ```
 
-```{r USGSData, include=FALSE, echo = FALSE}
+```{r USGSData, include = TRUE, echo = FALSE}
 usgsTime <- Sys.time()
 #reading in USGS data with upt to date data
 windyGapDaily <- readNWISdv(siteNumbers = "09034250", #code for windy gap
@@ -85,26 +101,35 @@ windyGapDaily <- readNWISdv(siteNumbers = "09034250", #code for windy gap
                        endDate = Sys.Date())
 windyGapDaily <- renameNWISColumns(windyGapDaily) %>%
   mutate(WtempF = (Wtemp * 9/5) + 32)
-
+#sometimes this can fail if USGS is having issues on their end
 windyGap <- readNWISuv(siteNumbers = "09034250", #code for windy gap
-                       parameterCd = "00060", #this is parameter code for discharge; more can be added if needed
+                       parameterCd = c("00060", "00010"), #this is parameter code for discharge; more can be added if needed
                        startDate = "2020-08-06", #if you want to do times it is this format: "2014-10-10T00:00Z",
                        endDate = Sys.Date(),
                        tz = "America/Denver")
+
+windyGap <- renameNWISColumns(windyGap) %>%
+  mutate(Wtemp_Inst = (Wtemp_Inst * 9/5) + 32) %>%
+  rename(USGSDischarge = Flow_Inst, 
+         USGSWatertemp = Wtemp_Inst)
 #this is to make attaching these readings to detections later
-windyGap$dateTime <- lubridate::force_tz(windyGap$dateTime, tzone = "UTC")
+windyGap$dateTime <- lubridate::force_tz(windyGap$dateTime, tzone = "UTC") 
 
-usgsTime2 <- Sys.time()
-print(paste("Reading in USGS Discharge Data took", round((usgsTime2-usgsTime),2)))
-windyGap <- renameNWISColumns(windyGap)
-
-allPressureTransducerDataWithDischarge <- windyGap[,c("dateTime", "Flow_Inst")] %>%
+allPressureTransducerDataWithDischarge <- windyGap[,c("dateTime", "USGSDischarge", "USGSWatertemp")] %>%
   #we're going to get a "many" relationship here because the discharge is joined to each site reading so it causes each disharge timestamp that has a matching PT logger reading to get multiplied by at least 3 (1 for RB, HP, and CF)
-  left_join(allPressureTransducerData, by = c("dateTime"= "DateTime")) %>%
-  rename(USGSDischarge = Flow_Inst) %>%
+  #another weird thing here: sometimes there is instances where USGSdischarge is recorded twice at the same time ie (2022-11-06 01:00:00)
+  #but the values are within like 2 cfs of each other so it seems fine
+  #this doesn't seem to happen with temperature
+  left_join(allPressureTransducerData, by = c("dateTime"= "DateTime"), relationship = "many-to-many") %>%
   #we are getting rid of the "ice" entries here by turning them to 0
   mutate(Water_Level_NoIce_ft = as.numeric(case_when(Water_Level_NoIce_ft == "Ice" ~ "0", 
                                           TRUE ~ Water_Level_NoIce_ft)))
+
+allPressureTransducerDataWithDischarge_Long <- allPressureTransducerDataWithDischarge %>%
+  pivot_longer(cols = c(contains("_"), "USGSDischarge", "USGSWatertemp"), names_to = "EnvVariable", values_to = "Reading")
+
+usgsTime2 <- Sys.time()
+print(paste("Reading in USGS Data took", round((usgsTime2-usgsTime),2)))
 
 ```
 
@@ -205,6 +230,7 @@ metaDataVariableNames <- list(
   "GranbyDiversionAntennaBackendSiteCode" = GranbyDiversionAntennaBackendSiteCode,
   "RiverRunAntennaBackendSiteCode" = RiverRunAntennaBackendSiteCode,
   "FraserRiverCanyonAntennaBackendSiteCode" = FraserRiverCanyonAntennaBackendSiteCode,
+  "allPressureTransducerSiteNames" = sort(unique(wgfpMetadata$AntennaMetadata$PressureTransducerSiteName)),
   "test_tags" = test_tags,
   "fraserColoradoRiverConfluence" = fraserColoradoRiverConfluence,
   "DamLocation" = DamLocation
@@ -344,8 +370,13 @@ movements_list <- list(
   "ghostTagsWithMovementAfterGhostDate" = ghostTagsWithMovementAfterGhostDate
 )
 
+PTData <- list(
+  "PTDataWide" = allPressureTransducerDataWithDischarge, 
+  "PTDataLong" = allPressureTransducerDataWithDischarge_Long
+)
+
 USGSData <- list(
-  "USGSDischarge15Min" = windyGap, 
+  "USGS15Min" = windyGap, 
   "USGSDaily" = windyGapDaily
 )
 
@@ -363,9 +394,11 @@ allFlatFiles <- list(
   "movements_list" = movements_list,
   "Marker_tags" = Cleaned_Marker_tags,
   "unknown_tags" = unknown_tags, 
+  "wgfpMetadata" = wgfpMetadata,
   "metaDataVariableNames" = metaDataVariableNames,
-  "PTData" = allPressureTransducerDataWithDischarge, 
-  "USGSData" = USGSData
+  "PTData" = PTData,
+  "USGSData" = USGSData, 
+  "WGFPSiteVisitsFieldData" = WGFP_SiteVisits_FieldData
 )
 
 for(filename in names(allFlatFiles)){
