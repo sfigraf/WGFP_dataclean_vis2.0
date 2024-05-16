@@ -88,7 +88,7 @@ print(paste("Reading in files took", round((end_time-start_time),2)))
 
 ```
 
-```{r USGSData, include=TRUE, echo = FALSE}
+```{r USGSData, include = TRUE, echo = FALSE}
 usgsTime <- Sys.time()
 #reading in USGS data with upt to date data
 windyGapDaily <- readNWISdv(siteNumbers = "09034250", #code for windy gap
@@ -103,17 +103,19 @@ windyGap <- readNWISuv(siteNumbers = "09034250", #code for windy gap
                        startDate = "2020-08-06", #if you want to do times it is this format: "2014-10-10T00:00Z",
                        endDate = Sys.Date(),
                        tz = "America/Denver")
+
+windyGap <- renameNWISColumns(windyGap) %>%
+  mutate(Wtemp_Inst = (Wtemp_Inst * 9/5) + 32) %>%
+  rename(USGSDischarge = Flow_Inst, 
+         USGSWatertemp = Wtemp_Inst)
 #this is to make attaching these readings to detections later
-windyGap$dateTime <- lubridate::force_tz(windyGap$dateTime, tzone = "UTC")
+windyGap$dateTime <- lubridate::force_tz(windyGap$dateTime, tzone = "UTC") 
 
-
-windyGap <- renameNWISColumns(windyGap)
-
-allPressureTransducerDataWithDischarge <- windyGap[,c("dateTime", "Flow_Inst", "Wtemp_Inst")] %>%
+allPressureTransducerDataWithDischarge <- windyGap[,c("dateTime", "USGSDischarge", "USGSWatertemp")] %>%
   #we're going to get a "many" relationship here because the discharge is joined to each site reading so it causes each disharge timestamp that has a matching PT logger reading to get multiplied by at least 3 (1 for RB, HP, and CF)
   left_join(allPressureTransducerData, by = c("dateTime"= "DateTime"), relationship = "many-to-many") %>%
-  rename(USGSDischarge = Flow_Inst, 
-         USGSWatertemp = Wtemp_Inst) %>%
+  # rename(USGSDischarge = Flow_Inst, 
+  #        USGSWatertemp = Wtemp_Inst) %>%
   #we are getting rid of the "ice" entries here by turning them to 0
   mutate(Water_Level_NoIce_ft = as.numeric(case_when(Water_Level_NoIce_ft == "Ice" ~ "0", 
                                           TRUE ~ Water_Level_NoIce_ft)))
@@ -364,7 +366,7 @@ movements_list <- list(
 )
 
 USGSData <- list(
-  "USGSDischarge15Min" = windyGap, 
+  "USGS15Min" = windyGap, 
   "USGSDaily" = windyGapDaily
 )
 

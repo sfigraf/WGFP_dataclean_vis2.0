@@ -113,8 +113,7 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   
   restOftheNotExactTimestampMatchesWithDischargeReading <- restOftheNotExactTimestampMatchesWithDischargeReading %>%
     relocate(dateTime, Datetime) %>%
-    rename(environmentalDataMeasurementTime = dateTime, 
-          USGSDischarge = Flow_Inst)
+    rename(environmentalDataMeasurementTime = dateTime)
   
   #change environmental data columns to NA that are outside 13 hour time frame
   #cols to change to NA: includes USGSDischarge
@@ -139,8 +138,7 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   exactMatchesNotPTdata <- DetectionswithPTSiteName %>%
     filter(!SiteName %in% na.omit(unique(wgfpMetadata$AntennaMetadata$PressureTransducerSiteName))) %>%
     inner_join(DischargeData, by = c("Datetime" = "dateTime")) %>%
-    mutate(environmentalDataMeasurementTime = Datetime) %>%
-    rename(USGSDischarge = Flow_Inst)
+    mutate(environmentalDataMeasurementTime = Datetime) 
   
   
   # getting environmental data for all other detections that do not  have a stationary antenna site attached --------

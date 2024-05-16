@@ -16,10 +16,10 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
         sidebarLayout(
           sidebarPanel(width = 2,
                        filteredPTData_UI(ns("timeSeriesPT"), PTDataLong, includeUSGS = FALSE),
-                       checkboxInput(ns("dischargeOverlay"), "Overlay USGS Discharge Data"
+                       checkboxInput(ns("dischargeOverlay"), "Overlay USGS Data"
                        ),
                        uiOutput(ns("YaxisSelect")),
-                       h6("Note: Discharge is measured from USGS Gauge at Hitching Post and is the same across all sites")
+                       h6("Note: USGS data is measured from USGS Gauge at Hitching Post and is the same across all sites")
                        
           ),
           mainPanel(width = 10,
@@ -96,14 +96,14 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
                               ), 
                               selectInput(ns("variableSelectX"),
                                           label = "X Axis Variable",
-                                          choices = c(colnames(PTData)[grepl("_", colnames(PTData))], "USGSDischarge"),
+                                          choices = c(colnames(PTData)[grepl("_", colnames(PTData))], "USGSDischarge", "USGSWatertemp"),
                                           selected = colnames(PTData)[grepl("_", colnames(PTData))][1],
                               ), 
                               
                               
                               selectInput(ns("variableSelectY"),
                                           label = "Y Axis Variable",
-                                          choices = c(colnames(PTData)[grepl("_", colnames(PTData))], "USGSDischarge"),
+                                          choices = c(colnames(PTData)[grepl("_", colnames(PTData))], "USGSDischarge", "USGSWatertemp"),
                                           selected = colnames(PTData)[grepl("_", colnames(PTData))][2],
                               ),
                               sliderInput(ns("dateSlider3"), "Date",
@@ -165,8 +165,7 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
                                    step = 1,
                                    timeFormat = "%d %b %y"
                        ),
-                       sliderInput(ns("SiteDataOpacity"), "Line Opacity", 0, 1, step = .1, value = 1) 
-                       
+                       sliderInput(ns("SiteDataOpacity"), "Line Opacity", 0, 1, step = .1, value = 1)
                        
                      )
                    ), 
@@ -214,17 +213,26 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       
       output$YaxisSelect <- renderUI({
         req(input$dischargeOverlay)
-        
-        radioButtons(ns("primaryYAxis"),
-                     "Primary Y Axis Data",
-                     choices = c("Pressure Transducer Data", 
-                                 "Discharge Data"),
-                     selected = "Pressure Transducer Data")
+        # print(paste("sorted", sort(c(colnames(USGSData$USGS15Min)[grepl("USGS", colnames(USGSData$USGS15Min))]))))
+        # print(paste("selected", colnames(USGSData$USGS15Min)[grepl("USGS", colnames(USGSData$USGS15Min))][1]))
+        tagList(
+          selectInput(ns("USGSOverlaySelect"), 
+                      "Select USGS Variable", 
+                      choices = sort(c(colnames(USGSData$USGS15Min)[grepl("USGS", colnames(USGSData$USGS15Min))])), 
+                      selected = colnames(USGSData$USGS15Min)[grepl("USGS", colnames(USGSData$USGS15Min))][1]
+          ),
+          
+          radioButtons(ns("primaryYAxis"),
+                       "Primary Y Axis Data",
+                       choices = c("Pressure Transducer Data", 
+                                   "USGS Data"),
+                       selected = "Pressure Transducer Data")
+        )
       })
       
       
       filteredDischargeData <- reactive({
-        filteredDischargeData <- USGSData$USGSDischarge15Min %>%
+        filteredDischargeData <- USGSData$USGS15Min %>%
           dplyr::filter(lubridate::date(dateTime) >= filteredPTData$Dates[1] & lubridate::date(dateTime) <= filteredPTData$Dates[2])
         
         return(filteredDischargeData)
@@ -251,28 +259,32 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
                         color = ~Site,
                         colors = allColors,
                         yaxis = "y1") %>%
-              add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~Flow_Inst,
+              add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~.data[[input$USGSOverlaySelect]],
                         color = I("#87CEEB"),
-                        name = "USGS Discharge",
+                        name = case_when(input$USGSOverlaySelect == "USGSDischarge" ~ "USGS Discharge", 
+                                         input$USGSOverlaySelect == "USGSWatertemp" ~ "USGS Water Temp (F)"),
                         yaxis = "y2") %>%
               layout(legend = list(x = 1.05, y = 1),
                      xaxis = list(title = "Date"),
                      yaxis = list(title = filteredPTData$Variable, side = "left", showgrid = FALSE),
-                     yaxis2 = list(title = "Discharge (CFS)", side = "right", overlaying = "y",
+                     yaxis2 = list(title = input$USGSOverlaySelect, side = "right", overlaying = "y",
                                    showgrid = FALSE))
-          } else if(input$primaryYAxis == "Discharge Data") {
+          } else if(input$primaryYAxis == "USGS Data") {
             plot_ly() %>%
               add_lines(data = filteredPTData$filteredPTData(), x = ~dateTime, y = ~Reading, 
                         color = ~Site,
                         colors = allColors,
                         yaxis = "y2") %>%
-              add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~Flow_Inst,
+              add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~.data[[input$USGSOverlaySelect]],
                         color = I("#87CEEB"),
-                        name = "USGS Discharge",
+                        name = case_when(input$USGSOverlaySelect == "USGSDischarge" ~ "USGS Discharge", 
+                                         input$USGSOverlaySelect == "USGSWatertemp" ~ "USGS Water Temp (F)"),
                         yaxis = "y1") %>%
               layout(legend = list(x = 1.05, y = 1),
                      xaxis = list(title = "Date"),
-                     yaxis = list(title = "Discharge (CFS)", side = "left", showgrid = FALSE),
+                     yaxis = list(title = case_when(input$USGSOverlaySelect == "USGSDischarge" ~ "USGS Discharge", 
+                                                    input$USGSOverlaySelect == "USGSWatertemp" ~ "USGS Water Temp (F)"),
+                                  side = "left", showgrid = FALSE),
                      yaxis2 = list(title = filteredPTData$Variable, side = "right", overlaying = "y",
                                    showgrid = FALSE))
           }
@@ -330,10 +342,10 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       #might want this later 
       # filteredDischargeDataMovements <- reactive({
       #   
-      #   filteredDischargeDataMovements <- USGSData$USGSDischarge15Min %>%
+      #   filteredDischargeDataMovements <- USGSData$USGS15Min %>%
       #     dplyr::filter(lubridate::date(dateTime) >= input$dateSlider2[1] & lubridate::date(dateTime) <= input$dateSlider2[2]) %>%
       #     group_by(Date = date(dateTime)) %>%
-      #     summarise(dailyAverageCFS = round(mean(Flow_Inst), 2))
+      #     summarise(dailyAverageCFS = round(mean(USGSDischarge), 2))
       #   return(filteredDischargeDataMovements)
       # })
       

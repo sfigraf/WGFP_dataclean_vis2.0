@@ -49,7 +49,7 @@ get_movements_function <- function(combined_events_stations, dailyUSGSData) {
                            det_type == "Recapture" ~ "brown",
     )
     ) %>%
-    #takes “movement” into account instead of “first/last”, this is why this df winds up with less rows than combined_events_stations
+    #takes “movement” into account instead of “first_last”, this is why this df winds up with less rows than combined_events_stations
     distinct(Date, TAG, det_type, movement_only, UTM_X, UTM_Y, .keep_all = TRUE)
   
   ##add on environmental Data
