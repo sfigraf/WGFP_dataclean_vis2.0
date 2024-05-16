@@ -7,7 +7,7 @@ movementColors <- setNames(movementColors, sort(unique(movements_list$Movements_
 siteColors <- setNames(rainbow_trout_colors[0:length(allSites)], allSites)
 allColors <- c(movementColors, siteColors)
 
-PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong) {
+PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
   ns <- NS(id)
   tagList(
     tabsetPanel(
@@ -15,7 +15,7 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
         "Time Series",
         sidebarLayout(
           sidebarPanel(width = 2,
-                       filteredPTData_UI(ns("timeSeriesPT"), PTDataLong, includeUSGS = FALSE),
+                       filteredPTData_UI(ns("timeSeriesPT"), PTData$PTDataLong, includeUSGS = FALSE),
                        checkboxInput(ns("dischargeOverlay"), "Overlay USGS Data"
                        ),
                        uiOutput(ns("YaxisSelect")),
@@ -45,8 +45,8 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
                      sidebarPanel(width = 2,
                                   pickerInput(ns("sitePicker2"),
                                               label = "Select Sites:",
-                                              choices = sort(unique(PTData$Site)),
-                                              selected = sort(unique(PTData$Site)),
+                                              choices = sort(unique(PTData$PTDataWide$Site)),
+                                              selected = sort(unique(PTData$PTDataWide$Site)),
                                               multiple = TRUE,
                                               options = list(
                                                 `actions-box` = TRUE #this makes the "select/deselect all" option
@@ -55,13 +55,13 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
                                   ),
                                   selectInput(ns("variableSelect2"),
                                               label = "Variable to Plot",
-                                              choices = c(colnames(PTData)[grepl("_", colnames(PTData))], "USGSDischarge", "USGSWatertemp"),
-                                              selected = colnames(PTData)[grepl("_", colnames(PTData))][1],
+                                              choices = c(colnames(PTData$PTDataWide)[grepl("_", colnames(PTData$PTDataWide))], "USGSDischarge", "USGSWatertemp"),
+                                              selected = colnames(PTData$PTDataWide)[grepl("_", colnames(PTData$PTDataWide))][1],
                                   ), 
                                   sliderInput(ns("dateSlider2"), "Date",
-                                              min = min(lubridate::date(PTData$dateTime) -1),
-                                              max = max(lubridate::date(PTData$dateTime) +1),  
-                                              value = c(min(lubridate::date(PTData$dateTime) -1), max(lubridate::date(PTData$dateTime) +1)),
+                                              min = min(lubridate::date(PTData$PTDataWide$dateTime) -1),
+                                              max = max(lubridate::date(PTData$PTDataWide$dateTime) +1),  
+                                              value = c(min(lubridate::date(PTData$PTDataWide$dateTime) -1), max(lubridate::date(PTData$PTDataWide$dateTime) +1)),
                                               step = 1,
                                               timeFormat = "%d %b %y"
                                   ),
@@ -91,25 +91,25 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
                  sidebarPanel(width = 2,
                               selectInput(ns("siteSelect"),
                                           label = "Select a Site",
-                                          choices = sort(unique(PTData$Site)),
-                                          selected = sort(unique(PTData$Site))[1],
+                                          choices = sort(unique(PTData$PTDataWide$Site)),
+                                          selected = sort(unique(PTData$PTDataWide$Site))[1],
                               ), 
                               selectInput(ns("variableSelectX"),
                                           label = "X Axis Variable",
-                                          choices = c(colnames(PTData)[grepl("_", colnames(PTData))], "USGSDischarge", "USGSWatertemp"),
-                                          selected = colnames(PTData)[grepl("_", colnames(PTData))][1],
+                                          choices = c(colnames(PTData$PTDataWide)[grepl("_", colnames(PTData$PTDataWide))], "USGSDischarge", "USGSWatertemp"),
+                                          selected = colnames(PTData$PTDataWide)[grepl("_", colnames(PTData$PTDataWide))][1],
                               ), 
                               
                               
                               selectInput(ns("variableSelectY"),
                                           label = "Y Axis Variable",
-                                          choices = c(colnames(PTData)[grepl("_", colnames(PTData))], "USGSDischarge", "USGSWatertemp"),
-                                          selected = colnames(PTData)[grepl("_", colnames(PTData))][2],
+                                          choices = c(colnames(PTData$PTDataWide)[grepl("_", colnames(PTData$PTDataWide))], "USGSDischarge", "USGSWatertemp"),
+                                          selected = colnames(PTData$PTDataWide)[grepl("_", colnames(PTData$PTDataWide))][2],
                               ),
                               sliderInput(ns("dateSlider3"), "Date",
-                                          min = min(lubridate::date(PTData$dateTime) -1),
-                                          max = max(lubridate::date(PTData$dateTime) +1),  
-                                          value = c(min(lubridate::date(PTData$dateTime) -1), max(lubridate::date(PTData$dateTime) +1)),
+                                          min = min(lubridate::date(PTData$PTDataWide$dateTime) -1),
+                                          max = max(lubridate::date(PTData$PTDataWide$dateTime) +1),  
+                                          value = c(min(lubridate::date(PTData$PTDataWide$dateTime) -1), max(lubridate::date(PTData$PTDataWide$dateTime) +1)),
                                           step = 1,
                                           timeFormat = "%d %b %y"
                               ), 
@@ -172,7 +172,7 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
                    tabPanel("PT Data", 
                             sidebarPanel(
                               width = 2,
-                              filteredPTData_UI(ns("detectionDistancePT"), PTDataLong),
+                              filteredPTData_UI(ns("detectionDistancePT"), PTData$PTDataLong),
                               sliderInput(ns("PTDataOpacity"), "Line Opacity", 0, 1, step = .1, value = .5)
                             )
                    )
@@ -196,7 +196,7 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData, PTDataLong)
   )
 }
 
-PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldData, PTDataLong) {
+PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldData) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -208,7 +208,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       
       
       
-      filteredPTData <- filteredPTData_Server("timeSeriesPT", PTDataLong)
+      filteredPTData <- filteredPTData_Server("timeSeriesPT", PTData$PTDataLong)
       
       selectedUSGSVar <- reactiveVal(NULL)
       selectedYaxisVar <- reactiveVal(NULL)
@@ -317,8 +317,8 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
           updatePickerInput(session, "sitePicker2", choices = character(0))
         } else{
           updatePickerInput(session, "sitePicker2", 
-                            choices = sort(unique(PTData$Site)),
-                            selected = sort(unique(PTData$Site))
+                            choices = sort(unique(PTData$PTDataWide$Site)),
+                            selected = sort(unique(PTData$PTDataWide$Site))
                             )
           
         }
@@ -330,7 +330,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
           validate(
             need(input$sitePicker2, "Please select a site to display")
           )
-          filteredData <- PTData %>%
+          filteredData <- PTData$PTDataWide %>%
             filter(lubridate::date(dateTime) >= input$dateSlider2[1] & 
                      lubridate::date(dateTime) <= input$dateSlider2[2])
           
@@ -373,8 +373,6 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       })
       
       output$OverlayPlot <- renderPlotly({
-        
-        #allColors <- setNames(c(movementColors, rainbow_trout_colors[0:length(unique(PTData$Site))]), c(sort(unique(Movements_df$movement_only)), sort(unique(PTData$Site))))
         
         if(!input$variableSelect2 %in% c("USGSDischarge", "USGSWatertemp")){
           line_color = ~Site
@@ -443,7 +441,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
           need(input$variableSelectX != input$variableSelectY, "Please select 2 different variables to compare")
         )
         
-        filteredPTData <- PTData %>%
+        filteredPTData <- PTData$PTDataWide %>%
           filter(Site == input$siteSelect, 
                  lubridate::date(dateTime) >= input$dateSlider3[1] & lubridate::date(dateTime) <= input$dateSlider3[2]
           ) 
@@ -508,7 +506,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       
       AllfilteredDetectionDistanceData <- reactive({
         
-        filteredPTForDetectionDistance <- filteredPTData_Server("detectionDistancePT", PTDataLong, needValidation = FALSE)
+        filteredPTForDetectionDistance <- filteredPTData_Server("detectionDistancePT", PTData$PTDataLong, needValidation = FALSE)
         
         WGFPSiteVisitsFieldData3 <- WGFPSiteVisitsFieldData %>%
           filter(Site %in% input$sitePicker3, 

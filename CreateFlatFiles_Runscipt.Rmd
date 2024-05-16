@@ -54,9 +54,15 @@ GhostTags <- read_csv("./data/WGFP_GhostTags.csv",
 #metadata
 
 wgfpMetadata <- lapply(excel_sheets("./data/WGFP Metadata.xlsx"), function(x)
-  read_excel("./data/WGFP Metadata.xlsx", sheet = x, col_types = "text")
+  if(x == "MarkerTagIssues"){
+    read_excel("./data/WGFP Metadata.xlsx", sheet = x)
+  } else{
+    read_excel("./data/WGFP Metadata.xlsx", sheet = x, col_types = "text")
+  }
 )
 names(wgfpMetadata) <- excel_sheets("./data/WGFP Metadata.xlsx")
+# wgfpMetadata$MarkerTagIssues$IssueStartDatetime <- as.POSIXct(wgfpMetadata$MarkerTagIssues$IssueStartDatetime, format = "%m/%d/%Y %I:%M:%S %p")
+x <- wgfpMetadata$MarkerTagIssues
 
 ###Pressure transducer Data
 pTList <- list()
@@ -366,6 +372,11 @@ movements_list <- list(
   "ghostTagsWithMovementAfterGhostDate" = ghostTagsWithMovementAfterGhostDate
 )
 
+PTData <- list(
+  "PTDataWide" = allPressureTransducerDataWithDischarge, 
+  "PTDataLong" = allPressureTransducerDataWithDischarge_Long
+)
+
 USGSData <- list(
   "USGS15Min" = windyGap, 
   "USGSDaily" = windyGapDaily
@@ -385,9 +396,9 @@ allFlatFiles <- list(
   "movements_list" = movements_list,
   "Marker_tags" = Cleaned_Marker_tags,
   "unknown_tags" = unknown_tags, 
+  "wgfpMetadata" = wgfpMetadata,
   "metaDataVariableNames" = metaDataVariableNames,
-  "PTData" = allPressureTransducerDataWithDischarge, 
-  "PTDataLong" = allPressureTransducerDataWithDischarge_Long,
+  "PTData" = PTData,
   "USGSData" = USGSData, 
   "WGFPSiteVisitsFieldData" = WGFP_SiteVisits_FieldData
 )

@@ -9,7 +9,10 @@ QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
                ), 
                tabPanel("Biomark",
                         MarkerTagQAQC_UI(ns("BiomarkMarkerTags"), Marker_Tag_data)
-                        )
+                        ), 
+               tabPanel("Downtime Periods",
+                        dataTableOutput(ns("markerTagDowntimeTable"))
+               )
               )
                
       ), #end of marker tag tab
@@ -45,7 +48,7 @@ QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
 }
 
 QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_tags, ghostTagsWithMovementAfterGhostDate, 
-                        combinedData_df_list, metaDataVariableNames) {
+                        combinedData_df_list, wgfpMetadata, metaDataVariableNames) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -53,6 +56,22 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
       
       MarkerTagQAQC_Server("StationaryMarkerTags", Marker_Tag_data)
       MarkerTagQAQC_Server("BiomarkMarkerTags", Marker_Tag_data)
+      output$markerTagDowntimeTable <- renderDT({
+        
+        datatable(wgfpMetadata$MarkerTagIssues,
+                  rownames = FALSE,
+                  selection = "single",
+                  filter = 'top',
+                  caption = ("Manually discerned periods of time where the specified marker tag was not recording during consistent intervals"),
+                  options = list(
+                    #statesave is restore table state on page reload
+                    stateSave =TRUE,
+                    pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
+                    dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
+                    language = list(emptyTable = "Enter inputs and press Render Table")
+                  )
+        ) 
+      })
       
       
       # Release and Recap Data L/W Plot Output --------------------------------------------

@@ -93,7 +93,6 @@ filteredPTData_Server <- function(id, PTDataLong, needValidation = TRUE) {
             dplyr::distinct()
         }
         
-          #xx <<- filteredPTData
         return(filteredPTData)
       })
       
