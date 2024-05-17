@@ -106,17 +106,18 @@ weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):m
 
 #colors
 #rainbow trout color pallete used to assign to Sites
-rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF1C55", "#4682B4")
+rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF1C55", "#4682B4", "#556B2F", "#DC143C")
 #currently "Changed Rivers", "Downstream Movement" "Initial Release", "No Movement", "Upstream Movement" (5/17/24)
 #note: these are a little diffeerent than what we see in the map because the map/marker color optoins are very limited. 
 movementColors <- c("#4B0082", "#8B0000", "#FF8C00", "#253333", "#22bd74") #, "#66FF00"
 # currently "LOC" "MTS" "RBT" "RXN" "TGM" (5/17/24)
 speciesColors <- c("#FFD700", "#654321", "#4F7942", "#FF7F50", "#1E90FF", "#008080", "#DAA520", "#D2691E", "#9A5ECD") 
-  
-allSites <- metaDataVariableNames$allPressureTransducerSiteNames
+
+#maybe a better method for this but pressure transducer site names and   
+allSites <- metaDataVariableNames$allDetectionDistanceSiteNames
 movementColors <- setNames(movementColors, sort(unique(movements_list$Movements_df$movement_only)))
 siteColors <- setNames(rainbow_trout_colors[0:length(allSites)], allSites)
-speciesColors <- setNames(speciesColors, sort(unique(indiv_datasets_list$releasedata$Species)))
+speciesColors <- setNames(speciesColors[0:length(unique(indiv_datasets_list$releasedata$Species))], sort(unique(indiv_datasets_list$releasedata$Species)))
  
 allColors <- c(movementColors, siteColors, speciesColors)
 
@@ -175,7 +176,7 @@ ui <- fluidPage(
 
 # PT Data -----------------------------------------------------------------
 
-          tabPanel("Pressure Transducer and Temp Data",
+          tabPanel("Pressure Transducer, USGS, and Detection Distance",
                    value = "PTtab",
                    PT_UI("PTtab1", PTData, movements_list$Movements_df, WGFPSiteVisitsFieldData)
           ),

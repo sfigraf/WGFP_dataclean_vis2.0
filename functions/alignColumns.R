@@ -1,33 +1,32 @@
-alignColumns <- function(detectionsWithEnvironmentalData, desiredColumns, DetectionsWithIdealColumns) {
-  # Create missing columns in detectionsWithEnvironmentalData with NA values
-  missingColumns <- setdiff(desiredColumns, colnames(detectionsWithEnvironmentalData))
+#helper function to easily convert columns of different Dfs to the same columns in order to bind them
+alignColumns <- function(dfToChange, desiredColumns, dfWithIdealColumns) {
+  # Create missing columns in dfToChange with NA values
+  missingColumns <- setdiff(desiredColumns, colnames(dfToChange))
   
   if (length(missingColumns) > 0) {
     for (col in missingColumns) {
       # Determine the expected column type based on desiredColumns
-      expectedType <- ifelse(col %in% colnames(DetectionsWithIdealColumns), 
-                             typeof(DetectionsWithIdealColumns[[col]]),
+      expectedType <- ifelse(col %in% colnames(dfWithIdealColumns), 
+                             typeof(dfWithIdealColumns[[col]]),
                              ifelse(col %in% colnames(allPressureTransducerDataWithDischarge),
                                     typeof(allPressureTransducerDataWithDischarge[[col]]),
-                                    typeof(detectionsWithEnvironmentalData[[col]])))  # Use existing type of detectionsWithEnvironmentalData's column
+                                    typeof(dfToChange[[col]])))  # Use existing type of dfToChange's column
       
       # Create new column with NA values and enforce the expected type
-      detectionsWithEnvironmentalData[[col]] <- NA  # Start with NA values
-      detectionsWithEnvironmentalData[[col]] <- switch(expectedType,
-                                                       "integer" = as.integer(detectionsWithEnvironmentalData[[col]]),
-                                                       "numeric" = as.numeric(detectionsWithEnvironmentalData[[col]]),
-                                                       "character" = as.character(detectionsWithEnvironmentalData[[col]]),
-                                                       "factor" = as.factor(detectionsWithEnvironmentalData[[col]]),
-                                                       "Date" = as.Date(detectionsWithEnvironmentalData[[col]]),
-                                                       detectionsWithEnvironmentalData[[col]])  # Retain original if type doesn't match known types
+      dfToChange[[col]] <- NA  # Start with NA values
+      dfToChange[[col]] <- switch(expectedType,
+                                                       "integer" = as.integer(dfToChange[[col]]),
+                                                       "numeric" = as.numeric(dfToChange[[col]]),
+                                                       "character" = as.character(dfToChange[[col]]),
+                                                       "factor" = as.factor(dfToChange[[col]]),
+                                                       "Date" = as.Date(dfToChange[[col]]),
+                                                       dfToChange[[col]])  # Retain original if type doesn't match known types
     }
   }
   
   # Reorder dataframe columns to match desiredColumns
-  detectionsWithEnvironmentalData <- detectionsWithEnvironmentalData %>%
-    select(all_of(desiredColumns)) %>%
-    select(-Site, -dateTime) %>%
-    rename(Site = SiteName)
+  dfToChange <- dfToChange %>%
+    select(all_of(desiredColumns))
   
-  return(detectionsWithEnvironmentalData)
+  return(dfToChange)
 }

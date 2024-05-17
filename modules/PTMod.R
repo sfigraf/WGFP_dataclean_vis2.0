@@ -179,6 +179,7 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
                            br(),
                              withSpinner(plotlyOutput(ns("DetectionDistancePlot"))), 
                              br(), 
+                             h6("Detection distances recorded as 'TOUCHING' are displayed here as .001"),
                              radioButtons(ns("YaxisSelect3"), 
                                           "Primary Y Axis Data",
                                           choices = c("Detection Distance Data", 
