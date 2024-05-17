@@ -71,7 +71,7 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                                       )
                                       )
                            ),
-                           #verbatimTextOutput(ns("text2")),
+                           
                   ), #end of movement graphs tabpanel
                   # tabPanel("Animation",
                   #          br(),
