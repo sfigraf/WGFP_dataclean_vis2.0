@@ -18,7 +18,7 @@ library(gganimate)
 library(leaflet.minicharts)
 #library(mapview)
 #biomark test tags: 999000000007601, 999000000007602
-# to do: put qaqc stuff from combine files app in this file as well to see when biomark shits the bed
+# to do: put qaqc stuff from combine files app in this file as well
 #continue with how-to
 # make mini charts on leaflet# 
 
