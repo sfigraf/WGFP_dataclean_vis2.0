@@ -176,13 +176,6 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
     "notExactTimestampMatchesDetectionsStationaryValidDataWithClosestEnvironmentalReadingWithin1Hour1" = alignColumns(restOftheNotExactTimestampMatchesWithDischargeReading, desiredColumns, Detections)
     )
   
-
-    # selectAndRename <- function(df) {
-    #   df %>%
-    #     
-    # }
-  
-  
   ## some rows have an entry for ptData at an exact timestamp, but the variables are all NA so it gets put under "notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour1"
   #however since there's an exact match it also gets put under "exactMatchesNotPTdata" 
   #this leads to duplicate entries in the final df, just with different environmental timestamp fields
