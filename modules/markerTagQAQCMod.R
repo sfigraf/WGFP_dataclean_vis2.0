@@ -26,7 +26,7 @@ MarkerTagQAQC_UI <- function(id, Marker_Tag_data) {
         pickerInput(ns("picker9"),
                     label = "Select Marker Tag",
                     choices = sort(unique(Marker_Tag_data$TAG)),
-                    selected = unique(Marker_Tag_data$TAG)[1],
+                    selected = sort(unique(Marker_Tag_data$TAG))[1],
                     multiple = TRUE,
                     options = list(
                       `actions-box` = TRUE #this makes the "select/deselect all" option

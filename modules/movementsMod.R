@@ -27,19 +27,51 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                            ),
                   
                   tabPanel("Movement Graphs",
-                           withSpinner(plotlyOutput(ns("plot1"))),
-                           hr(),
-                           withSpinner(plotlyOutput(ns("plot6"))),
-                           downloadData_UI(ns("downloadplot6")),
-                           hr(),
-                           withSpinner(plotlyOutput(ns("plot7"))),
-                           hr(),
-                           withSpinner(plotlyOutput(ns("plot8"))),
-                           hr(),
-                           withSpinner(plotlyOutput(ns("plot9"))),
-                           hr(),
+                           tabsetPanel(
+                             tabPanel("Movement by Day",
+                               br(),
+                               withSpinner(plotlyOutput(ns("plot1"))),
+                               hr(), 
+                               withSpinner(DTOutput(ns("movementByDayTable"))), 
+                               br(),
+                               downloadData_UI(ns("downloadmovementByDayTable")), 
+                             ), 
+                             tabPanel("Movement by Season", 
+                               br(),
+                               withSpinner(plotlyOutput(ns("plot6"))),
+                               hr(),
+                               withSpinner(DTOutput(ns("seasonalMovementTable"))),
+                               downloadData_UI(ns("downloadplot6"))
+                             ), 
+                             tabPanel("Individual Movement", 
+                                      br(), 
+                                      withSpinner(plotlyOutput(ns("plot7"))),
+                                      sliderInput(ns("indMovementBinwidthSlider"), "Distance Binwidth",
+                                                  min = 1, 
+                                                  max = max(Movements_df$dist_moved, na.rm = TRUE),
+                                                  value = 50),
+                                      hr()
+                                      ), 
+                             tabPanel("Cumulative Movement", 
+                                      br(),
+                                      withSpinner(plotlyOutput(ns("plot8"))),
+                                      sliderInput(ns("cumulativeMovementBinwidthSlider"), "Distance Binwidth",
+                                                  min = 1, 
+                                                  max = 10000,
+                                                  value = 300),
+                                      
+                                      hr()
+                                      ), 
+                             tabPanel("Movement by Hour", 
+                                      br(),
+                                      withSpinner(plotlyOutput(ns("plot9"))),
+                                      hr(), 
+                                      h6("Data may be misleading; Movements are calculated by the day and if a fish has multiple detections on the same day at the same antenna,
+                 the first detection will be used which can fall commonly at hour 0",
+                                      )
+                                      )
+                           ),
                            
-                           verbatimTextOutput(ns("text2")),
                   ), #end of movement graphs tabpanel
                   # tabPanel("Animation",
                   #          br(),
@@ -52,7 +84,7 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
     )
 }
 
-movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
+movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -97,14 +129,12 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
           rownames = FALSE,
           selection = "single",
           filter = 'top',
-          extensions = c("Buttons"),
           options = list(
-            #statesave is restore table state on page reload
             stateSave = TRUE,
             pageLength = 10,
             info = TRUE,
             lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
-            dom = 'Blfrtip',
+            dom = 'lfrtip',
             #had to add 'lowercase L' letter to display the page length again
             language = list(emptyTable = "Enter inputs and press Render Table")
           )
@@ -324,16 +354,39 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
             theme_classic() +
             labs(title="Fish Movement by Day",
                  x ="Date", y = "Count") +
-            scale_fill_manual(values = c("Downstream Movement" = "red",
-                                         "Upstream Movement" = "chartreuse3",
-                                         "No Movement" = "black",
-                                         "Initial Release" = "darkorange",
-                                         "Changed Rivers" = "purple"))
+            scale_fill_manual(values = allColors)
           
+        })
+        #not sure if we want to do by species but we could obviously
+        movementByDayDataForTable <- filtered_movements_data() %>%
+          count(Date, name = "Number of Movements")
+        
+        output$movementByDayTable <- renderDT({
+          
+          
+          datatable(
+            movementByDayDataForTable,
+            rownames = FALSE,
+            selection = "single",
+            filter = 'top',
+            #extensions = c("Buttons"),
+            options = list(
+              #statesave is restore table state on page reload
+              stateSave = TRUE,
+              pageLength = 10,
+              info = TRUE,
+              lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
+              dom = 'lfrtip',
+              #had to add 'lowercase L' letter to display the page length again
+              language = list(emptyTable = "Enter inputs and press Render Table")
+            )
+          )
           
         })
         
-        downloadData_Server("downloadplot6", seasonal_movts(), "SeasonalMovementsData")
+        downloadData_Server("downloadmovementByDayTable", movementByDayDataForTable, "MovementByDayCounts")
+        
+        
         
         output$plot6 <- renderPlotly({
 
@@ -345,24 +398,43 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
             labs(title = "Seasonal Daily Movements", x = "Day", y = "Counts",
                  caption = "Currently No download option for this data.") +
             scale_x_datetime(date_labels = "%b") +
-            scale_fill_manual(values = c("Downstream Movement" = "red",
-                                         "Upstream Movement" = "chartreuse3",
-                                         "No Movement" = "black",
-                                         "Initial Release" = "darkorange",
-                                         "Changed Rivers" = "purple"))
+            scale_fill_manual(values = allColors)
 
           ggplotly(plot)
         })
+        
+        output$seasonalMovementTable <- renderDT({
+          
+          datatable(
+            seasonal_movts(),
+            rownames = FALSE,
+            selection = "single",
+            filter = 'top',
+            options = list(
+              stateSave = TRUE,
+              pageLength = 10,
+              info = TRUE,
+              lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
+              dom = 'lfrtip',
+              language = list(emptyTable = "Enter inputs and press Render Table")
+            )
+          )
+          
+        })
+        
+        downloadData_Server("downloadplot6", seasonal_movts(), "SeasonalMovementsData")
 
         # Total movements
         output$plot7 <- renderPlotly({
           plot <- filtered_movements_data() %>%
             filter(
               !dist_moved %in% c(0)) %>%
-            ggplot(aes(x = dist_moved)) +
-            geom_histogram(binwidth = 50) +
+            ggplot(aes(x = dist_moved, fill = Species)) +
+            geom_histogram(binwidth = input$indMovementBinwidthSlider) +
             theme_classic() +
-            labs(title = "Each movement detected: ('No movements' excluded)", subtitle = "Groupings are 50 m")
+            labs(title = "Each movement detected: ('No movements' excluded)", subtitle = "Groupings are 50 m", 
+                 x = "Distance Between Detections Moved (m)", y = "Count") +
+            scale_fill_manual(values = allColors)
           
 
           ggplotly(plot)
@@ -372,12 +444,15 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
         #cumulative movement
         output$plot8 <- renderPlotly({
           plot <- filtered_movements_data() %>%
-            ggplot(aes(x = sum_dist)) +
-            geom_histogram(binwidth = 300) +
+            distinct(TAG, .keep_all = TRUE) %>%
+            ggplot(aes(x = sum_dist, fill = Species)) +
+            geom_histogram(binwidth = input$cumulativeMovementBinwidthSlider) +
             theme_classic() +
-            labs(title = "Cumulative movement", subtitle = "Groupings are 300 m")
-          ggplotly(plot)
+            labs(title = "Cumulative Movement by TAG", subtitle = "Groupings are 300 m", 
+                 x = "Sum Distance", y = "Total number of fish") +
+            scale_fill_manual(values = allColors)
           
+          ggplotly(plot)
 
         })
 
@@ -386,22 +461,15 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType) {
             ggplot(aes(x = lubridate::hour(Datetime), fill = movement_only)) +
             geom_histogram(binwidth = 1) +
             theme_classic() +
-            labs(title = "Detections by Hour")
-          ggplotly(plot)
-          
+            labs(title = "Detections by Hour", 
+                 x = "Hour of Day", 
+                 y = "Count") +
+            scale_fill_manual(values = allColors)
+          ggplotly(plot) 
 
         })
         
-        output$text2 <- renderPrint({
-          "'Fish Movement by Day' plot renders table data shown in the 'map and table' tab. 
-      'Seasonal Daily Movements' graph data can be downloaded below."
-        })
-        
-        
       }) #end of observe
-      
-      
-      
       
     }
   )

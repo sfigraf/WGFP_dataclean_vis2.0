@@ -76,16 +76,21 @@ allPressureTransducerData <- bind_rows(pTList) %>%
 
 ## detection distance
 
-WGFP_SiteVisits_FieldData <- read_csv("data/WGFP_SiteVisits_FieldData.csv", 
-    skip = 2)
+siteVisitList <- lapply(excel_sheets("./data/WGFP_SiteVisits_FieldData.xlsx"), function(x){
+  column_names <- read_excel("./data/WGFP_SiteVisits_FieldData.xlsx", sheet = x, skip = 2, n_max = 0)
+  # Number of columns in the sheet
+  num_cols <- length(column_names)
+  # Specify the column types for the first 3 columns bc they have dates/times
+  initial_col_types <- c("guess", "date", "date")
+  col_types <- c(initial_col_types, rep("guess", num_cols - length(initial_col_types)))
+  read_excel("./data/WGFP_SiteVisits_FieldData.xlsx", sheet = x, skip = 2, col_types = col_types)
+}
+  
+)
 
-WGFP_SiteVisits_FieldData <- WGFP_SiteVisits_FieldData %>%
-  mutate(Date = mdy(Date),
-         #there should be NAs inudced here if there are data that aren't numbers in these columns
-         across(.cols = contains("mm"), .fns = as.numeric)
-        
-  )
-#
+names(siteVisitList) <- excel_sheets("./data/WGFP_SiteVisits_FieldData.xlsx")
+
+
 end_time = Sys.time()
 print(paste("Reading in files took", round((end_time-start_time),2)))
 
@@ -231,6 +236,7 @@ metaDataVariableNames <- list(
   "RiverRunAntennaBackendSiteCode" = RiverRunAntennaBackendSiteCode,
   "FraserRiverCanyonAntennaBackendSiteCode" = FraserRiverCanyonAntennaBackendSiteCode,
   "allPressureTransducerSiteNames" = sort(unique(wgfpMetadata$AntennaMetadata$PressureTransducerSiteName)),
+  "allDetectionDistanceSiteNames" = sort(unique(wgfpMetadata$AntennaMetadata$DetectionDistanceSiteName)),
   "test_tags" = test_tags,
   "fraserColoradoRiverConfluence" = fraserColoradoRiverConfluence,
   "DamLocation" = DamLocation
@@ -380,6 +386,7 @@ USGSData <- list(
   "USGSDaily" = windyGapDaily
 )
 
+WGFP_SiteVisits_FieldData <- wrangleSiteVisitData(siteVisitList = siteVisitList)
 
 
 ```

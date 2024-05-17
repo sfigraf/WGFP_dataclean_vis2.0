@@ -49,7 +49,7 @@ QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
 }
 
 QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_tags, ghostTagsWithMovementAfterGhostDate, 
-                        combinedData_df_list, wgfpMetadata, metaDataVariableNames) {
+                        combinedData_df_list, wgfpMetadata, metaDataVariableNames, allColors) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -82,7 +82,8 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
           ggplot(aes(x = Length, y = Weight, color = Species)) +
           geom_point() + 
           theme_classic() +
-          labs(title = "Release Data")
+          labs(title = "Release Data") +
+          scale_color_manual(values = allColors)
       })    
       
       output$plot4 <- renderPlotly({
@@ -90,7 +91,8 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
           ggplot(aes(x = Length, y = Weight, color = Species)) +
           geom_point() + 
           theme_classic() +
-          labs(title = "Recapture Data")
+          labs(title = "Recapture Data") +
+          scale_color_manual(values = allColors)
         
       })
       

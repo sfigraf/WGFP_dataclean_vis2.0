@@ -1,11 +1,7 @@
-rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF8C00", "#4682B4")
-movementColors <- c("purple", "red", "darkorange", "black", "chartreuse3")
-allSites <- metaDataVariableNames$allPressureTransducerSiteNames
+
 #allColors <- setNames(c(movementColors, rainbow_trout_colors[0:length(unique(PTData$Site))]), c(sort(unique(Movements_df$movement_only)), sort(unique(PTData$Site))))
 
-movementColors <- setNames(movementColors, sort(unique(movements_list$Movements_df$movement_only)))
-siteColors <- setNames(rainbow_trout_colors[0:length(allSites)], allSites)
-allColors <- c(movementColors, siteColors)
+
 
 PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
   ns <- NS(id)
@@ -183,6 +179,7 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
                            br(),
                              withSpinner(plotlyOutput(ns("DetectionDistancePlot"))), 
                              br(), 
+                             h6("Detection distances recorded as 'TOUCHING' are displayed here as .001"),
                              radioButtons(ns("YaxisSelect3"), 
                                           "Primary Y Axis Data",
                                           choices = c("Detection Distance Data", 
@@ -197,7 +194,7 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
   )
 }
 
-PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldData) {
+PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldData, allColors) {
   moduleServer(
     id,
     function(input, output, session) {
