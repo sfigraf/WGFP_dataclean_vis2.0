@@ -57,7 +57,7 @@ IndividualDatasets_UI <- function(id, df_list, Release_05) {
   )
 }
 
-IndividualDatasets_Server <- function(id, indiv_datasets_list) {
+IndividualDatasets_Server <- function(id, indiv_datasets_list, allColors) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -160,7 +160,8 @@ IndividualDatasets_Server <- function(id, indiv_datasets_list) {
           ggplot(aes(x = Length, fill = Species) ) +
           geom_histogram(binwidth = input$slider11)+
           theme_classic() +
-          labs(title = "Released Fish by Length", caption = "Binwidth = 20mm")
+          labs(title = "Released Fish by Length", caption = "Binwidth = 20mm") +
+          scale_fill_manual(values = allColors)
       })
       
       output$plot11 <- renderPlotly({
@@ -168,7 +169,8 @@ IndividualDatasets_Server <- function(id, indiv_datasets_list) {
           ggplot(aes(x = Weight, fill = Species) ) +
           geom_histogram(binwidth = input$slider12)+
           theme_classic() +
-          labs(title = "Released Fish by Weight", caption = "Binwidth = 100g")
+          labs(title = "Released Fish by Weight", caption = "Binwidth = 100g") +
+          scale_fill_manual(values = allColors)
       })
       
       output$ghost1 <- renderDataTable(

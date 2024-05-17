@@ -105,12 +105,20 @@ print(paste("Static File Read-in took", round((end_time-start_time),2)))
 weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
 
 #colors
-rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF8C00", "#4682B4")
-movementColors <- c("purple", "red", "darkorange", "black", "chartreuse3")
+#rainbow trout color pallete used to assign to Sites
+rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF1C55", "#4682B4")
+#currently "Changed Rivers", "Downstream Movement" "Initial Release", "No Movement", "Upstream Movement" (5/17/24)
+#note: these are a little diffeerent than what we see in the map because the map/marker color optoins are very limited. 
+movementColors <- c("#4B0082", "#8B0000", "#FF8C00", "#253333", "#22bd74") #, "#66FF00"
+# currently "LOC" "MTS" "RBT" "RXN" "TGM" (5/17/24)
+speciesColors <- c("#FFD700", "#654321", "#4F7942", "#FF7F50", "#1E90FF", "#008080", "#DAA520", "#D2691E", "#9A5ECD") 
+  
 allSites <- metaDataVariableNames$allPressureTransducerSiteNames
 movementColors <- setNames(movementColors, sort(unique(movements_list$Movements_df$movement_only)))
 siteColors <- setNames(rainbow_trout_colors[0:length(allSites)], allSites)
-allColors <- c(movementColors, siteColors)
+speciesColors <- setNames(speciesColors, sort(unique(indiv_datasets_list$releasedata$Species)))
+ 
+allColors <- c(movementColors, siteColors, speciesColors)
 
 # Define UI for application that draws a histogram
 
@@ -119,17 +127,6 @@ ui <- fluidPage(
   navbarPage(title = "WGFP Data Exploration",
              id = "tabs", 
              theme = shinytheme("sandstone"), #end of navbar page arguments; what follow is all inside it
-
-               
-             #   bs_theme(
-             #   bg = rainbow_trout_pallette$dark_olive_green1,
-             #   fg = rainbow_trout_pallette$pink1,
-             #   primary = "#CBA660FF",
-             #   secondary = "#86551CFF",
-             #   base_font = "#E3BABBFF",
-             #   code_font =  "#C4CFBFFF"
-             #     
-             # ),
              
              tabPanel("About/How to Use",
                       includeHTML(paste0("www/", "WGFP_dataclean_vis_about.html"))
@@ -199,9 +196,9 @@ server <- function(input, output, session) {
   
   observe({
     
-      movements_Server("MovementsTab1", movements_list$Movements_df, movements_list$WeeklyMovementsbyType)
+      movements_Server("MovementsTab1", movements_list$Movements_df, movements_list$WeeklyMovementsbyType, allColors)
     
-      IndividualDatasets_Server("IndividualDatasetsTab1", indiv_datasets_list)
+      IndividualDatasets_Server("IndividualDatasetsTab1", indiv_datasets_list, allColors)
     
       EncounterHistoriesSummariesWide_Server("EncounterHistoriesSummariesWideTab1", Enc_release_data)
       
@@ -213,7 +210,7 @@ server <- function(input, output, session) {
    
       QAQC_Server("QAQCTab1", Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
                   unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate,
-                  combinedData_df_list, wgfpMetadata, metaDataVariableNames)
+                  combinedData_df_list, wgfpMetadata, metaDataVariableNames, allColors)
     
   })
   
