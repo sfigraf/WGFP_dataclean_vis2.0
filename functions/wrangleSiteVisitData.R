@@ -20,12 +20,15 @@ wrangleSiteVisitData <- function(siteVisitList){
   
   mm_columns <- grep("mm", names(WGFP_SiteVisits_FieldData), value = TRUE)
   
-  WGFP_SiteVisits_FieldData <- WGFP_SiteVisits_FieldData %>%
-    mutate_at(vars(all_of(mm_columns)), ~ifelse(. == "TOUCHING", ".001", .)) %>%
-    mutate(#Date = mdy(Date),
-      #there should be NAs inudced here if there are data that aren't numbers in these columns
-      across(.cols = contains("mm"), .fns = as.numeric)
-      
-    )
+  suppressWarnings({
+    WGFP_SiteVisits_FieldData <- WGFP_SiteVisits_FieldData %>%
+      mutate_at(vars(all_of(mm_columns)), ~ifelse(. == "TOUCHING", ".001", .)) %>%
+      mutate(
+        #there should be NAs inudced here if there are data that aren't numbers in these columns
+        across(.cols = contains("mm"), .fns = as.numeric)
+        
+      )
+  })
+  
   return(WGFP_SiteVisits_FieldData)
 }

@@ -31,13 +31,17 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                              tabPanel("Movement by Day",
                                br(),
                                withSpinner(plotlyOutput(ns("plot1"))),
-                               hr()
+                               hr(), 
+                               withSpinner(DTOutput(ns("movementByDayTable"))), 
+                               br(),
+                               downloadData_UI(ns("downloadmovementByDayTable")), 
                              ), 
                              tabPanel("Movement by Season", 
                                br(),
                                withSpinner(plotlyOutput(ns("plot6"))),
-                               downloadData_UI(ns("downloadplot6")),
-                               hr()
+                               hr(),
+                               withSpinner(DTOutput(ns("seasonalMovementTable"))),
+                               downloadData_UI(ns("downloadplot6"))
                              ), 
                              tabPanel("Individual Movement", 
                                       br(), 
@@ -355,8 +359,36 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
             scale_fill_manual(values = allColors)
           
         })
+        #not sure if we want to do by species but we could obviously
+        movementByDayDataForTable <- filtered_movements_data() %>%
+          count(Date, name = "Number of Movements")
         
-        downloadData_Server("downloadplot6", seasonal_movts(), "SeasonalMovementsData")
+        output$movementByDayTable <- renderDT({
+          
+          
+          datatable(
+            movementByDayDataForTable,
+            rownames = FALSE,
+            selection = "single",
+            filter = 'top',
+            #extensions = c("Buttons"),
+            options = list(
+              #statesave is restore table state on page reload
+              stateSave = TRUE,
+              pageLength = 10,
+              info = TRUE,
+              lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
+              dom = 'lfrtip',
+              #had to add 'lowercase L' letter to display the page length again
+              language = list(emptyTable = "Enter inputs and press Render Table")
+            )
+          )
+          
+        })
+        
+        downloadData_Server("downloadmovementByDayTable", movementByDayDataForTable, "MovementByDayCounts")
+        
+        
         
         output$plot6 <- renderPlotly({
 
@@ -372,6 +404,27 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
 
           ggplotly(plot)
         })
+        
+        output$seasonalMovementTable <- renderDT({
+          
+          datatable(
+            seasonal_movts(),
+            rownames = FALSE,
+            selection = "single",
+            filter = 'top',
+            options = list(
+              stateSave = TRUE,
+              pageLength = 10,
+              info = TRUE,
+              lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
+              dom = 'lfrtip',
+              language = list(emptyTable = "Enter inputs and press Render Table")
+            )
+          )
+          
+        })
+        
+        downloadData_Server("downloadplot6", seasonal_movts(), "SeasonalMovementsData")
 
         # Total movements
         output$plot7 <- renderPlotly({
@@ -402,7 +455,6 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
             scale_fill_manual(values = allColors)
           
           ggplotly(plot)
-          
 
         })
 
@@ -419,16 +471,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
 
         })
         
-      #   output$text2 <- renderPrint({
-      #     "'Fish Movement by Day' plot renders table data shown in the 'map and table' tab. 
-      # 'Seasonal Daily Movements' graph data can be downloaded below."
-      #   })
-        
-        
       }) #end of observe
-      
-      
-      
       
     }
   )
