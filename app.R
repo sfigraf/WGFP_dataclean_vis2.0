@@ -104,6 +104,14 @@ print(paste("Static File Read-in took", round((end_time-start_time),2)))
 
 weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
 
+#colors
+rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF8C00", "#4682B4")
+movementColors <- c("purple", "red", "darkorange", "black", "chartreuse3")
+allSites <- metaDataVariableNames$allPressureTransducerSiteNames
+movementColors <- setNames(movementColors, sort(unique(movements_list$Movements_df$movement_only)))
+siteColors <- setNames(rainbow_trout_colors[0:length(allSites)], allSites)
+allColors <- c(movementColors, siteColors)
+
 # Define UI for application that draws a histogram
 
 ui <- fluidPage(
@@ -201,7 +209,7 @@ server <- function(input, output, session) {
     
       States_Server("StatesTab1", states_data_list, weeks)
       
-      PT_Server("PTtab1", PTData, movements_list$Movements_df, USGSData, WGFPSiteVisitsFieldData)
+      PT_Server("PTtab1", PTData, movements_list$Movements_df, USGSData, WGFPSiteVisitsFieldData, allColors)
    
       QAQC_Server("QAQCTab1", Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
                   unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate,
