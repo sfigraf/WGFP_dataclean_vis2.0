@@ -369,6 +369,9 @@ indiv_datasets_list <- lapply(indiv_datasets_list, function(dataset) {
   }
 )
 
+WGFP_SiteVisits_FieldData <- wrangleSiteVisitData(siteVisitList = siteVisitList)
+WGFP_SiteVisits_FieldDatawithPTData <- combineEnvironmentalAndSiteVisitData(WGFPSiteVisitsFieldData = WGFP_SiteVisits_FieldData, PTDataWide = allPressureTransducerDataWithDischarge)
+
 
 movements_list <- list(
   "Movements_df" = Movements_df,
@@ -386,7 +389,11 @@ USGSData <- list(
   "USGSDaily" = windyGapDaily
 )
 
-WGFP_SiteVisits_FieldData <- wrangleSiteVisitData(siteVisitList = siteVisitList)
+SiteVisitData <- list(
+  "WGFP_SiteVisits_FieldData" = WGFP_SiteVisits_FieldData, 
+  "SiteVisitAndPTData" = WGFP_SiteVisits_FieldDatawithPTData
+)
+
 
 
 ```
@@ -405,7 +412,8 @@ allFlatFiles <- list(
   "metaDataVariableNames" = metaDataVariableNames,
   "PTData" = PTData,
   "USGSData" = USGSData, 
-  "WGFPSiteVisitsFieldData" = WGFP_SiteVisits_FieldData
+  "SiteVisitData" = SiteVisitData
+  #"WGFPSiteVisitsFieldData" = WGFP_SiteVisits_FieldData
 )
 
 for(filename in names(allFlatFiles)){

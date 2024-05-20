@@ -43,13 +43,17 @@ QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
       ), 
       tabPanel("Crosstalk QAQC",
                qaqcCrosstalkMod_UI(ns("qaqcCrosstalk"), combinedData_df_list)
+      ), 
+      tabPanel("Detection Distance/Water Level",
+               br(),
+               withSpinner(DT::dataTableOutput(ns("DDWaterLevelTable")))
       )
     )#end of tabset Panel 
   )
 }
 
 QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_tags, ghostTagsWithMovementAfterGhostDate, 
-                        combinedData_df_list, wgfpMetadata, metaDataVariableNames, allColors) {
+                        combinedData_df_list, wgfpMetadata, metaDataVariableNames, WGFP_SiteVisits_FieldDatawithPTData, allColors) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -130,7 +134,31 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
                   )
         ) 
       })
-      
+
+# Detection distance/water level ------------------------------------------
+
+      output$DDWaterLevelTable <- renderDT({
+        datatable(WGFP_SiteVisits_FieldDatawithPTData,
+                  rownames = FALSE,
+                  selection = "single",
+                  filter = 'top',
+                  caption = ("Red is where Detection Distance is less than water level, green is where it's equal to or below water level"),
+                  options = list(
+                    #statesave is restore table state on page reload
+                    stateSave =TRUE,
+                    pageLength = 25, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
+                    dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
+                    language = list(emptyTable = "Enter inputs and press Render Table")
+                  )
+        ) %>% 
+          formatStyle(
+            columns = grep("32mm", colnames(WGFP_SiteVisits_FieldDatawithPTData), value = TRUE),
+            backgroundColor = styleInterval(
+              WGFP_SiteVisits_FieldDatawithPTData$Water_Level_NoIce_ft - 0.01,  # a small offset to include exact matches
+              c("red", "green")
+            )
+          )
+      })      
       ######
       qaqcCrosstalkMod_Server("qaqcCrosstalk", combinedData_df_list, metaDataVariableNames)
       

@@ -43,7 +43,7 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   
 
 # rolling join on just specific site stuff --------------------------------
-  #the rolling join with 2 can only take those with the 
+  #the rolling join with 2 can only take those with the right site name
   notExactTimestampMatchesDetectionsStationaryOnly <- notExactTimestampMatchesDetections %>%
     filter(!is.na(SiteName))
   

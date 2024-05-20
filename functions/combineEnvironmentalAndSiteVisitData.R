@@ -1,4 +1,5 @@
 combineEnvironmentalAndSiteVisitData <- function(WGFPSiteVisitsFieldData, PTDataWide){
+  
   WGFPSiteVisitsFieldData1 <- WGFPSiteVisitsFieldData %>%
     mutate(dateTime = lubridate::ymd_hms(paste(Date, Time)), 
            fieldDataNotes = Notes)
@@ -29,9 +30,6 @@ combineEnvironmentalAndSiteVisitData <- function(WGFPSiteVisitsFieldData, PTData
   WGFPSiteVisitsFieldData2 <- data.table(WGFPSiteVisitsFieldData2)
   ptdataWide <- data.table(ptdataWide)
   
-  # WGFPSiteVisitsFieldData2[, dateTime := as.POSIXct(dateTime, format="%m/%d/%Y %H:%M:%S")]
-  # ptdataWide[, dateTime := as.POSIXct(dateTime, format="%m/%d/%Y %H:%M:%S")]
-  
   
   ####need to make it so site names are prezent in both data: need to elimate kaibab stuff etc
   
@@ -44,8 +42,8 @@ combineEnvironmentalAndSiteVisitData <- function(WGFPSiteVisitsFieldData, PTData
   
   WGFPSiteVisitsFieldData3 <- ptdataWide[WGFPSiteVisitsFieldData2, roll = "nearest", on = .(Site, dateTime), nomatch = NULL]
   
-  WGFPSiteVisitsFieldData3 <- as.data.frame(WGFPSiteVisitsFieldData3) %>%
-    relocate(Site, Date, Time, dateTime, ptTimeRecorded, `32mm RR (ft) DS Initial`, `32mm Initial (Biomark)`, USGSDischarge, Water_Level_NoIce_ft)
+  WGFPSiteVisitsFieldData3 <- as.data.frame(WGFPSiteVisitsFieldData3) #%>%
+    #relocate(Site, Date, Time, dateTime, ptTimeRecorded, `32mm RR (ft) DS Initial`, `32mm Initial (Biomark)`, USGSDischarge, Water_Level_NoIce_ft)
   
   
   #get only rows with timestaps within 13 hours
