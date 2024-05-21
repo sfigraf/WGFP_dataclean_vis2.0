@@ -1,9 +1,11 @@
 combineEnvironmentalAndSiteVisitData <- function(WGFPSiteVisitsFieldData, PTDataWide){
   
-  WGFPSiteVisitsFieldData1 <- WGFPSiteVisitsFieldData %>%
-    mutate(dateTime = lubridate::ymd_hms(paste(Date, Time)), 
-           fieldDataNotes = Notes)
-  
+  #expect nAs here so suprressing these warnings
+  suppressWarnings({
+    WGFPSiteVisitsFieldData1 <- WGFPSiteVisitsFieldData %>%
+      mutate(dateTime = lubridate::ymd_hms(paste(Date, Time)), 
+             fieldDataNotes = Notes)
+  })
   
   #perform rolling join with PT data
   ptdataWide <- PTDataWide %>%
@@ -21,17 +23,12 @@ combineEnvironmentalAndSiteVisitData <- function(WGFPSiteVisitsFieldData, PTData
     anti_join(ExactTimeMatches, by = colnames(WGFPSiteVisitsFieldData1)) %>%
     dplyr::filter(!is.na(dateTime))
   
-  # #the rolling join with 2 can only take those with the 
-  # notExactTimestampMatchesDetectionsStationaryOnly <- notExactTimestampMatchesDetections %>%
-  #   filter(!is.na(SiteName))
   library(data.table, quietly = TRUE,warn.conflicts	= FALSE)
   
   #make PT data and timestamps into data.table objects so that we can perform rolling join
   WGFPSiteVisitsFieldData2 <- data.table(WGFPSiteVisitsFieldData2)
   ptdataWide <- data.table(ptdataWide)
-  
-  
-  ####need to make it so site names are prezent in both data: need to elimate kaibab stuff etc
+
   
   #set keycols
   #the order these are in matter
@@ -49,7 +46,6 @@ combineEnvironmentalAndSiteVisitData <- function(WGFPSiteVisitsFieldData, PTData
   #get only rows with timestaps within 13 hours
   WGFPSiteVisitsFieldData4 <- WGFPSiteVisitsFieldData3 %>%
     mutate(timeDifference = ifelse(abs(difftime(ptTimeRecorded, dateTime, units = c("hours"))) > 13, 1, 0)
-           #across(all_of(columnstoChange), ~ ifelse(timeDifference == 1, NA_real_, .))
     ) %>%
     dplyr::filter(timeDifference == 0)
   
@@ -63,8 +59,18 @@ combineEnvironmentalAndSiteVisitData <- function(WGFPSiteVisitsFieldData, PTData
   restOfRowsAligned <- alignColumns(restOfRows, names(siteVisitDataWithPTData), siteVisitDataWithPTData)
   allRowsPTDataSiteVisits <- bind_rows(restOfRowsAligned, siteVisitDataWithPTData)
   
+  #expect nAs here so suprressing these warnings
+   suppressWarnings({
+    allRowsPTDataSiteVisits <- allRowsPTDataSiteVisits %>%
+      mutate(dateTime = lubridate::ymd_hms(paste(Date, Time)))
+  })
+  
+   mm_columns <- grep("[0-9]+mm", names(WGFP_SiteVisits_FieldData), value = TRUE)
+   
+  #new_order <- c("Date", "Time", mm_columns, dplyr::everything())
+  
   allRowsPTDataSiteVisits <- allRowsPTDataSiteVisits %>%
-    mutate(dateTime = lubridate::ymd_hms(paste(Date, Time)))
+    select(Date, Time, all_of(mm_columns), dplyr::everything())
   
   return(allRowsPTDataSiteVisits)
 }
