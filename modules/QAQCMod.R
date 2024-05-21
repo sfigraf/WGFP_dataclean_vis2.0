@@ -145,7 +145,7 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
           rownames = FALSE,
           selection = "single",
           filter = 'top',
-          caption = ("Red is where Detection Distance is greater than water level, green is where it's less than or equal to water level"),
+          caption = ("Green cells show where 32mm detection distance is greater than or equal to water level, red is where 32mm detection distance is less than water level. Water level readings are within 13 hours of site visit."),
           options = list(
             stateSave = TRUE,
             pageLength = 25,

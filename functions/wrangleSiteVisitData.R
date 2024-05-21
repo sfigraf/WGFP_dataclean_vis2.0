@@ -25,7 +25,7 @@ wrangleSiteVisitData <- function(siteVisitList){
       mutate_at(vars(all_of(mm_columns)), ~ifelse(. == "TOUCHING", ".001", .)) %>%
       mutate(
         #there should be NAs inudced here if there are data that aren't numbers in these columns
-        across(.cols = contains("[0-9]+mm"), .fns = as.numeric)
+        across(.cols = mm_columns, .fns = as.numeric)
         
       )
   })
