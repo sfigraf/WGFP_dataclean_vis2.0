@@ -138,7 +138,13 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
 # Detection distance/water level ------------------------------------------
 
       output$DDWaterLevelTable <- renderDT({
-        datatable(WGFP_SiteVisits_FieldDatawithPTData,
+        
+        # brks <- quantile(WGFP_SiteVisits_FieldDatawithPTData, probs = seq(.05, .95, .05), na.rm = TRUE)
+        # clrs <- round(seq(255, 40, length.out = length(brks) + 1), 0) %>%
+        #   {paste0("rgb(255,", ., ",", ., ")")}
+        columns_to_format <- grep("32mm", colnames(WGFP_SiteVisits_FieldDatawithPTData), value = TRUE)
+        
+        dt <- datatable(WGFP_SiteVisits_FieldDatawithPTData,
                   rownames = FALSE,
                   selection = "single",
                   filter = 'top',
@@ -150,14 +156,68 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
                     dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
                     language = list(emptyTable = "Enter inputs and press Render Table")
                   )
-        ) %>% 
-          formatStyle(
-            columns = grep("32mm", colnames(WGFP_SiteVisits_FieldDatawithPTData), value = TRUE),
-            backgroundColor = styleInterval(
-              WGFP_SiteVisits_FieldDatawithPTData$Water_Level_NoIce_ft - 0.01,  # a small offset to include exact matches
-              c("red", "green")
-            )
-          )
+        ) 
+          for (col in columns_to_format) {
+            dt <- dt %>%
+              formatStyle(
+                columns = col,
+                backgroundColor = styleEqual(
+                  WGFP_SiteVisits_FieldDatawithPTData[[col]] >= WGFP_SiteVisits_FieldDatawithPTData$Water_Level_NoIce_ft,
+                  c("red")
+                )
+                # backgroundColor = styleInterval(
+                #   cuts = c(-Inf, 0),
+                #   values = c("red", "green")
+                # )
+              )
+          }
+          # formatStyle(
+          #   columns = c("32mm RR (ft) DS Initial"), 
+          #   backgroundColor = styleEqual(c(0, 1), c('red', 'green'))
+          # )
+        # # Apply custom JavaScript for conditional formatting
+        # for (col in columns_to_format) {
+        #   dt <- dt %>%
+        #     formatStyle(
+        #       columns = col,
+        #       backgroundColor = styleEqual(
+        #         rep(TRUE, nrow(WGFP_SiteVisits_FieldDatawithPTData)),
+        #         rep("white", nrow(WGFP_SiteVisits_FieldDatawithPTData))
+        #       ),
+        #       customJS = JS(sprintf("
+        #     function(data, type, row, meta) {
+        #       var waterLevel = parseFloat(data[%d]);
+        #       var detectionDistance = parseFloat(data[meta.col]);
+        #       if (detectionDistance >= waterLevel) {
+        #         $(meta.row).css('background-color', 'green');
+        #       } else {
+        #         $(meta.row).css('background-color', 'red');
+        #       }
+        #     }
+        #   ", which(colnames(WGFP_SiteVisits_FieldDatawithPTData) == "Water_Level_NoIce_ft")))
+        #     )
+        # }
+        dt
+          # Loop over each "32mm" column and apply conditional formatting
+          # lapply(grep("32mm", colnames(WGFP_SiteVisits_FieldDatawithPTData), value = TRUE), function(col) {
+          #   formatStyle(
+          #     columns = col,
+          #     backgroundColor = styleEqual(
+          #       WGFP_SiteVisits_FieldDatawithPTData[[col]] >= WGFP_SiteVisits_FieldDatawithPTData$Water_Level_NoIce_ft,
+          #       c("red", "green")
+          #     )
+          #   )
+          # }) %>% 
+          # Reduce(function(x, y) x %>% y, .)
+          # DT::formatStyle(
+          #   columns = grep("32mm", colnames(WGFP_SiteVisits_FieldDatawithPTData), 
+          #                  value = TRUE),
+          #   target = "cell", 
+          #   backgroundColor = styleInterval(
+          #     WGFP_SiteVisits_FieldDatawithPTData$Water_Level_NoIce_ft ,  # a small offset to include exact matches
+          #     c("red", "green")
+          #   )
+          # )
       })      
       ######
       qaqcCrosstalkMod_Server("qaqcCrosstalk", combinedData_df_list, metaDataVariableNames)
