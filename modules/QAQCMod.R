@@ -148,6 +148,7 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
        #  rgba(139, 0, 0, 0.5)
         dt <- datatable(
           WGFP_SiteVisits_FieldDatawithPTData,
+          class = 'nowrap display',
           rownames = FALSE,
           selection = "single",
           filter = 'top',
@@ -177,7 +178,8 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
               '}'
             )
           )
-        )
+        ) #%>%
+          #formatStyle(names(WGFP_SiteVisits_FieldDatawithPTData), lineHeight='100%')
           # for (col in columns_to_format) {
           #   dt <- dt %>%
           #     formatStyle(
