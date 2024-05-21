@@ -159,10 +159,11 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
             language = list(emptyTable = "Enter inputs and press Render Table"),
             rowCallback = JS(
               'function(row, data) {',
-              '  var waterLevel = data[0];',
+              '  var waterLevel = parseFloat(data[0]);',
               '  for (var i = 1; i < data.length; i++) {',
               '    if (/32mm/.test(this.api().column(i).header().textContent)) {',
-              '      if (parseFloat(data[i]) > parseFloat(waterLevel)) {',
+              '      var cellValue = parseFloat(data[i]);',
+              '      if (cellValue > waterLevel) {',
               '        $("td:eq(" + i + ")", row).css("background-color", "red");',
               '      } else {',
               '        $("td:eq(" + i + ")", row).css("background-color", "green");',
