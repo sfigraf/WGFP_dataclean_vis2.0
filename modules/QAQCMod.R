@@ -143,7 +143,9 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
         # clrs <- round(seq(255, 40, length.out = length(brks) + 1), 0) %>%
         #   {paste0("rgb(255,", ., ",", ., ")")}
         columns_to_format <- grep("32mm", colnames(WGFP_SiteVisits_FieldDatawithPTData), value = TRUE)
-        
+       #  "#8B0000aa"
+       # "#228B22aa"
+       #  rgba(139, 0, 0, 0.5)
         dt <- datatable(
           WGFP_SiteVisits_FieldDatawithPTData,
           rownames = FALSE,
@@ -158,15 +160,17 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
             dom = 'Blfrtip',
             language = list(emptyTable = "Enter inputs and press Render Table"),
             rowCallback = JS(
-              'function(row, data) {',
-              '  var waterLevel = parseFloat(data[0]);',
-              '  for (var i = 1; i < data.length; i++) {',
-              '    if (/32mm/.test(this.api().column(i).header().textContent)) {',
+              'function(row, data, index) {',
+              '  var api = this.api();',
+              '  var waterLevelIndex = api.column(":contains(Water_Level_NoIce_ft)").index();',
+              '  var waterLevel = parseFloat(data[waterLevelIndex]);',
+              '  for (var i = 0; i < data.length; i++) {',
+              '    if (/32mm/.test(api.column(i).header().textContent)) {',
               '      var cellValue = parseFloat(data[i]);',
-              '      if (cellValue > waterLevel) {',
-              '        $("td:eq(" + i + ")", row).css("background-color", "red");',
-              '      } else {',
-              '        $("td:eq(" + i + ")", row).css("background-color", "green");',
+              '      if (cellValue <= waterLevel) {',
+              '        $("td:eq(" + i + ")", row).css("background-color", "#8B0000AA");',
+              '      } else if (cellValue > waterLevel) {',
+              '        $("td:eq(" + i + ")", row).css("background-color", "#228B22AA");',
               '      }',
               '    }',
               '  }',
