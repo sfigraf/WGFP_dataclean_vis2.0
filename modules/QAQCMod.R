@@ -144,33 +144,45 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
         #   {paste0("rgb(255,", ., ",", ., ")")}
         columns_to_format <- grep("32mm", colnames(WGFP_SiteVisits_FieldDatawithPTData), value = TRUE)
         
-        dt <- datatable(WGFP_SiteVisits_FieldDatawithPTData,
-                  rownames = FALSE,
-                  selection = "single",
-                  filter = 'top',
-                  caption = ("Red is where Detection Distance is less than water level, green is where it's equal to or below water level"),
-                  options = list(
-                    #statesave is restore table state on page reload
-                    stateSave =TRUE,
-                    pageLength = 25, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
-                    dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
-                    language = list(emptyTable = "Enter inputs and press Render Table")
-                  )
-        ) 
-          for (col in columns_to_format) {
-            dt <- dt %>%
-              formatStyle(
-                columns = col,
-                backgroundColor = styleEqual(
-                  WGFP_SiteVisits_FieldDatawithPTData[[col]] >= WGFP_SiteVisits_FieldDatawithPTData$Water_Level_NoIce_ft,
-                  c("red")
-                )
-                # backgroundColor = styleInterval(
-                #   cuts = c(-Inf, 0),
-                #   values = c("red", "green")
-                # )
-              )
-          }
+        dt <- datatable(
+          WGFP_SiteVisits_FieldDatawithPTData,
+          rownames = FALSE,
+          selection = "single",
+          filter = 'top',
+          caption = ("Red is where Detection Distance is greater than water level, green is where it's less than or equal to water level"),
+          options = list(
+            stateSave = TRUE,
+            pageLength = 25,
+            info = TRUE,
+            lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
+            dom = 'Blfrtip',
+            language = list(emptyTable = "Enter inputs and press Render Table"),
+            rowCallback = JS(
+              'function(row, data) {',
+              '  var waterLevel = data[0];',
+              '  for (var i = 1; i < data.length; i++) {',
+              '    if (/32mm/.test(this.api().column(i).header().textContent)) {',
+              '      if (parseFloat(data[i]) > parseFloat(waterLevel)) {',
+              '        $("td:eq(" + i + ")", row).css("background-color", "red");',
+              '      } else {',
+              '        $("td:eq(" + i + ")", row).css("background-color", "green");',
+              '      }',
+              '    }',
+              '  }',
+              '}'
+            )
+          )
+        )
+          # for (col in columns_to_format) {
+          #   dt <- dt %>%
+          #     formatStyle(
+          #       columns = col,
+          #       backgroundColor = styleInterval(
+          #         cuts = WGFP_SiteVisits_FieldDatawithPTData$Water_Level_NoIce_ft,
+          #         values = rep(c("red", "green"), length.out = length(WGFP_SiteVisits_FieldDatawithPTData$Water_Level_NoIce_ft) + 1)
+          #       )
+          #     )
+          # }
           # formatStyle(
           #   columns = c("32mm RR (ft) DS Initial"), 
           #   backgroundColor = styleEqual(c(0, 1), c('red', 'green'))
