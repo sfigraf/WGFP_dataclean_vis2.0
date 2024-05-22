@@ -343,6 +343,9 @@ Enc_release_data <- enc_hist_wide_df %>%
 rainbow_trout_pallette <- list(pink1 = "#E3BABBFF", olive_green1 = "#C4CFBFFF", dark_olive_green1 = "#81754EFF",
                                mustard_yellow1 = "#CBA660FF", brown_yellow = "#86551CFF" )
 
+WGFP_SiteVisits_FieldData <- wrangleSiteVisitData(siteVisitList = siteVisitList)
+WGFP_SiteVisits_FieldDatawithPTData <- combineEnvironmentalAndSiteVisitData(WGFPSiteVisitsFieldData = WGFP_SiteVisits_FieldData, PTDataWide = allPressureTransducerDataWithDischarge)
+
 ### taking dummy tag out
 
 Biomark <- Biomark %>%
@@ -353,25 +356,29 @@ Stationary <- Cleaned_Stationary_FishdetectionsOnly %>%
   filter(!TAG %in% c("900230000999999"))
 
 #this list is taken by the individual datasets mod
-indiv_datasets_list <- list(
-      "stationarycleandata" = Stationary,
-      "biomarkdata" = Biomark,
-      "mobiledata" = Mobile,
-      "recapdata" = cleanedRecaptures,
-      "releasedata" = cleanedRelease,
-      "ghostdata" = GhostTags,
-      "avian_preddata" = AvianPredation
-    )
-
-#remove blank rows or all NA rows from each dataset
-indiv_datasets_list <- lapply(indiv_datasets_list, function(dataset) {
-  dataset[!apply(is.na(dataset) | dataset == "", 1, all), ]
-  }
+indiv_datasets_list_og <- list(
+  "stationarycleandata" = Stationary,
+  "biomarkdata" = Biomark,
+  "mobiledata" = Mobile,
+  "recapdata" = cleanedRecaptures,
+  "releasedata" = cleanedRelease,
+  "ghostdata" = GhostTags,
+  "avian_preddata" = AvianPredation, 
+  "PTDataRawCombined" = allPressureTransducerData,
+  "USGSData15Min" = windyGap,
+  "SiteVisitDataCombined" = WGFP_SiteVisits_FieldData
 )
 
-WGFP_SiteVisits_FieldData <- wrangleSiteVisitData(siteVisitList = siteVisitList)
-WGFP_SiteVisits_FieldDatawithPTData <- combineEnvironmentalAndSiteVisitData(WGFPSiteVisitsFieldData = WGFP_SiteVisits_FieldData, PTDataWide = allPressureTransducerDataWithDischarge)
-
+indiv_datasets_list <- lapply(names(indiv_datasets_list_og), function(name) {
+  dataset <- indiv_datasets_list_og[[name]]
+  if (name %in% c("PTDataRawCombined", "USGSData15Min", "SiteVisitDataCombined")) {
+    return(dataset)  # Skip processing for these datasets
+  } else {
+    # Perform the cleaning operation
+    return(dataset[!apply(is.na(dataset) | dataset == "", 1, all), ])
+  }
+})
+names(indiv_datasets_list) <- names(indiv_datasets_list_og)
 
 movements_list <- list(
   "Movements_df" = Movements_df,
@@ -413,7 +420,6 @@ allFlatFiles <- list(
   "PTData" = PTData,
   "USGSData" = USGSData, 
   "SiteVisitData" = SiteVisitData
-  #"WGFPSiteVisitsFieldData" = WGFP_SiteVisits_FieldData
 )
 
 for(filename in names(allFlatFiles)){
