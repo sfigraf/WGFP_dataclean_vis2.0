@@ -5,7 +5,7 @@ get_movements_function <- function(combined_events_stations, dailyUSGSData) {
   
   dailyMovementsTable <- combined_events_stations %>%
     #### removing dummy tag
-    filter(!TAG %in% c("230000999999")) %>%
+    #filter(!TAG %in% c("230000999999")) %>%
     select(Date, Datetime, TAG, det_type, Event, ET_STATION, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, UTM_X, UTM_Y) %>%
     #grouping by TAG and arranging by datetime makes sure that total distance moved is totalled and summed in order
     group_by(TAG) %>%
