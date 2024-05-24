@@ -76,10 +76,16 @@ add_dummy_rows <- function(stationary1, biomark1, release1) {
   ### Biomark
   
   Biomark <- biomark1 %>%
-    add_row(Scan.Date = "2022-12-07",Scan.Time = "12:52:10.810", Download.Date = "9/16/2022",Download.Time = "11:30:41",Reader.ID = "A3",Antenna.ID = 1,HEX.Tag.ID = "384.358D14F739",
+    add_row(Scan.Date = "2022-12-07",Scan.Time = "12:52:10.810", Download.Date = "9/16/2022",Download.Time = "11:30:41",
+            Reader.ID = "A3",Antenna.ID = 1,HEX.Tag.ID = "384.358D14F739",
             DEC.Tag.ID = "900.230000999999",Temperature.C = NA,Signal.mV= NA,Is.Duplicate= "Yes",Latitude = NA,Longitude= NA,File.Name= NA) %>%
-    add_row(Scan.Date = "2022-12-08",Scan.Time = "12:52:10.810", Download.Date = "9/16/2022",Download.Time = "11:30:41",Reader.ID = "A4",Antenna.ID = 1,HEX.Tag.ID = "384.358D14F739",
+    add_row(Scan.Date = "2022-12-08",Scan.Time = "12:52:10.810", Download.Date = "9/16/2022",Download.Time = "11:30:41",
+            Reader.ID = "A4",Antenna.ID = 1,HEX.Tag.ID = "384.358D14F739",
+            DEC.Tag.ID = "900.230000999999",Temperature.C = NA,Signal.mV= NA,Is.Duplicate= "Yes",Latitude = NA,Longitude= NA,File.Name= NA) %>%
+    add_row(Scan.Date = "2024-05-24",Scan.Time = "12:52:10.810", Download.Date = "9/16/2022",Download.Time = "11:30:41",
+            Reader.ID = "A5",Antenna.ID = 1,HEX.Tag.ID = "384.358D14F739",
             DEC.Tag.ID = "900.230000999999",Temperature.C = NA,Signal.mV= NA,Is.Duplicate= "Yes",Latitude = NA,Longitude= NA,File.Name= NA) 
+  
     # add_row(Scan.Date = "2022-12-09",Scan.Time = "12:52:10.810", Download.Date = "9/16/2022",Download.Time = "11:30:41",Reader.ID = "B4",Antenna.ID = 1,HEX.Tag.ID = "384.358D14F739",
     #         DEC.Tag.ID = "900.230000999999",Temperature.C = NA,Signal.mV= NA,Is.Duplicate= "Yes",Latitude = NA,Longitude= NA,File.Name= NA)
   
