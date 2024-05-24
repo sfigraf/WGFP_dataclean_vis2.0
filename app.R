@@ -18,7 +18,7 @@ library(gganimate)
 library(leaflet.minicharts)
 #library(mapview)
 #biomark test tags: 999000000007601, 999000000007602
-# to do: put qaqc stuff from combine files app in this file as well to see when biomark shits the bed
+# to do: put qaqc stuff from combine files app in this file as well
 #continue with how-to
 # make mini charts on leaflet# 
 
@@ -72,8 +72,8 @@ if(!exists("USGSData")){
   USGSData <- readRDS("data/flatFilesforApp/USGSData.rds")
 }
 
-if(!exists("WGFPSiteVisitsFieldData")){
-  WGFPSiteVisitsFieldData <- readRDS("data/flatFilesforApp/WGFPSiteVisitsFieldData.rds")
+if(!exists("SiteVisitData")){
+  SiteVisitData <- readRDS("data/flatFilesforApp/SiteVisitData.rds")
 }
 
 # # Functions Read-in -------------------------------------------------------
@@ -178,7 +178,7 @@ ui <- fluidPage(
 
           tabPanel("Pressure Transducer, USGS, and Detection Distance",
                    value = "PTtab",
-                   PT_UI("PTtab1", PTData, movements_list$Movements_df, WGFPSiteVisitsFieldData)
+                   PT_UI("PTtab1", PTData, movements_list$Movements_df, SiteVisitData$WGFP_SiteVisits_FieldData)
           ),
             
 
@@ -207,11 +207,11 @@ server <- function(input, output, session) {
     
       States_Server("StatesTab1", states_data_list, weeks)
       
-      PT_Server("PTtab1", PTData, movements_list$Movements_df, USGSData, WGFPSiteVisitsFieldData, allColors)
+      PT_Server("PTtab1", PTData, movements_list$Movements_df, USGSData, SiteVisitData$WGFP_SiteVisits_FieldData, allColors)
    
       QAQC_Server("QAQCTab1", Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
                   unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate,
-                  combinedData_df_list, wgfpMetadata, metaDataVariableNames, allColors)
+                  combinedData_df_list, wgfpMetadata, metaDataVariableNames, SiteVisitData$SiteVisitAndPTData, allColors)
     
   })
   

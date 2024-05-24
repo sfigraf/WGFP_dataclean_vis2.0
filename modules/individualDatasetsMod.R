@@ -50,7 +50,22 @@ IndividualDatasets_UI <- function(id, df_list, Release_05) {
                  br(), 
                  downloadData_UI(ns("downloadav_pred1")),
                  br(), 
-                 withSpinner(DT::dataTableOutput(ns("av_pred1"))))
+                 withSpinner(DT::dataTableOutput(ns("av_pred1")))), 
+        tabPanel("Pressure Transducers",
+                 br(), 
+                 downloadData_UI(ns("downloadPTdata")),
+                 br(), 
+                 withSpinner(DT::dataTableOutput(ns("PTdata")))), 
+        tabPanel("USGS at Hitching Post 15 Min",
+                 br(), 
+                 downloadData_UI(ns("downloadUSGSdata")),
+                 br(), 
+                 withSpinner(DT::dataTableOutput(ns("USGSdata")))), 
+        tabPanel("Combined Site Visit Data",
+                 br(), 
+                 downloadData_UI(ns("downloadSiteVisitData")),
+                 br(), 
+                 withSpinner(DT::dataTableOutput(ns("SiteVisitData"))))
       
     )#end of individual datasets Mainpanel)
   
@@ -69,6 +84,9 @@ IndividualDatasets_Server <- function(id, indiv_datasets_list, allColors) {
       downloadData_Server("downloadrelease1", indiv_datasets_list$releasedata, "ReleaseData")
       downloadData_Server("downloadghost1", indiv_datasets_list$ghostdata, "GhostTagData")
       downloadData_Server("downloadav_pred1", indiv_datasets_list$avian_preddata, "AvianPredationData")
+      downloadData_Server("downloadPTdata", indiv_datasets_list$PTDataRawCombined, "PTDataCombined")
+      downloadData_Server("downloadUSGSdata", indiv_datasets_list$USGSData15Min, "USGS15MinData")
+      downloadData_Server("downloadSiteVisitData", indiv_datasets_list$SiteVisitDataCombined, "SiteVisitDataCombined")
       
       output$stationary1 <- DT::renderDataTable(
         
@@ -198,6 +216,42 @@ IndividualDatasets_Server <- function(id, indiv_datasets_list, allColors) {
           language = list(emptyTable = "Enter inputs and press Render Table")
           
           #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
+        )
+      )
+      
+      output$PTdata <- renderDataTable(
+        
+        indiv_datasets_list$PTDataRawCombined,
+        rownames = FALSE,
+        filter = 'top',
+        options = list(
+          pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
+          dom = 'lfrtip', #had to add 'lowercase L' letter to display the page length again
+          language = list(emptyTable = "Enter inputs and press Render Table")
+        )
+      )
+      
+      output$USGSdata <- renderDataTable(
+        
+        indiv_datasets_list$USGSData15Min,
+        rownames = FALSE,
+        filter = 'top',
+        options = list(
+          pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
+          dom = 'lfrtip', #had to add 'lowercase L' letter to display the page length again
+          language = list(emptyTable = "Enter inputs and press Render Table")
+        )
+      )
+      
+      output$SiteVisitData <- renderDataTable(
+        
+        indiv_datasets_list$SiteVisitDataCombined,
+        rownames = FALSE,
+        filter = 'top',
+        options = list(
+          pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
+          dom = 'lfrtip', #had to add 'lowercase L' letter to display the page length again
+          language = list(emptyTable = "Enter inputs and press Render Table")
         )
       )
       
