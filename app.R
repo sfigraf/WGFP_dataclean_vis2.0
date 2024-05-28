@@ -105,8 +105,11 @@ print(paste("Static File Read-in took", round((end_time-start_time),2)))
 weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
 
 #colors
-#rainbow trout color pallete used to assign to Sites
-rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA", "#FF1C55", "#4682B4", "#556B2F", "#DC143C")
+#rainbow trout color pallete used to assign to Sites:
+# "Confluence, Connectivity Downstream, Connectivity Side Channel, Connectivity Upstream, Hitching Post, 
+# Kaibab Park, Red Barn, Windy Gap Auxiliary, Windy Gap Bypass Channel"
+rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA",
+                          "#FF1C55", "#4682B4", "#556B2F", "#DC143C", "#B22222", "#7FFF00", "#8A2BE2", "#00CED1")
 #currently "Changed Rivers", "Downstream Movement" "Initial Release", "No Movement", "Upstream Movement" (5/17/24)
 #note: these are a little diffeerent than what we see in the map because the map/marker color optoins are very limited. 
 movementColors <- c("#4B0082", "#8B0000", "#FF8C00", "#253333", "#22bd74") #, "#66FF00"

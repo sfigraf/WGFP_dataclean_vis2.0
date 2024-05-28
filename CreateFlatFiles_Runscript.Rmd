@@ -301,7 +301,7 @@ df_list <- All_combined_events_function(Stationary = utmsStationary, Mobile = Mo
 
 #all marker tags here
 Cleaned_Marker_tags <- df_list$All_Detections %>%
-  filter(str_detect(TAG, "^0000000|^999")) %>%
+  dplyr::filter(str_detect(TAG, "^0000000|^999")) %>%
   mutate(Scan_Date = ymd(Scan_Date))
 
 Cleaned_Stationary_FishdetectionsOnly <- utmsStationary %>%
