@@ -12,12 +12,14 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   biomarkCleaned <- Biomark %>%
     mutate(TAG = str_replace(DEC.Tag.ID, "\\.", ""),
            # i wish this could be a join, but when there are 2 dif codes (A1, B1, etc) used for backend name, this is a bit simpler
-           Reader.ID = case_when(Reader.ID %in% WindyGapBypassAntennaBackendSiteCode ~ WindyGapBypassAntennaFrontendSiteCode,
-                                 Reader.ID %in% WindyGapAuxiliaryAntennaBackendSiteCode ~ WindyGapAuxiliaryAntennaFrontendSiteCode,
-                                 Reader.ID %in% GranbyDiversionAntennaBackendSiteCode ~ GranbyDiversionAntennaFrontendSiteCode,
-                                 Reader.ID %in% RiverRunAntennaBackendSiteCode ~ RiverRunAntennaFrontendSiteCode,
-                                 Reader.ID %in% FraserRiverCanyonAntennaBackendSiteCode ~ FraserRiverCanyonAntennaFrontendSiteCode,
-                                 TRUE ~ Reader.ID),
+           Reader.ID = case_when(
+             Reader.ID %in% TestBiomarkAntennaBackendSiteCode ~ TestBiomarkAntennaFrontendSiteCode,
+             Reader.ID %in% WindyGapBypassAntennaBackendSiteCode ~ WindyGapBypassAntennaFrontendSiteCode,
+             Reader.ID %in% WindyGapAuxiliaryAntennaBackendSiteCode ~ WindyGapAuxiliaryAntennaFrontendSiteCode,
+             Reader.ID %in% GranbyDiversionAntennaBackendSiteCode ~ GranbyDiversionAntennaFrontendSiteCode,
+             Reader.ID %in% RiverRunAntennaBackendSiteCode ~ RiverRunAntennaFrontendSiteCode,
+             Reader.ID %in% FraserRiverCanyonAntennaBackendSiteCode ~ FraserRiverCanyonAntennaFrontendSiteCode,
+             TRUE ~ Reader.ID),
            #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy 
            # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
            Scan.Date = ifelse(str_detect(Scan.Date, "/"), 

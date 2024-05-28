@@ -419,8 +419,8 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
 
           }
           #### filter dummy row
-          all_events_filtered <- all_events_filtered %>%
-            filter(!TAG %in% c("230000999999"))
+          all_events_filtered <- all_events_filtered #%>%
+            #filter(!TAG %in% c("230000999999"))
 
 
           return(all_events_filtered)
@@ -463,7 +463,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
         
         output$alleventsfrequencies1 <- renderDataTable({
           frequenciesSummarized <- all_events_data() %>%
-            filter(!TAG %in% c(230000999999)) %>%
+            #filter(!TAG %in% c(230000999999)) %>%
             count(Event, name = "Raw Detections")
           
           datatable(frequenciesSummarized,
