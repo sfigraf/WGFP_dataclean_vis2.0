@@ -1,4 +1,4 @@
-# #### ENC HIST summary table function
+# # #### ENC HIST summary table function
 # allDetectionsAndRecaptures <- df_list$Recaps_detections
 # Release <- Release
 # markerTags = unique(Cleaned_Marker_tags$TAG)
