@@ -240,6 +240,7 @@ metaDataVariableNames <- list(
   "GranbyDiversionAntennaBackendSiteCode" = GranbyDiversionAntennaBackendSiteCode,
   "RiverRunAntennaBackendSiteCode" = RiverRunAntennaBackendSiteCode,
   "FraserRiverCanyonAntennaBackendSiteCode" = FraserRiverCanyonAntennaBackendSiteCode,
+  "AntennaSiteShortHandCodes" = sort(unique(wgfpMetadata$AntennaMetadata$AntennaSiteShortHandShorthand)), 
   "allPressureTransducerSiteNames" = sort(unique(wgfpMetadata$AntennaMetadata$PressureTransducerSiteName)),
   "allDetectionDistanceSiteNames" = sort(unique(wgfpMetadata$AntennaMetadata$DetectionDistanceSiteName)),
   "test_tags" = test_tags,

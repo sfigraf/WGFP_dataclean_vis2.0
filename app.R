@@ -80,7 +80,7 @@ if(!exists("SiteVisitData")){
 # 
 # 
 # #functions
-neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R")
+neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R", "getSequences.R")
 
 for (i in neededFunctions) {
   source(paste0("./functions/",i))
@@ -134,7 +134,6 @@ ui <- fluidPage(
              
              tabPanel("About/How to Use",
                       includeHTML(paste0("www/", "WGFP_dataclean_vis_about.html"))
-                      
                       ), #end fo how to use TabPanel
 
 # Individual Datasets UI ---------------------------------------------------
@@ -157,6 +156,13 @@ ui <- fluidPage(
                                AllEncounters_UI("AllEncountersTab1", combinedData_df_list))
                       )
                       ), #end of Encounter Histories Tab
+
+# Sequences UI ------------------------------------------------------------
+
+tabPanel("Sequences",
+         value = "SequencesTab",
+         Sequences_UI("SequencesTab1", metaDataVariableNames$AntennaSiteShortHandCodes)
+),#end of Individual data tab panel
 # States UI -----------------------------------------------------
 
             tabPanel("Weekly States",
@@ -205,6 +211,8 @@ server <- function(input, output, session) {
       IndividualDatasets_Server("IndividualDatasetsTab1", indiv_datasets_list, allColors)
     
       EncounterHistoriesSummariesWide_Server("EncounterHistoriesSummariesWideTab1", Enc_release_data)
+      
+      Sequences_Server("SequencesTab1", combinedData_df_list$All_Events)
       
       AllEncounters_Server("AllEncountersTab1", combinedData_df_list)
     
