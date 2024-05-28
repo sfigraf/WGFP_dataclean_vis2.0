@@ -11,24 +11,25 @@ compute_time_diff <- function(start, end) {
   }
 }
 
-extract_sequences <- function(tag_data, antennas1, antennas2) {
-  sequences <- data.frame(TAG = character(), DatetimeFirstDetectedAtCDorCS = as.POSIXct(character()), DateTimeFirstDetectedAtCU = as.POSIXct(character()), stringsAsFactors = FALSE)
+extract_sequences <- function(tag_data, downstreamAntennas, upstreamAntennas) {
+  sequences <- data.frame(TAG = character(), DatetimeFirstDetectedAtDownstreamAntennas = as.POSIXct(character()), DatetimeFirstDetectedAtUpstreamAntennas = as.POSIXct(character()), stringsAsFactors = FALSE)
   i <- 1
   
   while (i < nrow(tag_data)) {
-    cu_index <- which(grepl(paste0("^(", paste(antennas1, collapse = "|"), ")"), tag_data$Event[i:nrow(tag_data)]))
-    cdcs_index <- which(grepl(paste0("^(", paste(antennas2, collapse = "|"), ")"), tag_data$Event[i:nrow(tag_data)]))
     
-    if (length(cu_index) > 0 & length(cdcs_index) > 0) {
-      cu_first <- i + cu_index[1] - 1
-      cdcs_first <- i + cdcs_index[1] - 1
+    downstreamAntennas_index <- which(grepl(paste0("^(", paste(downstreamAntennas, collapse = "|"), ")"), tag_data$Event[i:nrow(tag_data)]))
+    upstreamAntennas_index <- which(grepl(paste0("^(", paste(upstreamAntennas, collapse = "|"), ")"), tag_data$Event[i:nrow(tag_data)]))
+    
+    if (length(upstreamAntennas_index) > 0 & length(downstreamAntennas_index) > 0) {
+      upstreamAntennas_first <- i + upstreamAntennas_index[1] - 1
+      downstreamAntennas_first <- i + downstreamAntennas_index[1] - 1
       
-      if (tag_data$Datetime[cu_first] < tag_data$Datetime[cdcs_first]) {
-        sequences <- rbind(sequences, data.frame(TAG = tag_data$TAG[cu_first], DatetimeFirstDetectedAtCDorCS = tag_data$Datetime[cdcs_first], DateTimeFirstDetectedAtCU = tag_data$Datetime[cu_first]))
-        i <- cdcs_first + 1
+      if (tag_data$Datetime[upstreamAntennas_first] < tag_data$Datetime[downstreamAntennas_first]) {
+        sequences <- rbind(sequences, data.frame(TAG = tag_data$TAG[upstreamAntennas_first], DatetimeFirstDetectedAtDownstreamAntennas = tag_data$Datetime[downstreamAntennas_first], DatetimeFirstDetectedAtUpstreamAntennas = tag_data$Datetime[upstreamAntennas_first]))
+        i <- downstreamAntennas_first + 1
       } else {
-        sequences <- rbind(sequences, data.frame(TAG = tag_data$TAG[cdcs_first], DatetimeFirstDetectedAtCDorCS = tag_data$Datetime[cdcs_first], DateTimeFirstDetectedAtCU = tag_data$Datetime[cu_first]))
-        i <- cu_first + 1
+        sequences <- rbind(sequences, data.frame(TAG = tag_data$TAG[downstreamAntennas_first], DatetimeFirstDetectedAtDownstreamAntennas = tag_data$Datetime[downstreamAntennas_first], DatetimeFirstDetectedAtUpstreamAntennas = tag_data$Datetime[upstreamAntennas_first]))
+        i <- upstreamAntennas_first + 1
       }
     } else {
       break
@@ -39,9 +40,9 @@ extract_sequences <- function(tag_data, antennas1, antennas2) {
 }
 
 ##sequences function
-summarizedDf <- function(All_Events, antennas1, antennas2){
+summarizedDf <- function(All_Events, downstreamAntennas, upstreamAntennas){
   df_filtered <- All_Events %>%
-    filter(grepl(paste0("^(", paste(c(antennas1, antennas2), collapse = "|"), ")"), Event)) %>%
+    filter(grepl(paste0("^(", paste(c(downstreamAntennas, upstreamAntennas), collapse = "|"), ")"), Event)) %>%
     arrange(TAG, Datetime)
   
   
@@ -49,22 +50,23 @@ summarizedDf <- function(All_Events, antennas1, antennas2){
   # Apply the function to each TAG
   newDF <- df_filtered %>%
     group_by(TAG) %>%
-    do(extract_sequences(., antennas1, antennas2))
+    do(extract_sequences(., downstreamAntennas, upstreamAntennas))
   
   
   
   # Add timeToTravel column with appropriate units
   # sequencesDF <- newDF %>%
-  #   mutate(timeToTravel = mapply(compute_time_diff, DateTimeFirstDetectedAtCU, DatetimeFirstDetectedAtCDorCS))
+  #   mutate(timeToTravel = mapply(compute_time_diff, DatetimeFirstDetectedAtUpstreamAntennas, DatetimeFirstDetectedAtDownstreamAntennas))
   
   
   newDF2 <- newDF %>%
-    mutate(UpstreamOrDownstream = case_when(DatetimeFirstDetectedAtCDorCS > DateTimeFirstDetectedAtCU ~ "Downstream", 
-                                            DatetimeFirstDetectedAtCDorCS < DateTimeFirstDetectedAtCU ~ "Upstream"), 
-           timeToTravelToSort = difftime(DatetimeFirstDetectedAtCDorCS, DateTimeFirstDetectedAtCU, units = "secs"), 
-           timeToTravelReadable = mapply(compute_time_diff, DateTimeFirstDetectedAtCU, DatetimeFirstDetectedAtCDorCS))
+    mutate(`Upstream Or Downstream Movement` = case_when(DatetimeFirstDetectedAtDownstreamAntennas > DatetimeFirstDetectedAtUpstreamAntennas ~ "Downstream", 
+                                            DatetimeFirstDetectedAtDownstreamAntennas < DatetimeFirstDetectedAtUpstreamAntennas ~ "Upstream"), 
+           `Time Between US/DS Detections (User Friendly)` = mapply(compute_time_diff, DatetimeFirstDetectedAtUpstreamAntennas, DatetimeFirstDetectedAtDownstreamAntennas),
+           `Time Between US/DS Detections (For Sorting)` = difftime(DatetimeFirstDetectedAtDownstreamAntennas, DatetimeFirstDetectedAtUpstreamAntennas, units = "secs")
+    )
   return(newDF2)
   
 }
 
-
+#All_Events <- combinedData_df_list$All_Events

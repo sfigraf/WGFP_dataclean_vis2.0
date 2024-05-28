@@ -4,16 +4,16 @@ Sequences_UI <- function(id, antennaChoices) {
     sidebarLayout(
       sidebarPanel(width = 2,
                    pickerInput(ns("antennas1"),
-                               label = "Select Antenna(s):",
+                               label = "Select Downstream Antenna(s) in Sequence:",
                                choices = antennaChoices,
                                selected = antennaChoices[1],
                                multiple = TRUE,
                                options = list(
-                                 `actions-box` = TRUE #this makes the "select/deselect all" option
+                                 `actions-box` = TRUE 
                                )
                    ), 
                    pickerInput(ns("antennas2"),
-                               label = "Select Second Antenna(s):",
+                               label = "Select Upstream Antenna(s) in Sequence:",
                                choices = antennaChoices,
                                selected = antennaChoices[2],
                                multiple = TRUE,
@@ -26,7 +26,8 @@ Sequences_UI <- function(id, antennaChoices) {
       ), 
       mainPanel(width = 10,
                 br(),
-                withSpinner(DTOutput(ns("sequencesTable"))))
+                uiOutput(ns("sequencestableUI"))
+                )
     )
   
   )
@@ -37,9 +38,30 @@ Sequences_Server <- function(id, All_Events) {
     id,
     function(input, output, session) {
       
-      filteredData <- eventReactive(input$renderbutton, {
+      ns <- session$ns
+      boxTitle <- reactiveVal("")
+      
+      filteredData <- eventReactive(input$renderbutton, ignoreNULL = FALSE, {
+        
+        validate(
+          need(length(input$antennas1) > 0, "Please select at least one antenna from Antenna(s) 1."),
+          need(length(input$antennas2) > 0, "Please select at least one antenna from Antenna(s) 2.")
+        )
+        
+        newTitle <- paste("Instances of Detections Between", paste(input$antennas1, collapse = ", "), "and", paste(input$antennas2, collapse = ", "))
+        boxTitle(newTitle)
+        
         data <- summarizedDf(All_Events, input$antennas1, input$antennas2)
         return(data)
+      })
+      
+      output$sequencestableUI <- renderUI({
+        tagList(
+          box(title = boxTitle(), 
+              withSpinner(DTOutput(ns("sequencesTable")))
+          )
+        )
+        
       })
       
       output$sequencesTable <- renderDT({
@@ -55,7 +77,7 @@ Sequences_Server <- function(id, All_Events) {
             info = TRUE,
             lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
             dom = 'lfrtip',
-            language = list(emptyTable = "Enter inputs and press Render Table")
+            language = list(emptyTable = "No Instances of Detections Between Selected Antenna Sites")
           )
         )
         
