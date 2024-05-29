@@ -25,7 +25,7 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
   
   #daily_unique_events = length(unique(Event))
   states <- eventsWithGhostDatesAndAvianPredation %>%
-    #filter(!TAG %in% c('230000999999')) %>%
+    filter(!TAG %in% c('230000999999')) %>%
     mutate(
       #the case_whens apply with priority, so it's important not to rearrange these 
       state = case_when(Date >= GhostDate ~ "G",

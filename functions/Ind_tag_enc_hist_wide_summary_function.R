@@ -18,8 +18,8 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   #column order is just nice to have for the user
   columnOrder <- c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes, ConnectivityChannelUpstreamFrontendCodes, 
                    MobileRunFrontendCodes, WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode, 
-                   GranbyDiversionAntennaFrontendSiteCode, RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode, 
-                   TestBiomarkAntennaFrontendSiteCode)
+                   GranbyDiversionAntennaFrontendSiteCode, RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode
+                   )
   allEncountersWideOrdered <- allEncountersWide %>%
     select(TAG, one_of(paste0(columnOrder, "_n")), Recapture_n)
 
@@ -59,15 +59,14 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
                                                    ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes,
                                                    ConnectivityChannelUpstreamFrontendCodes, MobileRunFrontendCodes, 
                                                    WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode, GranbyDiversionAntennaFrontendSiteCode,
-                                                   RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode, "Recapture", 
-                                                   TestBiomarkAntennaFrontendSiteCode))) == TRUE),
+                                                   RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode, "Recapture"))) == TRUE),
       TotalAntennas = rowSums(select(., all_of(c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, 
                                                  ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes,
                                                  ConnectivityChannelUpstreamFrontendCodes, MobileRunFrontendCodes, 
                                                  WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode,
                                                  GranbyDiversionAntennaFrontendSiteCode,
-                                                 RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode, 
-                                                 TestBiomarkAntennaFrontendSiteCode))) == TRUE),
+                                                 RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode
+                                                 ))) == TRUE),
       TotalStationary = rowSums(select(., all_of(c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, 
                                                    ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes,
                                                    ConnectivityChannelUpstreamFrontendCodes))) == TRUE),
@@ -75,8 +74,8 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
       TotalMobile = rowSums(select(.,  all_of(MobileRunFrontendCodes)) == TRUE),
       TotalBiomark = rowSums(select(., all_of(c(WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode,
                                                 GranbyDiversionAntennaFrontendSiteCode,
-                                                RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode, 
-                                                TestBiomarkAntennaFrontendSiteCode))) == TRUE),
+                                                RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode 
+                                                ))) == TRUE),
       TotalRedBarn =rowSums(select(.,  all_of(RedBarnFrontendCodes)) == TRUE),
       TotalHitchingPost = rowSums(select(.,  all_of(HitchingPostFrontendCodes)) == TRUE),
       TotalConfluence = rowSums(select(.,  all_of(ConfluenceFrontendCodes)) == TRUE),
@@ -153,8 +152,8 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
                          Date))
   
   #### dummy rows removal: 
-  encountersAndRelease6 <- encountersAndRelease6# %>%
-    #filter(!TAG %in% c("230000999999"))
+  encountersAndRelease6 <- encountersAndRelease6 %>%
+    filter(!TAG %in% c("230000999999"))
   
   
   enc_wide_list <- list(
