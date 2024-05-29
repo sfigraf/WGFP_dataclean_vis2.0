@@ -21,6 +21,7 @@ Sequences_UI <- function(id, antennaChoices) {
                                  `actions-box` = TRUE #this makes the "select/deselect all" option
                                )
                    ), 
+                   uiOutput(ns("dateSliderUI")),
                    actionButton(ns("renderbutton"), label = "Render"),
         
       ), 
@@ -51,7 +52,12 @@ Sequences_Server <- function(id, All_Events) {
         newTitle <- paste("Instances of Detections Between", paste(input$antennas1, collapse = ", "), "and", paste(input$antennas2, collapse = ", "))
         boxTitle(newTitle)
         
-        data <- summarizedDf(All_Events, input$antennas1, input$antennas2)
+        dateFilteredData <- All_Events %>%
+          dplyr::filter(
+            Date >= input$dateSlider[1] & Date <= input$dateSlider[2]
+            )
+        
+        data <- summarizedDf(dateFilteredData, input$antennas1, input$antennas2)
         return(data)
       })
       
@@ -61,7 +67,16 @@ Sequences_Server <- function(id, All_Events) {
               withSpinner(DTOutput(ns("sequencesTable")))
           )
         )
-        
+      })
+      
+      output$dateSliderUI <- renderUI({
+        sliderInput(ns("dateSlider"), "Date",
+                    min = min(All_Events$Date - 1),
+                    max = max(All_Events$Date + 1),  
+                    value = c(min(All_Events$Date - 1), max(All_Events$Date + 1)),
+                    step = 1,
+                    timeFormat = "%d %b %y"
+        )
       })
       
       output$sequencesTable <- renderDT({
