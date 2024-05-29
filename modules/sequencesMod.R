@@ -58,7 +58,11 @@ Sequences_Server <- function(id, All_Events) {
             )
         
         data <- summarizedDf(dateFilteredData, input$antennas1, input$antennas2)
-        return(data)
+        
+        dataMovements <- data %>%
+          dplyr::filter(`Upstream Or Downstream Movement` %in% input$UpstreamDownstreamFilter)
+        
+        return(dataMovements)
       })
       
       output$sequencestableUI <- renderUI({
@@ -70,13 +74,25 @@ Sequences_Server <- function(id, All_Events) {
       })
       
       output$dateSliderUI <- renderUI({
-        sliderInput(ns("dateSlider"), "Date",
-                    min = min(All_Events$Date - 1),
-                    max = max(All_Events$Date + 1),  
-                    value = c(min(All_Events$Date - 1), max(All_Events$Date + 1)),
-                    step = 1,
-                    timeFormat = "%d %b %y"
+        tagList(
+          sliderInput(ns("dateSlider"), "Date",
+                      min = min(All_Events$Date - 1),
+                      max = max(All_Events$Date + 1),  
+                      value = c(min(All_Events$Date - 1), max(All_Events$Date + 1)),
+                      step = 1,
+                      timeFormat = "%d %b %y"
+          ), 
+          pickerInput(ns("UpstreamDownstreamFilter"), 
+                      "Movement Type", 
+                      choices = c("Upstream", "Downstream"), 
+                      selected = c("Upstream", "Downstream"), 
+                      multiple = TRUE,
+                      options = list(
+                        `actions-box` = TRUE 
+                      )
+          )
         )
+        
       })
       
       output$sequencesTable <- renderDT({

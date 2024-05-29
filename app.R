@@ -150,19 +150,18 @@ ui <- fluidPage(
                       value = "EncounterHistories",
                       tabsetPanel(
                         tabPanel("Encounter Histories Summaries Wide",
-                          EncounterHistoriesSummariesWide_UI("EncounterHistoriesSummariesWideTab1", Enc_release_data)),
-                      
-                      tabPanel("All Encounter Histories",
-                               AllEncounters_UI("AllEncountersTab1", combinedData_df_list))
+                                 EncounterHistoriesSummariesWide_UI("EncounterHistoriesSummariesWideTab1", Enc_release_data)),
+                        
+                        tabPanel("All Encounter Histories",
+                                 AllEncounters_UI("AllEncountersTab1", combinedData_df_list)), 
+                        tabPanel("Sequences",
+                                 value = "SequencesTab",
+                                 Sequences_UI("SequencesTab1", metaDataVariableNames$AntennaSiteShortHandCodes)
+                        )
                       )
                       ), #end of Encounter Histories Tab
 
-# Sequences UI ------------------------------------------------------------
 
-tabPanel("Sequences",
-         value = "SequencesTab",
-         Sequences_UI("SequencesTab1", metaDataVariableNames$AntennaSiteShortHandCodes)
-),#end of Individual data tab panel
 # States UI -----------------------------------------------------
 
             tabPanel("Weekly States",
