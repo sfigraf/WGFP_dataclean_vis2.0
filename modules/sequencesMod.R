@@ -22,8 +22,11 @@ Sequences_UI <- function(id, antennaChoices) {
                                )
                    ), 
                    div(id = ns("container")),
-                   actionButton(ns("add"), label = "Add Another Antenna"),
-                   actionButton(ns("dropAntennaButton"), label = "Drop Antenna"),
+                   div(class = "btn-group", 
+                       actionButton(ns("add"), label = "Add Site"),
+                       actionButton(ns("dropAntennaButton"), label = "Drop Site")
+                   ),
+                   br(), 
                    uiOutput(ns("dateSliderUI")),
                    actionButton(ns("renderbutton"), label = "Render"),
         
@@ -44,21 +47,35 @@ Sequences_Server <- function(id, All_Events, antennaChoices) {
       
       ns <- session$ns
       boxTitle <- reactiveVal("")
+      counter <- reactiveVal(0)
       
       observeEvent(input$add, {
-        print(input$add)
+        counter(counter() + 1)
         insertUI(
+          
           selector = paste0("#", ns("container")),
           where = "beforeEnd",
-          ui = pickerInput(ns(paste0("antennas3_", input$add)),
-                           label = "Select Next Antenna(s) in Sequence:",
-                           choices = antennaChoices,
-                           selected = character(0),
-                           multiple = TRUE,
-                           options = list(
-                             `actions-box` = TRUE #this makes the "select/deselect all" option
-                           ))
+          ui = div(id = ns(paste0("div", counter())),
+                   pickerInput(ns(paste0("antennas3_", counter())),
+                               label = "Select Next Antenna(s) in Sequence:",
+                               choices = antennaChoices,
+                               selected = character(0),
+                               multiple = TRUE,
+                               options = list(
+                                 `actions-box` = TRUE #this makes the "select/deselect all" option
+                               ))
+                   )
+          
         )
+      })
+      
+      observeEvent(input$dropAntennaButton, {
+        if (counter() > 0) {
+          removeUI(
+            selector = paste0("#", ns(paste0("div", counter())))
+          )
+          counter(counter() - 1)
+        }
       })
       
       
