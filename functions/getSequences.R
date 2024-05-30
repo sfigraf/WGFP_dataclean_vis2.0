@@ -16,6 +16,7 @@ extract_sequences <- function(tag_data, downstreamAntennas, upstreamAntennas) {
   i <- 1
   
   # Initialize a while loop to iterate through the tag_data dataframe
+  # tag_data must be arranged properly
   while (i < nrow(tag_data)) {
     
     # Find indices of events that match the chosen downstream antennas within the subset of tag_data starting from the current index i
@@ -30,31 +31,23 @@ extract_sequences <- function(tag_data, downstreamAntennas, upstreamAntennas) {
       # Get the absolute position in tag_data of the first upstream antenna event found
       upstreamAntennas_first <- i + upstreamAntennas_index[1] - 1
       
-      # Get the absolute position in tag_data of the first downstream antenna event found
-      downstreamAntennas_first <- i + downstreamAntennas_index[1] - 1
+      # Find the last downstream antenna event that occurs after the upstream antenna event
+      downstreamAntennas_after <- downstreamAntennas_index[downstreamAntennas_index > (upstreamAntennas_first - i)]
       
-      # Check if the first upstream antenna event occurs before the first downstream antenna event
-      if (tag_data$Datetime[upstreamAntennas_first] < tag_data$Datetime[downstreamAntennas_first]) {
+      if (length(downstreamAntennas_after) > 0) {
+        downstreamAntennas_last <- i + downstreamAntennas_after[length(downstreamAntennas_after)] - 1
         
-        # Append a new row to the sequences dataframe with TAG, datetime of first downstream detection, and datetime of first upstream detection
+        # Append a new row to the sequences dataframe with TAG, datetime of last downstream detection, and datetime of first upstream detection
         sequences <- rbind(sequences, data.frame(
           TAG = tag_data$TAG[upstreamAntennas_first], 
-          DatetimeFirstDetectedAtDownstreamAntennas = tag_data$Datetime[downstreamAntennas_first], 
+          DatetimeFirstDetectedAtDownstreamAntennas = tag_data$Datetime[downstreamAntennas_last], 
           DatetimeFirstDetectedAtUpstreamAntennas = tag_data$Datetime[upstreamAntennas_first]
         ))
         
-        # Update the index to the position after the first downstream antenna event found
-        i <- downstreamAntennas_first + 1
+        # Update the index to the position after the last downstream antenna event found
+        i <- downstreamAntennas_last + 1
       } else {
-        
-        # Append a new row to the sequences dataframe with TAG, datetime of first downstream detection, and datetime of first upstream detection
-        sequences <- rbind(sequences, data.frame(
-          TAG = tag_data$TAG[downstreamAntennas_first], 
-          DatetimeFirstDetectedAtDownstreamAntennas = tag_data$Datetime[downstreamAntennas_first], 
-          DatetimeFirstDetectedAtUpstreamAntennas = tag_data$Datetime[upstreamAntennas_first]
-        ))
-        
-        # Update the index to the position after the first upstream antenna event found
+        # If no downstream event occurs after the upstream event, skip to the next upstream event
         i <- upstreamAntennas_first + 1
       }
     } else {
@@ -71,7 +64,6 @@ summarizedDf <- function(All_Events, downstreamAntennas, upstreamAntennas){
   df_filtered <- All_Events %>%
     filter(grepl(paste0("^(", paste(c(downstreamAntennas, upstreamAntennas), collapse = "|"), ")"), Event)) %>%
     arrange(TAG, Datetime)
-  
   
   
   # Apply the function to each TAG
