@@ -15,6 +15,14 @@ stream_centerline <- st_transform(read_sf(file.path(layerLocation, "Stream_Cente
 
 releasesites <- st_transform(read_sf(file.path(layerLocation, "ReleaseSites2021.shp")), latLongCRS)
 
+x <- releasesites %>%
+  mutate(ReleaseSit = ifelse(ReleaseSit == "Shefiff Ranch Middle Field", 
+                           "Sheriff Ranch Middle Field", 
+                           ReleaseSit))
+output_file <- file.path(layerLocation, "ReleaseSites2021.shp")
+st_write(x, output_file)
+
+
 mobile_reaches <- st_transform(read_sf(file.path(layerLocation, "mobile_reaches.shp")), latLongCRS)
 
 ###no need to change files other than stations to .rds because the others aren't slow to bring in and convert to correct coordinate system
