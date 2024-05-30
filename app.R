@@ -211,7 +211,7 @@ server <- function(input, output, session) {
     
       EncounterHistoriesSummariesWide_Server("EncounterHistoriesSummariesWideTab1", Enc_release_data)
       
-      Sequences_Server("SequencesTab1", combinedData_df_list$All_Events)
+      Sequences_Server("SequencesTab1", combinedData_df_list$All_Events, metaDataVariableNames$AntennaSiteShortHandCodes)
       
       AllEncounters_Server("AllEncountersTab1", combinedData_df_list)
     

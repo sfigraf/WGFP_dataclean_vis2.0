@@ -119,6 +119,6 @@ summarizedDf <- function(All_Events, downstreamAntennas, upstreamAntennas){
 }
 
 # All_Events <- combinedData_df_list$All_Events
-upstreamAntennas <- "CF"
-downstreamAntennas <- c("CU")
-data <- summarizedDf(All_Events, downstreamAntennas, upstreamAntennas)
+# upstreamAntennas <- "RB"
+# downstreamAntennas <- c("HP")
+# data <- summarizedDf(All_Events, downstreamAntennas, upstreamAntennas)

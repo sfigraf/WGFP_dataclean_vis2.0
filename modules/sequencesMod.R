@@ -15,12 +15,15 @@ Sequences_UI <- function(id, antennaChoices) {
                    pickerInput(ns("antennas2"),
                                label = "Select Upstream Antenna(s) in Sequence:",
                                choices = antennaChoices,
-                               selected = antennaChoices[2],
+                               selected = antennaChoices[3],
                                multiple = TRUE,
                                options = list(
                                  `actions-box` = TRUE #this makes the "select/deselect all" option
                                )
                    ), 
+                   div(id = ns("container")),
+                   actionButton(ns("add"), label = "Add Another Antenna"),
+                   actionButton(ns("dropAntennaButton"), label = "Drop Antenna"),
                    uiOutput(ns("dateSliderUI")),
                    actionButton(ns("renderbutton"), label = "Render"),
         
@@ -34,7 +37,7 @@ Sequences_UI <- function(id, antennaChoices) {
   )
 }
 
-Sequences_Server <- function(id, All_Events) {
+Sequences_Server <- function(id, All_Events, antennaChoices) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -42,7 +45,24 @@ Sequences_Server <- function(id, All_Events) {
       ns <- session$ns
       boxTitle <- reactiveVal("")
       
-      filteredData <- eventReactive(input$renderbutton, ignoreNULL = FALSE, {
+      observeEvent(input$add, {
+        print(input$add)
+        insertUI(
+          selector = paste0("#", ns("container")),
+          where = "beforeEnd",
+          ui = pickerInput(ns(paste0("antennas3_", input$add)),
+                           label = "Select Next Antenna(s) in Sequence:",
+                           choices = antennaChoices,
+                           selected = character(0),
+                           multiple = TRUE,
+                           options = list(
+                             `actions-box` = TRUE #this makes the "select/deselect all" option
+                           ))
+        )
+      })
+      
+      
+      filteredData <- eventReactive(input$renderbutton,  { #ignoreNULL = FALSE,
         
         validate(
           need(length(input$antennas1) > 0, "Please select at least one antenna from Antenna(s) 1."),
@@ -60,7 +80,7 @@ Sequences_Server <- function(id, All_Events) {
         data <- summarizedDf(dateFilteredData, input$antennas1, input$antennas2)
         
         dataMovements <- data %>%
-          dplyr::filter(`Upstream Or Downstream Movement` %in% input$UpstreamDownstreamFilter)
+          dplyr::filter(MovementDirection %in% input$UpstreamDownstreamFilter)
         
         return(dataMovements)
       })
