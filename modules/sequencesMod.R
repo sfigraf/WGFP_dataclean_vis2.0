@@ -52,7 +52,6 @@ Sequences_Server <- function(id, All_Events, antennaChoices) {
       observeEvent(input$add, {
         counter(counter() + 1)
         insertUI(
-          
           selector = paste0("#", ns("container")),
           where = "beforeEnd",
           ui = div(id = ns(paste0("div", counter())),
@@ -65,7 +64,6 @@ Sequences_Server <- function(id, All_Events, antennaChoices) {
                                  `actions-box` = TRUE #this makes the "select/deselect all" option
                                ))
           )
-          
         )
       })
       
@@ -78,38 +76,38 @@ Sequences_Server <- function(id, All_Events, antennaChoices) {
         }
       })
       
-      
-      filteredData <- eventReactive(input$renderbutton,  { #ignoreNULL = FALSE,
-        
+      filteredData <- eventReactive(input$renderbutton, {
         validate(
-          need(length(input$antennas1) > 0, "Please select at least one antenna from Antenna(s) 1."),
-          need(length(input$antennas3_0) > 0, "Please select at least one antenna from Antenna(s) 2.")
+          need(length(input$antennas1) > 0, "Please select at least one antenna from Downstream Antennas."),
+          need(length(input$antennas3_0) > 0, "Please select at least one antenna from Upstream Antennas.")
         )
         
-        newTitle <- paste("Instances of Detections Between", paste(input$antennas1, collapse = ", "), "and", paste(input$antennas3_0, collapse = ", "))
+        middle_antennas <- if (counter() > 0) {
+          lapply(0:(counter() - 1), function(i) {
+            input[[paste0("antennas3_", i)]]
+          }) #%>% unlist()
+        } else {
+          character(0)
+        }
+        middleAnts <<- middle_antennas
+        print(paste("middle antennas", middle_antennas))
+        upstream_antenna <- input[[paste0("antennas3_", counter())]]
+        print(paste("upstream", upstream_antenna))
+        
+        
+        newTitle <- paste("Instances of Detections Between", 
+                          paste(input$antennas1, collapse = ", "), 
+                          "and", 
+                          upstream_antenna, 
+                          "with middle antennas", 
+                          paste(middle_antennas, collapse = ", "))
+        
         boxTitle(newTitle)
         
         dateFilteredData <- All_Events %>%
-          dplyr::filter(
-            Date >= input$dateSlider[1] & Date <= input$dateSlider[2]
-          )
-        print(paste("counter count:",  counter()))
-        print(counter() > 0)
-        if(counter() > 0){
-          middle_antennas <- lapply(0:(counter()-1), function(i) {
-            #middle_antenna
-            input[[paste0("antennas3_", i)]]
-          }) #%>% unlist()
-          print(paste("middle antennas:",  middle_antennas))
-          upstream_antenna <- input[[paste0("antennas3_", counter())]]
-          print(paste("last antenna in sequence", upstream_antenna))
-        } else{
-          upstream_antenna <- input$antennas3_0
-          print(paste("last antenna in sequence", upstream_antenna))
-          
-        }
+          dplyr::filter(Date >= input$dateSlider[1] & Date <= input$dateSlider[2])
         
-        data <- summarizedDf(dateFilteredData, input$antennas1, input$antennas3_0)
+        data <- summarizedDf(dateFilteredData, input$antennas1, middle_antennas, upstream_antenna)
         
         dataMovements <- data %>%
           dplyr::filter(MovementDirection %in% input$UpstreamDownstreamFilter)
@@ -144,11 +142,9 @@ Sequences_Server <- function(id, All_Events, antennaChoices) {
                       )
           )
         )
-        
       })
       
       output$sequencesTable <- renderDT({
-        
         datatable(
           filteredData(),
           rownames = FALSE,
@@ -163,9 +159,7 @@ Sequences_Server <- function(id, All_Events, antennaChoices) {
             language = list(emptyTable = "No Instances of Detections Between Selected Antenna Sites")
           )
         )
-        
       })
-      
     }
   )
 }
