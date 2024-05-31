@@ -12,7 +12,7 @@ Sequences_UI <- function(id, antennaChoices) {
                                  `actions-box` = TRUE 
                                )
                    ), 
-                   pickerInput(ns("antennas2"),
+                   pickerInput(ns("antennas3_0"),
                                label = "Select Upstream Antenna(s) in Sequence:",
                                choices = antennaChoices,
                                selected = antennaChoices[3],
@@ -29,14 +29,14 @@ Sequences_UI <- function(id, antennaChoices) {
                    br(), 
                    uiOutput(ns("dateSliderUI")),
                    actionButton(ns("renderbutton"), label = "Render"),
-        
+                   
       ), 
       mainPanel(width = 10,
                 br(),
                 uiOutput(ns("sequencestableUI"))
-                )
+      )
     )
-  
+    
   )
 }
 
@@ -64,7 +64,7 @@ Sequences_Server <- function(id, All_Events, antennaChoices) {
                                options = list(
                                  `actions-box` = TRUE #this makes the "select/deselect all" option
                                ))
-                   )
+          )
           
         )
       })
@@ -83,18 +83,33 @@ Sequences_Server <- function(id, All_Events, antennaChoices) {
         
         validate(
           need(length(input$antennas1) > 0, "Please select at least one antenna from Antenna(s) 1."),
-          need(length(input$antennas2) > 0, "Please select at least one antenna from Antenna(s) 2.")
+          need(length(input$antennas3_0) > 0, "Please select at least one antenna from Antenna(s) 2.")
         )
         
-        newTitle <- paste("Instances of Detections Between", paste(input$antennas1, collapse = ", "), "and", paste(input$antennas2, collapse = ", "))
+        newTitle <- paste("Instances of Detections Between", paste(input$antennas1, collapse = ", "), "and", paste(input$antennas3_0, collapse = ", "))
         boxTitle(newTitle)
         
         dateFilteredData <- All_Events %>%
           dplyr::filter(
             Date >= input$dateSlider[1] & Date <= input$dateSlider[2]
-            )
+          )
+        print(paste("counter count:",  counter()))
+        print(counter() > 0)
+        if(counter() > 0){
+          middle_antennas <- lapply(0:(counter()-1), function(i) {
+            #middle_antenna
+            input[[paste0("antennas3_", i)]]
+          }) #%>% unlist()
+          print(paste("middle antennas:",  middle_antennas))
+          upstream_antenna <- input[[paste0("antennas3_", counter())]]
+          print(paste("last antenna in sequence", upstream_antenna))
+        } else{
+          upstream_antenna <- input$antennas3_0
+          print(paste("last antenna in sequence", upstream_antenna))
+          
+        }
         
-        data <- summarizedDf(dateFilteredData, input$antennas1, input$antennas2)
+        data <- summarizedDf(dateFilteredData, input$antennas1, input$antennas3_0)
         
         dataMovements <- data %>%
           dplyr::filter(MovementDirection %in% input$UpstreamDownstreamFilter)
