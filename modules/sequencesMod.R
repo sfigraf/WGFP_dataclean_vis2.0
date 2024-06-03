@@ -40,7 +40,7 @@ Sequences_UI <- function(id, antennaChoices) {
   )
 }
 
-Sequences_Server <- function(id, All_Events, antennaChoices) {
+Sequences_Server <- function(id, All_Events, antennaChoices, mobileCodes) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -48,6 +48,9 @@ Sequences_Server <- function(id, All_Events, antennaChoices) {
       ns <- session$ns
       boxTitle <- reactiveVal("")
       counter <- reactiveVal(0)
+      
+      All_Events <- All_Events %>%
+        dplyr::filter(!TAG %in% c("230000999999"))
       
       observeEvent(input$add, {
         counter(counter() + 1)
@@ -77,11 +80,15 @@ Sequences_Server <- function(id, All_Events, antennaChoices) {
       })
       
       filteredData <- eventReactive(input$renderbutton, {
+        upstream_antenna <- input[[paste0("antennas3_", counter())]]
         validate(
           need(length(input$antennas1) > 0, "Please select at least one antenna from Downstream Antennas."),
-          need(length(input$antennas3_0) > 0, "Please select at least one antenna from Upstream Antennas.")
+          need(length(input$antennas3_0) > 0, "Please select at least one antenna from Upstream Antennas."), 
+          need(input$antennas3_0 != input$antennas1,"First and last antennas in sequence can't be identical without middle antennas."), 
+          need(!input$antennas1 %in% input$antennas3_0,"Last antenna in sequence can't contain first antenna in sequence"), 
+          need(length(upstream_antenna) > 0, "Last Antenna in Sequence can't be blank")
         )
-        
+        #gets list of all antennas in the middle
         middle_antennas <- if (counter() > 0) {
           lapply(0:(counter() - 1), function(i) {
             input[[paste0("antennas3_", i)]]
@@ -91,7 +98,7 @@ Sequences_Server <- function(id, All_Events, antennaChoices) {
         }
         middleAnts <<- middle_antennas
         print(paste("middle antennas", middle_antennas))
-        upstream_antenna <- input[[paste0("antennas3_", counter())]]
+        
         print(paste("upstream", upstream_antenna))
         
         
@@ -107,7 +114,7 @@ Sequences_Server <- function(id, All_Events, antennaChoices) {
         dateFilteredData <- All_Events %>%
           dplyr::filter(Date >= input$dateSlider[1] & Date <= input$dateSlider[2])
         
-        data <- summarizedDf(dateFilteredData, input$antennas1, middle_antennas, upstream_antenna)
+        data <- summarizedDf(dateFilteredData, input$antennas1, middle_antennas, upstream_antenna, mobileCodes)
         
         dataMovements <- data %>%
           dplyr::filter(MovementDirection %in% input$UpstreamDownstreamFilter)
