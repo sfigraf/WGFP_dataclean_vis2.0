@@ -45,7 +45,6 @@ extract_sequences <- function(tag_data, firstAntennas, middleAntennas, lastAnten
   sequences <- data.frame(TAG = character(),
                           DatetimeDetectedAtFirstAntennas = as.POSIXct(character()),
                           DatetimeDetectedAtLastAntennas = as.POSIXct(character()),
-                          MovementDirection = character(),
                           stringsAsFactors = FALSE)
   i <- 1
   tagNumber = unique(tag_data$TAG)
@@ -124,8 +123,7 @@ extract_sequences <- function(tag_data, firstAntennas, middleAntennas, lastAnten
               sequences <- rbind(sequences, data.frame(
                 TAG = tag_data$TAG[lastAntennas_firstOccurrance],
                 DatetimeDetectedAtFirstAntennas = tag_data$Datetime[firstAntennas_lastOccurrance],
-                DatetimeDetectedAtLastAntennas = tag_data$Datetime[lastAntennas_firstOccurrance],
-                MovementDirection = "Upstream"
+                DatetimeDetectedAtLastAntennas = tag_data$Datetime[lastAntennas_firstOccurrance]
               ))
             } else{
               print(paste("Fish", tagNumber, " didn't hit ", paste(middleAntennas[[length(middleAntennas)]], collapse = ", "), "immediately before ", lastAntennas ))
@@ -142,8 +140,7 @@ extract_sequences <- function(tag_data, firstAntennas, middleAntennas, lastAnten
             sequences <- rbind(sequences, data.frame(
               TAG = tag_data$TAG[lastAntennas_firstOccurrance],
               DatetimeDetectedAtFirstAntennas = tag_data$Datetime[firstAntennas_lastOccurrance],
-              DatetimeDetectedAtLastAntennas = tag_data$Datetime[lastAntennas_firstOccurrance],
-              MovementDirection = "Upstream"
+              DatetimeDetectedAtLastAntennas = tag_data$Datetime[lastAntennas_firstOccurrance]
             ))
           }
 
@@ -179,7 +176,8 @@ summarizedDf <- function(All_Events, firstAntennas, middle_antennas, lastAntenna
   # Add columns for time difference
   newDF2 <- newDF %>%
     mutate(`Time Between US/DS Detections (User Friendly)` = mapply(compute_time_diff, DatetimeDetectedAtLastAntennas, DatetimeDetectedAtFirstAntennas),
-           `Time Between US/DS Detections (For Sorting)` = difftime(DatetimeDetectedAtFirstAntennas, DatetimeDetectedAtLastAntennas, units = "secs"))
+           `Time Between US/DS Detections (For Sorting)` = difftime(DatetimeDetectedAtFirstAntennas, DatetimeDetectedAtLastAntennas, units = "secs")) %>%
+    distinct()
   
   return(newDF2)
 }

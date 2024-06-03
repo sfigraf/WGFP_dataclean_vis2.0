@@ -4,7 +4,7 @@ Sequences_UI <- function(id, antennaChoices) {
     sidebarLayout(
       sidebarPanel(width = 2,
                    pickerInput(ns("antennas1"),
-                               label = "Select Downstream Antenna(s) in Sequence:",
+                               label = "Select First Antenna(s) in Sequence:",
                                choices = antennaChoices,
                                selected = antennaChoices[1],
                                multiple = TRUE,
@@ -13,7 +13,7 @@ Sequences_UI <- function(id, antennaChoices) {
                                )
                    ), 
                    pickerInput(ns("antennas3_0"),
-                               label = "Select Upstream Antenna(s) in Sequence:",
+                               label = "Select Last Antenna(s) in Sequence:",
                                choices = antennaChoices,
                                selected = antennaChoices[3],
                                multiple = TRUE,
@@ -79,7 +79,7 @@ Sequences_Server <- function(id, All_Events, antennaChoices, mobileCodes) {
         }
       })
       
-      filteredData <- eventReactive(input$renderbutton, {
+      filteredData <- eventReactive(input$renderbutton, { #ignoreNULL = FALSE,
         upstream_antenna <- input[[paste0("antennas3_", counter())]]
         validate(
           need(length(input$antennas1) > 0, "Please select at least one antenna from Downstream Antennas."),
@@ -96,7 +96,7 @@ Sequences_Server <- function(id, All_Events, antennaChoices, mobileCodes) {
         } else {
           character(0)
         }
-        middleAnts <<- middle_antennas
+        #middleAnts <<- middle_antennas
         print(paste("middle antennas", middle_antennas))
         
         print(paste("upstream", upstream_antenna))
@@ -116,10 +116,10 @@ Sequences_Server <- function(id, All_Events, antennaChoices, mobileCodes) {
         
         data <- summarizedDf(dateFilteredData, input$antennas1, middle_antennas, upstream_antenna, mobileCodes)
         
-        dataMovements <- data %>%
-          dplyr::filter(MovementDirection %in% input$UpstreamDownstreamFilter)
+        # dataMovements <- data %>%
+        #   dplyr::filter(MovementDirection %in% input$UpstreamDownstreamFilter)
         
-        return(dataMovements)
+        return(data)
       })
       
       output$sequencestableUI <- renderUI({
@@ -138,16 +138,16 @@ Sequences_Server <- function(id, All_Events, antennaChoices, mobileCodes) {
                       value = c(min(All_Events$Date - 1), max(All_Events$Date + 1)),
                       step = 1,
                       timeFormat = "%d %b %y"
-          ), 
-          pickerInput(ns("UpstreamDownstreamFilter"), 
-                      "Movement Type", 
-                      choices = c("Upstream", "Downstream"), 
-                      selected = c("Upstream", "Downstream"), 
-                      multiple = TRUE,
-                      options = list(
-                        `actions-box` = TRUE 
-                      )
           )
+          # pickerInput(ns("UpstreamDownstreamFilter"), 
+          #             "Movement Type", 
+          #             choices = c("Upstream", "Downstream"), 
+          #             selected = c("Upstream", "Downstream"), 
+          #             multiple = TRUE,
+          #             options = list(
+          #               `actions-box` = TRUE 
+          #             )
+          # )
         )
       })
       
