@@ -72,7 +72,7 @@ extract_sequences <- function(tag_data, downstreamAntennas, middleAntennas, upst
 
 
     # Check if both upstream and downstream antenna events exist in the remaining data
-    print(paste("DS length", length(downstreamAntennas_index), "and US length", length(upstreamAntennas_index) ))
+    print(paste("DS length", length(downstreamAntennas_index), "and US length", length(upstreamAntennas_index)))
     if (length(upstreamAntennas_index) > 0 & length(downstreamAntennas_index) > 0) {
       # Get the absolute position in tag_data of the first downstream antenna event found
       downstreamAntennas_first <- i + downstreamAntennas_index[1] - 1
@@ -172,10 +172,10 @@ summarizedDf <- function(All_Events, downstreamAntennas, middle_antennas, upstre
     arrange(TAG, Datetime)
   
   # Apply the function to each TAG
-  newDF <- df_filtered %>%
+  newDF <<- df_filtered %>%
     group_by(TAG) %>%
     do(extract_sequences(., downstreamAntennas, middle_antennas, upstreamAntennas))
-  
+  print("got to here")
   # Add columns for time difference
   newDF2 <- newDF %>%
     mutate(`Time Between US/DS Detections (User Friendly)` = mapply(compute_time_diff, DatetimeDetectedAtUpstreamAntennas, DatetimeDetectedAtDownstreamAntennas),

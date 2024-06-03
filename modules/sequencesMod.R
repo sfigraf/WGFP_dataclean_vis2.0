@@ -105,7 +105,7 @@ Sequences_Server <- function(id, All_Events, antennaChoices, mobileCodes) {
         newTitle <- paste("Instances of Detections Between", 
                           paste(input$antennas1, collapse = ", "), 
                           "and", 
-                          upstream_antenna, 
+                          paste(upstream_antenna, collapse = ", "), 
                           "with middle antennas", 
                           paste(middle_antennas, collapse = ", "))
         
