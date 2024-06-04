@@ -80,13 +80,23 @@ Sequences_Server <- function(id, All_Events, antennaChoices, mobileCodes) {
       })
       
       filteredData <- eventReactive(input$renderbutton, { #ignoreNULL = FALSE,
-        upstream_antenna <- input[[paste0("antennas3_", counter())]]
+        upstream_antenna <<- input[[paste0("antennas3_", counter())]]
+        middle_antennas <<- if (counter() > 0) {
+          lapply(0:(counter() - 1), function(i) {
+            input[[paste0("antennas3_", i)]]
+          }) #%>% unlist()
+        } else {
+          character(0)
+        }
+        print(paste("upstream antenna input", upstream_antenna))
+        print(paste("middle antennas", unlist(middle_antennas)))
         validate(
-          need(length(input$antennas1) > 0, "Please select at least one antenna from Downstream Antennas."),
-          need(length(input$antennas3_0) > 0, "Please select at least one antenna from Upstream Antennas."), 
+          need(length(input$antennas1) > 0, "Please select at least one antenna from First Antennas."),
+          need(length(upstream_antenna) > 0, "Please select at least one antenna from Last Antennas."), 
           need(input$antennas3_0 != input$antennas1,"First and last antennas in sequence can't be identical without middle antennas."), 
           need(!input$antennas1 %in% input$antennas3_0,"Last antenna in sequence can't contain first antenna in sequence"), 
-          need(length(upstream_antenna) > 0, "Last Antenna in Sequence can't be blank")
+          #need(length(upstream_antenna) > 0, "Last Antenna in Sequence can't be blank"), 
+          need(!any(unlist(middle_antennas) %in% upstream_antenna), "Cannot have last antenna in any middle antenna selection")
         )
         #gets list of all antennas in the middle
         middle_antennas <- if (counter() > 0) {

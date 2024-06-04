@@ -53,28 +53,35 @@ extract_sequences <- function(tag_data, firstAntennas, middleAntennas, lastAnten
 
     # Find indices of events that match the chosen downstream antennas within the subset of tag_data starting from the current index i
     firstAntennas_indices <- which(grepl(paste0("^(", paste(firstAntennas, collapse = "|"), ")"), tag_data$Event[i:nrow(tag_data)]))
-    print(paste("DS index", firstAntennas_indices))
+    #print(paste("DS index", firstAntennas_indices))
     ### if antennas aren't the same, can just run the antenna index
     print(paste("DS and US antennas", c(firstAntennas, lastAntennas)))
     if(all(firstAntennas != lastAntennas)){
+      #if middle antennas aren't in first or last
       # Find indices of events that match the chosen upstream antennas within the subset of tag_data starting from the current index i
       lastAntennas_index <- which(grepl(paste0("^(", paste(lastAntennas, collapse = "|"), ")"), tag_data$Event[i:nrow(tag_data)]))
-      print(paste("upstream indeeexes", lastAntennas_index))
+      #print(paste("upstream indeeexes", lastAntennas_index))
       #if the antennas are the same, find most upstream; if 
     } else {
       firstAntennas_firstOccurrance <- i + firstAntennas_indices[1] - 1
-      print(paste("antennas are the same, downstream first:", firstAntennas_firstOccurrance))
+      #print(paste("antennas are the same, downstream first:", firstAntennas_firstOccurrance))
+      #gets indexes of times where the last antenna occurred
       lastAntennas_index <- unlist(findSameLastAntennaIndices(firstAntennas_firstOccurrance = firstAntennas_firstOccurrance, firstAntennas_indices = firstAntennas_indices))
-      print(paste("upstream indxes", lastAntennas_index))
+      #print(paste("upstream indxes", lastAntennas_index))
       
     }
 
 
     # Check if both upstream and downstream antenna events exist in the remaining data
-    print(paste("DS length", length(firstAntennas_indices), "and US length", length(lastAntennas_index)))
+    #print(paste("DS length", length(firstAntennas_indices), "and US length", length(lastAntennas_index)))
     if (length(lastAntennas_index) > 0 & length(firstAntennas_indices) > 0) {
       # Get the absolute position in tag_data of the first downstream antenna event found
       firstAntennas_firstOccurrance <- i + firstAntennas_indices[1] - 1
+      
+      if(isTruthy(middleAntennas)){
+        #if there are middle antennas, check 
+      }
+      
 
         lastAntennas_firstOccurrance <- i + lastAntennas_index[1] - 1
 
@@ -184,8 +191,8 @@ summarizedDf <- function(All_Events, firstAntennas, middle_antennas, lastAntenna
 # tag_data <- df_filtered %>%
 #   filter(TAG == c("230000224056"))
 # # All_Events <- combinedData_df_list$All_Events
-middleAntennas <- list(c("CU"))
+middleAntennas <- list(c("HP"), c("RB"))
 # # middle_antennas <- middleAntennas
-# lastAntennas <- "CD"
-# firstAntennas <- c("CD")
+lastAntennas <- "RB"
+firstAntennas <- c("HP")
 # data <- summarizedDf(All_Events, firstAntennas, middleAntennas, lastAntennas)
