@@ -108,7 +108,7 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
     group_by(TAG) %>%
     summarize(through_dam = if_else(all(above_below == "Above the Dam"), "Stayed Above the Dam", 
                                              if_else(all(above_below == "Below the Dam"), "Stayed Below the Dam",
-                                                     "Went through dam or Connectivity Channel")))
+                                                     "Went through dam or Used Connectivity Channel")))
   
   aboveAndBelowInfo <- combined_events_stations %>%
     count(TAG, det_type, above_below, name = "Encounters") %>%

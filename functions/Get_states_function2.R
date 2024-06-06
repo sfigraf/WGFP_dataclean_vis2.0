@@ -57,6 +57,9 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
     arrange(Datetime) %>%
     mutate(allStates = paste(state, collapse = ""),
            condensedAllStates = gsub('([[:alpha:]])\\1+', '\\1', allStates), #removes consecutive letters
+           channelSummary = case_when(str_detect(condensedAllStates, "C") ~ "Used Connectivity Channel", 
+                                      TRUE ~ "Didn't Use Channel"), 
+           
            #new columns to say if fish stayed above or below?
            went_above_dam_noChannel = str_detect(condensedAllStates, "AB"),
            went_below_dam_noChannel = str_detect(condensedAllStates, "BA"),
@@ -66,7 +69,7 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
            entered_channel_from_US = str_detect(condensedAllStates, "BC"),
            
     ) %>%
-    select(TAG, went_above_dam_noChannel, went_below_dam_noChannel,went_below_dam_throughChannel,went_above_dam_throughChannel,entered_channel_from_DS,entered_channel_from_US) %>%
+    select(TAG, condensedAllStates, channelSummary, went_above_dam_noChannel, went_below_dam_noChannel,went_below_dam_throughChannel,went_above_dam_throughChannel,entered_channel_from_DS,entered_channel_from_US) %>%
     distinct(TAG, .keep_all = TRUE)
   
 # Flagged Tags ------------------------------------------------------------
