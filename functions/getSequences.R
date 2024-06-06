@@ -42,6 +42,7 @@ findSameLastAntennaIndices <- function(firstAntennas_firstOccurrance, firstAnten
 }
 
 extract_sequences <- function(tag_data, firstAntennas, middleAntennas, lastAntennas) {
+  
   sequences <- data.frame(TAG = character(),
                           DatetimeDetectedAtFirstAntennas = as.POSIXct(character()),
                           DatetimeDetectedAtLastAntennas = as.POSIXct(character()),
@@ -55,43 +56,45 @@ extract_sequences <- function(tag_data, firstAntennas, middleAntennas, lastAnten
     firstAntennas_indices <- which(grepl(paste0("^(", paste(firstAntennas, collapse = "|"), ")"), tag_data$Event[i:nrow(tag_data)]))
     #print(paste("DS index", firstAntennas_indices))
     ### if antennas aren't the same, can just run the antenna index
-    print(paste("DS and US antennas", c(firstAntennas, lastAntennas)))
+    #print(paste("DS and US antennas", c(firstAntennas, lastAntennas)))
     if(all(firstAntennas != lastAntennas)){
       #if middle antennas aren't in first or last
       # Find indices of events that match the chosen upstream antennas within the subset of tag_data starting from the current index i
-      lastAntennas_index <- which(grepl(paste0("^(", paste(lastAntennas, collapse = "|"), ")"), tag_data$Event[i:nrow(tag_data)]))
-      #print(paste("upstream indeeexes", lastAntennas_index))
+      lastAntennas_indices <- which(grepl(paste0("^(", paste(lastAntennas, collapse = "|"), ")"), tag_data$Event[i:nrow(tag_data)]))
+      #print(paste("upstream indeeexes", lastAntennas_indices))
       #if the antennas are the same, find most upstream; if 
     } else {
       firstAntennas_firstOccurrance <- i + firstAntennas_indices[1] - 1
       #print(paste("antennas are the same, downstream first:", firstAntennas_firstOccurrance))
       #gets indexes of times where the last antenna occurred
-      lastAntennas_index <- unlist(findSameLastAntennaIndices(firstAntennas_firstOccurrance = firstAntennas_firstOccurrance, firstAntennas_indices = firstAntennas_indices))
-      #print(paste("upstream indxes", lastAntennas_index))
+      lastAntennas_indices <- unlist(findSameLastAntennaIndices(firstAntennas_firstOccurrance = firstAntennas_firstOccurrance, firstAntennas_indices = firstAntennas_indices))
+      #print(paste("upstream indxes", lastAntennas_indices))
       
     }
-
+    # lastAntennas_firstOccurrance <- 53
+    # firstAntennas_firstOccurrance <- 47
 
     # Check if both upstream and downstream antenna events exist in the remaining data
-    #print(paste("DS length", length(firstAntennas_indices), "and US length", length(lastAntennas_index)))
-    if (length(lastAntennas_index) > 0 & length(firstAntennas_indices) > 0) {
+    #print(paste("DS length", length(firstAntennas_indices), "and US length", length(lastAntennas_indices)))
+    if (length(firstAntennas_indices) > 0 & length(lastAntennas_indices) > 0) {
       # Get the absolute position in tag_data of the first downstream antenna event found
+      #this is why it's corrected by addiung for i
       firstAntennas_firstOccurrance <- i + firstAntennas_indices[1] - 1
+      lastAntennas_firstOccurrance <- i + lastAntennas_indices[1] - 1
+      # if(isTruthy(middleAntennas)){
+      #   #if there are middle antennas, check 
+      # }
       
-      if(isTruthy(middleAntennas)){
-        #if there are middle antennas, check 
-      }
-      
 
-        lastAntennas_firstOccurrance <- i + lastAntennas_index[1] - 1
+        
 
 
-      # Movement from Downstream to Upstream
+      # Movement from first to last
       #if the time the fish hit the upstream antenna is mor recent than the time the fish hit the downstream one, then it was a upstream movement
-      if (tag_data$Datetime[lastAntennas_firstOccurrance] > tag_data$Datetime[firstAntennas_firstOccurrance]) {
+      if (tag_data$Datetime[firstAntennas_firstOccurrance] < tag_data$Datetime[lastAntennas_firstOccurrance]) {
 
         # Find the last downstream antenna event that occurs before the first upstream antenna event
-        #gets all downstream antenna isntances b
+        #gets all downstream antenna instances b
         firstAntennas_before <- firstAntennas_indices[firstAntennas_indices < (lastAntennas_firstOccurrance - i + 1)]
 
         if (length(firstAntennas_before) > 0) {
@@ -103,10 +106,11 @@ extract_sequences <- function(tag_data, firstAntennas, middleAntennas, lastAnten
             #check if next antenna is the next middle antenna; needs to be or it breaks
             middleAntennaStartIndex <- firstAntennas_lastOccurrance
             for (antenna_i in middleAntennas) {
+              #antenna_i can be 1 antenna or a vector of them
               print(paste("middleStart index:", middleAntennaStartIndex))
-              #if the middle antenna occurs in succession, keep checkin gthe next ones, starting at the last antenna detection on the middle antennas
+              #if the middle antennas occurs in succession right after the last detection on the first antenna, keep checkin gthe next ones, starting at the last antenna detection on the middle antennas
               if(grepl(paste0("^(", paste(antenna_i, collapse = "|"), ")"), tag_data$Event[middleAntennaStartIndex+1])){
-                #get all indices between those
+                #get all indices of any middle detections between those. if antenna_i is a vector, doesn't matter which antennas of that vector get hit
                 middleAntennas_before <- grep(paste0("^(", paste(antenna_i, collapse = "|"), ")"), tag_data$Event[middleAntennaStartIndex:lastAntennas_firstOccurrance])
                 #adjusted indices for tag_data
                 adjusted_indices <- middleAntennas_before + middleAntennaStartIndex - 1
@@ -141,6 +145,8 @@ extract_sequences <- function(tag_data, firstAntennas, middleAntennas, lastAnten
           #if there is no middle antennas selected, check to see if there's any events in between the upstream antenna and downstream one.
           #if there are events, then don't add that instance to the df, if there aren't any, add it
           # # Check for any other antenna detections in between
+          #this may be simpler if we just have a "if the difference beween rows == 1 (if the rows are right next to each other) then add to df
+          #i think this thought process is from left over code from another way of doing things...something to think about. It works so why not keep using
           in_between_events <- tag_data$Event[(firstAntennas_lastOccurrance + 1):(lastAntennas_firstOccurrance - 1)]
           if (all(grepl(paste0("^(", paste(c(firstAntennas, lastAntennas), collapse = "|"), ")"), in_between_events))) {
             # Append a new row to the sequences dataframe
@@ -152,13 +158,13 @@ extract_sequences <- function(tag_data, firstAntennas, middleAntennas, lastAnten
           }
 
           # Update the index to the position after the first upstream antenna event found
-          i <- lastAntennas_firstOccurrance + 1
+          i <- lastAntennas_firstOccurrance 
         } else {
           # If no downstream event occurs before the upstream event, skip to the next upstream event
-          i <- lastAntennas_firstOccurrance + 1
+          i <- lastAntennas_firstOccurrance 
         }
       } else {
-        i <- firstAntennas_firstOccurrance + 1
+        i <- firstAntennas_firstOccurrance 
       }
     } else {
       # Exit the loop if there are no more upstream or downstream antenna events in the remaining data

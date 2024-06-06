@@ -35,6 +35,7 @@ Sequences_UI <- function(id, antennaChoices) {
       ), 
       mainPanel(width = 10,
                 br(),
+                downloadData_UI(ns("downloadsequenceData")),
                 uiOutput(ns("sequencestableUI"))
       )
     )
@@ -60,7 +61,8 @@ Sequences_Server <- function(id, All_Events, antennaChoices, mobileCodes) {
         
         newID <- paste0("antennas3_", counter())
         previousIDs(c("antennas3_0", previousIDs(), newID))
-        
+        #changing all "middle antennas" labels to "next antenna in sequence"
+
         lapply(previousIDs(), function(id) {
           shinyjs::runjs(sprintf('$("#%s-label").text("Select Next Antenna(s) in Sequence:");', ns(id)))
         })
@@ -88,11 +90,10 @@ Sequences_Server <- function(id, All_Events, antennaChoices, mobileCodes) {
           )
           counter(counter() - 1)
         }
+        #changing most recently made pickerInput to "last antenna"
         idToChange <- paste0("antennas3_", counter())
-        #lapply(previousIDs(), function(id) {
           shinyjs::runjs(sprintf('$("#%s-label").text("Select Last Antenna(s) in Sequence:");', ns(idToChange)))
-        #})
-        
+
       })
       
       
@@ -130,6 +131,8 @@ Sequences_Server <- function(id, All_Events, antennaChoices, mobileCodes) {
         
         return(data)
       })
+      
+      downloadData_Server("downloadsequenceData", filteredData(), paste0("Sequences", paste(input$antennas1, collapse = "_"), "To", input[[paste0("antennas3_", counter())]]))
       
       output$sequencestableUI <- renderUI({
         tagList(
