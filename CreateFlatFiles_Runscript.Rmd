@@ -71,13 +71,18 @@ for (file in list.files("data/PressureTransducer")) {
   pTList[[filename]] <- filereadin
 }
 
+#binding all rows and getting names to be the same as the Site Visit Names; 
+#important for assigning colors to sites and getting them to show up on graph
 allPressureTransducerData <- bind_rows(pTList) %>%
-  mutate(DateTime = lubridate::mdy_hm(DateTime))
+  mutate(DateTime = lubridate::mdy_hm(DateTime)) %>%
+  left_join(distinct(wgfpMetadata$AntennaMetadata[, c("PressureTransducerSiteName", "DetectionDistanceSiteName")]), by = c("Site" = "PressureTransducerSiteName")) %>%
+  select(Site = DetectionDistanceSiteName, everything(), -Site)
+
+
 
 ## detection distance
 
 siteVisitList <- lapply(excel_sheets("./data/WGFP_SiteVisits_FieldData.xlsx"), function(x){
-  print(x)
   column_names <- read_excel("./data/WGFP_SiteVisits_FieldData.xlsx", sheet = x, skip = 2, n_max = 0)
   # Number of columns in the sheet
   num_cols <- length(column_names)

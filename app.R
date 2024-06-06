@@ -117,7 +117,8 @@ movementColors <- c("#4B0082", "#8B0000", "#FF8C00", "#253333", "#22bd74") #, "#
 # currently "LOC" "MTS" "RBT" "RXN" "TGM" (5/17/24)
 speciesColors <- c("#FFD700", "#654321", "#4F7942", "#FF7F50", "#1E90FF", "#008080", "#DAA520", "#D2691E", "#9A5ECD") 
 
-#maybe a better method for this but pressure transducer site names and   
+#maybe a better method for this, but pressure transducer site names are changed to the same names as Site Visit site names
+#and that variable is what we use to assign colors to sites   
 allSites <- metaDataVariableNames$allDetectionDistanceSiteNames
 movementColors <- setNames(movementColors, sort(unique(movements_list$Movements_df$movement_only)))
 siteColors <- setNames(rainbow_trout_colors[0:length(allSites)], allSites)
