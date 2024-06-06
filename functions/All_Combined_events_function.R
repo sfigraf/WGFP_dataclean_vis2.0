@@ -146,7 +146,8 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   # 87 rows were not even showing up on the all_events app because the Species was NA -12/14/21 SG
   condensedAllEventsWithReleaseandEnvironmentalInfo <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
     replace_na(list(Species = "No Info", ReleaseSite = "No Info", 
-                    Site = "No Site Associated"))
+                    Site = "No Site Associated")) %>%
+    dplyr::filter(!TAG %in% c("230000999999"))
   
   ### This is getting the events dataframe to only the data relevant for joining with stations
   
