@@ -11,8 +11,11 @@ compute_time_diff <- function(start, end) {
   }
 }
 
-is.sequential <- function(x){
-  all(diff(x) == diff(x)[1])
+# is.sequential <- function(x){
+#   all(diff(x) == diff(x)[1])
+# }
+is.sequential <- function(x) {
+  length(x) < 2 || all(diff(x) == 1)
 }
 findSameLastAntennaIndices <- function(firstAntennas_firstOccurrance, firstAntennas_indices) {
   # Sort the vector to ensure it's in ascending order
@@ -105,6 +108,8 @@ extract_sequences <- function(tag_data, firstAntennas, middleAntennas, lastAnten
             #print("Middle antennas present")
             #check if next antenna is the next middle antenna; needs to be or it breaks
             middleAntennaStartIndex <- firstAntennas_lastOccurrance
+            
+            middleAntennasSequential <- FALSE
             for (antenna_i in middleAntennas) {
               #antenna_i can be 1 antenna or a vector of them
               print(paste("middleStart index:", middleAntennaStartIndex))
@@ -115,46 +120,54 @@ extract_sequences <- function(tag_data, firstAntennas, middleAntennas, lastAnten
                 #adjusted indices for tag_data
                 adjusted_indices <- middleAntennas_before + middleAntennaStartIndex - 1
                 # if all the indices occur in a row (ie, no other antennas in between) then it's a sequence
+                
                 if(is.sequential(adjusted_indices)){
                   #this is the last instance of the middle antenna before the next antenna in the sequence
                   middleAntennaStartIndex <- tail(adjusted_indices, n = 1)
+                  middleAntennasSequential <- TRUE
+                  
                 } else{
-                  print(paste("Fish", tagNumber, " hit other antennas than ", i, "after", firstAntennas, "so sequence doesn't work"))
+                  print(paste("Fish", tagNumber, " hit other antennas than ", antenna_i, "after", firstAntennas, "so sequence doesn't work"))
+                  #breaks for-loop this is in, not overarching while-loop
+                  middleAntennasSequential <- FALSE
                   break
                 }
 
               } else {
-                print(paste("Fish", tagNumber, " hit", tag_data$Event[middleAntennaStartIndex+1], "instead of", i, "after", firstAntennas, "so sequence doesn't work"))
-
+                print(paste("Fish", tagNumber, " hit", tag_data$Event[middleAntennaStartIndex+1], "instead of", antenna_i, "after", firstAntennas, "so sequence doesn't work"))
+                middleAntennasSequential <- FALSE
                 break
               }
             }
-            #check if the middle antenna hit last middle antenna right before most upstream antenna (in addition to correct seqeunce above), then it's a match, should be able to add that to the df
-            if(grepl(paste0("^(", paste(middleAntennas[[length(middleAntennas)]], collapse = "|"), ")"), tag_data$Event[lastAntennas_firstOccurrance -1])){
+            #check if the middle antenna hit last middle antenna right before most upstream antenna (in addition to correct seqeunce above),
+            #then it's a match, should be able to add that to the df
+            if(middleAntennasSequential == TRUE){
+              if(grepl(paste0("^(", paste(middleAntennas[[length(middleAntennas)]], collapse = "|"), ")"), tag_data$Event[lastAntennas_firstOccurrance -1])){
+                sequences <- rbind(sequences, data.frame(
+                  TAG = tag_data$TAG[lastAntennas_firstOccurrance],
+                  DatetimeDetectedAtFirstAntennas = tag_data$Datetime[firstAntennas_lastOccurrance],
+                  DatetimeDetectedAtLastAntennas = tag_data$Datetime[lastAntennas_firstOccurrance]
+                ))
+              } else{
+                print(paste("Fish", tagNumber, " didn't hit ", paste(middleAntennas[[length(middleAntennas)]], collapse = ", "), "immediately before ", lastAntennas ))
+                break
+              }
+            }
+          } else{
+            #if there is no middle antennas selected, check to see if there's any events in between the upstream antenna and downstream one.
+            #if there are events, then don't add that instance to the df, if there aren't any, add it
+            # # Check for any other antenna detections in between
+            #this may be simpler if we just have a "if the difference beween rows == 1 (if the rows are right next to each other) then add to df
+            #i think this thought process is from left over code from another way of doing things...something to think about. It works so why not keep using
+            in_between_events <- tag_data$Event[(firstAntennas_lastOccurrance + 1):(lastAntennas_firstOccurrance - 1)]
+            if (all(grepl(paste0("^(", paste(c(firstAntennas, lastAntennas), collapse = "|"), ")"), in_between_events))) {
+              # Append a new row to the sequences dataframe
               sequences <- rbind(sequences, data.frame(
                 TAG = tag_data$TAG[lastAntennas_firstOccurrance],
                 DatetimeDetectedAtFirstAntennas = tag_data$Datetime[firstAntennas_lastOccurrance],
                 DatetimeDetectedAtLastAntennas = tag_data$Datetime[lastAntennas_firstOccurrance]
               ))
-            } else{
-              print(paste("Fish", tagNumber, " didn't hit ", paste(middleAntennas[[length(middleAntennas)]], collapse = ", "), "immediately before ", lastAntennas ))
-              break
             }
-          }
-
-          #if there is no middle antennas selected, check to see if there's any events in between the upstream antenna and downstream one.
-          #if there are events, then don't add that instance to the df, if there aren't any, add it
-          # # Check for any other antenna detections in between
-          #this may be simpler if we just have a "if the difference beween rows == 1 (if the rows are right next to each other) then add to df
-          #i think this thought process is from left over code from another way of doing things...something to think about. It works so why not keep using
-          in_between_events <- tag_data$Event[(firstAntennas_lastOccurrance + 1):(lastAntennas_firstOccurrance - 1)]
-          if (all(grepl(paste0("^(", paste(c(firstAntennas, lastAntennas), collapse = "|"), ")"), in_between_events))) {
-            # Append a new row to the sequences dataframe
-            sequences <- rbind(sequences, data.frame(
-              TAG = tag_data$TAG[lastAntennas_firstOccurrance],
-              DatetimeDetectedAtFirstAntennas = tag_data$Datetime[firstAntennas_lastOccurrance],
-              DatetimeDetectedAtLastAntennas = tag_data$Datetime[lastAntennas_firstOccurrance]
-            ))
           }
 
           # Update the index to the position after the first upstream antenna event found
@@ -194,11 +207,19 @@ summarizedDf <- function(All_Events, firstAntennas, middle_antennas, lastAntenna
   
   return(newDF2)
 }
+# All_Events <- combinedData_df_list$All_Events
+# mobileCodes <- metaDataVariableNames$MobileRunFrontendCodes
+# df_filtered <- All_Events %>%
+#   dplyr::filter(!Event %in% c("Recapture", "Recapture and Release", mobileCodes)) %>%
+#   
+#   #filter(grepl(paste0("^(", paste(c(downstreamAntennas, upstreamAntennas), collapse = "|"), ")"), Event)) %>%
+#   arrange(TAG, Datetime)
+# 
+# # Apply the function to each TAG
 # tag_data <- df_filtered %>%
-#   filter(TAG == c("230000224056"))
-# # All_Events <- combinedData_df_list$All_Events
-middleAntennas <- list(c("HP"), c("RB"))
-# # middle_antennas <- middleAntennas
-lastAntennas <- "RB"
-firstAntennas <- c("HP")
+#   filter(TAG == c("230000143277")) #230000224056
+middleAntennas <- list(c("HP"))
+lastAntennas <- "CF"
+firstAntennas <- c("RB")
 # data <- summarizedDf(All_Events, firstAntennas, middleAntennas, lastAntennas)
+# # # # middle_antennas <- middleAntennas

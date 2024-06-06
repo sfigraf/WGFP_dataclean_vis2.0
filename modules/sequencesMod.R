@@ -161,7 +161,7 @@ Sequences_Server <- function(id, All_Events, antennaChoices, mobileCodes) {
           selection = "single",
           filter = 'top',
           options = list(
-            stateSave = TRUE,
+            #stateSave = TRUE,
             pageLength = 10,
             info = TRUE,
             lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
