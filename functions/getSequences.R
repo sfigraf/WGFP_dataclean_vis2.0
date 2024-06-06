@@ -52,7 +52,6 @@ extract_sequences <- function(tag_data, firstAntennas, middleAntennas, lastAnten
                           stringsAsFactors = FALSE)
   i <- 1
   tagNumber = unique(tag_data$TAG)
-  print(paste("tag number",  tagNumber))
   while (i < nrow(tag_data)) {
 
     # Find indices of events that match the chosen downstream antennas within the subset of tag_data starting from the current index i
@@ -195,14 +194,13 @@ summarizedDf <- function(All_Events, firstAntennas, middle_antennas, lastAntenna
     arrange(TAG, Datetime)
   
   # Apply the function to each TAG
-  newDF <<- df_filtered %>%
+  newDF <- df_filtered %>%
     group_by(TAG) %>%
     do(extract_sequences(., firstAntennas, middle_antennas, lastAntennas))
-  print("got to here")
   # Add columns for time difference
   newDF2 <- newDF %>%
-    mutate(`Time Between US/DS Detections (User Friendly)` = mapply(compute_time_diff, DatetimeDetectedAtLastAntennas, DatetimeDetectedAtFirstAntennas),
-           `Time Between US/DS Detections (For Sorting)` = difftime(DatetimeDetectedAtFirstAntennas, DatetimeDetectedAtLastAntennas, units = "secs")) %>%
+    mutate(`Time Between First/Last Detections (User Friendly)` = mapply(compute_time_diff, DatetimeDetectedAtLastAntennas, DatetimeDetectedAtFirstAntennas),
+           `Time Between First/Last Detections (For Sorting)` = difftime(DatetimeDetectedAtFirstAntennas, DatetimeDetectedAtLastAntennas, units = "secs")) %>%
     distinct()
   
   return(newDF2)
