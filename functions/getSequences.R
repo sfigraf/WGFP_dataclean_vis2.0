@@ -59,6 +59,8 @@ extractSequences <- function(tag_data, firstAntennas, middleAntennas, lastAntenn
     # Find indices of events that match the chosen downstream antennas within the subset of tag_data starting from the current index i
     firstAntennas_indices <- which(grepl(paste0("^(", paste(firstAntennas, collapse = "|"), ")"), tag_data$Event[i:nrow(tag_data)]))
     ### if first/last antennas aren't the same, can run the antenna index to get where the last antenna is after the first antenna statrtting from current index i
+    # print(paste("first", firstAntennas))
+    # print(paste("last", lastAntennas))
     if(all(firstAntennas != lastAntennas)){
       # Find indices of events that match the chosen upstream antennas within the subset of tag_data starting from the current index i
       lastAntennas_indices <- which(grepl(paste0("^(", paste(lastAntennas, collapse = "|"), ")"), tag_data$Event[i:nrow(tag_data)]))

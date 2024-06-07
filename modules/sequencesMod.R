@@ -116,7 +116,7 @@ Sequences_Server <- function(id, All_Events, antennaChoices, mobileCodes, AvianP
         validate(
           need(length(input$antennas1) > 0, "Please select at least one antenna from First Antennas."),
           need(length(lastAntenna) > 0, "Please select at least one antenna from Last Antennas."), 
-          need(input$antennas3_0 != input$antennas1,"First and last antennas in sequence can't be identical without middle antennas."), 
+          need(all(input$antennas3_0 != input$antennas1),"First and last antennas in sequence can't be identical without middle antennas."), 
           need(!input$antennas1 %in% input$antennas3_0,"Last antenna in sequence can't contain first antenna in sequence"), 
           need(!any(unlist(middle_antennas) %in% lastAntenna), "Cannot have last antenna in any middle antenna selection")
         )
