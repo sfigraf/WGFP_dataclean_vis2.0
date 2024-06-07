@@ -213,7 +213,7 @@ server <- function(input, output, session) {
     
       EncounterHistoriesSummariesWide_Server("EncounterHistoriesSummariesWideTab1", Enc_release_data)
       
-      Sequences_Server("SequencesTab1", combinedData_df_list$All_Events, metaDataVariableNames$AntennaSiteShortHandCodes, metaDataVariableNames$MobileRunFrontendCodes)
+      Sequences_Server("SequencesTab1", combinedData_df_list$All_Events, metaDataVariableNames$AntennaSiteShortHandCodes, metaDataVariableNames$MobileRunFrontendCodes, AvianPredation = indiv_datasets_list$avian_preddata)
       
       AllEncounters_Server("AllEncountersTab1", combinedData_df_list)
     
