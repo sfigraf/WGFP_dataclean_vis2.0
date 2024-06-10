@@ -16,6 +16,7 @@ library(gganimate)
 #library(basemaps)
 #minicharts
 library(leaflet.minicharts)
+library(shinyjs)
 #library(mapview)
 #biomark test tags: 999000000007601, 999000000007602
 # to do: put qaqc stuff from combine files app in this file as well
@@ -80,7 +81,7 @@ if(!exists("SiteVisitData")){
 # 
 # 
 # #functions
-neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R")
+neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R", "getSequences.R")
 
 for (i in neededFunctions) {
   source(paste0("./functions/",i))
@@ -116,7 +117,8 @@ movementColors <- c("#4B0082", "#8B0000", "#FF8C00", "#253333", "#22bd74") #, "#
 # currently "LOC" "MTS" "RBT" "RXN" "TGM" (5/17/24)
 speciesColors <- c("#FFD700", "#654321", "#4F7942", "#FF7F50", "#1E90FF", "#008080", "#DAA520", "#D2691E", "#9A5ECD") 
 
-#maybe a better method for this but pressure transducer site names and   
+#maybe a better method for this, but pressure transducer site names are changed to the same names as Site Visit site names
+#and that variable is what we use to assign colors to sites   
 allSites <- metaDataVariableNames$allDetectionDistanceSiteNames
 movementColors <- setNames(movementColors, sort(unique(movements_list$Movements_df$movement_only)))
 siteColors <- setNames(rainbow_trout_colors[0:length(allSites)], allSites)
@@ -134,7 +136,6 @@ ui <- fluidPage(
              
              tabPanel("About/How to Use",
                       includeHTML(paste0("www/", "WGFP_dataclean_vis_about.html"))
-                      
                       ), #end fo how to use TabPanel
 
 # Individual Datasets UI ---------------------------------------------------
@@ -151,12 +152,18 @@ ui <- fluidPage(
                       value = "EncounterHistories",
                       tabsetPanel(
                         tabPanel("Encounter Histories Summaries Wide",
-                          EncounterHistoriesSummariesWide_UI("EncounterHistoriesSummariesWideTab1", Enc_release_data)),
-                      
-                      tabPanel("All Encounter Histories",
-                               AllEncounters_UI("AllEncountersTab1", combinedData_df_list))
+                                 EncounterHistoriesSummariesWide_UI("EncounterHistoriesSummariesWideTab1", Enc_release_data)),
+                        
+                        tabPanel("All Encounter Histories",
+                                 AllEncounters_UI("AllEncountersTab1", combinedData_df_list)), 
+                        tabPanel("Sequences",
+                                 value = "SequencesTab",
+                                 Sequences_UI("SequencesTab1", metaDataVariableNames$AntennaSiteShortHandCodes)
+                        )
                       )
                       ), #end of Encounter Histories Tab
+
+
 # States UI -----------------------------------------------------
 
             tabPanel("Weekly States",
@@ -205,6 +212,8 @@ server <- function(input, output, session) {
       IndividualDatasets_Server("IndividualDatasetsTab1", indiv_datasets_list, allColors)
     
       EncounterHistoriesSummariesWide_Server("EncounterHistoriesSummariesWideTab1", Enc_release_data)
+      
+      Sequences_Server("SequencesTab1", combinedData_df_list$All_Events, metaDataVariableNames$AntennaSiteShortHandCodes, metaDataVariableNames$MobileRunFrontendCodes, AvianPredation = indiv_datasets_list$avian_preddata)
       
       AllEncounters_Server("AllEncountersTab1", combinedData_df_list)
     

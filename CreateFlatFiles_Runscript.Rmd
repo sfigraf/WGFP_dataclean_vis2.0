@@ -67,12 +67,18 @@ pTList <- list()
 
 for (file in list.files("data/PressureTransducer")) {
   filereadin <- read_csv(file.path("data/PressureTransducer/", file))
-  filename <- unique(filereadin$Site)
+  filename <- na.omit(unique(filereadin$Site))
   pTList[[filename]] <- filereadin
 }
 
+#binding all rows and getting names to be the same as the Site Visit Names; 
+#important for assigning colors to sites and getting them to show up on graph
 allPressureTransducerData <- bind_rows(pTList) %>%
-  mutate(DateTime = lubridate::mdy_hm(DateTime))
+  mutate(DateTime = lubridate::mdy_hm(DateTime)) %>%
+  left_join(distinct(wgfpMetadata$AntennaMetadata[, c("PressureTransducerSiteName", "DetectionDistanceSiteName")]), by = c("Site" = "PressureTransducerSiteName")) %>%
+  select(Site = DetectionDistanceSiteName, everything(), -Site)
+
+
 
 ## detection distance
 
@@ -175,8 +181,6 @@ if(nrow(problemReleaseTags) > 0){
 ```{r metadatavariables, include=FALSE, echo = FALSE}
 ###Variables that are used throughout the funcitons
 ###Frontend (display) codes
-TestBiomarkAntennaFrontendSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Biomark test Antenna in random spot", "FrontendSiteCode"])
-
 WindyGapBypassAntennaFrontendSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Bypass Channel", "FrontendSiteCode"])
 
 WindyGapAuxiliaryAntennaFrontendSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Auxiliary", "FrontendSiteCode"])
@@ -202,7 +206,6 @@ ConnectivityChannelSideChannelFrontendCodes <- unname(unlist(as.vector(wgfpMetad
 ConnectivityChannelUpstreamFrontendCodes <- unname(unlist(as.vector(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$SiteName) & wgfpMetadata$AntennaMetadata$SiteName == "Connectivity Channel Upstream Stationary Antenna", "FrontendSiteCode"])))
 
 # ##############BACKEND CODES
-TestBiomarkAntennaBackendSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Biomark test Antenna in random spot", "BackendSiteCode"])
 
 WindyGapBypassAntennaBackendSiteCode <- as.character(wgfpMetadata$AntennaMetadata[!is.na(wgfpMetadata$AntennaMetadata$AntennaSite) & wgfpMetadata$AntennaMetadata$AntennaSite == "Windy Gap Bypass Channel", "BackendSiteCode"])
 
@@ -221,8 +224,6 @@ fraserColoradoRiverConfluence <- as.numeric(wgfpMetadata$ImportantStationingVari
 DamLocation <- as.numeric(wgfpMetadata$ImportantStationingVariables[wgfpMetadata$ImportantStationingVariables$Variable == "Windy Gap Dam", "StationingLocation"])
 
 metaDataVariableNames <- list(
-  "TestBiomarkAntennaBackendSiteCode" = TestBiomarkAntennaBackendSiteCode, 
-  "TestBiomarkAntennaFrontendSiteCode" = TestBiomarkAntennaFrontendSiteCode, 
   "WindyGapBypassAntennaFrontendSiteCode" = WindyGapBypassAntennaFrontendSiteCode,
   "WindyGapAuxiliaryAntennaFrontendSiteCode" = WindyGapAuxiliaryAntennaFrontendSiteCode,
   "GranbyDiversionAntennaFrontendSiteCode" = GranbyDiversionAntennaFrontendSiteCode,
@@ -240,6 +241,7 @@ metaDataVariableNames <- list(
   "GranbyDiversionAntennaBackendSiteCode" = GranbyDiversionAntennaBackendSiteCode,
   "RiverRunAntennaBackendSiteCode" = RiverRunAntennaBackendSiteCode,
   "FraserRiverCanyonAntennaBackendSiteCode" = FraserRiverCanyonAntennaBackendSiteCode,
+  "AntennaSiteShortHandCodes" = sort(unique(wgfpMetadata$AntennaMetadata$AntennaSiteShortHandShorthand)), 
   "allPressureTransducerSiteNames" = sort(unique(wgfpMetadata$AntennaMetadata$PressureTransducerSiteName)),
   "allDetectionDistanceSiteNames" = sort(unique(wgfpMetadata$AntennaMetadata$DetectionDistanceSiteName)),
   "test_tags" = test_tags,
@@ -354,12 +356,12 @@ WGFP_SiteVisits_FieldDatawithPTData <- combineEnvironmentalAndSiteVisitData(WGFP
 
 ### taking dummy tag out
 
-Biomark <- Biomark #%>%
-  #filter(!DEC.Tag.ID %in% c("900.230000999999"))
-cleanedRelease <- cleanedRelease #%>%
-  #filter(!TagID %in% c("230000999999"))
-Stationary <- Cleaned_Stationary_FishdetectionsOnly #%>%
-  #filter(!TAG %in% c("900230000999999"))
+Biomark <- Biomark %>%
+  filter(!DEC.Tag.ID %in% c("900.230000999999"))
+cleanedRelease <- cleanedRelease %>%
+  filter(!TagID %in% c("230000999999"))
+Stationary <- Cleaned_Stationary_FishdetectionsOnly %>%
+  filter(!TAG %in% c("900230000999999"))
 
 #this list is taken by the individual datasets mod
 indiv_datasets_list_og <- list(

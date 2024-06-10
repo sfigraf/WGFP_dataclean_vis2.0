@@ -11,8 +11,6 @@ latLongCRS <- st_crs("+proj=longlat +datum=WGS84 +no_defs") #should be same as +
 
 antenna_sites <- st_transform(read_sf(file.path(layerLocation, "antenna_sites1.shp")), latLongCRS)
 
-
-
 stream_centerline <- st_transform(read_sf(file.path(layerLocation, "Stream_Centerline_Post.shp")), latLongCRS)
 
 releasesites <- st_transform(read_sf(file.path(layerLocation, "ReleaseSites2021.shp")), latLongCRS)
