@@ -11,7 +11,9 @@ library(sf)
 spatial_join_stations_detections <- function(condensedEvents, simpleStations) {
   
   start_time <- Sys.time()
-  print("Running spatial_join_stations_detections function: Joining detections and events to stations shapefile.")
+  startMessage <-  "Running spatial_join_stations_detections function: Joining detections and events to stations shapefile."
+  print(startMessage)
+ 
   ### converting to lat/longs instead of UTM's
   #convert events to sf object
   #the utms are grs80 and utm zone 13, which corresponds to crs  32613
@@ -27,8 +29,10 @@ spatial_join_stations_detections <- function(condensedEvents, simpleStations) {
   stationData <- sf::st_join(condensedEventsSFLatLong, simpleStations, st_nearest_feature)
   spatialList <- list("stationData" = stationData, "noUTMS" = problemRows)
   end_time <- Sys.time()
-  print(paste("Spatial_join_stations_detections took", round(difftime(end_time, start_time, units = "mins"),2), "minutes"))
-  
-  return(spatialList)
+  endMessage <- paste("Spatial_join_stations_detections took", round(difftime(end_time, start_time, units = "mins"),2), "minutes.")
+  print(endMessage)
+  return(list("spatialList" = spatialList, 
+              "endMessage" = paste(c(startMessage, endMessage), collapse = "<br>")
+         ))
   
 }

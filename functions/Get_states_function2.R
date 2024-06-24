@@ -1,7 +1,9 @@
 ### states function
 states_function <- function(combined_events_stations, GhostTags, AvianPredation) {
   start_time = Sys.time()
-  print("Running States Function: Assigns letters A, B, C, or G based on position relative to dam, or Ghost/predated tag.")
+  startMessage <- "Running States Function: Assigns letters A, B, C, or G based on position relative to dam, or Ghost/predated tag."
+  print(startMessage)
+
   
   # these dates are cleaned before they go into this function
   
@@ -94,9 +96,11 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
   
   states_df_list <- list("All_States" = cleanedWeeklyStates, "Flagged_movements" = unknown_states, "States_summarized" = summarizedStates)
   end_time <- Sys.time()
-  print(paste("States Function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes"))
-  
-  return(states_df_list)
+  endMessage <- paste("States Function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes")
+  print(endMessage)
+  return(list("states_df_list" = states_df_list, 
+              "endMessage" = paste(c(startMessage, endMessage), collapse = "<br>"))
+         )
   
 }
 

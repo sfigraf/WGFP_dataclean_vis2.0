@@ -261,7 +261,7 @@ metaDataVariableNames <- list(
 ```{r cleaningForFunctions, include=FALSE, echo=FALSE}
 
 #### This part is for checking if new antennas to be put in will work
-#neeed to keep this in because it adds a column for the new antennas which sets up the enc_hist_wide_list for the new antennas
+#neeed to keep this in because it adds a column for the new antennas which sets up the enc_hist_wide_list$enc_wide_list for the new antennas
 #the actual dummy tag is taken out at the end though
 
 dummy_rows_list <- add_dummy_rows(stationary1 = Stationary, biomark1 = Biomark, release1 = Release)
@@ -333,20 +333,20 @@ if(nrow(DailyMovements_withStations$spatialList$noUTMS) > 0){
 combined_events_stations <- PrepareforStatesMovementsandSummary(DailyMovements_withStations$spatialList$stationData)
 
 # states
-states_data_list <- states_function(combined_events_stations, GhostTags, AvianPredation)
+states <- states_function(combined_events_stations, GhostTags, AvianPredation)
 # aplies enc_hist_summary wide function
-enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(AllCombinedEvents$df_list$Recaps_detections, cleanedRelease, combined_events_stations, states_data_list$States_summarized, markerTags = unique(Cleaned_Marker_tags$TAG))
-unknown_tags <- enc_hist_wide_list$Unknown_Tags
-enc_hist_wide_df <- enc_hist_wide_list$encountersAndRelease_wide_summary
+enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(AllCombinedEvents$df_list$Recaps_detections, cleanedRelease, combined_events_stations, states$states_df_list$States_summarized, markerTags = unique(Cleaned_Marker_tags$TAG))
+unknown_tags <- enc_hist_wide_list$enc_wide_list$Unknown_Tags
+enc_hist_wide_df <- enc_hist_wide_list$enc_wide_list$encountersAndRelease_wide_summary
 # applies get_movements_function
 Movements_df <- get_movements_function(combined_events_stations, dailyUSGSData = windyGapDaily)
-WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_df)
+WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_df$dailyMovementsTable1)
 
 ###QAQC ghost tags
-ghostTagsWithMovementAfterGhostDate <- qaqcGhostTagMovements(GhostTags, Movements_df)
+ghostTagsWithMovementAfterGhostDate <- qaqcGhostTagMovements(GhostTags, Movements_df$dailyMovementsTable1)
 
 #this is used in states_data reactives
-weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
+weeks <- data.frame(weeks_since = min(states$states_df_list$All_States$weeks_since):max(states$states_df_list$All_States$weeks_since))
 
 #more formatting
 Enc_release_data <- enc_hist_wide_df %>%
@@ -398,7 +398,7 @@ indiv_datasets_list <- lapply(names(indiv_datasets_list_og), function(name) {
 names(indiv_datasets_list) <- names(indiv_datasets_list_og)
 
 movements_list <- list(
-  "Movements_df" = Movements_df,
+  "Movements_df" = Movements_df$dailyMovementsTable1,
   "WeeklyMovementsbyType" = WeeklyMovementsbyType, 
   "ghostTagsWithMovementAfterGhostDate" = ghostTagsWithMovementAfterGhostDate
 )
@@ -422,10 +422,14 @@ SiteVisitData <- list(
 
 ```
 
-<span style="color:red; font-size: 30px;" >`r problemNAtagsMessage`</span>
-
 #### `r AllCombinedEvents$endMessage`
 #### `r DailyMovements_withStations$endMessage`
+#### `r states$endMessage`
+#### `r enc_hist_wide_list$endMessage`
+#### `r Movements_df$message`
+
+
+<span style="color:red; font-size: 30px;" >`r problemNAtagsMessage`</span>
 
 ```{r saveFiles, include = FALSE, echo=FALSE}
 saveFilestartTime <- Sys.time()
@@ -433,7 +437,7 @@ allFlatFiles <- list(
   "combinedData_df_list" = AllCombinedEvents$df_list,
   "indiv_datasets_list" = indiv_datasets_list,
   "Enc_release_data" = Enc_release_data,
-  "states_data_list" = states_data_list,
+  "states_data_list" = states$states_df_list,
   "movements_list" = movements_list,
   "Marker_tags" = Cleaned_Marker_tags,
   "unknown_tags" = unknown_tags, 
@@ -449,7 +453,7 @@ for(filename in names(allFlatFiles)){
 }
 saveFilesEndTime <- Sys.time()
 
-savingFilesEndMessage <- paste("Saving Files took", round(difftime(saveFilesEndTime, saveFilestartTime, units = "mins"),2), "minutes.")
+savingFilesEndMessage <- paste("Saving flat files for the app took", round(difftime(saveFilesEndTime, saveFilestartTime, units = "mins"),2), "minutes.")
 
 whole_doc_endTime <- Sys.time()
 ```

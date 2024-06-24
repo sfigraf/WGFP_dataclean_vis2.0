@@ -5,8 +5,9 @@
 All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, Recaptures){
   
   start_time <- Sys.time()
-  print("Running All_combined_events_function: Combining and cleaning Stationary, Mobile, Biomark, Release, and Recapture csv inputs......")
-  
+  startMessage <- "Running All_combined_events_function: Combining and cleaning Stationary, Mobile, Biomark, Release, and Recapture csv inputs."
+  print(startMessage)
+    
   
   # biomark cleaning, getting dates into uniform format, 
   biomarkCleaned <- Biomark %>%
@@ -170,8 +171,9 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
                   "Recaps_detections" = recapturesAndDetections)
   
   end_time <- Sys.time()
-  print(paste("All_combined_events_function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes"))
-  
-  return(df_list)
+  endMessage <- paste("All_combined_events_function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes.")
+  print(endMessage)
+  return(list("df_list" = df_list, 
+              "endMessage" = paste(c(startMessage, endMessage), collapse = "<br>")))
 }
   
