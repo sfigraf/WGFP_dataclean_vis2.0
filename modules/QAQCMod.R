@@ -33,6 +33,9 @@ QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
                ), #end of fluidrow
                fluidRow(
                  withSpinner(plotlyOutput(ns("growthRatesPlot")))
+               ), 
+               fluidRow(
+                 withSpinner(DT::dataTableOutput(ns("growthRatesSummarizedTable")))
                )
       ), #end of tabPanel
       tabPanel("Unknown Tags",
@@ -110,6 +113,30 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
           theme_classic() +
           labs(title = "Growth Rates") +
           scale_color_manual(values = allColors) 
+      })
+      
+      output$growthRatesSummarizedTable <- renderDT({
+        dataSummarized <- combinedData_df_list$growthRates %>%
+          dplyr::group_by(Species) %>%
+          dplyr::summarise(`Median Length Growth Rate (g per year)` = round(median(`Length Growth Rate mm per Year`, na.rm = TRUE), 2), 
+                           `Median Weight Growth Rate (mm per year)` = round(median(`Weight Growth Rate g per Year`, na.rm = TRUE), 2), 
+                           `Mean Length Growth Rate (g per year)` = round(mean(`Length Growth Rate mm per Year`, na.rm = TRUE), 2), 
+                           `Mean Weight Growth Rate (mm per year)` = round(mean(`Weight Growth Rate g per Year`, na.rm = TRUE), 2)
+          )
+        datatable(dataSummarized,
+                  rownames = FALSE,
+                  selection = "single",
+                  filter = 'top',
+                  caption = ("Tags that initially started  with 900_ but are not marker tags, test tags, or part of the release file."),
+                  options = list(
+                    #statesave is restore table state on page reload
+                    stateSave =TRUE,
+                    pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
+                    dom = 'Blfrtip' #had to add 'lowercase L' letter to display the page length again
+                    
+                  )
+        )
+        
       })
       
       
