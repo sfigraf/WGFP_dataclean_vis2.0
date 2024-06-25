@@ -15,12 +15,12 @@ alignColumns <- function(dfToChange, desiredColumns, dfWithIdealColumns) {
       # Create new column with NA values and enforce the expected type
       dfToChange[[col]] <- NA  # Start with NA values
       dfToChange[[col]] <- switch(expectedType,
-                                                       "integer" = as.integer(dfToChange[[col]]),
-                                                       "numeric" = as.numeric(dfToChange[[col]]),
-                                                       "character" = as.character(dfToChange[[col]]),
-                                                       "factor" = as.factor(dfToChange[[col]]),
-                                                       "Date" = as.Date(dfToChange[[col]]),
-                                                       dfToChange[[col]])  # Retain original if type doesn't match known types
+                                  "integer" = as.integer(dfToChange[[col]]),
+                                  "numeric" = as.numeric(dfToChange[[col]]),
+                                  "character" = as.character(dfToChange[[col]]),
+                                  "factor" = as.factor(dfToChange[[col]]),
+                                  "Date" = as.Date(dfToChange[[col]]),
+                                  dfToChange[[col]])  # Retain original if type doesn't match known types
     }
   }
   

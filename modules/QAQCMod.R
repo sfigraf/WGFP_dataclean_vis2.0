@@ -30,7 +30,10 @@ QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
                    withSpinner(plotlyOutput(ns("plot4")))
                    
                  )#end of column
-               )#end of fluidrow
+               ), #end of fluidrow
+               fluidRow(
+                 withSpinner(plotlyOutput(ns("growthRatesPlot")))
+               )
       ), #end of tabPanel
       tabPanel("Unknown Tags",
                br(),
@@ -98,6 +101,15 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
           labs(title = "Recapture Data") +
           scale_color_manual(values = allColors)
         
+      })
+      
+      output$growthRatesPlot <- renderPlotly({
+        combinedData_df_list$growthRates %>%
+          ggplot(aes(x = `Length Growth Rate mm per Year`, y = `Weight Growth Rate g per Year`, color = Species, text = TagID)) +
+          geom_point() + 
+          theme_classic() +
+          labs(title = "Growth Rates") +
+          scale_color_manual(values = allColors) 
       })
       
       

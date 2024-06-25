@@ -163,12 +163,16 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     ungroup() %>%
     distinct(TAG, Event, Date, first_last,  UTM_X, UTM_Y, .keep_all = TRUE) %>%
     arrange(Datetime) 
+  
+  ###get growth rates for QAQC tab
+  growthRates <- getGrowthRates(Release = Release, Recaptures = Recaptures)
 
   df_list <- list("All_Detections" = cleanedAllDetections, 
                   "All_Events_most_relevant" = allEventsRelevantToStations,
                   #allEvents has release and recapture along with detections. All Detections just has detections
                   "All_Events" = condensedAllEventsWithReleaseandEnvironmentalInfo, 
-                  "Recaps_detections" = recapturesAndDetections)
+                  "Recaps_detections" = recapturesAndDetections, 
+                  "growthRates" = growthRates)
   
   end_time <- Sys.time()
   endMessage <- paste("All_combined_events_function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes.")
