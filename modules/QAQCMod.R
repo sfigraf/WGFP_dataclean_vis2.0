@@ -127,7 +127,7 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
                   rownames = FALSE,
                   selection = "single",
                   filter = 'top',
-                  caption = ("Tags that initially started  with 900_ but are not marker tags, test tags, or part of the release file."),
+                  caption = ("Data from each time a fish was recaptured"),
                   options = list(
                     #statesave is restore table state on page reload
                     stateSave =TRUE,
