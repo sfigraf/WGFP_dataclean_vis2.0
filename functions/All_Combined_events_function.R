@@ -5,8 +5,9 @@
 All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, Recaptures){
   
   start_time <- Sys.time()
-  print("Running All_combined_events_function: Combining and cleaning Stationary, Mobile, Biomark, Release, and Recapture csv inputs......")
-  
+  startMessage <- "Running All_combined_events_function: Combining and cleaning Stationary, Mobile, Biomark, Release, and Recapture csv inputs."
+  print(startMessage)
+    
   
   # biomark cleaning, getting dates into uniform format, 
   biomarkCleaned <- Biomark %>%
@@ -162,16 +163,21 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     ungroup() %>%
     distinct(TAG, Event, Date, first_last,  UTM_X, UTM_Y, .keep_all = TRUE) %>%
     arrange(Datetime) 
+  
+  ###get growth rates for QAQC tab
+  growthRates <- getGrowthRates(Release = Release, Recaptures = Recaptures)
 
   df_list <- list("All_Detections" = cleanedAllDetections, 
                   "All_Events_most_relevant" = allEventsRelevantToStations,
                   #allEvents has release and recapture along with detections. All Detections just has detections
                   "All_Events" = condensedAllEventsWithReleaseandEnvironmentalInfo, 
-                  "Recaps_detections" = recapturesAndDetections)
+                  "Recaps_detections" = recapturesAndDetections, 
+                  "growthRates" = growthRates)
   
   end_time <- Sys.time()
-  print(paste("All_combined_events_function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes"))
-  
-  return(df_list)
+  endMessage <- paste("All_combined_events_function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes.")
+  print(endMessage)
+  return(list("df_list" = df_list, 
+              "endMessage" = paste(c(startMessage, endMessage), collapse = "<br>")))
 }
   

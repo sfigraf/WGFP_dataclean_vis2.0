@@ -9,7 +9,7 @@ output: html_document
 library(tidyverse) 
 library(lubridate)
 library(readxl)
-library(dataRetrieval) #this is the usgs pacakge for getting instantanous data
+library(dataRetrieval) #this is the usgs package for getting up to date data
 
 whole_doc_startTime <- Sys.time()
 start_time <- Sys.time()
@@ -31,7 +31,7 @@ for (i in list.files("./miscR/")) {
 # if column names change in any of these read-ins, might require some modification to code to get them to combine
 # also if you change read.csv to read_csv, it should read in quicker but column names will change
 # could be a later task
-Stationary <- readRDS("./data/WGFP_Raw_20240514.rds")
+Stationary <- readRDS("./data/WGFP_Raw_20240604.rds")
 
 Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character",14), rep("numeric", 4), rep("character", 3)))
 
@@ -98,10 +98,10 @@ names(siteVisitList) <- excel_sheets("./data/WGFP_SiteVisits_FieldData.xlsx")
 
 
 end_time = Sys.time()
-print(paste("Reading in files took", round((end_time-start_time),2)))
-
 
 ```
+
+#### `r paste("Reading in input files took", round(difftime(end_time, start_time, units = "mins"),2), "minutes.")`
 
 ```{r USGSData, include = TRUE, echo = FALSE}
 usgsTime <- Sys.time()
@@ -140,13 +140,12 @@ allPressureTransducerDataWithDischarge_Long <- allPressureTransducerDataWithDisc
   pivot_longer(cols = c(contains("_"), "USGSDischarge", "USGSWatertemp"), names_to = "EnvVariable", values_to = "Reading")
 
 usgsTime2 <- Sys.time()
-print(paste("Reading in USGS Data took", round((usgsTime2-usgsTime),2)))
-
 ```
+#### `r paste("Reading in USGS Data took", round(difftime(usgsTime2, usgsTime, units = "mins"), 2), "minutes.")`
 
 
 
-```{r QAQCduplicateTags, include = TRUE, echo = FALSE}
+```{r QAQCduplicateTags, include = FALSE, echo = FALSE}
 #checking if ghost tags have 1 tag entry for each
 
 problemGhostTags <- GhostTags %>%
@@ -154,8 +153,10 @@ problemGhostTags <- GhostTags %>%
   filter(n > 1)
 
 if(nrow(problemGhostTags) > 0){
-  print(paste0("The following tags in the Ghost Tag dataframe have multiple entries in the Ghost Tag sheet: ", unique(problemGhostTags$TagID),
-                                         ". Please adjust this in the original df, otherwise there will be a left_join() warning."))
+  problemGhostTagsMessage <- paste0("The following tags in the Ghost Tag dataframe have multiple entries in the Ghost Tag sheet: ", unique(problemGhostTags$TagID),
+                                         ". Please adjust this in the original df, otherwise there will be a left_join() warning.")
+} else{
+  problemGhostTagsMessage <- ""
 }
 
 problemAvianPredationTags <- AvianPredation %>%
@@ -163,8 +164,10 @@ problemAvianPredationTags <- AvianPredation %>%
   filter(n > 1)
 
 if(nrow(problemAvianPredationTags) > 0){
-  print(paste0("The following tags in the Avian Predation dataframe have multiple entries: ", unique(problemAvianPredationTags$TagID),
-                                         ". Please adjust this in the original df, otherwise there will be a left_join() warning."))
+  problemAvianPredationTagsMessage <- paste0("The following tags in the Avian Predation dataframe have multiple entries: ", unique(problemAvianPredationTags$TagID),
+                                         ". Please adjust this in the original df, otherwise there will be a left_join() warning.")
+} else{
+  problemAvianPredationTagsMessage <- ""
 }
 
 problemReleaseTags <- Release %>%
@@ -172,11 +175,15 @@ problemReleaseTags <- Release %>%
   filter(n > 1)
 
 if(nrow(problemReleaseTags) > 0){
-  print(paste0("The following tags in the Release dataframe have multiple entries: ", as.character(unique(problemReleaseTags$TagID)),
-                                         ". Please adjust this in the original df."))
+ problemReleaseTagsMessage <- paste0("The following tags in the Release dataframe have multiple entries: ", as.character(unique(problemReleaseTags$TagID)),
+                                         ". Please adjust this in the original df.")
+} else {
+  problemReleaseTagsMessage <- ""
 }
 ```
-
+<span style="color:red; font-size: 30px;" >`r problemGhostTagsMessage`</span>
+<span style="color:red; font-size: 30px;" >`r problemAvianPredationTagsMessage`</span>
+<span style="color:red; font-size: 30px;" >`r problemReleaseTagsMessage`</span>
 
 ```{r metadatavariables, include=FALSE, echo = FALSE}
 ###Variables that are used throughout the funcitons
@@ -254,7 +261,7 @@ metaDataVariableNames <- list(
 ```{r cleaningForFunctions, include=FALSE, echo=FALSE}
 
 #### This part is for checking if new antennas to be put in will work
-#neeed to keep this in because it adds a column for the new antennas which sets up the enc_hist_wide_list for the new antennas
+#neeed to keep this in because it adds a column for the new antennas which sets up the enc_hist_wide_list$enc_wide_list for the new antennas
 #the actual dummy tag is taken out at the end though
 
 dummy_rows_list <- add_dummy_rows(stationary1 = Stationary, biomark1 = Biomark, release1 = Release)
@@ -293,16 +300,16 @@ GhostTags <- GhostTags %>%
   mutate(GhostDate = lubridate::mdy(GhostDate))
 ```
 
-```{r wrangling, include=TRUE, echo = FALSE}
+```{r wrangling, include = FALSE, echo = FALSE}
 
 
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
-df_list <- All_combined_events_function(Stationary = utmsStationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
+AllCombinedEvents <- All_combined_events_function(Stationary = utmsStationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
 
 #separating to marker tag file and fish detections file
 
 #all marker tags here
-Cleaned_Marker_tags <- df_list$All_Detections %>%
+Cleaned_Marker_tags <- AllCombinedEvents$df_list$All_Detections %>%
   dplyr::filter(str_detect(TAG, "^0000000|^999")) %>%
   mutate(Scan_Date = ymd(Scan_Date))
 
@@ -312,32 +319,34 @@ Cleaned_Stationary_FishdetectionsOnly <- utmsStationary %>%
 
 #spatially joins point (detection) data to lines (station) data based on nearest feature.
 #simpleStations is from polygon_readins
-DailyMovements_withStations <- spatial_join_stations_detections(df_list$All_Events_most_relevant, simpleStations = simpleStations)
+DailyMovements_withStations <- spatial_join_stations_detections(AllCombinedEvents$df_list$All_Events_most_relevant, simpleStations = simpleStations)
 
-if(nrow(DailyMovements_withStations$noUTMS) > 0){
-  print(paste0("The following tags could not be assigned stations becuase of an NA entry for UTMs: ", unique(DailyMovements_withStations$noUTMS$TAG),
-                                         "."))
+if(nrow(DailyMovements_withStations$spatialList$noUTMS) > 0){
+  problemNAtagsMessage <- paste0("The following tags could not be assigned stations because of an NA entry for UTMs: ", unique(DailyMovements_withStations$spatialList$noUTMS$TAG),
+                                         ".")
+} else{
+  problemNAtagsMessage <- ""
 }
 
 #prepares joined stations and relevant Movements dataset for movements summaries and states
 
-combined_events_stations <- PrepareforStatesMovementsandSummary(DailyMovements_withStations$stationData)
+combined_events_stations <- PrepareforStatesMovementsandSummary(DailyMovements_withStations$spatialList$stationData)
 
 # states
-states_data_list <- states_function(combined_events_stations, GhostTags, AvianPredation)
+states <- states_function(combined_events_stations, GhostTags, AvianPredation)
 # aplies enc_hist_summary wide function
-enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(df_list$Recaps_detections, cleanedRelease, combined_events_stations, states_data_list$States_summarized, markerTags = unique(Cleaned_Marker_tags$TAG))
-unknown_tags <- enc_hist_wide_list$Unknown_Tags
-enc_hist_wide_df <- enc_hist_wide_list$encountersAndRelease_wide_summary
+enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(AllCombinedEvents$df_list$Recaps_detections, cleanedRelease, combined_events_stations, states$states_df_list$States_summarized, markerTags = unique(Cleaned_Marker_tags$TAG))
+unknown_tags <- enc_hist_wide_list$enc_wide_list$Unknown_Tags
+enc_hist_wide_df <- enc_hist_wide_list$enc_wide_list$encountersAndRelease_wide_summary
 # applies get_movements_function
 Movements_df <- get_movements_function(combined_events_stations, dailyUSGSData = windyGapDaily)
-WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_df)
+WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_df$dailyMovementsTable1)
 
 ###QAQC ghost tags
-ghostTagsWithMovementAfterGhostDate <- qaqcGhostTagMovements(GhostTags, Movements_df)
+ghostTagsWithMovementAfterGhostDate <- qaqcGhostTagMovements(GhostTags, Movements_df$dailyMovementsTable1)
 
 #this is used in states_data reactives
-weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
+weeks <- data.frame(weeks_since = min(states$states_df_list$All_States$weeks_since):max(states$states_df_list$All_States$weeks_since))
 
 #more formatting
 Enc_release_data <- enc_hist_wide_df %>%
@@ -389,7 +398,7 @@ indiv_datasets_list <- lapply(names(indiv_datasets_list_og), function(name) {
 names(indiv_datasets_list) <- names(indiv_datasets_list_og)
 
 movements_list <- list(
-  "Movements_df" = Movements_df,
+  "Movements_df" = Movements_df$dailyMovementsTable1,
   "WeeklyMovementsbyType" = WeeklyMovementsbyType, 
   "ghostTagsWithMovementAfterGhostDate" = ghostTagsWithMovementAfterGhostDate
 )
@@ -413,13 +422,22 @@ SiteVisitData <- list(
 
 ```
 
-```{r saveFiles, include = TRUE, echo=FALSE}
+#### `r AllCombinedEvents$endMessage`
+#### `r DailyMovements_withStations$endMessage`
+#### `r states$endMessage`
+#### `r enc_hist_wide_list$endMessage`
+#### `r Movements_df$message`
+
+
+<span style="color:red; font-size: 30px;" >`r problemNAtagsMessage`</span>
+
+```{r saveFiles, include = FALSE, echo=FALSE}
 saveFilestartTime <- Sys.time()
 allFlatFiles <- list(
-  "combinedData_df_list" = df_list,
+  "combinedData_df_list" = AllCombinedEvents$df_list,
   "indiv_datasets_list" = indiv_datasets_list,
   "Enc_release_data" = Enc_release_data,
-  "states_data_list" = states_data_list,
+  "states_data_list" = states$states_df_list,
   "movements_list" = movements_list,
   "Marker_tags" = Cleaned_Marker_tags,
   "unknown_tags" = unknown_tags, 
@@ -435,10 +453,10 @@ for(filename in names(allFlatFiles)){
 }
 saveFilesEndTime <- Sys.time()
 
-print(paste("Saving Files took", round(difftime(saveFilesEndTime, saveFilestartTime, units = "mins"),2), "minutes"))
+savingFilesEndMessage <- paste("Saving flat files for the app took", round(difftime(saveFilesEndTime, saveFilestartTime, units = "mins"),2), "minutes.")
 
 whole_doc_endTime <- Sys.time()
 ```
 
-
+#### `r savingFilesEndMessage`
 ## `r paste("The whole document took", round(whole_doc_endTime-whole_doc_startTime,2), "minutes to run.  Flat Files are saved to the flat files directory and the data vis app is ready to run with the most updated data.")`

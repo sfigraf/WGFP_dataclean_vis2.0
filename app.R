@@ -68,7 +68,6 @@ if(!exists("PTData")){
   PTData <- readRDS("data/flatFilesforApp/PTData.rds")
 }
 
-
 if(!exists("USGSData")){
   USGSData <- readRDS("data/flatFilesforApp/USGSData.rds")
 }
@@ -107,7 +106,7 @@ weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):m
 
 #colors
 #rainbow trout color pallete used to assign to Sites:
-# "Confluence, Connectivity Downstream, Connectivity Side Channel, Connectivity Upstream, Hitching Post, 
+# Confluence, Connectivity Downstream, Connectivity Side Channel, Connectivity Upstream, Hitching Post, 
 # Kaibab Park, Red Barn, Windy Gap Auxiliary, Windy Gap Bypass Channel"
 rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA",
                           "#FF1C55", "#4682B4", "#556B2F", "#DC143C", "#B22222", "#7FFF00", "#8A2BE2", "#00CED1")

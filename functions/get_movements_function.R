@@ -1,7 +1,8 @@
 
 get_movements_function <- function(combined_events_stations, dailyUSGSData) {
   start_time <- Sys.time()
-  print("Running get_movements_function: Calculates movements of fish based off a change in station.")
+  startMessage <- "Running get_movements_function: Calculates movements of fish based off a change in station."
+  print(startMessage)
   
   dailyMovementsTable <- combined_events_stations %>%
     #### removing dummy tag
@@ -80,9 +81,11 @@ get_movements_function <- function(combined_events_stations, dailyUSGSData) {
     select(Date, Datetime, TAG, movement_only, det_type, dist_moved, MPerSecondBetweenDetections, sum_dist, ET_STATION, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, USGSDischargeDaily, WtempF, UTM_X, UTM_Y, X, Y, marker_color, icon_color)
   
   end_time <- Sys.time()
+  endMessage <- paste("Movements Function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes")
+  print(endMessage)
   
-  print(paste("Movements Function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes"))
-  
-  return(dailyMovementsTable1)
+  return(list("dailyMovementsTable1" = dailyMovementsTable1, 
+              "message" = paste(c(startMessage, endMessage), collapse = "<br>"))
+         )
 }
 

@@ -8,7 +8,8 @@
 Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, Release, combined_events_stations, States_summarized, markerTags){
   
   start_time <- Sys.time()
-  print("Running Ind_tag_enc_hist_wide_summary_function: Summarizes detection and movement data from each released Tag.")
+  startMessage <- "Running Ind_tag_enc_hist_wide_summary_function: Summarizes detection and movement data from each released Tag."
+  print(startMessage)
   
   allEncountersWide <- allDetectionsAndRecaptures %>%
     count(TAG, Event, name = "Encounters") %>%
@@ -161,7 +162,8 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   )
   
   end_time <- Sys.time()
-  print(paste("Encounter Histories Summary Wide Function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes"))
-  
-  return(enc_wide_list)
+  endMessage <-  paste("Encounter Histories Summary Wide Function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes")
+  print(endMessage)
+  return(list("enc_wide_list" = enc_wide_list, 
+         "endMessage" = paste(c(startMessage, endMessage), collapse = "<br>")))
 }

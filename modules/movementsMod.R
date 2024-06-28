@@ -343,7 +343,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
       # 
         
 # Movement Plots Output ----------------------------------------------------
-        observe({
+      observe({
         #daily
         output$plot1 <- renderPlotly({
           filtered_movements_data() %>%
@@ -357,9 +357,15 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
             scale_fill_manual(values = allColors)
           
         })
-        #not sure if we want to do by species but we could obviously
-        movementByDayDataForTable <- filtered_movements_data() %>%
-          count(Date, name = "Number of Movements")
+        #not sure if we want to do by species but we could 
+        if(nrow(filtered_movements_data() >0)){
+          movementByDayDataForTable <- filtered_movements_data() %>%
+            count(Date, name = "Number of Movements")
+        } else{
+          movementByDayDataForTable <- data.frame("Date" = character())
+        }
+        
+        
         
         output$movementByDayTable <- renderDT({
           
@@ -378,7 +384,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
               lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
               dom = 'lfrtip',
               #had to add 'lowercase L' letter to display the page length again
-              language = list(emptyTable = "Enter inputs and press Render Table")
+              language = list(emptyTable = "No data found for selected filters")
             )
           )
           
@@ -389,7 +395,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
         
         
         output$plot6 <- renderPlotly({
-
+          
           plot <- seasonal_movts() %>%
             mutate(merged = (parse_date_time(paste(`lubridate::month(Date)`, `day(Date)`), "md"))) %>%
             ggplot(aes(x = merged, y = total_events, fill = movement_only)) +
@@ -399,7 +405,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
                  caption = "Currently No download option for this data.") +
             scale_x_datetime(date_labels = "%b") +
             scale_fill_manual(values = allColors)
-
+          
           ggplotly(plot)
         })
         
@@ -423,7 +429,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
         })
         
         downloadData_Server("downloadplot6", seasonal_movts(), "SeasonalMovementsData")
-
+        
         # Total movements
         output$plot7 <- renderPlotly({
           plot <- filtered_movements_data() %>%
@@ -436,11 +442,11 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
                  x = "Distance Between Detections Moved (m)", y = "Count") +
             scale_fill_manual(values = allColors)
           
-
+          
           ggplotly(plot)
           
         })
-
+        
         #cumulative movement
         output$plot8 <- renderPlotly({
           plot <- filtered_movements_data() %>%
@@ -453,9 +459,9 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
             scale_fill_manual(values = allColors)
           
           ggplotly(plot)
-
+          
         })
-
+        
         output$plot9 <- renderPlotly({
           plot <- filtered_movements_data() %>%
             ggplot(aes(x = lubridate::hour(Datetime), fill = movement_only)) +
@@ -466,7 +472,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
                  y = "Count") +
             scale_fill_manual(values = allColors)
           ggplotly(plot) 
-
+          
         })
         
       }) #end of observe
