@@ -150,9 +150,8 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
                   stateSave = TRUE,
                   pageLength = 10,
                   info = TRUE,
-                  dom = 'ltri',
+                  dom = 'ltri'
                   #had to add 'lowercase L' letter to display the page length again
-                  language = list(emptyTable = "Enter inputs and press Render Table")
                 )
               )
             })

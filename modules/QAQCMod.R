@@ -9,7 +9,11 @@ QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
                ), 
                tabPanel("Biomark",
                         MarkerTagQAQC_UI(ns("BiomarkMarkerTags"), Marker_Tag_data)
-                        )
+                        ), 
+               tabPanel("Downtime Periods",
+                        br(),
+                        dataTableOutput(ns("markerTagDowntimeTable"))
+               )
               )
                
       ), #end of marker tag tab
@@ -26,7 +30,13 @@ QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
                    withSpinner(plotlyOutput(ns("plot4")))
                    
                  )#end of column
-               )#end of fluidrow
+               ), #end of fluidrow
+               fluidRow(
+                 withSpinner(plotlyOutput(ns("growthRatesPlot")))
+               ), 
+               fluidRow(
+                 withSpinner(DT::dataTableOutput(ns("growthRatesSummarizedTable")))
+               )
       ), #end of tabPanel
       tabPanel("Unknown Tags",
                br(),
@@ -39,13 +49,17 @@ QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
       ), 
       tabPanel("Crosstalk QAQC",
                qaqcCrosstalkMod_UI(ns("qaqcCrosstalk"), combinedData_df_list)
+      ), 
+      tabPanel("Detection Distance/Water Level",
+               br(),
+               withSpinner(DT::dataTableOutput(ns("DDWaterLevelTable")))
       )
     )#end of tabset Panel 
   )
 }
 
 QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_tags, ghostTagsWithMovementAfterGhostDate, 
-                        combinedData_df_list, metaDataVariableNames) {
+                        combinedData_df_list, wgfpMetadata, metaDataVariableNames, WGFP_SiteVisits_FieldDatawithPTData, allColors) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -54,6 +68,23 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
       MarkerTagQAQC_Server("StationaryMarkerTags", Marker_Tag_data)
       MarkerTagQAQC_Server("BiomarkMarkerTags", Marker_Tag_data)
       
+      output$markerTagDowntimeTable <- renderDT({
+        
+        datatable(wgfpMetadata$MarkerTagIssues,
+                  rownames = FALSE,
+                  selection = "single",
+                  filter = 'top',
+                  caption = ("Manually discerned periods of time where the specified marker tag was not recording during consistent intervals"),
+                  options = list(
+                    #statesave is restore table state on page reload
+                    stateSave =TRUE,
+                    pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
+                    dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again
+                    language = list(emptyTable = "Enter inputs and press Render Table")
+                  )
+        ) 
+      })
+      
       
       # Release and Recap Data L/W Plot Output --------------------------------------------
       output$plot3 <- renderPlotly({
@@ -61,7 +92,8 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
           ggplot(aes(x = Length, y = Weight, color = Species)) +
           geom_point() + 
           theme_classic() +
-          labs(title = "Release Data")
+          labs(title = "Release Data") +
+          scale_color_manual(values = allColors)
       })    
       
       output$plot4 <- renderPlotly({
@@ -69,7 +101,41 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
           ggplot(aes(x = Length, y = Weight, color = Species)) +
           geom_point() + 
           theme_classic() +
-          labs(title = "Recapture Data")
+          labs(title = "Recapture Data") +
+          scale_color_manual(values = allColors)
+        
+      })
+      
+      output$growthRatesPlot <- renderPlotly({
+        combinedData_df_list$growthRates %>%
+          ggplot(aes(x = `Length Growth Rate mm per Year`, y = `Weight Growth Rate g per Year`, color = Species, text = TagID)) +
+          geom_point() + 
+          theme_classic() +
+          labs(title = "Growth Rates") +
+          scale_color_manual(values = allColors) 
+      })
+      
+      output$growthRatesSummarizedTable <- renderDT({
+        dataSummarized <- combinedData_df_list$growthRates %>%
+          dplyr::group_by(Species) %>%
+          dplyr::summarise(`Median Length Growth Rate (g per year)` = round(median(`Length Growth Rate mm per Year`, na.rm = TRUE), 2), 
+                           `Median Weight Growth Rate (mm per year)` = round(median(`Weight Growth Rate g per Year`, na.rm = TRUE), 2), 
+                           `Mean Length Growth Rate (g per year)` = round(mean(`Length Growth Rate mm per Year`, na.rm = TRUE), 2), 
+                           `Mean Weight Growth Rate (mm per year)` = round(mean(`Weight Growth Rate g per Year`, na.rm = TRUE), 2)
+          )
+        datatable(dataSummarized,
+                  rownames = FALSE,
+                  selection = "single",
+                  filter = 'top',
+                  caption = ("Data from each time a fish was recaptured"),
+                  options = list(
+                    #statesave is restore table state on page reload
+                    stateSave =TRUE,
+                    pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
+                    dom = 'Blfrtip' #had to add 'lowercase L' letter to display the page length again
+                    
+                  )
+        )
         
       })
       
@@ -107,7 +173,45 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
                   )
         ) 
       })
-      
+
+# Detection distance/water level ------------------------------------------
+
+      output$DDWaterLevelTable <- renderDT({
+        
+        datatable(
+          WGFP_SiteVisits_FieldDatawithPTData,
+          class = 'nowrap display',
+          rownames = FALSE,
+          selection = "single",
+          filter = 'top',
+          caption = ("Green cells show where 32mm detection distance is greater than or equal to water level, red is where 32mm detection distance is less than water level. Water level readings are within 13 hours of site visit."),
+          options = list(
+            stateSave = TRUE,
+            pageLength = 25,
+            info = TRUE,
+            lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
+            dom = 'Blfrtip',
+            language = list(emptyTable = "Enter inputs and press Render Table"),
+            rowCallback = JS(
+              'function(row, data, index) {',
+              '  var api = this.api();',
+              '  var waterLevelIndex = api.column(":contains(Water_Level_NoIce_ft)").index();',
+              '  var waterLevel = parseFloat(data[waterLevelIndex]);',
+              '  for (var i = 0; i < data.length; i++) {',
+              '    if (/32mm/.test(api.column(i).header().textContent)) {',
+              '      var cellValue = parseFloat(data[i]);',
+              '      if (cellValue <= waterLevel) {',
+              '        $("td:eq(" + i + ")", row).css("background-color", "#8B0000AA");',
+              '      } else if (cellValue > waterLevel) {',
+              '        $("td:eq(" + i + ")", row).css("background-color", "#228B22AA");',
+              '      }',
+              '    }',
+              '  }',
+              '}'
+            )
+          )
+        ) 
+      })      
       ######
       qaqcCrosstalkMod_Server("qaqcCrosstalk", combinedData_df_list, metaDataVariableNames)
       

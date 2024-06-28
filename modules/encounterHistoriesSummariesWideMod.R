@@ -64,6 +64,15 @@ EncounterHistoriesSummariesWide_UI <- function(id, Enc_release_data) {
                                  `actions-box` = TRUE #this makes the "select/deselect all" option
                                )
                    ), #end of picker 13 input
+                   pickerInput(inputId = ns("stateSummaryPicker"),
+                               label = "State Summary",
+                               choices = sort(unique(Enc_release_data$condensedAllStates)),
+                               selected = unique(Enc_release_data$condensedAllStates),
+                               multiple = TRUE,
+                               options = list(
+                                 `actions-box` = TRUE #this makes the "select/deselect all" option
+                               )
+                   ),
                    actionButton(ns("button6"), label = "Render Table/Data", width = "100%")
                  ), #end of sidebar panel for enc_release wide_summary
                  mainPanel(                           br(),
@@ -98,6 +107,7 @@ EncounterHistoriesSummariesWide_Server <- function(id, Enc_release_data) {
                   Weight >= input$slider5[1] & Weight <= input$slider5[2],
                   sum_dist >= input$slider8[1] & sum_dist <= input$slider8[2],
                   through_dam %in% input$picker13,
+                  condensedAllStates %in% input$stateSummaryPicker,
                   TotalEncounters %in% input$picker14
                 )
 
@@ -111,6 +121,7 @@ EncounterHistoriesSummariesWide_Server <- function(id, Enc_release_data) {
                   Weight >= input$slider5[1] & Weight <= input$slider5[2],
                   sum_dist >= input$slider8[1] & sum_dist <= input$slider8[2],
                   through_dam %in% input$picker13,
+                  condensedAllStates %in% input$stateSummaryPicker,
                   TotalEncounters %in% input$picker14
                 )
             }

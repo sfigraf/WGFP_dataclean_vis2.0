@@ -2498,5 +2498,437 @@ x <- All_events %>%
 x1 <- All_events %>%
   filter(TAG == "230000228026")
 
+#sequences notes
+All_Events <- combinedData_df_list$All_Events
+mobileCodes <- metaDataVariableNames$MobileRunFrontendCodes
+df_filtered <- All_Events %>%
+  dplyr::filter(!Event %in% c("Recapture", "Recapture and Release", mobileCodes)) %>%
+  
+  #filter(grepl(paste0("^(", paste(c(downstreamAntennas, upstreamAntennas), collapse = "|"), ")"), Event)) %>%
+  arrange(TAG, Datetime)
+
+# Apply the function to each TAG
+tag_data <- df_filtered %>%
+  filter(TAG == c("230000143338")) #230000224056
+
+df_filtered <- All_Events %>%
+  dplyr::filter(!Event %in% c("Recapture", "Recapture and Release", mobileCodes)) %>%
+  #filter(grepl(paste0("^(", paste(c(downstreamAntennas, upstreamAntennas), collapse = "|"), ")"), Event)) %>%
+  arrange(TAG, Datetime)
+middleAnts[[2]] <- c("HP")
+middleAnts[[1]] <- c("RB")
+middleAntennas <- character(0)
+middleAntennas[[1]] <- "RB"
+downstreamAntennas <- c("HP")
+upstreamAntennas <- "CF"
+extract_sequences <- function(tag_data, downstreamAntennas, middleAntennas, upstreamAntennas) {
+  sequences <- data.frame(TAG = character(), 
+                          DatetimeDetectedAtDownstreamAntennas = as.POSIXct(character()), 
+                          DatetimeDetectedAtUpstreamAntennas = as.POSIXct(character()), 
+                          MovementDirection = character(), 
+                          stringsAsFactors = FALSE)
+  i <- 1
+  
+  all_antennas <- c(downstreamAntennas, middleAntennas, upstreamAntennas)
+  
+  while (i < nrow(tag_data)) {
+    
+    # Find indices of events that match the chosen antennas within the subset of tag_data starting from the current index i
+    antennas_index <- which(grepl(paste0("^(", paste(all_antennas, collapse = "|"), ")"), tag_data$Event[i:nrow(tag_data)]))
+    
+    # Check if there are enough antenna events in the remaining data
+    if (length(antennas_index) >= length(all_antennas)) {
+      
+      # Extract the sequence of antenna events
+      sequence <- tag_data$Event[i + antennas_index - 1][1:length(all_antennas)]
+      
+      # Check if the sequence matches the expected order or its reverse
+      if (identical(sequence, all_antennas) || identical(sequence, rev(all_antennas))) {
+        
+        if (identical(sequence, all_antennas)) {
+          movement_direction <- "Upstream"
+          downstream_index <- i + antennas_index[1] - 1
+          upstream_index <- i + antennas_index[length(all_antennas)] - 1
+        } else {
+          movement_direction <- "Downstream"
+          upstream_index <- i + antennas_index[1] - 1
+          downstream_index <- i + antennas_index[length(all_antennas)] - 1
+        }
+        
+        # Append a new row to the sequences dataframe
+        sequences <- rbind(sequences, data.frame(
+          TAG = tag_data$TAG[downstream_index], 
+          DatetimeDetectedAtDownstreamAntennas = tag_data$Datetime[downstream_index], 
+          DatetimeDetectedAtUpstreamAntennas = tag_data$Datetime[upstream_index],
+          MovementDirection = movement_direction
+        ))
+        
+        # Update the index to the position after the sequence
+        i <- upstream_index + 1
+      } else {
+        # Skip to the next antenna event if the sequence does not match
+        i <- i + antennas_index[1]
+      }
+    } else {
+      # Exit the loop if there are not enough antenna events in the remaining data
+      break
+    }
+  }
+  
+  return(sequences)
+}
+
+downstreamAntennas <- c("CD", "CS")
+upstreamAntennas <- "CU"
+data <- summarizedDf(All_Events, downstreamAntennas, upstreamAntennas)
+
+
+indig <- All_Events %>%
+  arrange(TAG, Datetime) %>%
+  filter(TAG == "230000224034")
+##CRCC Easiness
+encReleaseLong <- Enc_release_data[,c(1, 43:62)] %>%
+  pivot_longer(cols = c(2:21), names_to = "antenna", values_to = "presenceAbsence") %>%
+  filter(presenceAbsence == TRUE) %>%
+  dplyr::group_by(TAG) %>%
+  summarise(Antennas = paste(antenna, collapse = ", "))
+
+x <- encReleaseLong %>%
+  filter(grepl(c("CD|CU|CS"), Antennas))
+
+All_Events <- combinedData_df_list$All_Events
+
+allEventsHIt <- All_Events %>%
+  dplyr::group_by(TAG) %>%
+  dplyr::arrange(Datetime) %>%
+  summarise(Events = paste(Event, collapse = ", "))
+
+x <- allEventsHIt %>%
+  filter(grepl(c("CU&CD|CS"), Events))
+
+df_filtered <- All_Events %>%
+  filter(grepl("^(CU|CS|CD)", Event))
+
+# Find the first occurrence of each type of event for each TAG
+df_firsts <- df_filtered %>%
+  group_by(TAG) %>%
+  summarize(
+    DateTimeFirstDetectedAtCU = min(Datetime[grepl("^CU", Event)]),
+    DateTimeFirstDetectedAtCDorCS = min(Datetime[grepl("^(CS|CD)", Event)])
+  ) 
+#####
+# Filter the data to include only events starting with "CU", "CS", or "CD"
+df_filtered <- All_Events %>%
+  filter(grepl("^(CU|CS|CD)", Event))
+
+# Function to extract valid sequences for each TAG
+extract_sequences <- function(tag_data) {
+  sequences <- data.frame(TAG = character(), DateTimeFirstDetectedAtCU = as.POSIXct(character()), DatetimeFirstDetectedAtCDorCS = as.POSIXct(character()), stringsAsFactors = FALSE)
+  
+  for (i in 1:(nrow(tag_data) - 1)) {
+    for (j in (i + 1):nrow(tag_data)) {
+      if (grepl("^CU", tag_data$Event[i]) && grepl("^(CS|CD)", tag_data$Event[j])) {
+        sequences <- rbind(sequences, data.frame(TAG = tag_data$TAG[i], DateTimeFirstDetectedAtCU = tag_data$Datetime[i], DatetimeFirstDetectedAtCDorCS = tag_data$Datetime[j]))
+      } else if (grepl("^(CS|CD)", tag_data$Event[i]) && grepl("^CU", tag_data$Event[j])) {
+        sequences <- rbind(sequences, data.frame(TAG = tag_data$TAG[i], DateTimeFirstDetectedAtCU = tag_data$Datetime[j], DatetimeFirstDetectedAtCDorCS = tag_data$Datetime[i]))
+      }
+    }
+  }
+  
+  return(sequences)
+}
+
+# Apply the function to each TAG
+newDF <- df_filtered %>%
+  group_by(TAG) %>%
+  do(extract_sequences(.))
+
+
+########
+df_filtered <- All_Events %>%
+  filter(grepl("^(CU1|CU2|CS1|CS2|CD1|CD2)", Event)) %>%
+  arrange(TAG, Datetime)
+
+# Function to extract valid sequences for each TAG
+####creates sequences: if a fish has hit either CD or CS then hits CU, that is a sequence. 
+#Sequence starts when the fish first hits one of those antennas then ends with the first detection at the other antenna
+#example: if a fish hits Cd for 3 days straight (10/6-10/8), then hits CU on 10/12, the sequence will start with 10/6 and end at 10/12
+
+extract_sequences <- function(tag_data) {
+  sequences <- data.frame(TAG = character(), DatetimeFirstDetectedAtCDorCS = as.POSIXct(character()), DateTimeFirstDetectedAtCU = as.POSIXct(character()), stringsAsFactors = FALSE)
+  i <- 1
+  
+  while (i < nrow(tag_data)) {
+    cu_index <- which(grepl("^CU", tag_data$Event[i:nrow(tag_data)]))
+    cdcs_index <- which(grepl("^(CS|CD)", tag_data$Event[i:nrow(tag_data)]))
+    
+    if (length(cu_index) > 0 & length(cdcs_index) > 0) {
+      cu_first <- i + cu_index[1] - 1
+      cdcs_first <- i + cdcs_index[1] - 1
+      
+      if (tag_data$Datetime[cu_first] < tag_data$Datetime[cdcs_first]) {
+        sequences <- rbind(sequences, data.frame(TAG = tag_data$TAG[cu_first], DatetimeFirstDetectedAtCDorCS = tag_data$Datetime[cdcs_first], DateTimeFirstDetectedAtCU = tag_data$Datetime[cu_first]))
+        i <- cdcs_first + 1
+      } else {
+        sequences <- rbind(sequences, data.frame(TAG = tag_data$TAG[cdcs_first], DatetimeFirstDetectedAtCDorCS = tag_data$Datetime[cdcs_first], DateTimeFirstDetectedAtCU = tag_data$Datetime[cu_first]))
+        i <- cu_first + 1
+      }
+    } else {
+      break
+    }
+  }
+  
+  return(sequences)
+}
+
+# Apply the function to each TAG
+newDF <- df_filtered %>%
+  group_by(TAG) %>%
+  do(extract_sequences(.))
+
+compute_time_diff <- function(start, end) {
+  diff_secs <- abs(as.numeric(difftime(end, start, units = "secs")))
+  if (diff_secs < 60) {
+    return(paste(diff_secs, "seconds"))
+  } else if (diff_secs < 3600) {
+    return(paste(round(diff_secs / 60, 2), "minutes"))
+  } else if (diff_secs < 86400) {
+    return(paste(round(diff_secs / 3600, 2), "hours"))
+  } else {
+    return(paste(round(diff_secs / 86400, 2), "days"))
+  }
+}
+
+# Add timeToTravel column with appropriate units
+# sequencesDF <- newDF %>%
+#   mutate(timeToTravel = mapply(compute_time_diff, DateTimeFirstDetectedAtCU, DatetimeFirstDetectedAtCDorCS))
+
+
+newDF2 <- newDF %>%
+  mutate(UpstreamOrDownstream = case_when(DatetimeFirstDetectedAtCDorCS > DateTimeFirstDetectedAtCU ~ "Downstream", 
+                                          DatetimeFirstDetectedAtCDorCS < DateTimeFirstDetectedAtCU ~ "Upstream"), 
+         timeToTravelToSort = difftime(DatetimeFirstDetectedAtCDorCS, DateTimeFirstDetectedAtCU, units = "secs"), 
+         timeToTravelReadable = mapply(compute_time_diff, DateTimeFirstDetectedAtCU, DatetimeFirstDetectedAtCDorCS))
+
+
+
+18664905741
+
+#######
+
+x1 <- x %>%
+  filter(Event %in% c("Recapture"))
+# getting detection distance attached to closest waterlevelNoice reading
+#don't always have times associated iwth it...
+
+WGFPSiteVisitsFieldData1 <- WGFPSiteVisitsFieldData %>%
+  mutate(dateTime = lubridate::ymd_hms(paste(Date, Time)), 
+         fieldDataNotes = Notes)
+
+
+#perform rolling join with PT data
+ptdataWide <- PTData$PTDataWide %>%
+  dplyr::filter(!is.na(Site)) %>%
+  mutate(ptTimeRecorded = dateTime, 
+         ptDataNotes = Notes)
+
+#exact time matches: 12 in total
+ExactTimeMatches <- WGFPSiteVisitsFieldData1 %>%
+  inner_join(ptdataWide, by = c("Site", "dateTime")) %>%
+  rename(Notes = Notes.x)
+
+#rest of them: 
+WGFPSiteVisitsFieldData2 <- WGFPSiteVisitsFieldData1 %>%
+  anti_join(ExactTimeMatches, by = colnames(WGFPSiteVisitsFieldData1)) %>%
+  dplyr::filter(!is.na(dateTime))
+
+# #the rolling join with 2 can only take those with the 
+# notExactTimestampMatchesDetectionsStationaryOnly <- notExactTimestampMatchesDetections %>%
+#   filter(!is.na(SiteName))
+library(data.table, quietly = TRUE,warn.conflicts	= FALSE)
+
+#make PT data and timestamps into data.table objects so that we can perform rolling join
+WGFPSiteVisitsFieldData2 <- data.table(WGFPSiteVisitsFieldData2)
+ptdataWide <- data.table(ptdataWide)
+
+# WGFPSiteVisitsFieldData2[, dateTime := as.POSIXct(dateTime, format="%m/%d/%Y %H:%M:%S")]
+# ptdataWide[, dateTime := as.POSIXct(dateTime, format="%m/%d/%Y %H:%M:%S")]
+
+
+####need to make it so site names are prezent in both data: need to elimate kaibab stuff etc
+
+#set keycols
+#the order these are in matter
+keycols <- c("Site","dateTime")
+setkeyv(WGFPSiteVisitsFieldData2, keycols)
+setkeyv(ptdataWide, keycols)
+
+
+WGFPSiteVisitsFieldData3 <- ptdataWide[WGFPSiteVisitsFieldData2, roll = "nearest", on = .(Site, dateTime), nomatch = NULL]
+
+WGFPSiteVisitsFieldData3 <- as.data.frame(WGFPSiteVisitsFieldData3) %>%
+  relocate(Site, Date, Time, dateTime, ptTimeRecorded, `32mm RR (ft) DS Initial`, `32mm Initial (Biomark)`, USGSDischarge, Water_Level_NoIce_ft)
+
+
+#get only rows with timestaps within 13 hours
+WGFPSiteVisitsFieldData4 <- WGFPSiteVisitsFieldData3 %>%
+  mutate(timeDifference = ifelse(abs(difftime(ptTimeRecorded, dateTime, units = c("hours"))) > 13, 1, 0)
+         #across(all_of(columnstoChange), ~ ifelse(timeDifference == 1, NA_real_, .))
+  ) %>%
+  dplyr::filter(timeDifference == 0)
+
+ExactTimeMatchesOrganized <- alignColumns(ExactTimeMatches, colnames(WGFPSiteVisitsFieldData4), WGFPSiteVisitsFieldData4)
+###joining back up
+siteVisitDataWithPTData <- bind_rows(ExactTimeMatchesOrganized, WGFPSiteVisitsFieldData4)
+###need to get rest of rows to join for final df
+restOfRows <- WGFPSiteVisitsFieldData %>%
+  anti_join(siteVisitDataWithPTData, by = c("Site", "Date"))
+
+restOfRowsAligned <- alignColumns(restOfRows, names(siteVisitDataWithPTData), siteVisitDataWithPTData)
+allRowsPTDataSiteVists <- bind_rows(restOfRowsAligned, siteVisitDataWithPTData)
+
+newData <- combineEnvironmentalAndSiteVisitData(WGFPSiteVisitsFieldData = WGFPSiteVisitsFieldData, PTDataWide = PTData$PTDataWide)
+#get exact time matches to 
+#ExactTimeMatches
+# columnstoChange <- c(colnames(PTData)[grepl("_", colnames(PTData))], "USGSDischarge")
+# 
+# notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour <- notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading %>%
+#   mutate(timeDifference = ifelse(abs(difftime(environmentalDataMeasurementTime, Datetime, units = c("hours"))) >= 1, 1, 0)
+#          across(all_of(columnstoChange), ~ ifelse(timeDifference == 1, NA_real_, .))
+#   ) 
+#WGFPSiteVisitsFieldData3 <- ptdataWide[WGFPSiteVisitsFieldData2, roll = "nearest"]
+x <- as.data.frame(WGFPSiteVisitsFieldData2) %>%
+  left_join(WGFPSiteVisitsFieldData3, by = names(WGFPSiteVisitsFieldData2)) %>%
+  relocate(Site, Date, Time, dateTime,`32mm RR (ft) DS Initial`, `32mm Initial (Biomark)`, USGSDischarge, Water_Level_NoIce_ft)
+#filter(rowSums(is.na(.[columnstoChange])))
+
+detach("package:data.table", unload=TRUE)
+###############
+site_colors <- setNames(rainbow_trout_colors[0:length(unique(WGFPSiteVisitsFieldData$Site))], sort(unique(WGFPSiteVisitsFieldData$Site)))
+
+plot <- plot_ly() %>%
+  add_trace(data = PTDataTest, x = ~dateTime, y = ~Reading, 
+            color = ~Site,
+            type = "scatter", 
+            colors = site_colors,
+            yaxis = "y1",
+            mode = "lines"
+  ) %>%
+  add_trace(data = SiteDataTest, x = ~Date, y = ~`32mm RR (ft) DS Initial`,
+            color = ~Site,
+            type = "scatter",
+            yaxis = "y2",
+            colors = site_colors,
+            mode = "lines+markers"
+  ) %>%
+  
+  layout(xaxis = list(title = "Date"),
+         yaxis = list(title = "test", side = "left", showgrid = FALSE), #as.character(input$variableSelect3)
+         yaxis2 = list(title = "testing y2", side = "right", overlaying = "y", #AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable
+                       showgrid = FALSE)
+  )
+plot
+###################
+plot_ly() %>%
+  add_trace(data = filteredPTData2(), x = ~Date,
+            y = ~dailyAverage,
+            name = nameOfLine,
+            color = line_color, 
+            type = "scatter",
+            yaxis = envYaxis,
+            mode = "lines",
+            colors = allColors
+  ) %>%
+  add_trace(data = filteredMovementsDataCounts(), x = ~Date, y = ~numberOfActivities,
+            yaxis = movYaxis,
+            color = ~movement_only, 
+            colors = allColors,
+            hoverinfo = "text",
+            text = ~paste('Date: ', as.character(Date), '<br>Number of Activities: ', numberOfActivities),
+            type = 'bar') %>%
+  layout(legend = list(x = 1.05, y = 1),
+         barmode = "overlay",
+         xaxis = list(title = "Date"),
+         yaxis = list(title = primaryYaxisName, side = "left", showgrid = FALSE),
+         yaxis2 = list(title = SecondaryYaxisName, side = "right", overlaying = "y",
+                       showgrid = FALSE))
+
+####
+
+#compare
+usgs15toDaily <- usgs15min %>%
+  group_by(Date = date(dateTime)) %>%
+  summarise(discharge_15Min = mean(Flow_Inst))
+
+#close enough
+compare <- usgs15toDaily %>%
+  left_join(usgsDaily[,c("Date", "Flow")], by = "Date") %>%
+  mutate(differ = abs(round(Flow -discharge_15Min, 2)))
+
+##
+#temp
+usgs15toDaily <- usgs15min %>%
+  group_by(Date = date(dateTime)) %>%
+  summarise(discharge_15Min = mean(Flow_Inst))
+
+#close enough
+compare <- usgs15toDaily %>%
+  left_join(usgsDaily[,c("Date", "Flow")], by = "Date") %>%
+  mutate(differ = abs(round(Flow -discharge_15Min, 2)))
+
+compareing <- PTData[,c("dateTime", "USGSDischarge", "USGSWatertemp")] %>%
+  left_join(x[,c("dateTime", "USGSDischarge", "USGSWatertemp")], by = "dateTime") %>%
+  mutate(difDis = (USGSWatertemp.x == USGSWatertemp.y))
+
+########3
+Sample data for demonstration
+set.seed(123)
+filteredMovementsDataCounts <- data.frame(
+  Date = seq(as.Date("2024-01-01"), by = "day", length.out = 10),
+  numberOfActivities = sample(1:100, 10, replace = TRUE),
+  movement_only = sample(c("A", "B", "C", "D", "E"), 10, replace = TRUE)
+)
+
+filteredPTData2 <- data.frame(
+  Date = seq(as.Date("2024-01-01"), by = "day", length.out = 10),
+  dailyAverage = sample(50:150, 10, replace = TRUE),
+  Site = rep(c("Site 1", "Site 2"), each = 5)
+)
+
+# Create the line plot colored based on Site
+lines <- plot_ly(data = filteredPTData2, x = ~Date, y = ~dailyAverage, type = "scatter", mode = "lines",
+                 color = ~Site, colors = rainbow(length(unique(filteredPTData2$Site))),
+                 hoverinfo = "text",
+                 text = ~paste('Date: ', as.character(Date), '<br>Daily Average: ', dailyAverage)) 
+
+# Create the bar plot with bars colored based on movement_only
+bars <- plot_ly(data = filteredMovementsDataCounts, x = ~Date, y = ~numberOfActivities, type = "bar",
+                color = ~movement_only, colors = c("red", "chartreuse3", "black", "darkorange", "purple"),
+                hoverinfo = "text",
+                text = ~paste('Date: ', as.character(Date), '<br>Number of Activities: ', numberOfActivities)) %>%
+  layout(barmode = "group")  # Ensures bars are grouped
+
+# Combine the plots
+combined_plot <- add_trace(lines) %>%
+  add_trace(bars) %>%
+  layout(title = "Movements and Site Data",
+         xaxis = list(title = "Date"),
+         yaxis = list(title = "Number of Activities / Daily Average"),
+         legend = list(title = "Legend"))
+
+# Return the combined plot
+print(combined_plot)
+###########
+x1 <- x %>%
+  filter(!TAG %in% c(230000999999)) %>%
+  count(Event, name = "Raw Detections")
+
+####
+
+x <- WGFP_SiteVisits_FieldData %>%
+  mutate(Datetime = lubridate::ymd_hms(paste(mdy(Date), Time)),
+         Date = mdy(Date)
+  )
+
 
 

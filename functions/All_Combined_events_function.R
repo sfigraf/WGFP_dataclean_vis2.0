@@ -5,19 +5,21 @@
 All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, Recaptures){
   
   start_time <- Sys.time()
-  print("Running All_combined_events_function: Combining and cleaning Stationary, Mobile, Biomark, Release, and Recapture csv inputs......")
-  
+  startMessage <- "Running All_combined_events_function: Combining and cleaning Stationary, Mobile, Biomark, Release, and Recapture csv inputs."
+  print(startMessage)
+    
   
   # biomark cleaning, getting dates into uniform format, 
   biomarkCleaned <- Biomark %>%
     mutate(TAG = str_replace(DEC.Tag.ID, "\\.", ""),
            # i wish this could be a join, but when there are 2 dif codes (A1, B1, etc) used for backend name, this is a bit simpler
-           Reader.ID = case_when(Reader.ID %in% WindyGapBypassAntennaBackendSiteCode ~ WindyGapBypassAntennaFrontendSiteCode,
-                                 Reader.ID %in% WindyGapAuxiliaryAntennaBackendSiteCode ~ WindyGapAuxiliaryAntennaFrontendSiteCode,
-                                 Reader.ID %in% GranbyDiversionAntennaBackendSiteCode ~ GranbyDiversionAntennaFrontendSiteCode,
-                                 Reader.ID %in% RiverRunAntennaBackendSiteCode ~ RiverRunAntennaFrontendSiteCode,
-                                 Reader.ID %in% FraserRiverCanyonAntennaBackendSiteCode ~ FraserRiverCanyonAntennaFrontendSiteCode,
-                                 TRUE ~ Reader.ID),
+           Reader.ID = case_when(
+             Reader.ID %in% WindyGapBypassAntennaBackendSiteCode ~ WindyGapBypassAntennaFrontendSiteCode,
+             Reader.ID %in% WindyGapAuxiliaryAntennaBackendSiteCode ~ WindyGapAuxiliaryAntennaFrontendSiteCode,
+             Reader.ID %in% GranbyDiversionAntennaBackendSiteCode ~ GranbyDiversionAntennaFrontendSiteCode,
+             Reader.ID %in% RiverRunAntennaBackendSiteCode ~ RiverRunAntennaFrontendSiteCode,
+             Reader.ID %in% FraserRiverCanyonAntennaBackendSiteCode ~ FraserRiverCanyonAntennaFrontendSiteCode,
+             TRUE ~ Reader.ID),
            #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy 
            # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
            Scan.Date = ifelse(str_detect(Scan.Date, "/"), 
@@ -145,7 +147,8 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   # 87 rows were not even showing up on the all_events app because the Species was NA -12/14/21 SG
   condensedAllEventsWithReleaseandEnvironmentalInfo <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
     replace_na(list(Species = "No Info", ReleaseSite = "No Info", 
-                    Site = "No Site Associated"))
+                    Site = "No Site Associated")) %>%
+    dplyr::filter(!TAG %in% c("230000999999"))
   
   ### This is getting the events dataframe to only the data relevant for joining with stations
   
@@ -160,16 +163,21 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     ungroup() %>%
     distinct(TAG, Event, Date, first_last,  UTM_X, UTM_Y, .keep_all = TRUE) %>%
     arrange(Datetime) 
+  
+  ###get growth rates for QAQC tab
+  growthRates <- getGrowthRates(Release = Release, Recaptures = Recaptures)
 
   df_list <- list("All_Detections" = cleanedAllDetections, 
                   "All_Events_most_relevant" = allEventsRelevantToStations,
                   #allEvents has release and recapture along with detections. All Detections just has detections
                   "All_Events" = condensedAllEventsWithReleaseandEnvironmentalInfo, 
-                  "Recaps_detections" = recapturesAndDetections)
+                  "Recaps_detections" = recapturesAndDetections, 
+                  "growthRates" = growthRates)
   
   end_time <- Sys.time()
-  print(paste("All_combined_events_function took", round((end_time-start_time),2)))
-  
-  return(df_list)
+  endMessage <- paste("All_combined_events_function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes.")
+  print(endMessage)
+  return(list("df_list" = df_list, 
+              "endMessage" = paste(c(startMessage, endMessage), collapse = "<br>")))
 }
   

@@ -81,8 +81,16 @@ AllEncounters_UI <- function(id, combinedData_df_list) {
                       ),
                       tabPanel("Plot",
                                br(),
-                               withSpinner(plotlyOutput(ns("plot5")))
-                               )
+                               box(title = "Raw Detections Time Series", 
+                                   width = 10, 
+                                   withSpinner(plotlyOutput(ns("plot5")))
+                                   ),
+                               box(title = "Raw Detection Frequencies by Event", 
+                                   width = 10, 
+                                   withSpinner(DT::dataTableOutput(ns("alleventsfrequencies1")))
+                                   )
+                               
+                               ),
                      )#end of tabset panel
                    )#end of all events and plot mainpanel
                  )# end of all events and plot sidebarLayout
@@ -140,15 +148,16 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
                       min = min(combinedData_df_list$All_Events$Air_Temp_F, na.rm = TRUE),
                       max = max(combinedData_df_list$All_Events$Air_Temp_F, na.rm = TRUE),
                       value = c(min(combinedData_df_list$All_Events$Air_Temp_F, na.rm = TRUE), max(combinedData_df_list$All_Events$Air_Temp_F, na.rm = TRUE)),
-                      step = 1,
+                      step = 1
           ),
           
           sliderInput(ns("sliderWaterLevel"), "Water Level (ft)",
-                      min = min(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE),
-                      max = max(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE),
-                      value = c(min(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE), max(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE)),
+                      min = min(combinedData_df_list$All_Events$Water_Level_NoIce_ft, na.rm = TRUE),
+                      max = max(combinedData_df_list$All_Events$Water_Level_NoIce_ft, na.rm = TRUE),
+                      value = c(min(combinedData_df_list$All_Events$Water_Level_NoIce_ft, na.rm = TRUE), max(combinedData_df_list$All_Events$Water_Level_NoIce_ft, na.rm = TRUE)),
                       
           ),
+          h6("This is Water_Level_NoIce_ft. Readings of 0 are Ice-on."),
           
           checkboxGroupInput(ns("radioFilterIce"), label = "Filter Ice", 
                        choices = unique(combinedData_df_list$All_Events$Filter_Ice), 
@@ -245,7 +254,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
         )
         
         updateSliderInput(session,"sliderWaterLevel",
-                          value = c(min(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE), max(combinedData_df_list$All_Events$Water_Level_ft, na.rm = TRUE)),
+                          value = c(min(combinedData_df_list$All_Events$Water_Level_NoIce_ft, na.rm = TRUE), max(combinedData_df_list$All_Events$Water_Level_NoIce_ft, na.rm = TRUE)),
                           
         )
         
@@ -280,7 +289,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
                 Water_Temp_F >= input$sliderWaterTemp[1] & Water_Temp_F <= input$sliderWaterTemp[2],
                 Barom_Pres_psi >= input$sliderBaromPres[1] & Barom_Pres_psi <= input$sliderBaromPres[2],
                 Air_Temp_F >= input$sliderAirTemp[1] & Air_Temp_F <= input$sliderAirTemp[2],
-                Water_Level_ft >= input$sliderWaterLevel[1] & Water_Level_ft <= input$sliderWaterLevel[2],
+                Water_Level_NoIce_ft >= input$sliderWaterLevel[1] & Water_Level_NoIce_ft <= input$sliderWaterLevel[2],
                 (!is.null(input$radioFilterIce) & Filter_Ice %in% input$radioFilterIce),
                 (Site %in% input$environmentalSite))
               
@@ -436,7 +445,6 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
                   
                 )
 
-
             })
 
             # Enc Hist Plot Render ----------------------------------------------------
@@ -447,12 +455,32 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
                            text = paste('Date: ', as.character(Date), '\n')
                 )) +
                 geom_bar(stat = "count", position = "dodge") +
-                theme_classic() +
-                labs(title = "Raw Detections Frequency")
+                theme_classic() 
 
               ggplotly(p = plot)
 
             })
+        
+        output$alleventsfrequencies1 <- renderDataTable({
+          frequenciesSummarized <- all_events_data() %>%
+            filter(!TAG %in% c(230000999999)) %>%
+            count(Event, name = "Raw Detections")
+          
+          datatable(frequenciesSummarized,
+                    rownames = FALSE,
+                    extensions = c('Buttons'),
+                    #for slider filter instead of text input
+                    filter = 'top',
+                    options = list(
+                      pageLength = 10, info = TRUE, lengthMenu = list(c(10,25), c("10", "25")),
+                      dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again #errorin list: arg 5 is empty because I had a comma after the dom argument so it thought there was gonna be another argument input
+                      language = list(emptyTable = "Enter inputs and press Render Table")
+                    ) #end of options list
+          )
+          
+        })
+        
+        
 
       
     }

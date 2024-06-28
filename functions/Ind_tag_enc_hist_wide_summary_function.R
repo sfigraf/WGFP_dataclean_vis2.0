@@ -1,4 +1,4 @@
-# #### ENC HIST summary table function
+# # #### ENC HIST summary table function
 # allDetectionsAndRecaptures <- df_list$Recaps_detections
 # Release <- Release
 # markerTags = unique(Cleaned_Marker_tags$TAG)
@@ -8,7 +8,8 @@
 Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, Release, combined_events_stations, States_summarized, markerTags){
   
   start_time <- Sys.time()
-  print("Running Ind_tag_enc_hist_wide_summary_function: Summarizes detection and movement data from each released Tag.")
+  startMessage <- "Running Ind_tag_enc_hist_wide_summary_function: Summarizes detection and movement data from each released Tag."
+  print(startMessage)
   
   allEncountersWide <- allDetectionsAndRecaptures %>%
     count(TAG, Event, name = "Encounters") %>%
@@ -17,7 +18,9 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   
   #column order is just nice to have for the user
   columnOrder <- c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes, ConnectivityChannelUpstreamFrontendCodes, 
-                   MobileRunFrontendCodes, WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode, GranbyDiversionAntennaFrontendSiteCode, RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode)
+                   MobileRunFrontendCodes, WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode, 
+                   GranbyDiversionAntennaFrontendSiteCode, RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode
+                   )
   allEncountersWideOrdered <- allEncountersWide %>%
     select(TAG, one_of(paste0(columnOrder, "_n")), Recapture_n)
 
@@ -63,7 +66,8 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
                                                  ConnectivityChannelUpstreamFrontendCodes, MobileRunFrontendCodes, 
                                                  WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode,
                                                  GranbyDiversionAntennaFrontendSiteCode,
-                                                 RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode))) == TRUE),
+                                                 RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode
+                                                 ))) == TRUE),
       TotalStationary = rowSums(select(., all_of(c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, 
                                                    ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes,
                                                    ConnectivityChannelUpstreamFrontendCodes))) == TRUE),
@@ -71,7 +75,8 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
       TotalMobile = rowSums(select(.,  all_of(MobileRunFrontendCodes)) == TRUE),
       TotalBiomark = rowSums(select(., all_of(c(WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode,
                                                 GranbyDiversionAntennaFrontendSiteCode,
-                                                RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode))) == TRUE),
+                                                RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode 
+                                                ))) == TRUE),
       TotalRedBarn =rowSums(select(.,  all_of(RedBarnFrontendCodes)) == TRUE),
       TotalHitchingPost = rowSums(select(.,  all_of(HitchingPostFrontendCodes)) == TRUE),
       TotalConfluence = rowSums(select(.,  all_of(ConfluenceFrontendCodes)) == TRUE),
@@ -104,7 +109,7 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
     group_by(TAG) %>%
     summarize(through_dam = if_else(all(above_below == "Above the Dam"), "Stayed Above the Dam", 
                                              if_else(all(above_below == "Below the Dam"), "Stayed Below the Dam",
-                                                     "Went through dam or Connectivity Channel")))
+                                                     "Went through dam or Used Connectivity Channel")))
   
   aboveAndBelowInfo <- combined_events_stations %>%
     count(TAG, det_type, above_below, name = "Encounters") %>%
@@ -147,7 +152,7 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
                          as.character(mdy(Date)),
                          Date))
   
-  #### dummy rows removal: 1/14/23
+  #### dummy rows removal: 
   encountersAndRelease6 <- encountersAndRelease6 %>%
     filter(!TAG %in% c("230000999999"))
   
@@ -157,7 +162,8 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   )
   
   end_time <- Sys.time()
-  print(paste("Encounter Histories Summary Wide Function took", round(end_time-start_time,2), "Seconds"))
-  
-  return(enc_wide_list)
+  endMessage <-  paste("Encounter Histories Summary Wide Function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes")
+  print(endMessage)
+  return(list("enc_wide_list" = enc_wide_list, 
+         "endMessage" = paste(c(startMessage, endMessage), collapse = "<br>")))
 }

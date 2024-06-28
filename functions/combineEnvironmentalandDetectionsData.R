@@ -22,7 +22,9 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   #filtered_PTData is the dates where there all all NA values in rest of the colunms
   filtered_PTData <- allPressureTransducerDataWithDischarge[rowSums(is.na(allPressureTransducerDataWithDischarge[, setdiff(names(allPressureTransducerDataWithDischarge), keyColumns)])) == (ncol(allPressureTransducerDataWithDischarge) - length(keyColumns)), ]
   #then we anti_join that with the original PT data with discharge to get df of data with datetimes that have some sort of relevant data
-  allPressureTransducerDataWithDischargeNoNA <- anti_join(allPressureTransducerDataWithDischarge, filtered_PTData)
+  allPressureTransducerDataWithDischargeNoNA <- allPressureTransducerDataWithDischarge %>% 
+    anti_join(filtered_PTData) %>%
+    suppressMessages()
   
   PTData <- allPressureTransducerDataWithDischargeNoNA %>%
     mutate(Datetime = as.POSIXct(dateTime)) %>%
@@ -35,11 +37,13 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
     
   }
   #these are all the detections from the original Detection file that do not exactly match a PT or discharge recording timestamp
-  notExactTimestampMatchesDetections <- anti_join(DetectionswithPTSiteName, PTData, by = c("Datetime") )
+  notExactTimestampMatchesDetections <- DetectionswithPTSiteName %>%
+    anti_join(PTData, by = c("Datetime")) %>%
+    suppressMessages() 
   
 
 # rolling join on just specific site stuff --------------------------------
-  #the rolling join with 2 can only take those with the 
+  #the rolling join with 2 can only take those with the right site name
   notExactTimestampMatchesDetectionsStationaryOnly <- notExactTimestampMatchesDetections %>%
     filter(!is.na(SiteName))
   
@@ -89,9 +93,11 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   #want to buffer by 13 hours for just discharge
   
   
-  restOftheNotExactTimestampMatches <- anti_join(notExactTimestampMatchesDetections, notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1HourValidDataOnly, 
+  restOftheNotExactTimestampMatches <- notExactTimestampMatchesDetections %>%
+    anti_join(notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1HourValidDataOnly, 
                  by = c("Datetime", "Event", "TAG", "UTM_X", "UTM_Y")) %>%
-    arrange(SiteName)
+    arrange(SiteName) %>%
+    suppressMessages() 
   
   restOftheNotExactTimestampMatches <- data.table(restOftheNotExactTimestampMatches)
   DischargeDataforJoin <- data.table(DischargeData) %>%
@@ -107,8 +113,7 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   
   restOftheNotExactTimestampMatchesWithDischargeReading <- restOftheNotExactTimestampMatchesWithDischargeReading %>%
     relocate(dateTime, Datetime) %>%
-    rename(environmentalDataMeasurementTime = dateTime, 
-          USGSDischarge = Flow_Inst)
+    rename(environmentalDataMeasurementTime = dateTime)
   
   #change environmental data columns to NA that are outside 13 hour time frame
   #cols to change to NA: includes USGSDischarge
@@ -133,8 +138,7 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   exactMatchesNotPTdata <- DetectionswithPTSiteName %>%
     filter(!SiteName %in% na.omit(unique(wgfpMetadata$AntennaMetadata$PressureTransducerSiteName))) %>%
     inner_join(DischargeData, by = c("Datetime" = "dateTime")) %>%
-    mutate(environmentalDataMeasurementTime = Datetime) %>%
-    rename(USGSDischarge = Flow_Inst)
+    mutate(environmentalDataMeasurementTime = Datetime) 
   
   
   # getting environmental data for all other detections that do not  have a stationary antenna site attached --------
@@ -147,6 +151,7 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   exactMatchesatSiteNoPTSite <- DetectionswithPTSiteName %>%
     filter(SiteName %in% na.omit(unique(wgfpMetadata$AntennaMetadata$PressureTransducerSiteName))) %>%
     inner_join(ptData_noSite, by = c("Datetime" = "dateTime")) %>%
+    suppressMessages() %>%
     mutate(environmentalDataMeasurementTime = Datetime)
   
   
@@ -161,48 +166,14 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   ###then bind together notExactTimeMatches at statoinary sites, exact time matches not at stationary sites, and exact time matches at Stationary sites
   #this should give df the same size as the original condensedAllEventsWithReleaseInfo (or Detections) with environmental variables attached
   desiredColumns <- c(colnames(Detections), colnames(allPressureTransducerDataWithDischarge), "environmentalDataMeasurementTime", "SiteName")
-  desiredColTypes <- c(class(Detections[,c(colnames(Detections))]))
-  
-  alignColumns <- function(detectionsWithEnvironmentalData, desiredColumns) {
-    # Create missing columns in detectionsWithEnvironmentalData with NA values
-    missingColumns <- setdiff(desiredColumns, colnames(detectionsWithEnvironmentalData))
-    
-    if (length(missingColumns) > 0) {
-      for (col in missingColumns) {
-        # Determine the expected column type based on desiredColumns
-        expectedType <- ifelse(col %in% colnames(Detections), 
-                               typeof(Detections[[col]]),
-                               ifelse(col %in% colnames(allPressureTransducerDataWithDischarge),
-                                      typeof(allPressureTransducerDataWithDischarge[[col]]),
-                                      typeof(detectionsWithEnvironmentalData[[col]])))  # Use existing type of detectionsWithEnvironmentalData's column
-        
-        # Create new column with NA values and enforce the expected type
-        detectionsWithEnvironmentalData[[col]] <- NA  # Start with NA values
-        detectionsWithEnvironmentalData[[col]] <- switch(expectedType,
-                                                         "integer" = as.integer(detectionsWithEnvironmentalData[[col]]),
-                                                         "numeric" = as.numeric(detectionsWithEnvironmentalData[[col]]),
-                                                         "character" = as.character(detectionsWithEnvironmentalData[[col]]),
-                                                         "factor" = as.factor(detectionsWithEnvironmentalData[[col]]),
-                                                         "Date" = as.Date(detectionsWithEnvironmentalData[[col]]),
-                                                         detectionsWithEnvironmentalData[[col]])  # Retain original if type doesn't match known types
-      }
-    }
-    
-    # Reorder dataframe columns to match desiredColumns
-    detectionsWithEnvironmentalData <- detectionsWithEnvironmentalData %>%
-      select(all_of(desiredColumns)) %>%
-      select(-Site, -dateTime) %>%
-      rename(Site = SiteName)
-    
-    return(detectionsWithEnvironmentalData)
-  }
-  
+
+  #align columns is another function that gets columns to the right names 
   df_list <- list(
-    "exactTimestampMatchesWithPTdata1" = alignColumns(exactMatchesWithPTdata, desiredColumns),
-    "exactTimestampMatchesatSiteNoPTSite1" = alignColumns(exactMatchesatSiteNoPTSite, desiredColumns),  
-    "exactTimestampMatchesNotPTdata1" = alignColumns(exactMatchesNotPTdata, desiredColumns),
-    "notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour1" = alignColumns(notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1HourValidDataOnly, desiredColumns = desiredColumns), 
-    "notExactTimestampMatchesDetectionsStationaryValidDataWithClosestEnvironmentalReadingWithin1Hour1" = alignColumns(restOftheNotExactTimestampMatchesWithDischargeReading,desiredColumns)
+    "exactTimestampMatchesWithPTdata1" = alignColumns(exactMatchesWithPTdata, desiredColumns, Detections),
+    "exactTimestampMatchesatSiteNoPTSite1" = alignColumns(exactMatchesatSiteNoPTSite, desiredColumns, Detections),  
+    "exactTimestampMatchesNotPTdata1" = alignColumns(exactMatchesNotPTdata, desiredColumns, Detections),
+    "notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour1" = alignColumns(notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1HourValidDataOnly, desiredColumns = desiredColumns, Detections), 
+    "notExactTimestampMatchesDetectionsStationaryValidDataWithClosestEnvironmentalReadingWithin1Hour1" = alignColumns(restOftheNotExactTimestampMatchesWithDischargeReading, desiredColumns, Detections)
     )
   
   ## some rows have an entry for ptData at an exact timestamp, but the variables are all NA so it gets put under "notExactTimestampMatchesDetectionsWithClosestEnvironmentalReadingWithin1Hour1"
@@ -210,7 +181,9 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   #this leads to duplicate entries in the final df, just with different environmental timestamp fields
   #so that's why here we filter out those rows (out of 2.6 million, it was just 3 rows) based on having a different envrionmnetal timestamp
   allData <- dplyr::bind_rows(df_list) %>%
-    dplyr::distinct(across(-environmentalDataMeasurementTime), .keep_all = TRUE)
+    select(-Site, -dateTime) %>%
+    rename(Site = SiteName) %>%
+    dplyr::distinct(across(-environmentalDataMeasurementTime), .keep_all = TRUE) 
   
   detach("package:data.table", unload=TRUE)
   return(allData)

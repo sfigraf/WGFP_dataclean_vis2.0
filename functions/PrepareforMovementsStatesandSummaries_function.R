@@ -46,8 +46,7 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
   DailyMovements_withStationsAndDetectionType <- DailyMovements_withStationsNumberofDailyEvents %>%
     left_join(wgfpMetadata$AntennaMetadata[,c("FrontendSiteCode", "SiteName")], by = c("Event" = "FrontendSiteCode")) %>%
     mutate(det_type = coalesce(SiteName, Event), 
-           #need to check this function out given new stationing and connectivity channel!!!!!
-           #!!!!!
+           #in this instance, "above the dam" would be mean the CRCC too; any detection in it
            above_below = case_when(
              ET_STATION >= DamLocation ~ "Above the Dam",
              ET_STATION < DamLocation ~ "Below the Dam"
