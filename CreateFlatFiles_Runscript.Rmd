@@ -288,10 +288,12 @@ Biomark <- Biomark %>%
 
 
 cleanedRelease <- Release %>%
-  mutate(Date = as.character(lubridate::mdy(Date)))
+  mutate(Date = as.character(lubridate::mdy(Date)), 
+         Species = str_trim(Species))
 
 cleanedRecaptures <- Recaptures %>%
-  mutate(Date = as.character(lubridate::mdy(Date)))
+  mutate(Date = as.character(lubridate::mdy(Date)), 
+         Species = str_trim(Species))
 
 AvianPredation <- AvianPredation %>%
   mutate(PredationDate = lubridate::mdy(PredationDate))
