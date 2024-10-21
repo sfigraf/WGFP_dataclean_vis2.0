@@ -10409,11 +10409,11 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 6,Colorado River,Windy Gap Dam,10/4/2023,12:00:00,416101,4440146,LOC,396,422,HA,230000144336,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/4/2023,12:00:00,416101,4440146,RBT,198,80,HA,230000144337,,32,Handheld,Release,adp,0,
 6,Colorado River,Windy Gap Dam,10/4/2023,12:00:00,416101,4440146,RBT,510,1460,HA,230000144338,,32,Handheld,Release,adp,0,
-9,Colorado River,Chimney Rock Below Island ,5/14/2024,9:00:00,413330,4440059,LOC,370,455,HA,230000087461,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
-9,Colorado River,Chimney Rock Below Island ,5/14/2024,9:00:00,413330,4440059,LOC,391,577,HA,230000087460,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
-9,Colorado River,Chimney Rock Below Island ,5/14/2024,9:00:00,413330,4440059,LOC,358,437,HA,230000087459,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
-9,Colorado River,Chimney Rock Below Island ,5/14/2024,9:00:00,413330,4440059,LOC,402,608,HA,230000087458,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
-9,Colorado River,Chimney Rock Below Island ,5/14/2024,9:00:00,413330,4440059,LOC,460,917,HA,230000087457,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
+9,Colorado River,Chimney Rock Below Island,5/14/2024,9:00:00,413330,4440059,LOC,370,455,HA,230000087461,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
+9,Colorado River,Chimney Rock Below Island,5/14/2024,9:00:00,413330,4440059,LOC,391,577,HA,230000087460,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
+9,Colorado River,Chimney Rock Below Island,5/14/2024,9:00:00,413330,4440059,LOC,358,437,HA,230000087459,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
+9,Colorado River,Chimney Rock Below Island,5/14/2024,9:00:00,413330,4440059,LOC,402,608,HA,230000087458,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
+9,Colorado River,Chimney Rock Below Island,5/14/2024,9:00:00,413330,4440059,LOC,460,917,HA,230000087457,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
 19,Colorado River,Sheriff Ranch Fry Site,5/14/2024,14:00:00,409096,4438050,LOC,335,349,HA,230000087456,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
 10,Colorado River,Upper Red Barn Fry Site,5/16/2024,9:00:00,412728,4439665,RBT,382,469,HA,230000087455,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
 11,Colorado River,Pool Above Red Barn Antenna,5/16/2024,9:30:00,412550,4439453,LOC,481,217,HA,230000087454,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
@@ -10575,7 +10575,7 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 2,Fraser River,Fraser River Ranch,9/3/2024,12:30:00,417229,4438617,MTS,115,20,HA,226001546946,,12,Handheld,Release,right pelvic,0,
 2,Fraser River,Fraser River Ranch,9/3/2024,12:30:00,417229,4438617,MTS,99,13,HA,226001546994,,12,Handheld,Release,right pelvic,0,
 2,Fraser River,Fraser River Ranch,9/3/2024,12:30:00,417229,4438617,MTS,94,11,HA,226001546901,,12,Handheld,Release,right pelvic,0,
-1,Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,LOC ,245,150,HA,230000087612,,32,Handheld,Release,adp,0,
+1,Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,LOC,245,150,HA,230000087612,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,MTS,115,19,HA,226001546800,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,RBT,188,70,HA,230000087607,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,RBT,202,84,HA,230000087606,,32,Handheld,Release,adp,0,
@@ -10638,7 +10638,7 @@ RS_Num,River,ReleaseSite,Date,Time,UTM_X,UTM_Y,Species,Length,Weight,TagType,Tag
 1,Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,LOC,220,108,HA,230000087665,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,LOC,165,49,HA,230000087598,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,LOC,165,58,HA,230000087597,,32,Handheld,Release,adp,0,
-1,Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,LOC ,177,58,HA,230000087664,,32,Handheld,Release,adp,0,
+1,Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,LOC,177,58,HA,230000087664,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,LOC,173,54,HA,230000087663,,32,Handheld,Release,adp,0,
 1,Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,MTS,76,8,HA,226001546807,,12,Handheld,Release,right pelvic,0,
 1,Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,LOC,232,114,HA,230000087662,,32,Handheld,Release,adp,0,
