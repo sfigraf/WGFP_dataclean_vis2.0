@@ -41,7 +41,7 @@ Biomark <- read.csv("./data/Biomark_Raw_20221102.csv", dec = ",")
 
 #Release <- read.csv("./data/WGFP_ReleaseData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",9), "numeric", "numeric",rep("character",8)))
 Release <- read.csv("./data/WGFP_ReleaseData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",9)))
-Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 8), rep("numeric", 2), rep("character", 8)))
+Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
 
 #avian predation
 AvianPredation <- read_csv("./data/WGFP_AvianPredation.csv", 

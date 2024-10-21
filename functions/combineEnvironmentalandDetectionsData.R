@@ -180,7 +180,7 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   #however since there's an exact match it also gets put under "exactMatchesNotPTdata" 
   #this leads to duplicate entries in the final df, just with different environmental timestamp fields
   #so that's why here we filter out those rows (out of 2.6 million, it was just 3 rows) based on having a different envrionmnetal timestamp
-  allData <- dplyr::bind_rows(df_list) %>%
+  allData <- data.table::rbindlist(df_list) %>%
     select(-Site, -dateTime) %>%
     rename(Site = SiteName) %>%
     dplyr::distinct(across(-environmentalDataMeasurementTime), .keep_all = TRUE) 
