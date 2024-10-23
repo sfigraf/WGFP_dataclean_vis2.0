@@ -72,6 +72,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   cleanedRelease <- Release %>%
     rename(TAG = TagID) %>%
     mutate(TAG = str_trim(TAG),
+           Species = str_trim(Species),
            Date = mdy(Date),
            DateTime = lubridate::ymd_hms(paste(Date, Time))) %>%
     select(RS_Num, River, ReleaseSite, Date, Time, DateTime, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event)
@@ -82,6 +83,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     rename(TAG = TagID) %>%
     filter(!Date %in% c("", " ", NA)) %>%
     mutate(TAG = str_trim(TAG),
+           Species = str_trim(Species),
            Date = mdy(Date),
            DateTime = ymd_hms(paste(Date, Time))) %>%
     select(RS_Num, River, RecaptureSite, DateTime, Date, Time, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event) %>%
