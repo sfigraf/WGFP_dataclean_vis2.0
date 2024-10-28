@@ -12,7 +12,8 @@ getGrowthRates <- function(Recaptures, Release){
     arrange(Date, .by_group = TRUE) %>%
     #use 52.25 weeks to account for leap years
     mutate(yearsSince = as.numeric(difftime(Date, lag(Date), units = "weeks"))/52.25, 
-           `Length Growth Rate mm per Year`= (Length - lag(Length))/yearsSince, 
-           `Weight Growth Rate g per Year`= (Weight - lag(Weight))/yearsSince)
+           `Length Growth Rate mm per Year`= round((Length - lag(Length))/yearsSince, 2), 
+           `Weight Growth Rate g per Year`= round((Weight - lag(Weight))/yearsSince, 2)
+    )
   return(GrowthRatesDF)
 }

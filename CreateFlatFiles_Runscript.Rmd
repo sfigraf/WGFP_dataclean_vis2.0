@@ -40,7 +40,7 @@ Biomark <- read.csv("./data/Biomark_Raw_20221102.csv", dec = ",")
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
 
 Release <- read.csv("./data/WGFP_ReleaseData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",9)))
-Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
+Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 8), rep("numeric", 2), rep("character", 8)))
 
 #avian predation
 AvianPredation <- read_csv("./data/WGFP_AvianPredation.csv", 
