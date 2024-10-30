@@ -2937,6 +2937,26 @@ listOfSamplingLocations <- combinedData_df_list$All_Events %>%
   dplyr::distinct(ReleaseSite, Release_Date) %>%
   arrange(ReleaseSite, Release_Date)
 
+#also needs mobile run dates
+mobileDates <- combinedData_df_list$All_Events %>%
+  dplyr::filter(Event %in% c("M1", "M2")) %>%
+  dplyr::distinct(Date, )
+
+mobile <- indiv_datasets_list$mobiledata %>%
+  dplyr::distinct(MobileSite, Date) %>%
+  arrange(MobileSite, Date)
+
+recaps <- indiv_datasets_list$recapdata %>%
+  dplyr::distinct(RecaptureSite, Date) %>%
+  mutate(Date = ymd(Date)) %>%
+  anti_join(listOfSamplingLocations, by = c("RecaptureSite" = "ReleaseSite", "Date" = "Release_Date")) %>%
+  arrange(RecaptureSite, Date)
+
+write_csv(recaps, file = "listOfUniqueRecapLocationsandDates.csv")
+
+write_csv(mobile, file = "listOfMobileLocationsandDates.csv")
+
+
 write_csv(listOfSamplingLocations, file = "listOfSamplingLocationsandDates.csv")
 
 
