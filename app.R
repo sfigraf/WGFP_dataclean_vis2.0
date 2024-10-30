@@ -101,7 +101,6 @@ for (i in list.files("./miscR/")) {
 end_time <- Sys.time()
 print(paste("Static File Read-in took", round((end_time-start_time),2)))
 
-
 weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
 
 #colors
@@ -113,7 +112,7 @@ rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD",
 #currently "Changed Rivers", "Downstream Movement" "Initial Release", "No Movement", "Upstream Movement" (5/17/24)
 #note: these are a little diffeerent than what we see in the map because the map/marker color optoins are very limited. 
 movementColors <- c("#4B0082", "#8B0000", "#FF8C00", "#253333", "#22bd74") #, "#66FF00"
-# currently "LOC" "MTS" "RBT" "RXN" "TGM" (5/17/24)
+# currently "BRK" "LOC" "MERG" "MTS" "RBT" "RXN" "TGM" (5/17/24)
 speciesColors <- c("#FFD700", "#654321", "#4F7942", "#FF7F50", "#1E90FF", "#008080", "#DAA520", "#D2691E", "#9A5ECD") 
 
 #maybe a better method for this, but pressure transducer site names are changed to the same names as Site Visit site names

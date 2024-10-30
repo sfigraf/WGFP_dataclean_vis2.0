@@ -1,4 +1,5 @@
 #########this is just a working playground for random code stuff
+
 library(readr)
 mobileDetect_2022 <- read_csv("mobileDetect_2022.csv")
 View(mobileDetect_2022)
@@ -167,7 +168,7 @@ x <- Stationary %>%
 x1 <- combinedData_df_list$All_Detections %>%
   filter(str_detect(TAG, "228468"))
 x1 <- Biomark %>%
-  filter(str_detect(DEC.Tag.ID, "^999"))
+  filter(str_detect(`DEC Tag ID`, "^999"))
 
 tag2323AtCD1 <- Stationary_Marker_tags %>%
   dplyr::filter(TAG %in% c("00000000000000002323"),
@@ -315,25 +316,25 @@ setdiff(joined, og)
 Biomark_cleanDate <- Biomark %>%
   #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy
   # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
-  mutate(Scan.Date = ifelse(str_detect(Scan.Date, "/"),
-                            as.character(lubridate::mdy(Scan.Date)),
-                            Scan.Date)) 
+  mutate(`Scan Date` = ifelse(str_detect(`Scan Date`, "/"),
+                            as.character(lubridate::mdy(`Scan Date`)),
+                            `Scan Date`)) 
 
 Biomark_cleanDateWG <- Biomark_cleanDate %>%
-  filter(!Reader.ID %in% c("A2", "B2"))
+  filter(!`Reader ID` %in% c("A2", "B2"))
 
 SchmuckChannel <- Biomark_cleanDateWG %>%
-  filter(Scan.Date >= "2021-12-31") %>%
-  mutate(Reader.ID = "B1")
+  filter(`Scan Date` >= "2021-12-31") %>%
+  mutate(`Reader ID` = "B1")
 
 Auxiliary <- Biomark_cleanDateWG %>%
-  filter(Scan.Date < "2021-12-31") %>%
-  mutate(Reader.ID = "A1")
+  filter(`Scan Date` < "2021-12-31") %>%
+  mutate(`Reader ID` = "A1")
 
 allBiom <- bind_rows(SchmuckChannel, Auxiliary)
 
 kaibabPark <- Biomark_cleanDate %>%
-  filter(Reader.ID %in% c("A2", "B2"))
+  filter(`Reader ID` %in% c("A2", "B2"))
 
 allBiom2 <- bind_rows(allBiom, kaibabPark)
 
@@ -370,19 +371,19 @@ Mobile = read.csv("WGFP_MobileDetections.csv", colClasses=c(rep("character",10))
 #Read Biomark
 # need to be put in with decimal registering as "," because otherwise it won't bring in the full DEC.Id tag
 #biomark1 <- read_csv("Biomark_Raw_20211109.csv", col_types = "cccccccccccccccc")
-# biomark_col_names <- c("Scan.Date","Scan.Time","Download.Date", "Download.Time" ,"Reader.ID","Antenna.ID","HEX.Tag.ID","DEC.Tag.ID","Temperature.C",
-#     "Signal.mV","Is.Duplicate","Latitude","Longitude","File.Name")
+# biomark_col_names <- c("`Scan Date`","`Scan Time`","`Download Date`", "`Download Time`" ,"`Reader ID`","`Antenna ID`","`HEX Tag ID`","`DEC Tag ID`","`Temperature,C`",
+#     "`Signal,mV`","`Is Duplicate`","Latitude","Longitude","`File Name`")
 # b <- read_csv("Biomark_Raw_20211109.csv", col_types = "ctcccccccccccccc", col_names = biomark_col_names)
 # 
 # b <- b[-1,]
 
 Biomark <- read.csv("Biomark_Raw_20211109_1.csv", dec = ","
-                    #, Scan.Time= strptime(Scan.Time)
+                    #, `Scan Time`= strptime(`Scan Time`)
                     #colClasses = c("character", "character", rep("character", 12))
                     )
 
 # Biomark1 <- read.csv("Biomark_Raw_1.csv", dec = ","
-#                     #, Scan.Time= strptime(Scan.Time)
+#                     #, `Scan Time`= strptime(`Scan Time`)
 #                     #colClasses = c("character", "character", rep("character", 12))
 # )
 #biomark11 <- read.csv("Biomark_Raw_2.csv", dec = ",")
@@ -770,7 +771,7 @@ x <- All_detections %>%
 
 ### Getting times correct
 
-x <- Biomark$Scan.Time[71755]
+x <- Biomark$`Scan Time`[71755]
 y <- mdy(x)
 str_length(x)
 str_detect(x, "/")
@@ -983,7 +984,7 @@ ENC_ALL <- all_enc12 %>%
 # # Biomark Antennas
 # BiomarkEnc <- biomark2 %>%
 #   mutate(TAG = ifelse(str_detect(TAG, "^900"), str_sub(TAG, 4,-1), TAG)) %>%
-#   count(TAG, Reader.ID, name = "Encounters")
+#   count(TAG, `Reader ID`, name = "Encounters")
 
 ### Separate Encounter histories by Antenna ###
 # Enc_RB1 = StationaryEnc%>%
@@ -1019,10 +1020,10 @@ ENC_ALL <- all_enc12 %>%
 # sum(Mob_M2$Encounters)
 # 
 # Bio_B1 <- BiomarkEnc %>%
-#   filter(Reader.ID == "B3")
+#   filter(`Reader ID` == "B3")
 # 
 # Bio_B2 <- BiomarkEnc %>%
-#   filter(Reader.ID == "B4")
+#   filter(`Reader ID` == "B4")
 # # Make Individual Encounter tables
 # 
 # RB1=Enc_RB1 %>%
@@ -2081,10 +2082,10 @@ Stationary <- Stationary %>%
 ### Biomark
 
 Biomark <- Biomark %>%
-  add_row(Scan.Date = "2022-12-03",Scan.Time = "59:59.9", Download.Date = "9/16/2022",Download.Time = "11:30:41",Reader.ID = "A3",Antenna.ID = 1,HEX.Tag.ID = "384.358D14F739",
-          DEC.Tag.ID = "900.230000999999",Temperature.C = NA,Signal.mV= NA,Is.Duplicate= "Yes",Latitude = NA,Longitude= NA,File.Name= NA) %>%
-  add_row(Scan.Date = "2022-12-03",Scan.Time = "59:59.9", Download.Date = "9/16/2022",Download.Time = "11:30:41",Reader.ID = "A4",Antenna.ID = 1,HEX.Tag.ID = "384.358D14F739",
-          DEC.Tag.ID = "900.230000999999",Temperature.C = NA,Signal.mV= NA,Is.Duplicate= "Yes",Latitude = NA,Longitude= NA,File.Name= NA)
+  add_row(`Scan Date` = "2022-12-03",`Scan Time` = "59:59.9", `Download Date` = "9/16/2022",`Download Time` = "11:30:41",`Reader ID` = "A3",`Antenna ID` = 1,`HEX Tag ID` = "384.358D14F739",
+          `DEC Tag ID` = "900.230000999999",`Temperature,C` = NA,`Signal,mV`= NA,`Is Duplicate`= "Yes",Latitude = NA,Longitude= NA,`File Name`= NA) %>%
+  add_row(`Scan Date` = "2022-12-03",`Scan Time` = "59:59.9", `Download Date` = "9/16/2022",`Download Time` = "11:30:41",`Reader ID` = "A4",`Antenna ID` = 1,`HEX Tag ID` = "384.358D14F739",
+          `DEC Tag ID` = "900.230000999999",`Temperature,C` = NA,`Signal,mV`= NA,`Is Duplicate`= "Yes",Latitude = NA,Longitude= NA,`File Name`= NA)
   
 x <- combined_events_stations %>%
   filter(Event %in% c("B5", "B6", "CD7", "CD8","CD9","CD10","CU11", "CU12"))
@@ -2930,5 +2931,12 @@ x <- WGFP_SiteVisits_FieldData %>%
          Date = mdy(Date)
   )
 
+####
+#gettign lsit of sampling locations and dates
+listOfSamplingLocations <- combinedData_df_list$All_Events %>%
+  dplyr::distinct(ReleaseSite, Release_Date) %>%
+  arrange(ReleaseSite, Release_Date)
+
+write_csv(listOfSamplingLocations, file = "listOfSamplingLocationsandDates.csv")
 
 
