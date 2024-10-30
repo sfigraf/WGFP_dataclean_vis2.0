@@ -25,7 +25,7 @@ Ind_data_ui_tab <- function(tabid, tableid, dateid, buttonid, downloadid, end_da
 Ind_data_reactive <- function(buttonid, dataset, dateid) {
   filtered_data <- eventReactive(input$buttonid,{
     data_filtered <- dataset %>%
-      filter(Scan.Date >= input$dateid[1] & Scan.Date <= input$dateid[2])
+      filter(`Scan Date` >= input$dateid[1] & `Scan Date` <= input$dateid[2])
   })
 }
 

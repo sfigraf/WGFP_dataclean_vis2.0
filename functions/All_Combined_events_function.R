@@ -11,26 +11,26 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   
   # biomark cleaning, getting dates into uniform format, 
   biomarkCleaned <- Biomark %>%
-    mutate(TAG = str_replace(DEC.Tag.ID, "\\.", ""),
+    mutate(TAG = str_replace(`DEC Tag ID`, "\\.", ""),
            # i wish this could be a join, but when there are 2 dif codes (A1, B1, etc) used for backend name, this is a bit simpler
-           Reader.ID = case_when(
-             Reader.ID %in% WindyGapBypassAntennaBackendSiteCode ~ WindyGapBypassAntennaFrontendSiteCode,
-             Reader.ID %in% WindyGapAuxiliaryAntennaBackendSiteCode ~ WindyGapAuxiliaryAntennaFrontendSiteCode,
-             Reader.ID %in% GranbyDiversionAntennaBackendSiteCode ~ GranbyDiversionAntennaFrontendSiteCode,
-             Reader.ID %in% RiverRunAntennaBackendSiteCode ~ RiverRunAntennaFrontendSiteCode,
-             Reader.ID %in% FraserRiverCanyonAntennaBackendSiteCode ~ FraserRiverCanyonAntennaFrontendSiteCode,
-             TRUE ~ Reader.ID),
+           `Reader ID` = case_when(
+             `Reader ID` %in% WindyGapBypassAntennaBackendSiteCode ~ WindyGapBypassAntennaFrontendSiteCode,
+             `Reader ID` %in% WindyGapAuxiliaryAntennaBackendSiteCode ~ WindyGapAuxiliaryAntennaFrontendSiteCode,
+             `Reader ID` %in% GranbyDiversionAntennaBackendSiteCode ~ GranbyDiversionAntennaFrontendSiteCode,
+             `Reader ID` %in% RiverRunAntennaBackendSiteCode ~ RiverRunAntennaFrontendSiteCode,
+             `Reader ID` %in% FraserRiverCanyonAntennaBackendSiteCode ~ FraserRiverCanyonAntennaFrontendSiteCode,
+             TRUE ~ `Reader ID`),
            #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy 
            # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
-           Scan.Date = ifelse(str_detect(Scan.Date, "/"), 
-                              as.character(mdy(Scan.Date)), 
-                              Scan.Date)
+           `Scan Date` = ifelse(str_detect(`Scan Date`, "/"), 
+                              as.character(mdy(`Scan Date`)), 
+                              `Scan Date`)
     ) %>%
     #we want to filter out test tags here, but not marker tags
     filter(!TAG %in% test_tags) %>%
     #get UTMs based off what is in metaDataTable
     #left_join() is faster than merge()
-    left_join(wgfpMetadata$AntennaMetadata, by = c("Reader.ID" = "FrontendSiteCode")) %>%
+    left_join(wgfpMetadata$AntennaMetadata, by = c("Reader ID" = "FrontendSiteCode")) %>%
     distinct()
   
   ###Create one big clean dataset
@@ -41,8 +41,8 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   
   condensedBiomark <- biomarkCleaned %>%
     mutate(TAG = ifelse(str_detect(TAG, "^900"), str_sub(TAG, 4,-1), TAG)) %>%
-    select(Scan.Date, Scan.Time, TAG, Reader.ID, UTM_X, UTM_Y) %>%
-    rename(Scan_Date = Scan.Date, Scan_Time = Scan.Time, Site_Code = Reader.ID, UTM_X = UTM_X, UTM_Y = UTM_Y)
+    select(`Scan Date`, `Scan Time`, TAG, `Reader ID`, UTM_X, UTM_Y) %>%
+    rename(Scan_Date = `Scan Date`, Scan_Time = `Scan Time`, Site_Code = `Reader ID`, UTM_X = UTM_X, UTM_Y = UTM_Y)
   
   condensedMobile <- Mobile %>% #gonna have to just change to mobile eventually
     rename(TAG = TagID) %>%

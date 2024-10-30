@@ -35,7 +35,7 @@ Stationary <- readRDS("./data/WGFP_Raw_20241003.rds")
 
 Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character", 14), rep("numeric", 4), rep("character", 3)))
 
-Biomark <- read.csv("./data/Biomark_Raw_20221102.csv", dec = ",") 
+Biomark <- readRDS("./data/Biomark_Raw_20241001.rds")
 
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
 
@@ -281,9 +281,9 @@ Mobile <- Mobile %>%
 Biomark <- Biomark %>%
   #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy
   # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
-  mutate(Scan.Date = ifelse(str_detect(Scan.Date, "/"),
-                            as.character(lubridate::mdy(Scan.Date)),
-                            Scan.Date))
+  mutate(`Scan Date` = ifelse(str_detect(`Scan Date`, "/"),
+                            as.character(lubridate::mdy(`Scan Date`)),
+                            `Scan Date`))
 
 
 cleanedRelease <- Release %>%
@@ -320,7 +320,7 @@ Cleaned_Stationary_FishdetectionsOnly <- utmsStationary %>%
 
 #spatially joins point (detection) data to lines (station) data based on nearest feature.
 #simpleStations is from polygon_readins
-DailyMovements_withStations <- spatial_join_stations_detections(AllCombinedEvents$df_list$All_Events_most_relevant, simpleStations = simpleStations)
+DailyMovements_withStations <- spatial_join_stations_detections(condensedEvents = AllCombinedEvents$df_list$All_Events_most_relevant, simpleStations = simpleStations)
 
 if(nrow(DailyMovements_withStations$spatialList$noUTMS) > 0){
   problemNAtagsMessage <- paste0("The following tags could not be assigned stations because of an NA entry for UTMs: ", unique(DailyMovements_withStations$spatialList$noUTMS$TAG),
@@ -367,7 +367,7 @@ WGFP_SiteVisits_FieldDatawithPTData <- combineEnvironmentalAndSiteVisitData(WGFP
 ### taking dummy tag out
 
 Biomark <- Biomark %>%
-  filter(!DEC.Tag.ID %in% c("900.230000999999"))
+  filter(!`DEC Tag ID` %in% c("900.230000999999"))
 cleanedRelease <- cleanedRelease %>%
   filter(!TagID %in% c("230000999999"))
 Stationary <- Cleaned_Stationary_FishdetectionsOnly %>%
