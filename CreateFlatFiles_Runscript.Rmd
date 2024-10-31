@@ -343,6 +343,26 @@ enc_hist_wide_df <- enc_hist_wide_list$enc_wide_list$encountersAndRelease_wide_s
 Movements_df <- get_movements_function(combined_events_stations, dailyUSGSData = windyGapDaily)
 WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_df$dailyMovementsTable1)
 
+### avian predation
+
+allEventsAvianPredationFiltered <- AllCombinedEvents$df_list$All_Events %>%
+  dplyr::filter(!TAG %in% unique(AvianPredation$TagID))
+
+movingDownstream <- getSequences(allEventsAvianPredationFiltered, c("CF", "GD1", "RR1"), "", c("HP", "RB", "WG1", "WG2"), c("M1", "M2"))
+movingUpstream <- getSequences(allEventsAvianPredationFiltered, c("HP", "RB", "WG1", "WG2") , "", c("CF", "GD1", "RR1"), c("M1", "M2"))
+
+
+### next: want to filter out tags already in the avian predation file
+#make a df of tags that appear on every DF here as "high priority" tags
+#incoporate into new QAQC tab on app 
+avianPredationList <- list(
+  "movingDownstream" = movingDownstream, 
+  "movingUpstream" = movingUpstream, 
+  "largeMovementsWithoutChannel" = enc_hist_wide_list$possibleAvianPredation, 
+  "activeFishStates" = states$possibleAvianPredation
+  )
+
+
 ###QAQC ghost tags
 ghostTagsWithMovementAfterGhostDate <- qaqcGhostTagMovements(GhostTags, Movements_df$dailyMovementsTable1)
 
@@ -442,6 +462,7 @@ allFlatFiles <- list(
   "movements_list" = movements_list,
   "Marker_tags" = Cleaned_Marker_tags,
   "unknown_tags" = unknown_tags, 
+  "possibleAvianPredationDFs" = avianPredationList,
   "wgfpMetadata" = wgfpMetadata,
   "metaDataVariableNames" = metaDataVariableNames,
   "PTData" = PTData,

@@ -53,6 +53,7 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
     select(Date, weeks_since, TAG, condensedWeeklyStates, det_type, ReleaseSite, Species, Release_Length, Release_Weight, c_number_of_detections, weekly_unique_events, days_since, UTM_X, UTM_Y) %>%
     rename(State = condensedWeeklyStates)
   
+  
   # this makes some columns from all states of fish, detects certain letters/patterns, and tells if a fish EVER had certain patterns
   summarizedStates <- states %>%
     group_by(TAG) %>%
@@ -74,6 +75,8 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
     select(TAG, condensedAllStates, channelSummary, went_above_dam_noChannel, went_below_dam_noChannel,went_below_dam_throughChannel,went_above_dam_throughChannel,entered_channel_from_DS,entered_channel_from_US) %>%
     distinct(TAG, .keep_all = TRUE)
   
+  
+  
 # Flagged Tags ------------------------------------------------------------
 
   #should we put states in this that have multiple letters?
@@ -92,9 +95,23 @@ states_function <- function(combined_events_stations, GhostTags, AvianPredation)
     )
   
   unknown_states <- checking %>%
-    filter(is.na(through_dam1) & !det_type %in% c("Release", "Recapture and Release", "Recapture"))  
+    filter(is.na(through_dam1) & !det_type %in% c("Release", "Recapture and Release", "Recapture"), 
+           !State %in% c("G", "P", "C"))  
   
-  states_df_list <- list("All_States" = cleanedWeeklyStates, "Flagged_movements" = unknown_states, "States_summarized" = summarizedStates)
+  ##### Potential Avian Predation 
+  weeklyActiveFish <- cleanedWeeklyStates %>%
+    filter(weekly_unique_events >4 | str_length(State) > 2)
+  
+  overAllActiveFish <- summarizedStates %>%
+    filter(str_length(condensedAllStates) >2)
+  overAllActiveFishNotinWeeklyDF <- anti_join(overAllActiveFish, weeklyActiveFish, by = "TAG")
+  possibleAvianPredation <- list(
+    "weeklyActiveFish" = weeklyActiveFish,
+    "overAllActiveFishNotinWeeklyDF" = overAllActiveFishNotinWeeklyDF
+  )
+  
+  states_df_list <- list("All_States" = cleanedWeeklyStates, "Flagged_movements" = unknown_states, "States_summarized" = summarizedStates, 
+                         "possibleAvianPredation" = possibleAvianPredation)
   end_time <- Sys.time()
   endMessage <- paste("States Function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes")
   print(endMessage)
