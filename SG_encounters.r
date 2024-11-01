@@ -2958,5 +2958,9 @@ write_csv(mobile, file = "listOfMobileLocationsandDates.csv")
 
 
 write_csv(listOfSamplingLocations, file = "listOfSamplingLocationsandDates.csv")
+# throgh_dam_no_channel <- encountersAndRelease6 %>%
+#   filter(went_above_dam_noChannel == TRUE | went_below_dam_noChannel == TRUE) %>%
+#   select(TAG, went_above_dam_noChannel, went_below_dam_noChannel, sum_dist)
+# possibleAvianPredation = left_join(throgh_dam_no_channel, )
 
 

@@ -11,7 +11,7 @@ computeTimeDiff <- function(start, end) {
     return(paste(round(diff_secs / 86400, 2), "days"))
   }
 }
-#tells if a vector is consecutive with incrememnts of 1 
+#tells if a vector is consecutive with increments of 1 
 #example: c(5,7), c(1,4,5), c(8,2) return false, c(2,3,4) and c(2,3) return TRUE
 is.sequential <- function(x) {
   length(x) < 2 || all(diff(x) == 1)
@@ -61,6 +61,7 @@ extractSequences <- function(tag_data, firstAntennas, middleAntennas, lastAntenn
     ### if first/last antennas aren't the same, can run the antenna index to get where the last antenna is after the first antenna statrtting from current index i
     # print(paste("first", firstAntennas))
     # print(paste("last", lastAntennas))
+    #any(c("CF", "WG2", "RR1") %in% c("HP", "RB", "WG1", "WG2"))
     if(all(firstAntennas != lastAntennas)){
       # Find indices of events that match the chosen upstream antennas within the subset of tag_data starting from the current index i
       lastAntennas_indices <- which(grepl(paste0("^(", paste(lastAntennas, collapse = "|"), ")"), tag_data$Event[i:nrow(tag_data)]))

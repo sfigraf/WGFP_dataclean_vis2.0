@@ -56,6 +56,10 @@ if(!exists("unknown_tags")){
   unknown_tags <- readRDS("data/flatFilesforApp/unknown_tags.rds")
 }
 
+if(!exists("avianPredationList")){
+  avianPredationList <- readRDS("data/flatFilesforApp/possibleAvianPredationDFs.rds")
+}
+
 if(!exists("wgfpMetadata")){
   wgfpMetadata <- readRDS("data/flatFilesforApp/wgfpMetadata.rds")
 }
@@ -220,7 +224,7 @@ server <- function(input, output, session) {
       PT_Server("PTtab1", PTData, movements_list$Movements_df, USGSData, SiteVisitData$WGFP_SiteVisits_FieldData, allColors)
    
       QAQC_Server("QAQCTab1", Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
-                  unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate,
+                  unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate, avianPredationList,
                   combinedData_df_list, wgfpMetadata, metaDataVariableNames, SiteVisitData$SiteVisitAndPTData, allColors)
     
   })
