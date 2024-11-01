@@ -364,18 +364,20 @@ avianPredationList <- list(
   "statesWeeklyActiveFish" = states$states_df_list$possibleAvianPredation$weeklyActiveFish, 
   "statesAllActiveFish" = states$states_df_list$possibleAvianPredation$overAllActiveFishNotinWeeklyDF 
   )
+#removing all tags already discerned as avian predation from each df
+avianPredationList <- purrr::map(avianPredationList, ~anti_join(.x, AvianPredation, by = c("TAG" = "TagID")))
 
-###making df of frewuency counts for each time a fish appears on a df to get "priority" list
-tagCounts <- purrr::map_dfr(avianPredationList, ~ {
+###making df of frequency counts for each time a fish appears on a df to get "priority" list
+tagCountsNoPredation <- purrr::map_dfr(avianPredationList, ~ {
   # Count occurrences within this dataframe
   .x %>%
     count(TAG)
 }) %>%
   # Summarize counts across all dataframes
   group_by(TAG) %>%
-  summarize(Frequency = sum(n), .groups = 'drop')
+  summarize(Frequency = sum(n), .groups = 'drop') %>%
+  arrange(desc(Frequency))
 
-tagCountsNoPredation <- anti_join(tagCounts, AvianPredation, by = c("TAG" = "TagID"))
 avianPredationList[["tagCountsNoPredation"]] = tagCountsNoPredation
 
 ###QAQC ghost tags

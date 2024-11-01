@@ -65,7 +65,7 @@ QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
   )
 }
 
-QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_tags, ghostTagsWithMovementAfterGhostDate, 
+QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_tags, ghostTagsWithMovementAfterGhostDate, avianPredationList,
                         combinedData_df_list, wgfpMetadata, metaDataVariableNames, WGFP_SiteVisits_FieldDatawithPTData, allColors) {
   moduleServer(
     id,
@@ -180,6 +180,11 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
                   )
         ) 
       })
+      
+
+# Avian Predation ---------------------------------------------------------
+
+      avianPredationMod_Server("avianPredation", avianPredationList)      
 
 # Detection distance/water level ------------------------------------------
 
