@@ -353,10 +353,6 @@ allEventsAvianPredationFiltered <- AllCombinedEvents$df_list$All_Events %>%
 movingDownstream <- getSequences(allEventsAvianPredationFiltered, c("CF", "GD1", "RR1"), "", c("HP", "RB", "WG1", "WG2"), c("M1", "M2"))
 movingUpstream <- getSequences(allEventsAvianPredationFiltered, c("HP", "RB", "WG1", "WG2") , "", c("CF", "GD1", "RR1"), c("M1", "M2"))
 
-
-### next: want to filter out tags already in the avian predation file
-#
-#incoporate into new QAQC tab on app 
 avianPredationList <- list(
   "movingDownstream" = movingDownstream, 
   "movingUpstream" = movingUpstream, 
