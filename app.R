@@ -56,6 +56,10 @@ if(!exists("unknown_tags")){
   unknown_tags <- readRDS("data/flatFilesforApp/unknown_tags.rds")
 }
 
+if(!exists("avianPredationList")){
+  avianPredationList <- readRDS("data/flatFilesforApp/possibleAvianPredationDFs.rds")
+}
+
 if(!exists("wgfpMetadata")){
   wgfpMetadata <- readRDS("data/flatFilesforApp/wgfpMetadata.rds")
 }

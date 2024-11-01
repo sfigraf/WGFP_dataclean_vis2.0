@@ -47,6 +47,13 @@ QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
                downloadData_UI(ns("downloadghostTags1")),
                withSpinner(DT::dataTableOutput(ns("ghostTags1")))
       ), 
+      tabPanel("Avian Predation",
+               br(),
+               avianPredationMod_UI(ns("avianPredation"))
+               
+               #downloadData_UI(ns("downloadghostTags1")),
+               # withSpinner(DT::dataTableOutput(ns("ghostTags1")))
+      ), 
       tabPanel("Crosstalk QAQC",
                qaqcCrosstalkMod_UI(ns("qaqcCrosstalk"), combinedData_df_list)
       ), 

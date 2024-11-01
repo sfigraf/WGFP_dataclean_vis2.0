@@ -335,6 +335,7 @@ if(nrow(DailyMovements_withStations$spatialList$noUTMS) > 0){
 combined_events_stations <- PrepareforStatesMovementsandSummary(DailyMovements_withStations$spatialList$stationData)
 
 # states
+
 states <- states_function(combined_events_stations, GhostTags, AvianPredation)
 # aplies enc_hist_summary wide function
 enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(AllCombinedEvents$df_list$Recaps_detections, cleanedRelease, combined_events_stations, states$states_df_list$States_summarized, markerTags = unique(Cleaned_Marker_tags$TAG))
@@ -344,7 +345,7 @@ enc_hist_wide_df <- enc_hist_wide_list$enc_wide_list$encountersAndRelease_wide_s
 Movements_df <- get_movements_function(combined_events_stations, dailyUSGSData = windyGapDaily)
 WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_df$dailyMovementsTable1)
 
-### avian predation
+### avian predation: grouping together different methods of finding avian predated fish
 
 allEventsAvianPredationFiltered <- AllCombinedEvents$df_list$All_Events %>%
   dplyr::filter(!TAG %in% unique(AvianPredation$TagID))
@@ -354,15 +355,28 @@ movingUpstream <- getSequences(allEventsAvianPredationFiltered, c("HP", "RB", "W
 
 
 ### next: want to filter out tags already in the avian predation file
-#make a df of tags that appear on every DF here as "high priority" tags
+#
 #incoporate into new QAQC tab on app 
 avianPredationList <- list(
   "movingDownstream" = movingDownstream, 
   "movingUpstream" = movingUpstream, 
-  "largeMovementsWithoutChannel" = enc_hist_wide_list$possibleAvianPredation, 
-  "activeFishStates" = states$possibleAvianPredation
+  "largeMovementsWithoutChannel" = enc_hist_wide_list$enc_wide_list$possibleAvianPredation, 
+  "statesWeeklyActiveFish" = states$states_df_list$possibleAvianPredation$weeklyActiveFish, 
+  "statesAllActiveFish" = states$states_df_list$possibleAvianPredation$overAllActiveFishNotinWeeklyDF 
   )
 
+###making df of frewuency counts for each time a fish appears on a df to get "priority" list
+tagCounts <- purrr::map_dfr(avianPredationList, ~ {
+  # Count occurrences within this dataframe
+  .x %>%
+    count(TAG)
+}) %>%
+  # Summarize counts across all dataframes
+  group_by(TAG) %>%
+  summarize(Frequency = sum(n), .groups = 'drop')
+
+tagCountsNoPredation <- anti_join(tagCounts, AvianPredation, by = c("TAG" = "TagID"))
+avianPredationList[["tagCountsNoPredation"]] = tagCountsNoPredation
 
 ###QAQC ghost tags
 ghostTagsWithMovementAfterGhostDate <- qaqcGhostTagMovements(GhostTags, Movements_df$dailyMovementsTable1)
