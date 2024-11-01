@@ -160,7 +160,8 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   ####avian predation filtering
   possibleAvianPredation <- encountersAndRelease6 %>%
     filter(sum_dist > 1000) %>%
-    select(TAG, went_above_dam_noChannel, went_below_dam_noChannel, sum_dist)
+    select(TAG, went_above_dam_noChannel, went_below_dam_noChannel, sum_dist) %>%
+    arrange(desc(sum_dist))
   
   
   enc_wide_list <- list(
