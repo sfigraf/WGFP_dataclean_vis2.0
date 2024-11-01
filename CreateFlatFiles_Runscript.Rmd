@@ -10,6 +10,7 @@ library(tidyverse)
 library(lubridate)
 library(readxl)
 library(dataRetrieval) #this is the usgs package for getting up to date data
+library(shiny) # only used for isTruthy(), found in getSequences
 
 whole_doc_startTime <- Sys.time()
 start_time <- Sys.time()
