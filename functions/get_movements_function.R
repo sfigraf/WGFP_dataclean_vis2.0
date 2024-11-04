@@ -57,7 +57,24 @@ get_movements_function <- function(combined_events_stations, dailyUSGSData) {
   dailyMovementsTable <- dailyMovementsTable %>%
     left_join(dailyUSGSData[,c("Date", "WtempF", "Flow")], by = "Date") %>%
     rename(USGSDischargeDaily = Flow)
+
+  #avian Predation
+  #red batr to confluence: 5950/60
+  #rb to HP: 2190
+  #hp to CF: 3760
+  longMovements <- dailyMovementsTable %>%
+    filter(abs(dist_moved) > 3700) %>%
+    arrange(desc(abs(dist_moved))) %>%
+    relocate(dist_moved, .after = TAG)
   
+  fastMovements <- head(dailyMovementsTable[order(abs(dailyMovementsTable$MPerSecondBetweenDetections),decreasing=T),],.05*nrow(dailyMovementsTable))
+  fastMovements <- fastMovements %>%
+    relocate(MPerSecondBetweenDetections, .after = TAG)
+  
+  avianPredationDFs <- list(
+    "longMovements" = longMovements,
+    "fastMovements" = fastMovements
+  )
   
   #######get lat/longs for plotting with leaflet
   #convert events to sf object
@@ -85,7 +102,8 @@ get_movements_function <- function(combined_events_stations, dailyUSGSData) {
   print(endMessage)
   
   return(list("dailyMovementsTable1" = dailyMovementsTable1, 
-              "message" = paste(c(startMessage, endMessage), collapse = "<br>"))
+              "message" = paste(c(startMessage, endMessage), collapse = "<br>"), 
+              "avianPredationDFS" = avianPredationDFs)
          )
 }
 
