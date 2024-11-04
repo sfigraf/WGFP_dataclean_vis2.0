@@ -66,7 +66,7 @@ get_movements_function <- function(combined_events_stations, dailyUSGSData) {
     filter(abs(dist_moved) > 3700) %>%
     arrange(desc(abs(dist_moved))) %>%
     relocate(dist_moved, .after = TAG)
-  
+  #gets top 5% of speedy movements, US or DS
   fastMovements <- head(dailyMovementsTable[order(abs(dailyMovementsTable$MPerSecondBetweenDetections),decreasing=T),],.05*nrow(dailyMovementsTable))
   fastMovements <- fastMovements %>%
     relocate(MPerSecondBetweenDetections, .after = TAG)
