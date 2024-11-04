@@ -342,10 +342,10 @@ enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(AllCombinedEvents$d
 unknown_tags <- enc_hist_wide_list$enc_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$enc_wide_list$encountersAndRelease_wide_summary
 # applies get_movements_function
-Movements_df <- get_movements_function(combined_events_stations, dailyUSGSData = windyGapDaily)
-WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_df$dailyMovementsTable1)
+Movements_list <- get_movements_function(combined_events_stations, dailyUSGSData = windyGapDaily)
+WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_list$dailyMovementsTable1)
 
-### avian predation: grouping together different methods of finding avian predated fish
+### Avian Predation: grouping together different methods of finding avian predated fish
 
 allEventsAvianPredationFiltered <- AllCombinedEvents$df_list$All_Events %>%
   dplyr::filter(!TAG %in% unique(AvianPredation$TagID))
@@ -358,7 +358,9 @@ avianPredationList <- list(
   "movingUpstream" = movingUpstream, 
   "largeMovementsWithoutChannel" = enc_hist_wide_list$enc_wide_list$possibleAvianPredation, 
   "statesWeeklyActiveFish" = states$states_df_list$possibleAvianPredation$weeklyActiveFish, 
-  "statesAllActiveFish" = states$states_df_list$possibleAvianPredation$overAllActiveFishNotinWeeklyDF 
+  "statesAllActiveFish" = states$states_df_list$possibleAvianPredation$overAllActiveFishNotinWeeklyDF, 
+  "fastMovements" = Movements_list$avianPredationDFS$fastMovements,
+  "longMovements" = Movements_list$avianPredationDFS$longMovements
   )
 #removing all tags already discerned as avian predation from each df
 avianPredationList <- purrr::map(avianPredationList, ~anti_join(.x, AvianPredation, by = c("TAG" = "TagID")))
@@ -377,7 +379,7 @@ tagCountsNoPredation <- purrr::map_dfr(avianPredationList, ~ {
 avianPredationList[["tagCountsNoPredation"]] = tagCountsNoPredation
 
 ###QAQC ghost tags
-ghostTagsWithMovementAfterGhostDate <- qaqcGhostTagMovements(GhostTags, Movements_df$dailyMovementsTable1)
+ghostTagsWithMovementAfterGhostDate <- qaqcGhostTagMovements(GhostTags, Movements_list$dailyMovementsTable1)
 
 #this is used in states_data reactives
 weeks <- data.frame(weeks_since = min(states$states_df_list$All_States$weeks_since):max(states$states_df_list$All_States$weeks_since))
@@ -432,7 +434,7 @@ indiv_datasets_list <- lapply(names(indiv_datasets_list_og), function(name) {
 names(indiv_datasets_list) <- names(indiv_datasets_list_og)
 
 movements_list <- list(
-  "Movements_df" = Movements_df$dailyMovementsTable1,
+  "Movements_df" = Movements_list$dailyMovementsTable1,
   "WeeklyMovementsbyType" = WeeklyMovementsbyType, 
   "ghostTagsWithMovementAfterGhostDate" = ghostTagsWithMovementAfterGhostDate
 )
@@ -460,7 +462,7 @@ SiteVisitData <- list(
 #### `r DailyMovements_withStations$endMessage`
 #### `r states$endMessage`
 #### `r enc_hist_wide_list$endMessage`
-#### `r Movements_df$message`
+#### `r Movements_list$message`
 
 
 <span style="color:red; font-size: 30px;" >`r problemNAtagsMessage`</span>

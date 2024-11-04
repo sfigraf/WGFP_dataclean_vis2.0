@@ -52,7 +52,25 @@ avianPredationMod_UI <- function(id) {
                                         )
                                  )
                                )
-                            )
+                            ), 
+                      tabPanel("Movements", 
+                               fluidRow(
+                                 column(6, 
+                                        box(
+                                          title = "Large Movements",
+                                          width = 12,
+                                          withSpinner(DT::dataTableOutput(ns("largeMovements")))
+                                        )
+                                 ), 
+                                 column(6, 
+                                        box(
+                                          title = "Fast Movements",
+                                          width = 12,
+                                          withSpinner(DT::dataTableOutput(ns("fastMovements"))) 
+                                        )
+                                 )
+                               )
+                      )
                     )
                     )
              )
@@ -186,6 +204,50 @@ avianPredationMod_Server <- function(id, avianPredationList) {
           selection = "single",
           filter = 'top',
           caption = "Tags >2 total state changes across its entire encounter history. Very active fish on an overall basis.",
+          options = list(
+            scrollX = TRUE, 
+            #statesave is restore table state on page reload
+            stateSave = TRUE,
+            pageLength = 10,
+            info = TRUE,
+            lengthMenu = list(c(10, 25, 50), c("10", "25", "50")),
+            dom = 'lrtip',
+            #had to add 'lowercase L' letter to display the page length again
+            language = list(emptyTable = "Enter inputs and press Render Table")
+          )
+        )
+      })
+      
+      output$largeMovements <- renderDT({
+        
+        datatable(
+          avianPredationList$longMovements,
+          rownames = FALSE,
+          selection = "single",
+          filter = 'top',
+          caption = "Tags that have moved > 3700m (fyi HP to CF is 3760m) on one movement.",
+          options = list(
+            scrollX = TRUE, 
+            #statesave is restore table state on page reload
+            stateSave = TRUE,
+            pageLength = 10,
+            info = TRUE,
+            lengthMenu = list(c(10, 25, 50), c("10", "25", "50")),
+            dom = 'lrtip',
+            #had to add 'lowercase L' letter to display the page length again
+            language = list(emptyTable = "Enter inputs and press Render Table")
+          )
+        )
+      })
+      
+      output$fastMovements <- renderDT({
+        
+        datatable(
+          avianPredationList$fastMovements,
+          rownames = FALSE,
+          selection = "single",
+          filter = 'top',
+          caption = "Top 5% of individual movements by fish by speed (meters per second between detections) upstream or downstream.",
           options = list(
             scrollX = TRUE, 
             #statesave is restore table state on page reload
