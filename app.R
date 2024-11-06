@@ -23,6 +23,8 @@ library(shinyjs)
 #continue with how-to
 # make mini charts on leaflet# 
 
+#"#FFDDC1"
+
 # cntrl + shft + A to reformat chunks of code
 # rsconnect::showLogs(appName="WGFP_dataclean_vis",streaming=TRUE) will show logs when trying to load app browser
 # had "application failed to start" error and fixed both times with above command. both times because packages in local environment (tidyverse and lubridate) weren't called with library() command 
@@ -79,6 +81,9 @@ if(!exists("USGSData")){
 if(!exists("SiteVisitData")){
   SiteVisitData <- readRDS("data/flatFilesforApp/SiteVisitData.rds")
 }
+
+#checkedTags <- read_csv("data/Potential Avian Predated tags.csv") #Potential Avian Predated tags
+
 
 # # Functions Read-in -------------------------------------------------------
 # 

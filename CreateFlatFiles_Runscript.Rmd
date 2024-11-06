@@ -377,7 +377,9 @@ tagCountsNoPredation <- purrr::map_dfr(avianPredationList, ~ {
   arrange(desc(Frequency))
 
 avianPredationList[["tagCountsNoPredation"]] = tagCountsNoPredation
-
+#adding checked tags to the list
+checkedTags <- read_csv("data/Potential Avian Predated tags.csv") #Potential Avian Predated tags
+avianPredationList[["checkedTags"]] = checkedTags
 ###QAQC ghost tags
 ghostTagsWithMovementAfterGhostDate <- qaqcGhostTagMovements(GhostTags, Movements_list$dailyMovementsTable1)
 
