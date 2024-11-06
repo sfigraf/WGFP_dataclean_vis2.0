@@ -147,8 +147,11 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   #Change na to "No info" in select columns so that it will register with the Picker input in the app
   #pretty sure that's just a bug on the DT or shinyWidgets end that it can't select by NA
   # 87 rows were not even showing up on the all_events app because the Species was NA -12/14/21 SG
+  # 840 rows weren't showing up on the display bc length weights are NA i nthe release file -11/6/24 SG
   condensedAllEventsWithReleaseandEnvironmentalInfo <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
     replace_na(list(Species = "No Info", ReleaseSite = "No Info", 
+                    #changing release wight and length to 0 keeps the fish in the df when weight/lentgh filters are active
+                    Release_Weight = 0, Release_Length = 0,
                     Site = "No Site Associated")) %>%
     dplyr::filter(!TAG %in% c("230000999999"))
   
