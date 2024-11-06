@@ -84,7 +84,7 @@ if(!exists("SiteVisitData")){
 # 
 # 
 # #functions
-neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R", "getSequences.R")
+neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R", "getSequences.R", "renderDTFunction.R")
 
 for (i in neededFunctions) {
   source(paste0("./functions/",i))
