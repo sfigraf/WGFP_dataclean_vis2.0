@@ -1,5 +1,6 @@
-# alreadyDetectedTags <- avianPredationList$checkedTags
-# outputData <- avianPredationList$movingDownstream
+alreadyDetectedTags <- avianPredationList$checkedTags
+outputData <- avianPredationList$movingDownstream
+dataCaption <- "test"
 
 renderDTFunction <- function(output, outputID, outputData, dataCaption, alreadyDetectedTags){
   
@@ -27,6 +28,7 @@ renderDTFunction <- function(output, outputID, outputData, dataCaption, alreadyD
       caption = dataCaption,
       
       options = list(
+        columnDefs = list(list(visible=FALSE, targets="rowColor")),
         #statesave is restore table state on page reload
         stateSave = TRUE,
         scrollX = TRUE,
@@ -36,7 +38,7 @@ renderDTFunction <- function(output, outputID, outputData, dataCaption, alreadyD
         dom = 'lrtip',
         #had to add 'lowercase L' letter to display the page length again
         language = list(emptyTable = "Enter inputs and press Render Table")
-        #columnDefs = list(list(visible=FALSE, targets= which(names(x1) == "rowColor")))
+        #columnDefs = list(list(visible=FALSE, targets=6))
         # rowCallback = JS(
         #   "function(row, data) {",
         #   "  var tag = data[0];",  # 'TAG' is the first column (index 0)",
