@@ -86,6 +86,45 @@ avianPredationMod_Server <- function(id, avianPredationList) {
       
       checkedTags <- avianPredationList$checkedTags$TAG
       checkedTags <- paste("['", paste(checkedTags, collapse = "','"), "']", sep = "")
+      tag_opinion_map <- setNames(avianPredationList$checkedTags$`SG Opinion`, avianPredationList$checkedTags$TAG)
+      # checkedTags <- paste0("{", 
+      #                         paste(
+      #                           sapply(names(tag_opinion_map), function(tag) {
+      #                             paste0("'", tag, "': '", tag_opinion_map[[tag]], "'")
+      #                           }), 
+      #                           collapse = ", "), 
+      #                         "}"
+      #                       )
+      checkedTags <- avianPredationList$checkedTags
+                           
+     # output$table1 <- renderDT({
+     #   
+     #   # Create a named list of tags and opinions from datatable2
+     #   
+     #   
+     #   # Create a JavaScript object to pass the opinion data
+     #   
+     #   
+     #   # Create a datatable and apply conditional row highlighting
+     #   datatable(datatable1, options = list(
+     #     rowCallback = JS(
+     #       "function(row, data) {",
+     #       "  var tag = data[0];",  # 'TAG' is the first column (index 0)",
+     #       "  var opinions = ", tag_opinion_js, ";",  # Insert the tag-opinion mapping from R to JS
+     #       "  var opinion = opinions[tag];",  # Get the opinion for the current tag from table 2",
+     #       "  if (opinion === 'No' || opinion === 'no') {",
+     #       "    $('td', row).css('background-color', 'green');",  
+     #       "  } else if (opinion === 'Yes' || opinion === 'yes') {",
+     #       "    $('td', row).css('background-color', 'red');",  
+     #       "  } else if (opinion !== undefined) {",
+     #       "    $('td', row).css('background-color', 'yellow');",  
+     #         "  }",
+     #       "}",
+     #       sep = "\n"
+     #     )
+     #   ))
+     #   
+     # })
       
       renderDTFunction(output, "tagsFrequencyTable", avianPredationList$tagCountsNoPredation, 
                        c("The amount of times a tag has shown up in the selected potential avian predation DFs to the right."), checkedTags)
