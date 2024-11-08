@@ -84,9 +84,9 @@ avianPredationMod_Server <- function(id, avianPredationList) {
     id,
     function(input, output, session) {
       
-      checkedTags <- avianPredationList$checkedTags$TAG
-      checkedTags <- paste("['", paste(checkedTags, collapse = "','"), "']", sep = "")
-      tag_opinion_map <- setNames(avianPredationList$checkedTags$`SG Opinion`, avianPredationList$checkedTags$TAG)
+      # checkedTags <- avianPredationList$checkedTags$TAG
+      # checkedTags <- paste("['", paste(checkedTags, collapse = "','"), "']", sep = "")
+      # tag_opinion_map <- setNames(avianPredationList$checkedTags$`SG Opinion`, avianPredationList$checkedTags$TAG)
       # checkedTags <- paste0("{", 
       #                         paste(
       #                           sapply(names(tag_opinion_map), function(tag) {
@@ -95,7 +95,7 @@ avianPredationMod_Server <- function(id, avianPredationList) {
       #                           collapse = ", "), 
       #                         "}"
       #                       )
-      checkedTags <- avianPredationList$checkedTags
+      # checkedTags <- avianPredationList$checkedTags
                            
      # output$table1 <- renderDT({
      #   
@@ -127,36 +127,36 @@ avianPredationMod_Server <- function(id, avianPredationList) {
      # })
       
       renderDTFunction(output, "tagsFrequencyTable", avianPredationList$tagCountsNoPredation, 
-                       c("The amount of times a tag has shown up in the selected potential avian predation DFs to the right."), checkedTags)
+                       c("The amount of times a tag has shown up in the selected potential avian predation DFs to the right."))
       
       renderDTFunction(output, "downstreamSequences", avianPredationList$movingDownstream, 
                        c("Tags that first hit either CF, GD1, or RR1, then hit either HP, RB, WG1, or WG2 without any antennas in between.
-           Sorting by the time between detections can potentially reveal predated tags."), checkedTags)
+           Sorting by the time between detections can potentially reveal predated tags."))
 
       
       renderDTFunction(output, "upstreamSequences", avianPredationList$movingUpstream, 
                        c("Tags that first hit either HP, RB, WG1, or WG2, then hit either CF, GD1, or RR1 without any antennas in between.
-          Sorting by the time between detections can potentially reveal predated tags."), checkedTags)
+          Sorting by the time between detections can potentially reveal predated tags."))
 
       
       renderDTFunction(output, "largeMovementsWithoutChannel", avianPredationList$largeMovementsWithoutChannel, 
-                       c("Fish that have traveled >1000m. Sorting by channel usage can show tags that may have a unrealistic encounter history."), checkedTags)
+                       c("Fish that have traveled >1000m. Sorting by channel usage can show tags that may have a unrealistic encounter history."))
       
       
       renderDTFunction(output, "statesWeeklyActiveFish", avianPredationList$statesWeeklyActiveFish, 
-                       c("Tags with > 2 state changes in a week or > 4 weekly unique events. Very active fish on a weekly basis."), checkedTags)
+                       c("Tags with > 2 state changes in a week or > 4 weekly unique events. Very active fish on a weekly basis."))
 
       
       renderDTFunction(output, "statesAllActiveFish", avianPredationList$statesAllActiveFish, 
-                       c("Tags >2 total state changes across its entire encounter history. Very active fish on an overall basis."), checkedTags)
+                       c("Tags >2 total state changes across its entire encounter history. Very active fish on an overall basis."))
       
       
       renderDTFunction(output, "largeMovements", avianPredationList$longMovements, 
-                       c("Tags that have moved > 3700m (fyi HP to CF is 3760m) on one movement."), checkedTags)
+                       c("Tags that have moved > 3700m (fyi HP to CF is 3760m) on one movement."))
 
       
       renderDTFunction(output, "fastMovements", avianPredationList$fastMovements, 
-                       c("Top 5% of individual movements by fish by speed (meters per second between detections) upstream or downstream."), checkedTags)
+                       c("Top 5% of individual movements by fish by speed (meters per second between detections) upstream or downstream."))
 
     }
   )

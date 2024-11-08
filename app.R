@@ -23,7 +23,6 @@ library(shinyjs)
 #continue with how-to
 # make mini charts on leaflet# 
 
-#"#FFDDC1"
 
 # cntrl + shft + A to reformat chunks of code
 # rsconnect::showLogs(appName="WGFP_dataclean_vis",streaming=TRUE) will show logs when trying to load app browser
