@@ -377,7 +377,24 @@ tagCountsNoPredation <- purrr::map_dfr(avianPredationList, ~ {
   arrange(desc(Frequency))
 
 avianPredationList[["tagCountsNoPredation"]] = tagCountsNoPredation
+#adding checked tags to the list
+checkedTags <- read_csv("data/Potential Avian Predated tags.csv") #Potential Avian Predated tags
 
+checkedTags$TAG <- as.character(checkedTags$TAG)
+avianPredationList <- purrr::map(avianPredationList, ~{
+  originalColumns <- names(.x)
+  outputDatWithCheckedTags <- left_join(.x, checkedTags, by = "TAG")
+  outputDatWithRowColor <- outputDatWithCheckedTags %>%
+    mutate(rowColor = case_when(`SG Opinion` %in% c("Yes", "yes") ~ "red", 
+                                `SG Opinion` %in% c("No", "no") ~ "green", 
+                                !is.na(`SG Opinion`) ~ "yellow", 
+                                is.na(`SG Opinion`) ~ "none"
+    )) %>%
+    select(c(originalColumns, rowColor))
+  return(outputDatWithRowColor)
+}
+)
+                                 
 ###QAQC ghost tags
 ghostTagsWithMovementAfterGhostDate <- qaqcGhostTagMovements(GhostTags, Movements_list$dailyMovementsTable1)
 

@@ -83,184 +83,40 @@ avianPredationMod_Server <- function(id, avianPredationList) {
   moduleServer(
     id,
     function(input, output, session) {
+
       
-      output$tagsFrequencyTable <- renderDT({
-        
-        datatable(
-          avianPredationList$tagCountsNoPredation,
-          rownames = FALSE,
-          selection = "single",
-          filter = 'top',
-          caption = "The amount of times a tag has shown up in the selected potential avian predation DFs to the right.",
-          options = list(
-            #statesave is restore table state on page reload
-            stateSave = TRUE,
-            pageLength = 10,
-            info = TRUE,
-            lengthMenu = list(c(10, 25, 50), c("10", "25", "50")),
-            dom = 'lrtip',
-            #had to add 'lowercase L' letter to display the page length again
-            language = list(emptyTable = "Enter inputs and press Render Table")
-          )
-        )
-      })
+      renderDTFunction(output, "tagsFrequencyTable", avianPredationList$tagCountsNoPredation, 
+                       c("The amount of times a tag has shown up in the selected potential avian predation DFs to the right."))
       
-      output$downstreamSequences <- renderDT({
-        
-        datatable(
-          avianPredationList$movingDownstream,
-          rownames = FALSE,
-          selection = "single",
-          filter = 'top',
-          caption = "Tags that first hit either CF, GD1, or RR1, then hit either HP, RB, WG1, or WG2 without any antennas in between.
-           Sorting by the time between detections can potentially reveal predated tags.", 
-          options = list(
-            autowidth = TRUE,
-            scrollX = TRUE, 
-            #statesave is restore table state on page reload
-            stateSave = TRUE,
-            pageLength = 10,
-            info = TRUE,
-            lengthMenu = list(c(10, 25, 50), c("10", "25", "50")),
-            dom = 'lrtip',
-            #had to add 'lowercase L' letter to display the page length again
-            language = list(emptyTable = "Enter inputs and press Render Table")
-          )
-        )
-      })
+      renderDTFunction(output, "downstreamSequences", avianPredationList$movingDownstream, 
+                       c("Tags that first hit either CF, GD1, or RR1, then hit either HP, RB, WG1, or WG2 without any antennas in between.
+           Sorting by the time between detections can potentially reveal predated tags."))
+
       
-      output$upstreamSequences <- renderDT({
-        
-        datatable(
-          avianPredationList$movingUpstream,
-          rownames = FALSE,
-          selection = "single",
-          filter = 'top',
-          caption = "Tags that first hit either HP, RB, WG1, or WG2, then hit either CF, GD1, or RR1 without any antennas in between.
-          Sorting by the time between detections can potentially reveal predated tags.", 
-          options = list(
-            autowidth = TRUE,
-            scrollX = TRUE, 
-            #statesave is restore table state on page reload
-            stateSave = TRUE,
-            pageLength = 10,
-            info = TRUE,
-            lengthMenu = list(c(10, 25, 50), c("10", "25", "50")),
-            dom = 'lrtip',
-            #had to add 'lowercase L' letter to display the page length again
-            language = list(emptyTable = "Enter inputs and press Render Table")
-          )
-        )
-      })
+      renderDTFunction(output, "upstreamSequences", avianPredationList$movingUpstream, 
+                       c("Tags that first hit either HP, RB, WG1, or WG2, then hit either CF, GD1, or RR1 without any antennas in between.
+          Sorting by the time between detections can potentially reveal predated tags."))
+
       
-      output$largeMovementsWithoutChannel <- renderDT({
-        
-        datatable(
-          avianPredationList$largeMovementsWithoutChannel,
-          rownames = FALSE,
-          selection = "single",
-          filter = 'top',
-          caption = "Fish that have traveled >1000m. Sorting by channel usage can show tags that may have a unrealistic encounter history.",
-          options = list(
-            #statesave is restore table state on page reload
-            stateSave = TRUE,
-            pageLength = 10,
-            info = TRUE,
-            lengthMenu = list(c(10, 25, 50), c("10", "25", "50")),
-            dom = 'lrtip',
-            #had to add 'lowercase L' letter to display the page length again
-            language = list(emptyTable = "Enter inputs and press Render Table")
-          )
-        )
-      })
+      renderDTFunction(output, "largeMovementsWithoutChannel", avianPredationList$largeMovementsWithoutChannel, 
+                       c("Fish that have traveled >1000m. Sorting by channel usage can show tags that may have a unrealistic encounter history."))
       
-      output$statesWeeklyActiveFish <- renderDT({
-        
-        datatable(
-          avianPredationList$statesWeeklyActiveFish,
-          rownames = FALSE,
-          selection = "single",
-          filter = 'top',
-          caption = "Tags with > 2 state changes in a week or > 4 weekly unique events. Very active fish on a weekly basis.",
-          options = list(
-            scrollX = TRUE, 
-            #statesave is restore table state on page reload
-            stateSave = TRUE,
-            pageLength = 10,
-            info = TRUE,
-            lengthMenu = list(c(10, 25, 50), c("10", "25", "50")),
-            dom = 'lrtip',
-            #had to add 'lowercase L' letter to display the page length again
-            language = list(emptyTable = "Enter inputs and press Render Table")
-          )
-        )
-      })
       
-      output$statesAllActiveFish <- renderDT({
-        
-        datatable(
-          avianPredationList$statesAllActiveFish,
-          rownames = FALSE,
-          selection = "single",
-          filter = 'top',
-          caption = "Tags >2 total state changes across its entire encounter history. Very active fish on an overall basis.",
-          options = list(
-            scrollX = TRUE, 
-            #statesave is restore table state on page reload
-            stateSave = TRUE,
-            pageLength = 10,
-            info = TRUE,
-            lengthMenu = list(c(10, 25, 50), c("10", "25", "50")),
-            dom = 'lrtip',
-            #had to add 'lowercase L' letter to display the page length again
-            language = list(emptyTable = "Enter inputs and press Render Table")
-          )
-        )
-      })
+      renderDTFunction(output, "statesWeeklyActiveFish", avianPredationList$statesWeeklyActiveFish, 
+                       c("Tags with > 2 state changes in a week or > 4 weekly unique events. Very active fish on a weekly basis."))
+
       
-      output$largeMovements <- renderDT({
-        
-        datatable(
-          avianPredationList$longMovements,
-          rownames = FALSE,
-          selection = "single",
-          filter = 'top',
-          caption = "Tags that have moved > 3700m (fyi HP to CF is 3760m) on one movement.",
-          options = list(
-            scrollX = TRUE, 
-            #statesave is restore table state on page reload
-            stateSave = TRUE,
-            pageLength = 10,
-            info = TRUE,
-            lengthMenu = list(c(10, 25, 50), c("10", "25", "50")),
-            dom = 'lrtip',
-            #had to add 'lowercase L' letter to display the page length again
-            language = list(emptyTable = "Enter inputs and press Render Table")
-          )
-        )
-      })
+      renderDTFunction(output, "statesAllActiveFish", avianPredationList$statesAllActiveFish, 
+                       c("Tags >2 total state changes across its entire encounter history. Very active fish on an overall basis."))
       
-      output$fastMovements <- renderDT({
-        
-        datatable(
-          avianPredationList$fastMovements,
-          rownames = FALSE,
-          selection = "single",
-          filter = 'top',
-          caption = "Top 5% of individual movements by fish by speed (meters per second between detections) upstream or downstream.",
-          options = list(
-            scrollX = TRUE, 
-            #statesave is restore table state on page reload
-            stateSave = TRUE,
-            pageLength = 10,
-            info = TRUE,
-            lengthMenu = list(c(10, 25, 50), c("10", "25", "50")),
-            dom = 'lrtip',
-            #had to add 'lowercase L' letter to display the page length again
-            language = list(emptyTable = "Enter inputs and press Render Table")
-          )
-        )
-      })
+      
+      renderDTFunction(output, "largeMovements", avianPredationList$longMovements, 
+                       c("Tags that have moved > 3700m (fyi HP to CF is 3760m) on one movement."))
+
+      
+      renderDTFunction(output, "fastMovements", avianPredationList$fastMovements, 
+                       c("Top 5% of individual movements by fish by speed (meters per second between detections) upstream or downstream."))
+
     }
   )
 }

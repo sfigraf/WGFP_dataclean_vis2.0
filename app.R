@@ -23,6 +23,7 @@ library(shinyjs)
 #continue with how-to
 # make mini charts on leaflet# 
 
+
 # cntrl + shft + A to reformat chunks of code
 # rsconnect::showLogs(appName="WGFP_dataclean_vis",streaming=TRUE) will show logs when trying to load app browser
 # had "application failed to start" error and fixed both times with above command. both times because packages in local environment (tidyverse and lubridate) weren't called with library() command 
@@ -80,11 +81,12 @@ if(!exists("SiteVisitData")){
   SiteVisitData <- readRDS("data/flatFilesforApp/SiteVisitData.rds")
 }
 
+
 # # Functions Read-in -------------------------------------------------------
 # 
 # 
 # #functions
-neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R", "getSequences.R")
+neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R", "getSequences.R", "renderDTFunction.R")
 
 for (i in neededFunctions) {
   source(paste0("./functions/",i))
