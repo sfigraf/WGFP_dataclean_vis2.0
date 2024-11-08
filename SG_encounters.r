@@ -2964,3 +2964,24 @@ write_csv(listOfSamplingLocations, file = "listOfSamplingLocationsandDates.csv")
 # possibleAvianPredation = left_join(throgh_dam_no_channel, )
 
 
+######## code to add avian predation to current sheet
+library(readr)
+library(tidyverse)
+Potential_Avian_Predated_tags <- read_csv("data/Potential Avian Predated tags.csv")
+library(readr)
+Release <- read_csv("data/WGFP_ReleaseData_Master_20241009.csv")
+
+library(readr)
+WGFP_AvianPredation <- read_csv("data/WGFP_AvianPredation.csv")
+
+newAvianPredationTags <- Potential_Avian_Predated_tags %>%
+  filter(`SG Opinion` %in% c("Yes", "yes")) %>%
+  left_join(Release, by = c("TAG" = "TagID")) %>%
+  rename(TagID = TAG, ReleaseDate = Date, PredationDate = `Proposed predation date`) %>%
+  select(c(names(WGFP_AvianPredation)))
+
+allNewAvianPredation <- bind_rows(WGFP_AvianPredation, newAvianPredationTags) 
+allNewAvianPredation <- allNewAvianPredation %>%
+  distinct(TagID, .keep_all = TRUE)
+write_csv(allNewAvianPredation, "WGFP_AvianPredation.csv")
+
