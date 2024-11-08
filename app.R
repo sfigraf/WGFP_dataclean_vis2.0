@@ -81,8 +81,6 @@ if(!exists("SiteVisitData")){
   SiteVisitData <- readRDS("data/flatFilesforApp/SiteVisitData.rds")
 }
 
-#checkedTags <- read_csv("data/Potential Avian Predated tags.csv") #Potential Avian Predated tags
-
 
 # # Functions Read-in -------------------------------------------------------
 # 
