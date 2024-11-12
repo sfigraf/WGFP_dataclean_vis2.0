@@ -2985,3 +2985,23 @@ allNewAvianPredation <- allNewAvianPredation %>%
   distinct(TagID, .keep_all = TRUE)
 write_csv(allNewAvianPredation, "WGFP_AvianPredation.csv")
 
+
+####chsnging biomark names to correct: B4 kaibab goes to B2, RR B5 goes to B3
+Biomark_Raw_20241111 <- readRDS("~/WGFP_dataclean_vis2.0/data/Biomark_Raw_20241111.rds")
+x <- Biomark_Raw_20241111 %>%
+  filter(as.Date(`Scan Date`) >= "2024-10-02")
+
+x1 <- Biomark_Raw_20241111 %>%
+  mutate(`Reader ID` = case_when(as.Date(`Scan Date`) >= "2024-10-02" & `Reader ID` == "B4" ~ "B2", 
+                                 as.Date(`Scan Date`) >= "2024-10-02" & `Reader ID` == "B5" ~ "B3", 
+                                 TRUE ~ `Reader ID`)) 
+unique(x1$`Reader ID`)
+
+x2 <- x1 %>%
+  filter(`Reader ID` %in% c("B4", "B5"))
+
+
+y <- Biomark_Raw_20241001 %>%
+  filter(`Reader ID` %in% c("B4", "B5"))
+
+
