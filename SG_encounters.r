@@ -2940,7 +2940,7 @@ listOfSamplingLocations <- combinedData_df_list$All_Events %>%
 #also needs mobile run dates
 mobileDates <- combinedData_df_list$All_Events %>%
   dplyr::filter(Event %in% c("M1", "M2")) %>%
-  dplyr::distinct(Date, )
+  dplyr::distinct(Date)
 
 mobile <- indiv_datasets_list$mobiledata %>%
   dplyr::distinct(MobileSite, Date) %>%
