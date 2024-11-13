@@ -3027,6 +3027,32 @@ x <- left_join(newMobile, alreadyChecked2023, by = "TagID") %>%
   filter(toCheck == TRUE | is.na(toCheck))
 
 write_csv(x, "tagsToCheck.csv")
+
+###after tags been checked: getting an updated selectedTags file
+alreadyChecked2023 <- read_csv("data/WGFP_GhostTags_SGChecked_20240315.csv", 
+                               skip = 6) %>%
+  select(TagID, `Total...9`, `Ghost`, Notes)
+
+newMobile <- read_csv("data/select_mobile2024.csv", 
+                      skip = 7)
+
+checkedTags2024 <- read_csv("tagsToCheck.csv")
+#isolating just the old comments
+tagsLreadyCheckedNeedtoGetOldCommentsEtc <- alreadyChecked2023 %>%
+  anti_join(checkedTags2024, by = "TagID")
+#adding old comments to new mobiel 2024
+tagsCheckedALready2024 <- left_join(newMobile, tagsLreadyCheckedNeedtoGetOldCommentsEtc, by = "TagID") %>%
+  select(-Total...9, -Ghost.y ) %>%
+  relocate(Notes, .after = Ghost.x)
+#adding new comments to new mobile 2024
+newMobileWithAllNotes <- left_join(tagsCheckedALready2024, checkedTags2024, by = "TagID") %>%
+  unite(Notes, c(Notes.x, `2024Checking`), na.rm = TRUE) %>%
+  select(-c())
+  
+write_csv(newMobileWithAllNotes, "newTagChecked.csv")
+  
+
+
   
 
 
