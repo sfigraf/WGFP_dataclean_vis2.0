@@ -3007,4 +3007,28 @@ saveRDS(x1, file = "data/Biomark_Raw_20241111_corectNames.rds")
 # y <- Biomark_Raw_20241001 %>%
 #   filter(`Reader ID` %in% c("B4", "B5"))
 
+###more ghost tags
+
+GhostTags <- read_csv("./data/WGFP_GhostTags.csv", 
+                      col_types = cols(TagID = col_character()))
+#new mobile detections 
+newMobile <- read_csv("data/select_mobile2024.csv", 
+                                           skip = 7) %>%
+  select(TagID, `Total...10`, `Ghost`)
+
+alreadyChecked2023 <- read_csv("data/WGFP_GhostTags_SGChecked_20240315.csv", 
+                           skip = 6) %>%
+  select(TagID, `Total...9`, `Ghost`, Notes)
+
+x <- left_join(newMobile, alreadyChecked2023, by = "TagID") %>%
+  mutate(TagID = as.character(TagID)) %>%
+  anti_join(GhostTags, by = "TagID") %>%
+  mutate(toCheck = Total...9 != Total...10) %>%
+  filter(toCheck == TRUE | is.na(toCheck))
+
+write_csv(x, "tagsToCheck.csv")
+  
+
+
+
 
