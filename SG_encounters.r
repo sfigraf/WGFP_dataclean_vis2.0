@@ -2992,16 +2992,19 @@ x <- Biomark_Raw_20241111 %>%
   filter(as.Date(`Scan Date`) >= "2024-10-02")
 
 x1 <- Biomark_Raw_20241111 %>%
-  mutate(`Reader ID` = case_when(as.Date(`Scan Date`) >= "2024-10-02" & `Reader ID` == "B4" ~ "B2", 
-                                 as.Date(`Scan Date`) >= "2024-10-02" & `Reader ID` == "B5" ~ "B3", 
-                                 TRUE ~ `Reader ID`)) 
+  mutate(`Reader ID` = case_when( `Reader ID` == "B4" ~ "B2", 
+                                 `Reader ID` == "B5" ~ "B3", 
+                                 TRUE ~ `Reader ID`)) %>%
+  select(-`S/N`) %>%
+  distinct()
 unique(x1$`Reader ID`)
+saveRDS(x1, file = "data/Biomark_Raw_20241111_corectNames.rds")
 
-x2 <- x1 %>%
-  filter(`Reader ID` %in% c("B4", "B5"))
-
-
-y <- Biomark_Raw_20241001 %>%
-  filter(`Reader ID` %in% c("B4", "B5"))
+# x2 <- x1 %>%
+#   filter(`Reader ID` %in% c("B4", "B5"))
+# 
+# 
+# y <- Biomark_Raw_20241001 %>%
+#   filter(`Reader ID` %in% c("B4", "B5"))
 
 
