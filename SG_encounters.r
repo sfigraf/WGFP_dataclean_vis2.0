@@ -2940,7 +2940,7 @@ listOfSamplingLocations <- combinedData_df_list$All_Events %>%
 #also needs mobile run dates
 mobileDates <- combinedData_df_list$All_Events %>%
   dplyr::filter(Event %in% c("M1", "M2")) %>%
-  dplyr::distinct(Date, )
+  dplyr::distinct(Date)
 
 mobile <- indiv_datasets_list$mobiledata %>%
   dplyr::distinct(MobileSite, Date) %>%
@@ -2984,4 +2984,103 @@ allNewAvianPredation <- bind_rows(WGFP_AvianPredation, newAvianPredationTags)
 allNewAvianPredation <- allNewAvianPredation %>%
   distinct(TagID, .keep_all = TRUE)
 write_csv(allNewAvianPredation, "WGFP_AvianPredation.csv")
+
+
+####chsnging biomark names to correct: B4 kaibab goes to B2, RR B5 goes to B3
+Biomark_Raw_20241111 <- readRDS("~/WGFP_dataclean_vis2.0/data/Biomark_Raw_20241111.rds")
+x <- Biomark_Raw_20241111 %>%
+  filter(as.Date(`Scan Date`) >= "2024-10-02")
+
+x1 <- Biomark_Raw_20241111 %>%
+  mutate(`Reader ID` = case_when( `Reader ID` == "B4" ~ "B2", 
+                                 `Reader ID` == "B5" ~ "B3", 
+                                 TRUE ~ `Reader ID`)) %>%
+  select(-`S/N`) %>%
+  distinct()
+unique(x1$`Reader ID`)
+saveRDS(x1, file = "data/Biomark_Raw_20241111_corectNames.rds")
+
+# x2 <- x1 %>%
+#   filter(`Reader ID` %in% c("B4", "B5"))
+# 
+# 
+# y <- Biomark_Raw_20241001 %>%
+#   filter(`Reader ID` %in% c("B4", "B5"))
+
+###more ghost tags
+
+GhostTags <- read_csv("./data/WGFP_GhostTags.csv", 
+                      col_types = cols(TagID = col_character()))
+#new mobile detections 
+newMobile <- read_csv("data/select_mobile2024.csv", 
+                                           skip = 7) %>%
+  select(TagID, `Total...10`, `Ghost`)
+
+alreadyChecked2023 <- read_csv("data/WGFP_GhostTags_SGChecked_20240315.csv", 
+                           skip = 6) %>%
+  select(TagID, `Total...9`, `Ghost`, Notes)
+
+x <- left_join(newMobile, alreadyChecked2023, by = "TagID") %>%
+  mutate(TagID = as.character(TagID)) %>%
+  anti_join(GhostTags, by = "TagID") %>%
+  mutate(toCheck = Total...9 != Total...10) %>%
+  filter(toCheck == TRUE | is.na(toCheck))
+
+write_csv(x, "tagsToCheck.csv")
+
+###after tags been checked: getting an updated selectedTags file
+alreadyChecked2023 <- read_csv("data/WGFP_GhostTags_SGChecked_20240315.csv", 
+                               skip = 6) %>%
+  select(TagID, `Total...9`, `Ghost`, Notes)
+
+newMobile <- read_csv("data/select_mobile2024.csv", 
+                      skip = 7)
+
+checkedTags2024 <- read_csv("tagsToCheck.csv")
+#isolating just the old comments
+tagsLreadyCheckedNeedtoGetOldCommentsEtc <- alreadyChecked2023 %>%
+  anti_join(checkedTags2024, by = "TagID")
+#adding old comments to new mobiel 2024
+tagsCheckedALready2024 <- left_join(newMobile, tagsLreadyCheckedNeedtoGetOldCommentsEtc, by = "TagID") %>%
+  select(-Total...9, -Ghost.y ) %>%
+  relocate(Notes, .after = Ghost.x)
+#adding new comments to new mobile 2024
+newMobileWithAllNotes <- left_join(tagsCheckedALready2024, checkedTags2024, by = "TagID") %>%
+  unite(Notes, c(Notes.x, `2024Checking`), na.rm = TRUE) %>%
+  select(-c())
+  
+write_csv(newMobileWithAllNotes, "newTagChecked.csv")
+
+
+###adding new ghost tags to the ghsot tag file
+Release <- indiv_datasets_list$releasedata
+
+NewTagsToAdd <- newMobileWithAllNotes %>%
+  filter(!is.na(ProposedGhostDate)) %>%
+  mutate(Notes = paste0(Notes, " using encounter history; field confirmation needed. ", `2024Notes`),
+         GhostDate = lubridate::mdy(ProposedGhostDate)
+         ) %>%
+  select(TagID, Notes, GhostDate) %>%
+  mutate(Event = case_when(grepl("^Likely|^likely", Notes) ~ "Ghost?", 
+                           grepl("Confirmed", Notes) ~ "Ghost"), 
+         TagID = as.character(TagID)) %>%
+  left_join(subset(Release, select = -c(Comments, Event)), by = "TagID")
+
+GhostTags <- indiv_datasets_list$ghostdata %>%
+  mutate(Time = as.character(Time))
+
+x <- alignColumns(dfToChange =  NewTagsToAdd, desiredColumns = names(GhostTags), dfWithIdealColumns = GhostTags) 
+
+# x <- x %>%
+#   mutate(GhostDate = lubridate::mdy(GhostDate))
+
+AllGhosts <- bind_rows(GhostTags, x)
+
+write_csv(AllGhosts, "newGhostTags.csv")
+
+
+  
+
+
+
 
