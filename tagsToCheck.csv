@@ -1,7 +1,7 @@
 TagID,Total...10,Ghost.x,Total...9,Ghost.y,Notes,toCheck,2024Checking,2024Notes,ProposedGhostDate
 230000228848,8,Flag,7,Flag,Not a Ghost Tag; revised based off movement after Ghost Date or other.,TRUE,Confirmed Ghost,Washed downstream but then no movement for a year. Porposed that 2023 high flows washed it DS,10/21/2020
 230000228836,7,Flag,6,Flag,Not a Ghost Tag; revised based off movement after Ghost Date or other.,TRUE,Confirmed Ghost,Washed downstream but then no movement for a year. Porposed that 2023 high flows washed it DS,4/14/2021
-230000142516,6,Flag,5,Flag,Not a Ghost Tag; revised based off movement after Ghost Date or other.,TRUE,Confirmed Ghost,Washed downstream but then no movement for a year. Porposed that 2023 high flows washed it DS,7/28/2021
+230000142516,6,Flag,5,Flag,Not a Ghost Tag; revised based off movement after Ghost Date or other.,TRUE,Likely ghost; add to file,Washed downstream but then no movement for a year. Porposed that 2023 high flows washed it DS,7/28/2021
 230000228446,6,Flag,5,Flag,"Not a ghost tag; three plus detections in same pool, but multiple pool upstream movement on 10/17/22",TRUE,Not a ghost tag; US movement. Needs a couple more datapoints,,
 230000229030,6,Flag,5,Flag,Not a Ghost Tag; revised based off movement after Ghost Date or other.,TRUE,Confirmed Ghost,Washed downstream but then no movement for a year. Porposed that 2023 high flows washed it DS,7/28/2021
 230000229036,6,Flag,5,Flag,"Status unknown; Given size at release, fish likely matured and became a spawner in 2022; tag was probably still in a fish living in the pool below red barn on 4-20-22; could have spawed fall 2022 in riffle where tag has been found on 10-19-22 and 7-26-23. Need a third detection in this location to confirm (note high flows did not move tag between October 2022 and July 2023, so it should still be here if a ghost tag)",TRUE,Confirmed Ghost,"Proposed that it washed DS in sping 2022, hasn't moved at all since then",7/28/2021
@@ -17,7 +17,7 @@ TagID,Total...10,Ghost.x,Total...9,Ghost.y,Notes,toCheck,2024Checking,2024Notes,
 230000272539,5,Flag,4,Flag,Not a Ghost Tag; revised based off movement after Ghost Date or other.,TRUE,Confirmed Ghost,I think it's a ghost that has gradually washed downstream,
 230000224158,4,Flag,3,Flag,Status unknown; only two detections in current location; not added to Ghost Tag list - need field confirmation,TRUE,Confirmed Ghost,"I'd say ghost, but not sure why it wasn't picked up on 2023 survey. ",4/18/2022
 230000228369,4,Flag,3,Flag,"Not a ghost tag; recaptured in October 2021, detected with mobile antenna in October 22",TRUE,"Not a ghost tag; recaptured in October 2021, detected with mobile antenna in October 22. Upstream movement on mobile in 2024",,
-230000228679,4,Flag,3,Flag,Not a ghost,TRUE,Not a ghost; need more datapoints,,
+230000228679,4,Flag,3,Flag,Not a ghost,TRUE,Likely ghost; add to file,probably hit HP and stuck on the way down during high flow may 2023,4/14/2021
 230000228962,4,Flag,3,Flag,Not a ghost tag; last seen on RB antenna in October 2022,TRUE,Not a ghost; stationary antenna detections in 2024,,
 230000272033,4,Flag,3,Flag,Uncertain; maybe some gps error,TRUE,"Not a ghost; would like to see 1 more datapoint, which would make 3 times in same location",,
 230000272230,4,Flag,3,Flag,Not a ghost tag,TRUE,Confirmed Ghost,I propose it blew downstream in spirng 2023,10/19/2022
@@ -25,7 +25,7 @@ TagID,Total...10,Ghost.x,Total...9,Ghost.y,Notes,toCheck,2024Checking,2024Notes,
 230000272685,4,Flag,3,Flag,Not a ghost tag,TRUE,Confirmed Ghost,Instinct is that is went DS in spring 2023 ,7/28/2021
 230000272699,4,Flag,3,Flag,Not a ghost tag,TRUE,Confirmed Ghost,Instinct is that is went DS in spring 2023 ,10/20/2021
 230000272870,4,Flag,3,Flag,Not a ghost tag,TRUE,Confirmed Ghost,Instinct is that is went DS in spring 2023 ,10/20/2021
-230000272989,4,Flag,3,Flag,Not a ghost tag,TRUE,Not a ghost tag; would like to see 1 more datapoint,,
+230000272989,4,Flag,3,Flag,Not a ghost tag,TRUE,Confirmed Ghost,,10/19/2022
 226001581253,3,Flag,NA,NA,NA,NA,Not a ghost tag; Could be sculpin camped out,,
 226001581276,3,Flag,NA,NA,NA,NA,Not a ghost tag; Could be sculpin camped out,,
 226001581289,3,Flag,NA,NA,NA,NA,Confirmed Ghost,small RBT released 4 years ago; has only moved 40 m and RBT antenna is just downstream. Maybe keep an eye on this though,10/21/2020
@@ -39,48 +39,48 @@ TagID,Total...10,Ghost.x,Total...9,Ghost.y,Notes,toCheck,2024Checking,2024Notes,
 230000142825,3,Flag,NA,NA,NA,NA,Confirmed Ghost,,10/19/2022
 230000142979,3,Flag,NA,NA,NA,NA,Confirmed Ghost,,10/19/2022
 230000142988,3,Flag,NA,NA,NA,NA,Confirmed Ghost,,4/20/2022
-230000142997,3,Flag,NA,NA,NA,NA,Not a ghost; would like to see 1 more data point,,
-230000143018,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000143053,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000143070,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000143221,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000143499,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000143514,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000143653,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000143666,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000143677,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
+230000142997,3,Flag,NA,NA,NA,NA,Confirmed Ghost,,10/18/2021
+230000143018,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data; too far US movement to confirm in 2023",,
+230000143053,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/17/2022
+230000143070,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/17/2022
+230000143221,3,Flag,NA,NA,NA,NA,Status unknown; went DS significant amount in 2024 when the water wasn't as high in 2023. It was in the fraser though,,
+230000143499,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/19/2022
+230000143514,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/17/2022
+230000143653,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/19/2022
+230000143666,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/19/2022
+230000143677,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/19/2022
 230000224064,3,Flag,NA,NA,NA,NA,"Not a ghost, has upstram movements",,
-230000224071,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000224086,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000224125,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000224148,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000224157,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000224208,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
+230000224071,3,Flag,NA,NA,NA,NA,"Not a ghost, has upstram movements",,
+230000224086,3,Flag,NA,NA,NA,,Confirmed Ghost,probably swept DS in 2023 high flows,10/19/2022
+230000224125,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/18/2021
+230000224148,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/18/2021
+230000224157,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/17/2022
+230000224208,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/18/2021
 230000224393,3,Flag,NA,NA,NA,NA,Not a ghost; has recaptures,,
 230000224503,3,Flag,NA,NA,NA,NA,"Not a ghost, has stationary detections",,
-230000228372,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
+230000228372,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,7/26/2021
 230000228483,3,Flag,NA,NA,NA,NA,"Not a ghost, mobile data was upstream",,
 230000228856,3,Flag,NA,NA,NA,NA,"Not a ghost, mobile data was upstream",,
-230000228862,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
+230000228862,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,4/20/2022
 230000229027,3,Flag,NA,NA,NA,NA,"Not a ghost, has extensive history and recapture",,
-230000272034,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000272066,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000272117,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000272279,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
+230000272034,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/20/2021
+230000272066,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,7/28/2021
+230000272117,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/20/2021
+230000272279,3,Flag,NA,NA,NA,NA,Likely ghost; add to file,mobile surveys are all DS of each other,10/20/2021
 230000272287,3,Flag,NA,NA,NA,NA,"Not a ghost, has good history",,
-230000272297,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000272308,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
+230000272297,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/20/2021
+230000272308,3,Flag,NA,NA,NA,NA,Likely ghost; add to file,mobile surveys are all DS of each other,10/19/2022
 230000272332,3,Flag,NA,NA,NA,NA,"Not a ghost, has good history",,
-230000272381,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000272391,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000272472,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000272502,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000272542,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000272552,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
+230000272381,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/19/2022
+230000272391,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,4/20/2022
+230000272472,3,Flag,NA,NA,NA,NA,Confirmed Ghost,mobile surveys are all DS of each other,7/28/2021
+230000272502,3,Flag,NA,NA,NA,NA,Confirmed Ghost,mobile surveys are all DS of each other,4/20/2022
+230000272542,3,Flag,NA,NA,NA,NA,Likely ghost; add to file,"mobile surveys are all DS of each other, no movement in 2024. likely washed DS in spring 2023",10/19/2022
+230000272552,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/19/2022
 230000272651,3,Flag,NA,NA,NA,NA,"Not a ghost, has good history",,
 230000272671,3,Flag,NA,NA,NA,NA,"Not a ghost, data is upstream movements",,
-230000272682,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
+230000272682,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/20/2021
 230000272733,3,Flag,NA,NA,NA,NA,"Not a ghost, has good history",,
 230000272745,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000272832,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
-230000272961,3,Flag,NA,NA,NA,NA,"Not a ghost, would like to see more data",,
+230000272832,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,7/28/2021
+230000272961,3,Flag,NA,NA,NA,NA,Confirmed Ghost,3 mobile surveys in same spot,10/19/2022
