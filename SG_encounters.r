@@ -3050,7 +3050,33 @@ newMobileWithAllNotes <- left_join(tagsCheckedALready2024, checkedTags2024, by =
   select(-c())
   
 write_csv(newMobileWithAllNotes, "newTagChecked.csv")
-  
+
+
+###adding new ghost tags to the ghsot tag file
+Release <- indiv_datasets_list$releasedata
+
+NewTagsToAdd <- newMobileWithAllNotes %>%
+  filter(!is.na(ProposedGhostDate)) %>%
+  mutate(Notes = paste0(Notes, " using encounter history; field confirmation needed. ", `2024Notes`),
+         GhostDate = lubridate::mdy(ProposedGhostDate)
+         ) %>%
+  select(TagID, Notes, GhostDate) %>%
+  mutate(Event = case_when(grepl("^Likely|^likely", Notes) ~ "Ghost?", 
+                           grepl("Confirmed", Notes) ~ "Ghost"), 
+         TagID = as.character(TagID)) %>%
+  left_join(subset(Release, select = -c(Comments, Event)), by = "TagID")
+
+GhostTags <- indiv_datasets_list$ghostdata %>%
+  mutate(Time = as.character(Time))
+
+x <- alignColumns(dfToChange =  NewTagsToAdd, desiredColumns = names(GhostTags), dfWithIdealColumns = GhostTags) 
+
+# x <- x %>%
+#   mutate(GhostDate = lubridate::mdy(GhostDate))
+
+AllGhosts <- bind_rows(GhostTags, x)
+
+write_csv(AllGhosts, "newGhostTags.csv")
 
 
   
