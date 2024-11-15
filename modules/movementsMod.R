@@ -123,6 +123,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
       downloadData_Server("downloadmovements1", filtered_movements_data(), "MovementsData")
       
       output$movements1 <- renderDT({
+        
         req(filtered_movements_data())
         datatable(
           filtered_movements_data(),
@@ -136,7 +137,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
             lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
             dom = 'lfrtip',
             #had to add 'lowercase L' letter to display the page length again
-            language = list(emptyTable = "Enter inputs and press Render Table")
+            language = list(emptyTable = "No data to display for the selected filters.")
           )
         ) %>%
           formatRound(columns = c("UTM_X", "UTM_Y"), digits = 0, mark = "")
