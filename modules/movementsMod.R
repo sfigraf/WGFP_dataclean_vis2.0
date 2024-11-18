@@ -2,6 +2,7 @@
 ## movements module
 movements_UI <- function(id, Movements_df) { #could just get dates in UI and then just pass dates instead but no bigggie
   ns <- NS(id)
+  useShinyjs()
   tagList(
     sidebarLayout(
       sidebarPanel(width = 2,
@@ -11,10 +12,40 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                 tabsetPanel(
                   tabPanel("Map and Table",
                            hr(),
-                           splitLayout(cellWidths = c("40%", "60%"),
-                                       withSpinner(DT::dataTableOutput(ns("movements1"))),
-                                       withSpinner(leafletOutput(ns("map1"), height = 600))
+                           tags$head(
+                             tags$style(HTML("
+                                        #table-container {
+                                          position: absolute;
+                                          top: 10px;
+                                          right: 10px;
+                                          width: 40%; /* Adjust as needed */
+                                          background: rgba(255, 255, 255, 0.9);
+                                          border: 1px solid #ccc;
+                                          padding: 10px;
+                                          z-index: 1000; /* Ensures it stays above the map */
+                                          box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+                                        }
+                                      "))
                            ),
+                           div(
+                             style = "position: relative;", # Ensure map is the relative parent
+                             withSpinner(leafletOutput(ns("map1"), height = 600)),
+                             jqui_draggable(
+                               div(
+                                 id = "table-container", # Assign an ID for the table container
+                                 actionButton(ns("toggle_table"), "Toggle Table"), # Button to toggle visibility
+                                 br(), br(),
+                                 div(
+                                   id = ns("table-wrapper"),
+                                   withSpinner(DT::dataTableOutput(ns("movements1")))
+                                 )
+                               )
+                             )
+                           ),
+                           # splitLayout(cellWidths = c("40%", "60%"),
+                           #             withSpinner(DT::dataTableOutput(ns("movements1"))),
+                           #             withSpinner(leafletOutput(ns("map1"), height = 600))
+                           # ),
                            hr(),
                            downloadData_UI(ns("downloadmovements1")),
                   ), # end of Map and table tabPanel
@@ -169,6 +200,11 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
             icon = my_icon)
         
         
+      })
+      
+      # Toggle table visibility
+      observeEvent(input$toggle_table, {
+        shinyjs::toggle(id = "table-wrapper")
       })
       
       
