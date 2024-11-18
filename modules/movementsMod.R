@@ -16,32 +16,55 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                              tags$style(HTML("
                                         #table-container {
                                           position: absolute;
-                                          top: 10px;
-                                          right: 10px;
-                                          width: 40%; /* Adjust as needed */
+                                          bottom: 0px;
+                                          left: 0px;
+                                          width: 100%; /* Adjust as needed */
                                           background: rgba(255, 255, 255, 0.9);
-                                          border: 1px solid #ccc;
-                                          padding: 10px;
-                                          z-index: 1000; /* Ensures it stays above the map */
+                                          border: 3px solid #ccc;
+                                          padding: 30px;
+                                          z-index: 9000; /* Ensures it stays above the map */
                                           box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+                                          overflow: hidden;
+                                        }
+                                        
+                                        #table-header {
+                                          background: #007bff;
+                                          color: white;
+                                          padding: 5px 10px;
+                                          cursor: move; /* Indicates draggable behavior */
+                                          font-weight: bold;
+                                        }
+                                        #map-wrapper {
+                                        position: relative;
+                                        height: 600px;
+                                        z-index: 1;
                                         }
                                       "))
                            ),
+                           fluidRow(
+                             column(
+                               width = 12,
+                               #div(id = ns("map-wrapper"), )
                            div(
                              style = "position: relative;", # Ensure map is the relative parent
-                             withSpinner(leafletOutput(ns("map1"), height = 600)),
+                             withSpinner(leafletOutput(ns("map1"), height = "600px"))
+                             ),
                              jqui_draggable(
+                               jqui_resizable(
                                div(
                                  id = "table-container", # Assign an ID for the table container
                                  actionButton(ns("toggle_table"), "Toggle Table"), # Button to toggle visibility
-                                 br(), br(),
+                                 br(),
                                  div(
                                    id = ns("table-wrapper"),
+                                   style = "overflow: auto; height: calc(100% -30px);",
                                    withSpinner(DT::dataTableOutput(ns("movements1")))
                                  )
                                )
+                               )
                              )
-                           ),
+                           
+                             )),
                            # splitLayout(cellWidths = c("40%", "60%"),
                            #             withSpinner(DT::dataTableOutput(ns("movements1"))),
                            #             withSpinner(leafletOutput(ns("map1"), height = 600))
@@ -162,10 +185,11 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
           selection = "single",
           filter = 'top',
           options = list(
+            scrollX = TRUE,
             stateSave = TRUE,
-            pageLength = 10,
+            pageLength = 5,
             info = TRUE,
-            lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
+            lengthMenu = list(c(1, 5, 10, 25, 50, 100, 200), c("1", "5", "10", "25", "50", "100", "200")),
             dom = 'lfrtip',
             #had to add 'lowercase L' letter to display the page length again
             language = list(emptyTable = "No data to display for the selected filters.")
