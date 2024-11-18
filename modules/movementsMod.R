@@ -17,9 +17,9 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                                 #table-container {
                                   position: absolute;
                                   bottom: 0; /* Position the table at the bottom of the map */
-                                  left: 0; /* Align the table to the left */
-                                  width: 100%; /* Table width is 100% of the map */
-                                  height: 300px; /* Initial height of the table */
+                                  left: 5; /* Align the table to the left */
+                                  width: 40%; /* Table width is 100% of the map */
+                                  height: 575px; /* Initial height of the table */
                                   background: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
                                   border-top: 1px solid #ccc; /* Border at the top to separate from the map */
                                   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); /* Shadow effect for visibility */
@@ -27,7 +27,7 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                                   overflow: hidden; /* Prevents content overflow */
                                 }
                                 #table-header {
-                                  background: #007bff;
+                                  background: #f8f5f0;
                                   color: white;
                                   padding: 5px 10px;
                                   cursor: move; /* Indicates draggable behavior */
@@ -35,9 +35,16 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                                 }
                                 #toggle-container {
                                   position: absolute;
-                                  top: 100px;
-                                  right: 50px;
+                                  top: 10px;
+                                  right: 20px;
+                                  background: #f8f5f0;
                                   z-index: 1100; /* Keeps the toggle button on top */
+                                }
+                                #map-container {
+                                position: relative;
+                                height: 600px;
+                                width: 100%;
+                                z-index: 1;
                                 }
                               "))
                                                      ),
@@ -45,30 +52,36 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                              column(
                                width = 12,
                                # Full-width Leaflet map
-                               div(
-                                 style = "position: relative;", # Ensure map is the relative parent
-                                 leafletOutput(ns("map1"), height = "600px"),
-                                 div(
-                                   id = "toggle-container",
-                                   actionButton("toggle_table", "Toggle Table") # Button remains always visible
-                                 ),
+                               #div(
+                                 #style = "position: relative;", # Ensure map is the relative parent
+                                 div(id = ns("map-container"),
+                                     
+                                     
+                                       withSpinner(leafletOutput(ns("map1"), height = "700px"))
+                                     
+                                     ),
+                                 
                                  jqui_draggable(
                                    jqui_resizable(
                                      div(
                                        id = "table-container", # Draggable and resizable container
                                        div(
                                          id = "table-header", # Draggable header
-                                         "Drag Me" # Label for the draggable area
+                                         #"Movements Table", # Label for the draggable area
+                                         # div(
+                                         #   id = "toggle-container",
+                                           actionButton(ns("toggle_table"), "Toggle Movements Table") # Button remains always visible
+                                         #),
                                        ),
                                        div(
-                                         id = "table-wrapper",
-                                         style = "width: 100%; height: calc(100% - 30px); overflow: auto;", # Adjust to account for header height
-                                         DTOutput(ns("movements1"))
+                                         id = ns("table-wrapper"),
+                                         style = "width: 100%; height: calc(100% - 40px); overflow: auto;", # Adjust to account for header height
+                                         withSpinner(DTOutput(ns("movements1")))
                                        )
                                      )
                                    )
                                  )
-                               )
+                               #)
                              )
                            ),
                            # splitLayout(cellWidths = c("40%", "60%"),
@@ -319,13 +332,16 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
 
       
 # Movements Map Output ----------------------------------------------------
-      
+      # observeEvent(input$map1_click, {
+      #   print(input$map1_click)
+      # })
       output$map1 <- renderLeaflet({
         
         leaflet(filtered_movements_data()) %>% #Warning: Error in UseMethod: no applicable method for 'metaData' applied to an object of class "NULL"  solved becuase leaflet() needs an arg leaflet(x)
           addProviderTiles(providers$Esri.WorldImagery,
                            options = providerTileOptions(maxZoom = 19.5)
           ) %>%
+          setView(lng = -106.0773, lat = 40.14075, zoom = 12) %>%
           ##detections: based off reactives
           addAwesomeMarkers(
             group = "Detections",
