@@ -14,32 +14,32 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                            hr(),
                            tags$head(
                              tags$style(HTML("
-      .table-container {
-          position: absolute;
-          bottom: 0; /* Position the table at the bottom of the map */
-          left: 5; /* Align the table to the left */
-          width: 40%; /* Table width is 100% of the map */
-          height: 550px; /* Initial height of the table */
-          background: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
-          border-top: 1px solid #ccc; /* Border at the top to separate from the map */
-          box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); /* Shadow effect for visibility */
-          z-index: 1000; /* Keeps the table on top */
-          overflow: hidden; /* Prevents content overflow */
-        }
-      .table-header {
-        background: #007bff;
-        color: white;
-        padding: 5px 10px;
-        font-weight: bold;
-      }
-      .toggle-container {
-        position: absolute;
-        top: 80px;
-        left: 10px;
-        z-index: 1200; /* Keeps the toggle button on top */
-      }
-    "))
-                                                     ),
+                                .table-container {
+                                    position: absolute;
+                                    bottom: 0; /* Position the table at the bottom of the map */
+                                    left: 5; /* Align the table to the left */
+                                    width: 40%; /* Table width is 100% of the map */
+                                    height: 550px; /* Initial height of the table */
+                                    background: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+                                    border-top: 1px solid #ccc; /* Border at the top to separate from the map */
+                                    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); /* Shadow effect for visibility */
+                                    z-index: 1000; /* Keeps the table on top */
+                                    overflow: hidden; /* Prevents content overflow */
+                                  }
+                                .table-header {
+                                  background: #007bff;
+                                  color: white;
+                                  padding: 5px 10px;
+                                  font-weight: bold;
+                                }
+                                .toggle-container {
+                                  position: absolute;
+                                  top: 80px;
+                                  left: 10px;
+                                  z-index: 1200; /* Keeps the toggle button on top */
+                                }
+                              "))
+                            ),
                            fluidRow(
                              column(
                                width = 12,
@@ -49,10 +49,10 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                                  withSpinner(leafletOutput(ns("map1"), height = "700px")),
                                  div(
                                    id = "toggle-container",
+                                   #in a module, use classes instead of IDs because using ns() modifies the Id of the element (makes it movements_module-table-container)
                                    class = "toggle-container",
                                    actionButton(ns("toggle_table"), "Toggle Table") # Button remains always visible
                                  ),
-                                 #jqui_draggable(
                                  jqui_resizable(
                                    div(
                                      id = ns("table-container"), # Draggable and resizable container
@@ -67,15 +67,10 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                                        withSpinner(DTOutput(ns("movements1")))
                                      )
                                    )
-                                 )
-                                 #)
+                                 ) 
                                )
                              )
                            ),
-                           # splitLayout(cellWidths = c("40%", "60%"),
-                           #             withSpinner(DT::dataTableOutput(ns("movements1"))),
-                           #             withSpinner(leafletOutput(ns("map1"), height = 600))
-                           # ),
                            hr(),
                            downloadData_UI(ns("downloadmovements1")),
                   ), # end of Map and table tabPanel
