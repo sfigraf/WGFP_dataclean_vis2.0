@@ -2,6 +2,7 @@
 ## movements module
 movements_UI <- function(id, Movements_df) { #could just get dates in UI and then just pass dates instead but no bigggie
   ns <- NS(id)
+  useShinyjs()
   tagList(
     sidebarLayout(
       sidebarPanel(width = 2,
@@ -11,9 +12,64 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                 tabsetPanel(
                   tabPanel("Map and Table",
                            hr(),
-                           splitLayout(cellWidths = c("40%", "60%"),
-                                       withSpinner(DT::dataTableOutput(ns("movements1"))),
-                                       withSpinner(leafletOutput(ns("map1"), height = 600))
+                           tags$head(
+                             tags$style(HTML("
+                                .table-container {
+                                    position: absolute;
+                                    bottom: 0; /* Position the table at the bottom of the map */
+                                    left: 5; /* Align the table to the left */
+                                    width: 40%; /* Table width is 100% of the map */
+                                    height: 550px; /* Initial height of the table */
+                                    background: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+                                    border-top: 1px solid #ccc; /* Border at the top to separate from the map */
+                                    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); /* Shadow effect for visibility */
+                                    z-index: 1000; /* Keeps the table on top */
+                                    overflow: hidden; /* Prevents content overflow */
+                                  }
+                                .table-header {
+                                  background: #007bff;
+                                  color: white;
+                                  padding: 5px 10px;
+                                  font-weight: bold;
+                                }
+                                .toggle-container {
+                                  position: absolute;
+                                  top: 80px;
+                                  left: 10px;
+                                  z-index: 1200; /* Keeps the toggle button on top */
+                                }
+                              "))
+                            ),
+                           fluidRow(
+                             column(
+                               width = 12,
+                               # Full-width Leaflet map
+                               div(
+                                 style = "position: relative;", # Ensure map is the relative parent
+                                 withSpinner(leafletOutput(ns("map1"), height = "700px")),
+                                 div(
+                                   id = "toggle-container",
+                                   #in a module, use classes instead of IDs because using ns() modifies the Id of the element (makes it movements_module-table-container)
+                                   class = "toggle-container",
+                                   actionButton(ns("toggle_table"), "Toggle Table") # Button remains always visible
+                                 ),
+                                 jqui_resizable(
+                                   div(
+                                     id = ns("table-container"), # Draggable and resizable container
+                                     class = "table-container",
+                                     div(
+                                       id = "table-header", # Draggable header
+                                       "Movements Table" # Label for the draggable area
+                                     ),
+                                     div(
+                                       id = "table-wrapper",
+                                       style = "width: 100%; height: calc(100% - 30px); overflow: auto;", # Adjust to account for header height
+                                       withSpinner(DTOutput(ns("movements1")))
+                                     )
+                                   )
+                                 ) 
+                               )
+                             )
                            ),
                            hr(),
                            downloadData_UI(ns("downloadmovements1")),
@@ -123,6 +179,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
       downloadData_Server("downloadmovements1", filtered_movements_data(), "MovementsData")
       
       output$movements1 <- renderDT({
+        
         req(filtered_movements_data())
         datatable(
           filtered_movements_data(),
@@ -130,13 +187,14 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
           selection = "single",
           filter = 'top',
           options = list(
+            scrollX = TRUE,
             stateSave = TRUE,
-            pageLength = 10,
+            pageLength = 5,
             info = TRUE,
-            lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
+            lengthMenu = list(c(1, 5, 10, 25, 50, 100, 200), c("1", "5", "10", "25", "50", "100", "200")),
             dom = 'lfrtip',
             #had to add 'lowercase L' letter to display the page length again
-            language = list(emptyTable = "Enter inputs and press Render Table")
+            language = list(emptyTable = "No data to display for the selected filters.")
           )
         ) %>%
           formatRound(columns = c("UTM_X", "UTM_Y"), digits = 0, mark = "")
@@ -168,6 +226,11 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
             icon = my_icon)
         
         
+      })
+      
+      # Toggle table visibility
+      observeEvent(input$toggle_table, {
+        shinyjs::toggle(id = "table-container")
       })
       
       
@@ -259,6 +322,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
           addProviderTiles(providers$Esri.WorldImagery,
                            options = providerTileOptions(maxZoom = 19.5)
           ) %>%
+          setView(lng = -106.0773, lat = 40.14075, zoom = 12) %>%
           ##detections: based off reactives
           addAwesomeMarkers(
             group = "Detections",

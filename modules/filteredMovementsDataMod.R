@@ -146,7 +146,12 @@ movementsFiltered_Server <- function(id, Movements_df) {
             ) %>%
             arrange(Datetime)
           #this id column is used for the map and datatable proxy and needs to be redone each time a filter is applied
-          movements_data1$id <- seq.int(nrow(movements_data1))
+          # add id if the data has more than 0 rows
+          
+          if(nrow(movements_data1) > 0){
+            movements_data1$id <- seq.int(nrow(movements_data1))
+          }
+          
           
         } else {
           movements_data1 <- Movements_df1  %>% 
@@ -159,8 +164,10 @@ movementsFiltered_Server <- function(id, Movements_df) {
               
             ) %>%
             arrange(Datetime)
-          
-          movements_data1$id <- seq.int(nrow(movements_data1))
+          # add id if the data has more than 0 rows
+          if(nrow(movements_data1) > 0){
+            movements_data1$id <- seq.int(nrow(movements_data1))
+          }
           
         }
         return(movements_data1)

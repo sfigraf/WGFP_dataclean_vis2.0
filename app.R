@@ -17,6 +17,7 @@ library(gganimate)
 #minicharts
 library(leaflet.minicharts)
 library(shinyjs)
+library(shinyjqui)
 #library(mapview)
 #biomark test tags: 999000000007601, 999000000007602
 # to do: put qaqc stuff from combine files app in this file as well
