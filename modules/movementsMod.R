@@ -315,9 +315,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
 
       
 # Movements Map Output ----------------------------------------------------
-      # observeEvent(input$map1_click, {
-      #   print(input$map1_click)
-      # })
+      
       output$map1 <- renderLeaflet({
         
         leaflet(filtered_movements_data()) %>% #Warning: Error in UseMethod: no applicable method for 'metaData' applied to an object of class "NULL"  solved becuase leaflet() needs an arg leaflet(x)
