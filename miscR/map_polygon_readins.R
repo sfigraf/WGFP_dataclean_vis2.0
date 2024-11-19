@@ -17,6 +17,8 @@ releasesites <- st_transform(read_sf(file.path(layerLocation, "ReleaseSites2021.
 
 mobile_reaches <- st_transform(read_sf(file.path(layerLocation, "mobile_reaches.shp")), latLongCRS)
 
+WGFP_States_2024 <- st_transform(read_sf(file.path(layerLocation, "WGFP_States_2024.shp")), latLongCRS)
+
 ###no need to change files other than stations to .rds because the others aren't slow to bring in and convert to correct coordinate system
 
 simpleStations <- readr::read_rds(file.path("./gis/simpleStations.rds"))
