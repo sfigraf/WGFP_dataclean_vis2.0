@@ -3078,9 +3078,70 @@ AllGhosts <- bind_rows(GhostTags, x)
 
 write_csv(AllGhosts, "newGhostTags.csv")
 
+### new states 11/16/24
+detectionsandStations <- DailyMovements_withStations$spatialList$stationData
 
+x1 <- st_join(detectionsandStations, WGFP_States_2024) 
+
+x2 <- head(x1)
+detectionsWithStates <- DailyDetectionsStationsStates$spatialList$stationData
+leaflet(WGFP_States_2024) %>%
+  addTiles() %>%
+  addPolygons() %>%
+  addAwesomeMarkers(data = x2)
+
+timePeriods <- wgfpMetadata$TimePeriods
+library(janitor)
+timePeriodsWide <- timePeriods %>%
+  mutate(`start date` = janitor::excel_numeric_to_date(as.numeric(`start date`)), 
+         `end date` = janitor::excel_numeric_to_date(as.numeric(`end date`))
+         ) %>%
+  unite("totalPeriod", c("start date", "end date"), sep = " to ") %>%
+  pivot_wider(names_from = "totalPeriod", values_from = "periods") %>%
+  select(matches("^[0-9]"))
+
+newDF <- data.frame(matrix(ncol = length(names(timePeriodsWide)) + 1, nrow = 0))
+names(newDF) <- c("TagID", names(timePeriodsWide))
+
+# df1 <- data.frame(
+#   TagID = c(1, 2, 3),
+#   Datetime = as.POSIXct(c("2024-03-15 12:00:00", "2024-04-02 14:00:00", "2024-05-10 09:00:00")),
+#   State = c("A", "B", "C")
+# )
+# 
+# df2 <- data.frame(
+#   TimePeriod = 1:3,
+#   start_date = as.POSIXct(c("2024-01-01", "2024-03-14", "2024-05-01")),
+#   end_date = as.POSIXct(c("2024-03-13", "2024-04-14", "2024-06-01"))
+# )
+timePeriodsCorrect <- timePeriods %>%
+  mutate(`start date` = janitor::excel_numeric_to_date(as.numeric(`start date`)), 
+         `end date` = janitor::excel_numeric_to_date(as.numeric(`end date`))
+  )
+# Perform the join and filtering
+df1_with_period <- as.data.frame(detectionsWithStates) %>%
+  rowwise() %>%
+  mutate(
+    TimePeriod = timePeriodsCorrect %>%
+      filter(Datetime >= `start date` & Datetime <= `end date`) %>%
+      pull(periods) %>%
+      first()
+  )
+x <- df1_with_period %>%
+  group_by(TAG) %>%
+  arrange(Datetime)
+
+result <- df1_with_period %>% 
+  group_by(TAG, TimePeriod) %>% 
+  arrange(Datetime) %>% # Sort by most recent datetime 
+  summarize(allDetections = paste(State, collapse = ", "))
   
-
+  mutate( last_period = ifelse( Event == "Recapture", TimePeriod, # End the period if "Recapture" 
+                                max(TimePeriod[Datetime <= timePeriodsCorrect$`end date`[TimePeriod]], na.rm = TRUE) # Closest to end date
+  ) ) %>% 
+  summarize( Period = first(last_period), # Take the last valid period
+                     Event = first(Event) # Take the most recent detection type
+  )
 
 
 
