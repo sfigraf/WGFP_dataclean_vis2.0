@@ -14,74 +14,62 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                            hr(),
                            tags$head(
                              tags$style(HTML("
-                                #table-container {
-                                  position: absolute;
-                                  bottom: 0; /* Position the table at the bottom of the map */
-                                  left: 5; /* Align the table to the left */
-                                  width: 40%; /* Table width is 100% of the map */
-                                  height: 575px; /* Initial height of the table */
-                                  background: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
-                                  border-top: 1px solid #ccc; /* Border at the top to separate from the map */
-                                  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); /* Shadow effect for visibility */
-                                  z-index: 1000; /* Keeps the table on top */
-                                  overflow: hidden; /* Prevents content overflow */
-                                }
-                                #table-header {
-                                  background: #f8f5f0;
-                                  color: white;
-                                  padding: 5px 10px;
-                                  cursor: move; /* Indicates draggable behavior */
-                                  font-weight: bold;
-                                }
-                                #toggle-container {
-                                  position: absolute;
-                                  top: 10px;
-                                  right: 20px;
-                                  background: #f8f5f0;
-                                  z-index: 1100; /* Keeps the toggle button on top */
-                                }
-                                #map-container {
-                                position: relative;
-                                height: 600px;
-                                width: 100%;
-                                z-index: 1;
-                                }
-                              "))
+      .table-container {
+          position: absolute;
+          bottom: 0; /* Position the table at the bottom of the map */
+          left: 5; /* Align the table to the left */
+          width: 40%; /* Table width is 100% of the map */
+          height: 550px; /* Initial height of the table */
+          background: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+          border-top: 1px solid #ccc; /* Border at the top to separate from the map */
+          box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); /* Shadow effect for visibility */
+          z-index: 1000; /* Keeps the table on top */
+          overflow: hidden; /* Prevents content overflow */
+        }
+      .table-header {
+        background: #007bff;
+        color: white;
+        padding: 5px 10px;
+        font-weight: bold;
+      }
+      .toggle-container {
+        position: absolute;
+        top: 80px;
+        left: 10px;
+        z-index: 1200; /* Keeps the toggle button on top */
+      }
+    "))
                                                      ),
                            fluidRow(
                              column(
                                width = 12,
                                # Full-width Leaflet map
-                               #div(
-                                 #style = "position: relative;", # Ensure map is the relative parent
-                                 div(id = ns("map-container"),
-                                     
-                                     
-                                       withSpinner(leafletOutput(ns("map1"), height = "700px"))
-                                     
-                                     ),
-                                 
-                                 jqui_draggable(
-                                   jqui_resizable(
+                               div(
+                                 style = "position: relative;", # Ensure map is the relative parent
+                                 withSpinner(leafletOutput(ns("map1"), height = "700px")),
+                                 div(
+                                   id = "toggle-container",
+                                   class = "toggle-container",
+                                   actionButton(ns("toggle_table"), "Toggle Table") # Button remains always visible
+                                 ),
+                                 #jqui_draggable(
+                                 jqui_resizable(
+                                   div(
+                                     id = ns("table-container"), # Draggable and resizable container
+                                     class = "table-container",
                                      div(
-                                       id = "table-container", # Draggable and resizable container
-                                       div(
-                                         id = "table-header", # Draggable header
-                                         #"Movements Table", # Label for the draggable area
-                                         # div(
-                                         #   id = "toggle-container",
-                                           actionButton(ns("toggle_table"), "Toggle Movements Table") # Button remains always visible
-                                         #),
-                                       ),
-                                       div(
-                                         id = ns("table-wrapper"),
-                                         style = "width: 100%; height: calc(100% - 40px); overflow: auto;", # Adjust to account for header height
-                                         withSpinner(DTOutput(ns("movements1")))
-                                       )
+                                       id = "table-header", # Draggable header
+                                       "Movements Table" # Label for the draggable area
+                                     ),
+                                     div(
+                                       id = "table-wrapper",
+                                       style = "width: 100%; height: calc(100% - 30px); overflow: auto;", # Adjust to account for header height
+                                       withSpinner(DTOutput(ns("movements1")))
                                      )
                                    )
                                  )
-                               #)
+                                 #)
+                               )
                              )
                            ),
                            # splitLayout(cellWidths = c("40%", "60%"),
@@ -247,7 +235,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
       
       # Toggle table visibility
       observeEvent(input$toggle_table, {
-        shinyjs::toggle(id = "table-wrapper")
+        shinyjs::toggle(id = "table-container")
       })
       
       
