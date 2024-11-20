@@ -3155,23 +3155,124 @@ result <- df1_with_period %>%
   arrange(Datetime) %>% # Sort by most recent datetime 
   #condensedWeeklyStates = gsub('([[:alpha:]])\\1+', '\\1', allWeeklyStates), #removes consecutive letters
   summarize(allDetections = paste(Event, collapse = ", "), 
+            States = paste(State, collapse = ""),
             condensedStates = gsub('([[:alpha:]])\\1+', '\\1', paste(State, collapse = ""))
   )
 
 ####need to check the recap rows; for rows that contain a recap but doesn't END in a recap, 
 #make a new line with the same time period starting with recap and contains the rest of the values in the first vector
 
+library(dplyr)
+library(tidyr)
 
-result1 <- result %>%
-  mutate(newCol = ifelse(allDetections %in% c("Recapture", "Recapture "), "Recapped", NA))
+# Sample dataframe
+# df <- data.frame(
+#   TAG = c(230000167275, 230000167275, 230000167934),
+#   TimePeriod = c(28, 29, 31),
+#   allDetections = c("HP4, HP3, Recapture, RB1, RB2",
+#                     "Release, Recapture, HP4, HP5",
+#                     "M2"),
+#   States = c("A, A, C, B, B", "C, B, C, D", "F"),
+#   stringsAsFactors = FALSE
+# )
 
+# Function to split rows where "Recapture" appears
+split_recapture_rows <- function(data) {
+  x <- data %>%
+    rowwise() %>%
+    mutate(
+      # Split allDetections and States into individual parts
+      detections_list = strsplit(str_trim(allDetections), ", "),
+      states_list = strsplit(str_trim(States), ", ")
+    ) %>%
+    unnest(c(detections_list, states_list)) %>%
+    group_by(TAG, TimePeriod) %>%
+    mutate(
+      # Identify groups around "Recapture"
+      recapture_found = str_trim(detections_list) == "Recapture",
+      group_id = cumsum(recapture_found)
+    ) %>%
+    ungroup() %>%
+    group_by(TAG, TimePeriod, group_id) %>%
+    summarize(
+      allDetections = paste(detections_list, collapse = ", "),
+      States = paste(states_list, collapse = ", "),
+      .groups = "drop"
+    ) %>%
+    arrange(TAG, TimePeriod, group_id)
+}
+
+subsestResult = result %>%
+  filter(TAG == "230000143362")
+data = subsestResult
+# Apply the function to the dataframe
+result2 <- split_recapture_rows(result)
+
+# Print the result
+print(result)
+
+x1 <- df1_with_period %>%
+  filter(TAG == "230000143362") %>%
+  select(TAG, Datetime, Event, TimePeriod, State) #%>%
+  # group_by(TAG, TimePeriod) %>%
+  # mutate(
+  #   # Identify groups around "Recapture"
+  #   recapture_found = str_trim(Event) == "Recapture",
+  #   group_id = cumsum(recapture_found)
+  # )
+  # 
+x2 <- x1 %>%
+  ungroup() %>%
+  mutate(Event = str_trim(Event)) %>%
+  # bind_rows(x1 %>%
+  #            filter(str_trim(Event) == "Recapture")) %>%
+  arrange(TAG, Datetime) 
+
+x3 <- x2 %>%
   
-  mutate( last_period = ifelse( Event == "Recapture", TimePeriod, # End the period if "Recapture" 
-                                max(TimePeriod[Datetime <= timePeriodsCorrect$`end date`[TimePeriod]], na.rm = TRUE) # Closest to end date
-  ) ) %>% 
-  summarize( Period = first(last_period), # Take the last valid period
-                     Event = first(Event) # Take the most recent detection type
-  )
+  mutate(
+    is_recapture = ifelse(str_trim(Event) == "Recapture", 1, 0),
+    group = cumsum(lag(is_recapture, default = 0)) + 1
+  ) 
+
+x4 <- x3 %>%
+  bind_rows(x3 %>%
+             filter(str_trim(Event) == "Recapture") %>%
+              mutate(group = group + 1)
+  ) %>%
+  arrange(TAG, Datetime)
+  # mutate(#group1 = group != lag(group),   #case_when(group != lag(group) & lag(str_trim(Event)) != "Recapture" ~ lag(group))
+  #        #group2 = lag(str_trim(Event)) != "Recapture", 
+  #   group1 = cumsum(is_recapture),
+  #        group3 = case_when(group != lag(group) & lag(str_trim(Event)) == "Recapture" & str_trim(Event) != "Recapture" ~ lag(group) 
+  #                           )
+  # )
+    #lag(Event) == "Recapture" & Event != "Recapture" ~ group + 1))
+  # group_by(group) %>%
+  # mutate(group = ifelse(row_number() > 1 & lag(str_trim(Event)) == "Recapture", lag(group), group)) %>%
+  # ungroup()
+ # mutate( is_recapture = ifelse(str_trim(Event) == "Recapture", 1, 0), group = cumsum(lag(is_recapture, default = 0)) + 1 ) #%>% 
+  #select(-is_recapture)
+  #mutate(Group1 = cumsum(str_trim(Event) == "Recapture"))
+#   group_by(TAG, TimePeriod, group_id) %>%
+#   summarize(
+#     allDetections = paste(Event, collapse = ", "),
+#     States = paste(State, collapse = ", "),
+#     .groups = "drop"
+#   ) %>%
+#   arrange(TAG, TimePeriod, group_id)
+# 
+# 
+# result1 <- result %>%
+#   mutate(newCol = ifelse(allDetections %in% c("Recapture", "Recapture "), "Recapped", NA))
+# 
+#   
+#   mutate( last_period = ifelse( Event == "Recapture", TimePeriod, # End the period if "Recapture" 
+#                                 max(TimePeriod[Datetime <= timePeriodsCorrect$`end date`[TimePeriod]], na.rm = TRUE) # Closest to end date
+#   ) ) %>% 
+#   summarize( Period = first(last_period), # Take the last valid period
+#                      Event = first(Event) # Take the most recent detection type
+#   )
 
 
 
