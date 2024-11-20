@@ -3241,6 +3241,18 @@ x4 <- x3 %>%
               mutate(group = group + 1)
   ) %>%
   arrange(TAG, Datetime)
+
+x5 <- x4 %>%
+  group_by(TAG, TimePeriod, group) %>%
+  summarize(condensedStates = gsub('([[:alpha:]])\\1+', '\\1', paste(State, collapse = ""))
+  ) %>%
+  mutate(newState = str_sub(condensedStates,-1,-1)) %>%
+  select(-condensedStates)
+
+x6 <- x5 %>%
+  pivot_wider(names_from = TimePeriod, values_from = newState) %>%
+  group_by(TAG, group) %>%
+  mutate(number1 = ifelse(group == max(x5$group), 1, -1))
   # mutate(#group1 = group != lag(group),   #case_when(group != lag(group) & lag(str_trim(Event)) != "Recapture" ~ lag(group))
   #        #group2 = lag(str_trim(Event)) != "Recapture", 
   #   group1 = cumsum(is_recapture),
