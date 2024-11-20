@@ -3121,7 +3121,9 @@ timePeriodsCorrect <- timePeriods %>%
   )
   
 # Perform the join and filtering
+#no muskie
 df1_with_period <- as.data.frame(detectionsWithStates) %>%
+  filter(Species != "TGM") %>%
   rowwise() %>%
   mutate(
     TimePeriod = timePeriodsCorrect %>%
@@ -3130,15 +3132,15 @@ df1_with_period <- as.data.frame(detectionsWithStates) %>%
       first()
   )
 
-df1_with_period <- as.data.frame(detectionsWithStates) %>%
-  filter(TAG == "230000142692") %>%
-  rowwise() %>%
-  mutate(
-    TimePeriod = timePeriodsCorrect %>%
-      filter(Datetime >= `start date` & Datetime <= `end date`) %>%
-       pull(periods) %>%
-      first()
-  )
+# df1_with_period <- as.data.frame(detectionsWithStates) %>%
+#   filter(TAG == "230000142692") %>%
+#   rowwise() %>%
+#   mutate(
+#     TimePeriod = timePeriodsCorrect %>%
+#       filter(Datetime >= `start date` & Datetime <= `end date`) %>%
+#        pull(periods) %>%
+#       first()
+#   )
 x <- df1_with_period %>%
   filter(TAG == "230000142692")
 
@@ -3148,12 +3150,21 @@ x <- df1_with_period %>%
   arrange(Datetime)
 
 result <- df1_with_period %>% 
+  mutate(TimePeriod = as.numeric(TimePeriod)) %>%
   group_by(TAG, TimePeriod) %>% 
   arrange(Datetime) %>% # Sort by most recent datetime 
   #condensedWeeklyStates = gsub('([[:alpha:]])\\1+', '\\1', allWeeklyStates), #removes consecutive letters
   summarize(allDetections = paste(Event, collapse = ", "), 
             condensedStates = gsub('([[:alpha:]])\\1+', '\\1', paste(State, collapse = ""))
   )
+
+####need to check the recap rows; for rows that contain a recap but doesn't END in a recap, 
+#make a new line with the same time period starting with recap and contains the rest of the values in the first vector
+
+
+result1 <- result %>%
+  mutate(newCol = ifelse(allDetections %in% c("Recapture", "Recapture "), "Recapped", NA))
+
   
   mutate( last_period = ifelse( Event == "Recapture", TimePeriod, # End the period if "Recapture" 
                                 max(TimePeriod[Datetime <= timePeriodsCorrect$`end date`[TimePeriod]], na.rm = TRUE) # Closest to end date
