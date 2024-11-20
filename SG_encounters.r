@@ -3114,10 +3114,12 @@ names(newDF) <- c("TagID", names(timePeriodsWide))
 #   start_date = as.POSIXct(c("2024-01-01", "2024-03-14", "2024-05-01")),
 #   end_date = as.POSIXct(c("2024-03-13", "2024-04-14", "2024-06-01"))
 # )
+#need to add the datetime to make sure the <= and >= filtering later is interpreting correctly
 timePeriodsCorrect <- timePeriods %>%
   mutate(`start date` = janitor::excel_numeric_to_date(as.numeric(`start date`)), 
-         `end date` = janitor::excel_numeric_to_date(as.numeric(`end date`))
+         `end date` = ymd_hms( paste(janitor::excel_numeric_to_date(as.numeric(`end date`)), "23:59:59"))
   )
+  
 # Perform the join and filtering
 df1_with_period <- as.data.frame(detectionsWithStates) %>%
   rowwise() %>%
@@ -3127,6 +3129,20 @@ df1_with_period <- as.data.frame(detectionsWithStates) %>%
       pull(periods) %>%
       first()
   )
+
+df1_with_period <- as.data.frame(detectionsWithStates) %>%
+  filter(TAG == "230000142692") %>%
+  rowwise() %>%
+  mutate(
+    TimePeriod = timePeriodsCorrect %>%
+      filter(Datetime >= `start date` & Datetime <= `end date`) %>%
+       pull(periods) %>%
+      first()
+  )
+x <- df1_with_period %>%
+  filter(TAG == "230000142692")
+
+x[5, "Datetime"] <= timePeriodsCorrect[4, "end date"]
 x <- df1_with_period %>%
   group_by(TAG) %>%
   arrange(Datetime)
@@ -3134,7 +3150,10 @@ x <- df1_with_period %>%
 result <- df1_with_period %>% 
   group_by(TAG, TimePeriod) %>% 
   arrange(Datetime) %>% # Sort by most recent datetime 
-  summarize(allDetections = paste(State, collapse = ", "))
+  #condensedWeeklyStates = gsub('([[:alpha:]])\\1+', '\\1', allWeeklyStates), #removes consecutive letters
+  summarize(allDetections = paste(Event, collapse = ", "), 
+            condensedStates = gsub('([[:alpha:]])\\1+', '\\1', paste(State, collapse = ""))
+  )
   
   mutate( last_period = ifelse( Event == "Recapture", TimePeriod, # End the period if "Recapture" 
                                 max(TimePeriod[Datetime <= timePeriodsCorrect$`end date`[TimePeriod]], na.rm = TRUE) # Closest to end date
