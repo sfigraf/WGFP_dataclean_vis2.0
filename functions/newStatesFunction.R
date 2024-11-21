@@ -126,7 +126,7 @@ x6 <- x5 %>%
 
 x65 <- x6 %>%
   rowwise() %>%
-  mutate(Number2 = case_when(any(c_across(matches("^[0-9]+$")) == "G") ~ -1, 
+  mutate(number1 = case_when(any(c_across(matches("^[0-9]+$")) == "G") ~ -1, 
                              TRUE ~ number1)
     #        if_else(
     # any(c_across(matches("^[0-9]+$")) == "G"), -1, number1, missing = number1
@@ -160,7 +160,7 @@ recapsAndReleaseWithGroup <- recapsAndRelease %>%
          LOC = ifelse(Species == "LOC", 1, 0), 
          MTS = ifelse(Species == "MTS", 1, 0))
 
-x7 <- x6 %>%
+x7 <- x65 %>%
   #left_join(x45[,c("TAG", "group", "")])
   #adding length and weight columns on
   #coalescing recap dat first so that will take priority
@@ -168,6 +168,14 @@ x7 <- x6 %>%
               mutate(Length = coalesce(Recap_Length, Release_Length),
               Weight = coalesce(Recap_Weight, Release_Weight)), by = c("TAG", "group")) %>%
   select(-c(Release_Length, Release_Weight, Recap_Length, Recap_Weight))
+
+## replcae NA with 0
+x8 <- x7 %>%
+  rowwise() %>%
+  mutate(across(matches("^[0-9]+$"), ~ replace_na(.x, "0")))
+  #replace_na(c_across(matches("^[0-9]+$") = "0")
+  
+
 ####qaqc
 test <- x7 %>%
   arrange(TAG) %>%
