@@ -41,7 +41,10 @@ y3 <- y2 %>%
 
 
 
-timePeriods <- wgfpMetadata$TimePeriods
+timePeriods <- wgfpMetadata$TimePeriods %>%
+  mutate(`start date` = janitor::excel_numeric_to_date(as.numeric(`start date`)), 
+         `end date` = janitor::excel_numeric_to_date(as.numeric(`end date`))
+  )
 #release and recaps
 recapsAndRelease <- as.data.frame(detectionsWithStates) %>%
   filter(Event %in% c("Recapture", "Recapture and Release", "Release", "Recapture "), 
@@ -52,9 +55,7 @@ recapsAndRelease <- as.data.frame(detectionsWithStates) %>%
 #             by = c("TAG", "Datetime"))
 #need to add the datetime to make sure the <= and >= filtering later is interpreting correctly
 timePeriodsCorrect <- timePeriods %>%
-  mutate(`start date` = janitor::excel_numeric_to_date(as.numeric(`start date`)), 
-         `end date` = ymd_hms(paste(janitor::excel_numeric_to_date(as.numeric(`end date`)), "23:59:59"))
-  )
+  mutate(`end date` = ymd_hms(paste(`end date`, "23:59:59")))
 
 # Perform the join and filtering
 #no muskie
@@ -175,6 +176,42 @@ x8 <- x7 %>%
   mutate(across(matches("^[0-9]+$"), ~ replace_na(.x, "0")))
   #replace_na(c_across(matches("^[0-9]+$") = "0")
   
+
+# # Example wide dataframe
+# df <- data.frame(
+#   TAG = c("A", "B", "C"),
+#   `1` = c(10, 15, 20),
+#   `2` = c(5, 10, 15),
+#   `3` = c(8, 16, 24),
+#   `4` = c(11, 22, 33)
+# )
+# 
+# # Example time periods dataframe
+# time_periods <- data.frame(
+#   Number = 1:4,
+#   StartDate = as.Date(c("2023-04-05", "2023-05-01", "2023-06-01", "2023-07-01")),
+#   EndDate = as.Date(c("2023-05-06", "2023-06-01", "2023-07-01", "2023-08-01"))
+# )
+
+# Reshape the wide df to long format
+df_long <- x8 %>%
+  pivot_longer(matches("^[0-9]+$"), names_to = "periods", values_to = "State") %>%
+  mutate(periods = as.character(periods))  # Convert Number to integer for matching
+
+# Join with the time periods dataframe to get the date range for each Number
+df_long <- df_long %>%
+  left_join(timePeriods[,c("periods", "start date", "end date")], by = "periods") %>%
+  mutate(NewColumnName = paste(`start date`, "to", `end date`))
+
+colsToMov <- c("number1", "RBT", "LOC", "MTS", "Length", "Weight")
+# Reshape back to wide format with new column names
+df_wide <- df_long %>%
+  select(-`start date`, -`end date`, -periods) %>%
+  pivot_wider(names_from = NewColumnName, values_from = "State") %>%
+  select(-all_of(colsToMov), all_of(colsToMov))
+
+# View the updated wide dataframe
+print(df_wide)
 
 ####qaqc
 test <- x7 %>%
