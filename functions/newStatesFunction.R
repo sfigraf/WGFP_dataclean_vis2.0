@@ -2,8 +2,9 @@
 detectionsWithStates <- DailyDetectionsStationsStates$spatialList$stationData
 timePeriods <- wgfpMetadata$TimePeriods
 #release and recaps
-recapsAndRelease <- combinedData_df_list$All_Events %>%
-  filter(Event %in% c("Recapture", "Recapture and Release", "Release", "Recapture"))
+recapsAndRelease <- as.data.frame(detectionsWithStates) %>%
+  filter(Event %in% c("Recapture", "Recapture and Release", "Release", "Recapture "), 
+         !Species %in% "TGM")
 
 # x45 <- x4 %>%
 #   left_join(recapsAndRelease[, c("TAG", "Datetime", "Release_Length", "Release_Weight", "Recap_Length", "Recap_Weight")], 
@@ -86,12 +87,15 @@ x6 <- x5 %>%
 recapsAndReleaseWithGroup <- recapsAndRelease %>%
   group_by(TAG) %>%
   arrange(Datetime) %>%
-  mutate(group = row_number())
+  mutate(group = row_number(), 
+         RBT = ifelse(Species == "RBT", 1, 0),
+         LOC = ifelse(Species == "LOC", 1, 0), 
+         MTS = ifelse(Species == "MTS", 1, 0))
 
 x7 <- x6 %>%
   #left_join(x45[,c("TAG", "group", "")])
   #adding length and weight columns on
   #coalescing recap dat first so that will take priority
-  left_join(recapsAndReleaseWithGroup[,c("TAG", "group", "Release_Length", "Release_Weight", "Recap_Length", "Recap_Weight")] %>%
+  left_join(recapsAndReleaseWithGroup[,c("TAG", "group", "Release_Length", "Release_Weight", "Recap_Length", "Recap_Weight", "RBT", "LOC", "MTS")] %>%
               mutate(Length = coalesce(Recap_Length, Release_Length),
               Weight = coalesce(Recap_Weight, Release_Weight)), by = c("TAG", "group"))
