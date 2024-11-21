@@ -23,6 +23,17 @@ y2 <- eventsWithGhostDatesAndAvianPredation %>%
   #makes sure to keep non-predated tags if they don'thave a ghost/predation date
   filter(is.na(GhostOrPredationDate) |
          Date <= GhostOrPredationDate)
+# we don't need duplicated rows of states and tags that fall on the same day. 
+y3 <- y2 %>%
+  distinct(TAG, GhostOrPredationDate, State, Date, .keep_all = T)
+# y1 <- y %>%
+#   filter(State == "G") %>%
+#   arrange(TAG, Datetime) %>%
+#   relocate(TAG, Datetime, GhostOrPredationDate)
+# nrow(eventsWithGhostDatesAndAvianPredation)
+
+
+
 timePeriods <- wgfpMetadata$TimePeriods
 #release and recaps
 recapsAndRelease <- as.data.frame(detectionsWithStates) %>%
@@ -40,8 +51,7 @@ timePeriodsCorrect <- timePeriods %>%
 
 # Perform the join and filtering
 #no muskie
-df1_with_period <- as.data.frame(detectionsWithStates) %>%
-  filter(Species != "TGM") %>%
+df1_with_period <- as.data.frame(detectionsWithStates)  %>%
   rowwise() %>%
   mutate(
     TimePeriod = timePeriodsCorrect %>%
@@ -124,3 +134,10 @@ x7 <- x6 %>%
               Weight = coalesce(Recap_Weight, Release_Weight)), by = c("TAG", "group")) %>%
   select(-c(Release_Length, Release_Weight, Recap_Length, Recap_Weight))
 #### need ghost tags/avian predation now
+
+
+# joining with avian predation
+#Shouldn't matter really, but this just cuts down unnecesary rows. left_joining creates more rows than df1 if there are duplicate values in the key_col of df1 (in this case TAG)
+#some new rows are created then when joining to the ghost tag df because many of the ghost tags have multiple detections after the ghost date in the combined_df
+# I'm just cutting out these excess rows but they would get cut down anyway later in this function. As long as each ghost tag gains a row with ghost date or predation date, that's all that matters
+
