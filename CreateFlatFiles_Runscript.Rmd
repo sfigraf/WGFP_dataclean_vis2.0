@@ -293,7 +293,8 @@ cleanedRelease <- Release %>%
 
 cleanedRecaptures <- Recaptures %>%
   mutate(Date = as.character(lubridate::mdy(Date)), 
-         Species = str_trim(Species))
+         Species = str_trim(Species)
+  )
 
 AvianPredation <- AvianPredation %>%
   mutate(PredationDate = lubridate::mdy(PredationDate))
