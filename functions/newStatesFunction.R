@@ -118,11 +118,39 @@ x5 <- x4 %>%
   mutate(newState = str_sub(condensedStates,-1,-1)) %>%
   select(-condensedStates) 
 
-x6 <- x5 %>%
-  arrange(as.numeric(TimePeriod)) %>%
-  pivot_wider(names_from = TimePeriod, values_from = newState) %>%
-  group_by(TAG) %>%
-  mutate(number1 = ifelse(group == max(group), 1, -1))
+x6 <- x5 %>% 
+  arrange(as.numeric(TimePeriod)) %>% 
+  pivot_wider(names_from = TimePeriod, values_from = newState) %>% 
+  group_by(TAG) %>% 
+  mutate(number1 = ifelse(group == max(group), 1, -1)) 
+
+x65 <- x6 %>%
+  rowwise() %>%
+  mutate(Number2 = case_when(any(c_across(matches("^[0-9]+$")) == "G") ~ -1, 
+                             TRUE ~ number1)
+    #        if_else(
+    # any(c_across(matches("^[0-9]+$")) == "G"), -1, number1, missing = number1
+    # )
+  )
+
+# x6 <- x5 %>%
+#   group_by(TAG) %>%
+#   mutate(number1 = ifelse(newState == "G", -1, NA)
+#          
+# # case_when(newState == "G" ~ -1, 
+# #                              group == max(group) ~ 1, 
+# #                              TRUE ~ -1)
+#   ) %>%
+#   arrange(as.numeric(TimePeriod)) %>%
+#   pivot_wider(names_from = TimePeriod, values_from = newState) #%>%
+# 
+# x6Correct <- x6
+  # group_by(TAG) %>%
+  # mutate(number1 = case_when(State == "G" ~ -1, 
+  #                            group == max(group) ~ 1, 
+  #                            TRUE ~ -1)
+  # )
+           #ifelse(group == max(group), 1, -1))
 
 recapsAndReleaseWithGroup <- recapsAndRelease %>%
   group_by(TAG) %>%
@@ -140,7 +168,25 @@ x7 <- x6 %>%
               mutate(Length = coalesce(Recap_Length, Release_Length),
               Weight = coalesce(Recap_Weight, Release_Weight)), by = c("TAG", "group")) %>%
   select(-c(Release_Length, Release_Weight, Recap_Length, Recap_Weight))
-#### need ghost tags/avian predation now
+####qaqc
+test <- x7 %>%
+  arrange(TAG) %>%
+  ungroup() %>%
+  add_row()%>%
+  add_row()%>%
+  add_row()%>%
+  add_row()%>%
+  add_row()%>%
+  add_row()%>%
+  add_row()%>%
+  add_row()
+qaqc <- recapsAndRelease %>%
+  arrange(TAG) %>%
+  bind_cols(test[,"TAG"])
+
+qaqc2 <- qaqc %>%
+  mutate(equal = `TAG...1` == `TAG...38`) %>%
+  relocate(TAG...1, TAG...38, equal, State, Datetime, Event, )
 
 
 # joining with avian predation
