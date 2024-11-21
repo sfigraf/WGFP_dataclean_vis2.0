@@ -28,7 +28,7 @@ df1_with_period <- as.data.frame(detectionsWithStates) %>%
   )
 
 x1 <- df1_with_period %>%
-  filter(TAG %in% c("230000143362", "230000142543")) %>%
+  #filter(TAG %in% c("230000143362", "230000142543")) %>%
   select(TAG, Datetime, Event, TimePeriod, State) #%>%
 # group_by(TAG, TimePeriod) %>%
 # mutate(
@@ -98,4 +98,6 @@ x7 <- x6 %>%
   #coalescing recap dat first so that will take priority
   left_join(recapsAndReleaseWithGroup[,c("TAG", "group", "Release_Length", "Release_Weight", "Recap_Length", "Recap_Weight", "RBT", "LOC", "MTS")] %>%
               mutate(Length = coalesce(Recap_Length, Release_Length),
-              Weight = coalesce(Recap_Weight, Release_Weight)), by = c("TAG", "group"))
+              Weight = coalesce(Recap_Weight, Release_Weight)), by = c("TAG", "group")) %>%
+  select(-c(Release_Length, Release_Weight, Recap_Length, Recap_Weight))
+#### need ghost tags/avian predation now
