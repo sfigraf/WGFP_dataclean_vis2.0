@@ -321,18 +321,18 @@ Cleaned_Stationary_FishdetectionsOnly <- utmsStationary %>%
 
 #spatially joins point (detection) data to lines (station) data based on nearest feature.
 #simpleStations is from polygon_readins
-DailyMovements_withStations <- spatial_join_stations_detections(condensedEvents = AllCombinedEvents$df_list$All_Events_most_relevant, simpleStations = simpleStations)
+DailyDetectionsStationsStates <- spatial_join_stations_detections(condensedEvents = AllCombinedEvents$df_list$All_Events_most_relevant, simpleStations = simpleStations, WGFP_States_2024)
 
-if(nrow(DailyMovements_withStations$spatialList$noUTMS) > 0){
-  problemNAtagsMessage <- paste0("The following tags could not be assigned stations because of an NA entry for UTMs: ", unique(DailyMovements_withStations$spatialList$noUTMS$TAG),
+if(nrow(DailyDetectionsStationsStates$spatialList$noUTMS) > 0){
+  problemNAtagsMessage <- paste0("The following tags could not be assigned stations because of an NA entry for UTMs: ", unique(DailyDetectionsStationsStates$spatialList$noUTMS$TAG),
                                          ".")
 } else{
   problemNAtagsMessage <- ""
 }
 
 #prepares joined stations and relevant Movements dataset for movements summaries and states
-
-combined_events_stations <- PrepareforStatesMovementsandSummary(DailyMovements_withStations$spatialList$stationData)
+#Not sure if I need this function to be this extensive with the new state regime
+combined_events_stations <- PrepareforStatesMovementsandSummary(DailyDetectionsStationsStates$spatialList$stationData)
 
 # states
 
@@ -476,7 +476,7 @@ SiteVisitData <- list(
 ```
 
 #### `r AllCombinedEvents$endMessage`
-#### `r DailyMovements_withStations$endMessage`
+#### `r DailyDetectionsStationsStates$endMessage`
 #### `r states$endMessage`
 #### `r enc_hist_wide_list$endMessage`
 #### `r Movements_list$message`
