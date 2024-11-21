@@ -18,18 +18,25 @@ y2 <- eventsWithGhostDatesAndAvianPredation %>%
   mutate(GhostOrPredationDate = coalesce(PredationDate, GhostDate), 
          State = case_when(Date >= GhostOrPredationDate ~ "G", 
                            TRUE ~ State)
+         #equal = GhostDate == PredationDate
   ) %>%
   #getting rid of data for tags after their ghost/predation date
   #makes sure to keep non-predated tags if they don'thave a ghost/predation date
   filter(is.na(GhostOrPredationDate) |
          Date <= GhostOrPredationDate)
 # we don't need duplicated rows of states and tags that fall on the same day. 
+# y3 <- y2 %>%
+#   distinct(TAG, GhostOrPredationDate, State, Date, .keep_all = T)
+#getting rid of same-day ghost data, keeping just the first detectio nthat day that qulifies as ghot/predation
 y3 <- y2 %>%
-  distinct(TAG, GhostOrPredationDate, State, Date, .keep_all = T)
-# y1 <- y %>%
-#   filter(State == "G") %>%
-#   arrange(TAG, Datetime) %>%
-#   relocate(TAG, Datetime, GhostOrPredationDate)
+  #filter(State == "G") %>%
+  arrange(TAG, Datetime) %>%
+  group_by(TAG, State) %>%
+  mutate(firstDatetime = dplyr::if_else(!is.na(GhostOrPredationDate) & State == "G", first(Datetime), NA)) %>% #first(Datetime)) %>%
+  relocate(TAG, Datetime, GhostOrPredationDate, firstDatetime) %>%
+  filter(is.na(GhostOrPredationDate) | is.na(firstDatetime) |
+           Datetime == firstDatetime)
+  #filter(Datetime == firstDatetime)
 # nrow(eventsWithGhostDatesAndAvianPredation)
 
 
@@ -51,7 +58,7 @@ timePeriodsCorrect <- timePeriods %>%
 
 # Perform the join and filtering
 #no muskie
-df1_with_period <- as.data.frame(detectionsWithStates)  %>%
+df1_with_period <- as.data.frame(y3)  %>%
   rowwise() %>%
   mutate(
     TimePeriod = timePeriodsCorrect %>%
