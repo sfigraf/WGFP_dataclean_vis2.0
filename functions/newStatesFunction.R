@@ -1,5 +1,28 @@
 #this comes from runscript after spatial join detections stations function
-detectionsWithStates <- DailyDetectionsStationsStates$spatialList$stationData
+detectionsWithStates <- as.data.frame(DailyDetectionsStationsStates$spatialList$stationData) %>%
+  filter(Species != "TGM")
+GhostTagsForJoining <- GhostTags %>%
+  rename(TAG = TagID) %>%
+  select(TAG, GhostDate) 
+
+AvianPredationForJoining <- AvianPredation %>%
+  rename(TAG = TagID) %>%
+  select(TAG, PredationDate)
+
+#joining with ghost tag df
+eventsWithGhostDates <- left_join(detectionsWithStates, GhostTagsForJoining, by = c("TAG"))
+eventsWithGhostDatesAndAvianPredation <- left_join(eventsWithGhostDates, AvianPredationForJoining, by = c("TAG")) #%>%
+  #distinct(TAG, Event, Datetime, UTM_X, UTM_Y, first_last, .keep_all = TRUE)
+#if it's predated and ghost, predated will always come first
+y2 <- eventsWithGhostDatesAndAvianPredation %>%
+  mutate(GhostOrPredationDate = coalesce(PredationDate, GhostDate), 
+         State = case_when(Date >= GhostOrPredationDate ~ "G", 
+                           TRUE ~ State)
+  ) %>%
+  #getting rid of data for tags after their ghost/predation date
+  #makes sure to keep non-predated tags if they don'thave a ghost/predation date
+  filter(is.na(GhostOrPredationDate) |
+         Date <= GhostOrPredationDate)
 timePeriods <- wgfpMetadata$TimePeriods
 #release and recaps
 recapsAndRelease <- as.data.frame(detectionsWithStates) %>%
