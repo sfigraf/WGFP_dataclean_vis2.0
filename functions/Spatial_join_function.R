@@ -3,9 +3,10 @@
 
 #condensedEvents is the detection data filtered on distinct stuff from all_events. comes from all_combined_events function
 # condesned_events has UTMs for coordinates 
-#condensedEvents = df_list$All_Events_most_relevant
+#condensedEvents = AllCombinedEvents$df_list$All_Events_most_relevant
 # simpleStations = simpleStations2
 #simplestations is a sptial lines dataframe brought in with map_polygon_readins 
+#statesPolygon <- WGFP_States_2024
 
 library(sf)
 spatial_join_stations_detections <- function(condensedEvents, simpleStations, statesPolygon) {
@@ -29,7 +30,13 @@ spatial_join_stations_detections <- function(condensedEvents, simpleStations, st
   stationsAndDetections <- sf::st_join(condensedEventsSFLatLong, simpleStations, st_nearest_feature)
   #joins states based off states polygon
   stationsStatesandDetections <- sf::st_join(stationsAndDetections, statesPolygon, st_intersects)
-  spatialList <- list("stationData" = stationsStatesandDetections, "noUTMS" = problemRows)
+  
+  #TGM excepted, fish that weren;t assigned a state
+  noState <- stationsStatesandDetections %>%
+    filter(!Species %in% c("TGM"), 
+           is.na(State))
+  
+  spatialList <- list("stationData" = stationsStatesandDetections, "noUTMS" = problemRows, "noState" = noState)
   end_time <- Sys.time()
   endMessage <- paste("Spatial_join_stations_detections took", round(difftime(end_time, start_time, units = "mins"),2), "minutes.")
   print(endMessage)
