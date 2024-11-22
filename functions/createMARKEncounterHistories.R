@@ -1,6 +1,6 @@
 # TimePeriods <- wgfpMetadata$TimePeriods
-# ### this comes from runscript after spatial join detections stations function
-#DailyDetectionsStationsStates <- DailyDetectionsStationsStates$spatialList$stationData
+# # ### this comes from runscript after spatial join detections stations function
+# DailyDetectionsStationsStates <- DailyDetectionsStationsStates$spatialList$stationData
 # encounterDF <- createMARKEncounterHistories(DailyDetectionsStationsStates, GhostTags, AvianPredation, TimePeriods)
 
 library(janitor)
@@ -72,10 +72,6 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
         first()
     ) %>%
     ungroup() #stops rowwise()
-  
-  # missingStates <- eventsWithPeriods %>%
-  #   filter(is.na(State))
-  # 
   
   #select pertinent columns
   eventsWithPeriodsSelect <- eventsWithPeriods %>%
@@ -168,16 +164,15 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
     select(-all_of(colsToMov), all_of(colsToMov))
   
   ##### Potential Avian Predation 
-  DailyMovements_withStationsWeeksSince <- eventsWithPeriodsSelect %>%
+  DailyMovements_withStationsWeeksSince <- as.data.frame(DailyDetectionsStationsStates) %>%
     ungroup() %>%
     mutate(
-      #days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
       #makes sense to use floor not cieling with weeks because then there are are more fish in week 0
       # if you want to start at week 1 instead of week 0, add +1 to the end of expression
       # when you change this too, it changes the number of entries in the states dataframe
       weeks_since = as.numeric(floor(difftime(Datetime, min(Datetime), units = "weeks")))
     )
-  weeklyStates <- DailyMovements_withStationsWeeksSince %>%
+  weeklyStates <- DailyMovements_withStationsWeeksSince %>% 
     group_by(weeks_since, TAG) %>%
     arrange(Datetime) %>%
     mutate(
@@ -191,18 +186,10 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
     select(-State) %>%
     rename(State = condensedWeeklyStates)
   
-  
-  # timePeriodStates <- eventsWithPeriodsSelect %>%
-  #   group_by(TimePeriod, TAG) %>%
-  #   arrange(Datetime) %>%
-  #   mutate(
-  #     TimePeriodStates = paste(State, collapse = ""),
-  #     condensedTimePeriodStates = gsub('([[:alpha:]])\\1+', '\\1', TimePeriodStates), #removes consecutive letters
-  #     timePeriod_unique_events = length(unique(Event))
-  #   )
-  weeklyActiveFish <- weeklyStates %>%
-    filter(weekly_unique_events >4 | str_length(State) > 6)
-  #used for avain predation and also in encounter histories summary wide
+  weeklyActiveFish <- cleanedWeeklyStates %>%
+    filter(weekly_unique_events >4 | str_length(State) > 6) %>%
+    select(TAG, Date, weeks_since, State, allWeeklyStates, weekly_unique_events)
+  #used for avian predation and also in encounter histories summary wide
   #we want to keep TGM here so using original DF
   summarizedStates <- as.data.frame(DailyDetectionsStationsStates) %>%
     group_by(TAG) %>%
@@ -225,7 +212,7 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
     distinct(TAG, .keep_all = TRUE)
   
   overAllActiveFish <- summarizedStates %>%
-    filter(str_length(condensedAllStates) >2)
+    filter(str_length(condensedAllStates) >6)
   
   overAllActiveFishNotinWeeklyDF <- anti_join(overAllActiveFish, weeklyActiveFish, by = "TAG")
   possibleAvianPredation <- list(
