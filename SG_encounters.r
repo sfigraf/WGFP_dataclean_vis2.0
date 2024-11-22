@@ -3087,8 +3087,10 @@ x2 <- head(x1)
 detectionsWithStates <- DailyDetectionsStationsStates$spatialList$stationData
 leaflet(WGFP_States_2024) %>%
   addTiles() %>%
-  addPolygons() %>%
-  addAwesomeMarkers(data = x2)
+  addPolygons() 
+
+x <- eventsWithPeriods %>%
+  filter(ReleaseSite == "Kinney Creek", Release_Date %in% c("2023-06-07", "2023-06-05"), Event %in% c("Release", "Recapture and Release"))
 
 timePeriods <- wgfpMetadata$TimePeriods
 library(janitor)
@@ -3162,8 +3164,8 @@ result <- df1_with_period %>%
 ####need to check the recap rows; for rows that contain a recap but doesn't END in a recap, 
 #make a new line with the same time period starting with recap and contains the rest of the values in the first vector
 
-library(dplyr)
-library(tidyr)
+# library(dplyr)
+# library(tidyr)
 
 # Sample dataframe
 # df <- data.frame(
@@ -3177,30 +3179,30 @@ library(tidyr)
 # )
 
 # Function to split rows where "Recapture" appears
-split_recapture_rows <- function(data) {
-  x <- data %>%
-    rowwise() %>%
-    mutate(
-      # Split allDetections and States into individual parts
-      detections_list = strsplit(str_trim(allDetections), ", "),
-      states_list = strsplit(str_trim(States), ", ")
-    ) %>%
-    unnest(c(detections_list, states_list)) %>%
-    group_by(TAG, TimePeriod) %>%
-    mutate(
-      # Identify groups around "Recapture"
-      recapture_found = str_trim(detections_list) == "Recapture",
-      group_id = cumsum(recapture_found)
-    ) %>%
-    ungroup() %>%
-    group_by(TAG, TimePeriod, group_id) %>%
-    summarize(
-      allDetections = paste(detections_list, collapse = ", "),
-      States = paste(states_list, collapse = ", "),
-      .groups = "drop"
-    ) %>%
-    arrange(TAG, TimePeriod, group_id)
-}
+# split_recapture_rows <- function(data) {
+#   x <- data %>%
+#     rowwise() %>%
+#     mutate(
+#       # Split allDetections and States into individual parts
+#       detections_list = strsplit(str_trim(allDetections), ", "),
+#       states_list = strsplit(str_trim(States), ", ")
+#     ) %>%
+#     unnest(c(detections_list, states_list)) %>%
+#     group_by(TAG, TimePeriod) %>%
+#     mutate(
+#       # Identify groups around "Recapture"
+#       recapture_found = str_trim(detections_list) == "Recapture",
+#       group_id = cumsum(recapture_found)
+#     ) %>%
+#     ungroup() %>%
+#     group_by(TAG, TimePeriod, group_id) %>%
+#     summarize(
+#       allDetections = paste(detections_list, collapse = ", "),
+#       States = paste(states_list, collapse = ", "),
+#       .groups = "drop"
+#     ) %>%
+#     arrange(TAG, TimePeriod, group_id)
+# }
 
 subsestResult = result %>%
   filter(TAG == "230000143362")
@@ -3286,5 +3288,51 @@ x6 <- x5 %>%
 #                      Event = first(Event) # Take the most recent detection type
 #   )
 
+wackoReadin <- recapsAndRelease
+#getting timestamps in order and getting relevant columns
+cleanedRelease <- Release %>%
+  rename(TAG = TagID) %>%
+  mutate(TAG = str_trim(TAG),
+         Species = str_trim(Species),
+         Date = mdy(Date),
+         DateTime = lubridate::ymd_hms(paste(Date, Time))) %>%
+  select(RS_Num, River, ReleaseSite, Date, Time, DateTime, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event)
 
+#getting timestamps in order and getting relevant columns
+
+cleanedRecaptures <- Recaptures %>%
+  rename(TAG = TagID) %>%
+  filter(!Date %in% c("", " ", NA)) %>%
+  mutate(TAG = str_trim(TAG),
+         Event = str_trim(Event),
+         Species = str_trim(Species),
+         Date = mdy(Date),
+         DateTime = ymd_hms(paste(Date, Time))) %>%
+  select(RS_Num, River, RecaptureSite, DateTime, Date, Time, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event) %>%
+  rename(
+    Recap_Length = Length,
+    Recap_Weight = Weight
+  )
+fromCSVs <- bind_rows(cleanedRecaptures, cleanedRelease) %>%
+  select(-c(RS_Num, River, TagSize, Ant)) %>%
+  rename(Datetime = DateTime, 
+         Release_Length = Length,
+         Release_Weight = Weight)
+
+x <- anti_join(fromCSVs, recapsAndRelease, by = "Release_Length") %>%
+  filter(!Species %in% c("TGM"))
+x <- base::intersect(fromCSVs, recapsAndRelease)
+x <- base::setdiff(fromCSVs, recapsAndRelease %>%
+                     select(names(fromCSVs)))
+
+x <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
+  filter(Event %in% c("Recapture and Release", "Release"))
+
+x1 <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
+  filter(Event %in% c("Recapture"))
+
+x1 <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
+  filter(Event %in% c("Recapture", "Recapture and Release", "Release"))
+AllEvents <- AllCombinedEvents$df_list$All_Events %>%
+  filter(Event %in% c("Recapture"))
 

@@ -75,7 +75,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
            Species = str_trim(Species),
            Date = mdy(Date),
            DateTime = lubridate::ymd_hms(paste(Date, Time))) %>%
-    select(RS_Num, River, ReleaseSite, Date, Time, DateTime, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event)
+    select(River, ReleaseSite, Date, Time, DateTime, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event)
   
   #getting timestamps in order and getting relevant columns
   
@@ -87,7 +87,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
            Species = str_trim(Species),
            Date = mdy(Date),
            DateTime = ymd_hms(paste(Date, Time))) %>%
-    select(RS_Num, River, RecaptureSite, DateTime, Date, Time, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event) %>%
+    select(River, RecaptureSite, DateTime, Date, Time, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event) %>%
     rename(
       Recap_Length = Length,
       Recap_Weight = Weight
@@ -157,7 +157,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     dplyr::filter(!TAG %in% c("230000999999"))
   
   ### This is getting the events dataframe to only the data relevant for joining with stations
-  
+  #stattions are used for movements, distance moved
   allEventsRelevantToStations <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
     #this part is for making sure the sequence of events will make sense
     # if there's no tag input then have to group_by TAG as well

@@ -1,7 +1,7 @@
-#TimePeriods <- wgfpMetadata$TimePeriods
-#this comes from runscript after spatial join detections stations function
-#DailyDetectionsStationsStates <- DailyDetectionsStationsStates$spatialList$stationData
-#encounterDF <- createMARKEncounterHistories(DailyDetectionsStationsStates, GhostTags, AvianPredation, TimePeriods)
+# TimePeriods <- wgfpMetadata$TimePeriods
+# # ### this comes from runscript after spatial join detections stations function
+# DailyDetectionsStationsStates <- DailyDetectionsStationsStates$spatialList$stationData
+# encounterDF <- createMARKEncounterHistories(DailyDetectionsStationsStates, GhostTags, AvianPredation, TimePeriods)
 
 library(janitor)
 createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTags, AvianPredation, TimePeriods){
@@ -70,7 +70,8 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
         filter(Datetime >= `start date` & Datetime <= `end date`) %>%
         pull(periods) %>%
         first()
-    )
+    ) %>%
+    ungroup() #stops rowwise()
   
   #select pertinent columns
   eventsWithPeriodsSelect <- eventsWithPeriods %>%
@@ -113,7 +114,8 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
     rowwise() %>%
     mutate(Count = case_when(any(c_across(matches("^[0-9]+$")) == "G") ~ -1, 
                                TRUE ~ Count)
-    )
+    ) %>%
+    ungroup() #stops rowwise()
   
   #getting recap and release info ready to join with MARK data; 
   # creating the same identifier (group) to help join
@@ -137,7 +139,8 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
   ## replace NA with 0
   tagsEventsWide0s <- tagsEventsWideLW %>%
     rowwise() %>%
-    mutate(across(matches("^[0-9]+$"), ~ replace_na(.x, "0")))
+    mutate(across(matches("^[0-9]+$"), ~ replace_na(.x, "0"))) %>%
+    ungroup() #stops rowwise()
   
 
   ### getting the column names to the time periods described
@@ -154,15 +157,75 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
   #getting columns in desired order
   colsToMov <- c("Count", "Length", "Weight", "RBT", "LOC", "MTS")
   # Reshape back to wide format with new column names
+  # this is the final DF
   tagsEventsWideCorrectTpLabels <- tagsEventsLongwithTpDates %>%
     select(-`start date`, -`end date`, -periods) %>%
     pivot_wider(names_from = NewColumnName, values_from = "State") %>%
     select(-all_of(colsToMov), all_of(colsToMov))
   
+  ##### Potential Avian Predation 
+  DailyMovements_withStationsWeeksSince <- as.data.frame(DailyDetectionsStationsStates) %>%
+    ungroup() %>%
+    mutate(
+      #makes sense to use floor not cieling with weeks because then there are are more fish in week 0
+      # if you want to start at week 1 instead of week 0, add +1 to the end of expression
+      # when you change this too, it changes the number of entries in the states dataframe
+      weeks_since = as.numeric(floor(difftime(Datetime, min(Datetime), units = "weeks")))
+    )
+  weeklyStates <- DailyMovements_withStationsWeeksSince %>% 
+    group_by(weeks_since, TAG) %>%
+    arrange(Datetime) %>%
+    mutate(
+      allWeeklyStates = paste(State, collapse = ""),
+      condensedWeeklyStates = gsub('([[:alpha:]])\\1+', '\\1', allWeeklyStates), #removes consecutive letters
+      weekly_unique_events = length(unique(Event))
+    )
+  #this is now a weekly chart
+  cleanedWeeklyStates <- weeklyStates %>%
+    distinct(weeks_since, TAG, condensedWeeklyStates, .keep_all = TRUE) %>%
+    select(-State) %>%
+    rename(State = condensedWeeklyStates)
+  
+  weeklyActiveFish <- cleanedWeeklyStates %>%
+    filter(weekly_unique_events >4 | str_length(State) > 6) %>%
+    select(TAG, Date, weeks_since, State, allWeeklyStates, weekly_unique_events)
+  #used for avian predation and also in encounter histories summary wide
+  #we want to keep TGM here so using original DF
+  summarizedStates <- as.data.frame(DailyDetectionsStationsStates) %>%
+    group_by(TAG) %>%
+    arrange(Datetime) %>%
+    mutate(allStates = paste(State, collapse = ""),
+           condensedAllStates = gsub('([[:alpha:]])\\1+', '\\1', allStates), #removes consecutive letters
+           channelSummary = case_when(str_detect(condensedAllStates, "D") ~ "Used Connectivity Channel", 
+                                      TRUE ~ "Didn't Use Channel"), 
+           
+           #new columns to say if fish stayed above or below?
+           went_above_dam_noChannel = str_detect(condensedAllStates, "CE|BE|AE|CF|BF|AF|CH|BH|AH"),
+           went_below_dam_noChannel = str_detect(condensedAllStates, "EC|EB|EA|FC|FB|FA|HC|HB|HA"),
+           went_below_dam_throughChannel = str_detect(condensedAllStates, "EDC|EDB|EDA|FDC|FDB|FDA|HDC|HDB|HDA"),
+           went_above_dam_throughChannel = str_detect(condensedAllStates, "CDE|BDE|ADE|CDF|BDF|ADF|CDH|BDH|DAH"),
+           entered_channel_from_DS = str_detect(condensedAllStates, "AD|BD|CD"),
+           entered_channel_from_US = str_detect(condensedAllStates, "ED|FD|HD"),
+           
+    ) %>%
+    select(TAG, condensedAllStates, channelSummary, went_above_dam_noChannel, went_below_dam_noChannel,went_below_dam_throughChannel,went_above_dam_throughChannel,entered_channel_from_DS,entered_channel_from_US) %>%
+    distinct(TAG, .keep_all = TRUE)
+  
+  overAllActiveFish <- summarizedStates %>%
+    filter(str_length(condensedAllStates) >6)
+  
+  overAllActiveFishNotinWeeklyDF <- anti_join(overAllActiveFish, weeklyActiveFish, by = "TAG")
+  possibleAvianPredation <- list(
+    "weeklyActiveFish" = weeklyActiveFish,
+    "overAllActiveFishNotinWeeklyDF" = overAllActiveFishNotinWeeklyDF
+  )
+  
   end_time <- Sys.time()
   endMessage <- paste("createMARKEncounterHistories took", round(difftime(end_time, start_time, units = "mins"),2), "minutes.")
   print(endMessage)
-  return(list("MARKEncounterHistories" = tagsEventsWideCorrectTpLabels, 
+  return(list("MARKEncounterHistories" = tagsEventsWideCorrectTpLabels,
+              "States_summarized" = summarizedStates,
+              "possibleAvianPredation" = possibleAvianPredation,
               "endMessage" = paste(c(startMessage, endMessage), collapse = "<br>")))
 }
 
