@@ -331,6 +331,8 @@ if(nrow(DailyDetectionsStationsStates$spatialList$noUTMS) > 0){
   problemNAtagsMessage <- ""
 }
 
+encounterMARKStates <- createMARKEncounterHistories(DailyDetectionsStationsStates$spatialList$stationData, GhostTags, AvianPredation, wgfpMetadata$TimePeriods)
+
 #prepares joined stations and relevant Movements dataset for movements summaries and states
 #Not sure if I need this function to be this extensive with the new state regime
 combined_events_stations <- PrepareforStatesMovementsandSummary(DailyDetectionsStationsStates$spatialList$stationData)
@@ -478,6 +480,7 @@ SiteVisitData <- list(
 
 #### `r AllCombinedEvents$endMessage`
 #### `r DailyDetectionsStationsStates$endMessage`
+#### `r encounterMARKStates$endMessage`
 #### `r states$endMessage`
 #### `r enc_hist_wide_list$endMessage`
 #### `r Movements_list$message`
@@ -491,6 +494,7 @@ allFlatFiles <- list(
   "combinedData_df_list" = AllCombinedEvents$df_list,
   "indiv_datasets_list" = indiv_datasets_list,
   "Enc_release_data" = Enc_release_data,
+  "encounterMARKStates" = encounterMARKStates,
   "states_data_list" = states$states_df_list,
   "movements_list" = movements_list,
   "Marker_tags" = Cleaned_Marker_tags,
