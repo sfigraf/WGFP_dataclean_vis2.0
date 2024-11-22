@@ -3333,5 +3333,6 @@ x1 <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
 
 x1 <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
   filter(Event %in% c("Recapture", "Recapture and Release", "Release"))
-
+AllEvents <- AllCombinedEvents$df_list$All_Events %>%
+  filter(Event %in% c("Recapture"))
 
