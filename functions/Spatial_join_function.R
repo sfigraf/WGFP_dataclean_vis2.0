@@ -32,7 +32,7 @@ spatial_join_stations_detections <- function(condensedEvents, simpleStations, st
   stationsStatesandDetections <- sf::st_join(stationsAndDetections, statesPolygon, st_intersects)
   
   #TGM excepted, fish that weren;t assigned a state
-  noState <- stationsStatesandDetections %>%
+  noState <- as.data.frame(stationsStatesandDetections) %>%
     filter(!Species %in% c("TGM"), 
            is.na(State))
   

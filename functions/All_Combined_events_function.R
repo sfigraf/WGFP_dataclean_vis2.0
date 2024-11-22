@@ -75,7 +75,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
            Species = str_trim(Species),
            Date = mdy(Date),
            DateTime = lubridate::ymd_hms(paste(Date, Time))) %>%
-    select(RS_Num, River, ReleaseSite, Date, Time, DateTime, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event)
+    select(River, ReleaseSite, Date, Time, DateTime, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event)
   
   #getting timestamps in order and getting relevant columns
   
@@ -87,7 +87,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
            Species = str_trim(Species),
            Date = mdy(Date),
            DateTime = ymd_hms(paste(Date, Time))) %>%
-    select(RS_Num, River, RecaptureSite, DateTime, Date, Time, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event) %>%
+    select(River, RecaptureSite, DateTime, Date, Time, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event) %>%
     rename(
       Recap_Length = Length,
       Recap_Weight = Weight

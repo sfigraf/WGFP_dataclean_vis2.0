@@ -5,8 +5,6 @@
 
 #stations
 # dam is listed at DamLocation
-# DailyMovements_withStations <- DailyDetectionsStationsStates$spatialList$stationData
-# x <- PrepareforStatesMovementsandSummary(DailyMovements_withStations)
 PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
   
   DailyMovements_withStationsFraserColoradoCorrected <- DailyMovements_withStations %>%
@@ -21,17 +19,6 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
                                   TRUE ~ ET_STATION)
            ) %>%
     select(-River.x, -River.y)
-  
-      
-  # making these columns prepares the data for making states and pivoting wider to days/weeks
-  # DailyMovements_withStationsDaysSince <- DailyMovements_withStationsFraserColoradoCorrected %>%
-  #   mutate(
-  #     days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
-  #     #makes sense to use floor not cieling with weeks because then there are are more fish in week 0
-  #     # if you want to start at week 1 instead of week 0, add +1 to the end of expression
-  #     # when you change this too, it changes the number of entries in the states dataframe
-  #     weeks_since = as.numeric(floor(difftime(Datetime, min(Datetime), units = "weeks")))
-  #   )
   
   #getting number of daily events
   DailyMovements_withStationsNumberofDailyEvents <- DailyMovements_withStationsFraserColoradoCorrected %>%

@@ -11,6 +11,7 @@ library(lubridate)
 library(readxl)
 library(dataRetrieval) #this is the usgs package for getting up to date data
 library(shiny) # only used for isTruthy(), found in getSequences
+library(janitor)
 
 whole_doc_startTime <- Sys.time()
 start_time <- Sys.time()
@@ -40,8 +41,10 @@ Biomark <- readRDS("./data/Biomark_Raw_20241111.rds")
 
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
 
-Release <- read.csv("./data/WGFP_ReleaseData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",9)))
-Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 8), rep("numeric", 2), rep("character", 8)))
+Release <- read.csv("./data/WGFP_ReleaseData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",7), "numeric", "numeric",rep("character",9))) %>%
+  janitor::remove_empty()
+Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 7), rep("numeric", 2), rep("character", 8))) %>%
+  janitor::remove_empty()
 
 #avian predation
 AvianPredation <- read_csv("./data/WGFP_AvianPredation.csv", 
@@ -346,7 +349,6 @@ combined_events_stations <- PrepareforStatesMovementsandSummary(DailyDetectionsS
 
 # states
 
-#states <- states_function(combined_events_stations, GhostTags, AvianPredation)
 # aplies enc_hist_summary wide function
 enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(AllCombinedEvents$df_list$Recaps_detections, cleanedRelease, combined_events_stations, encounterMARKStates$States_summarized, markerTags = unique(Cleaned_Marker_tags$TAG))
 unknown_tags <- enc_hist_wide_list$enc_wide_list$Unknown_Tags
@@ -407,9 +409,6 @@ avianPredationList <- purrr::map(avianPredationList, ~{
                                  
 ###QAQC ghost tags
 ghostTagsWithMovementAfterGhostDate <- qaqcGhostTagMovements(GhostTags, Movements_list$dailyMovementsTable1)
-
-#this is used in states_data reactives
-#weeks <- data.frame(weeks_since = min(states$states_df_list$All_States$weeks_since):max(states$states_df_list$All_States$weeks_since))
 
 #more formatting
 Enc_release_data <- enc_hist_wide_df %>%
@@ -503,7 +502,6 @@ allFlatFiles <- list(
   "indiv_datasets_list" = indiv_datasets_list,
   "Enc_release_data" = Enc_release_data,
   "encounterMARKStates" = encounterMARKStates,
-  #"states_data_list" = states$states_df_list,
   "movements_list" = movements_list,
   "Marker_tags" = Cleaned_Marker_tags,
   "unknown_tags" = unknown_tags, 
