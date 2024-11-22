@@ -83,6 +83,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     rename(TAG = TagID) %>%
     filter(!Date %in% c("", " ", NA)) %>%
     mutate(TAG = str_trim(TAG),
+           Event = str_trim(Event),
            Species = str_trim(Species),
            Date = mdy(Date),
            DateTime = ymd_hms(paste(Date, Time))) %>%
