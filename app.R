@@ -170,7 +170,7 @@ ui <- fluidPage(
 
 # States UI -----------------------------------------------------
 
-            tabPanel("Weekly States",
+            tabPanel("MARK States",
                      value = "StatesTab",
                      States_UI("StatesTab1")
                     ),#end of States ui Tab
