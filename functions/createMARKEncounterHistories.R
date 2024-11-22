@@ -1,6 +1,6 @@
 # TimePeriods <- wgfpMetadata$TimePeriods
 # ### this comes from runscript after spatial join detections stations function
-# DailyDetectionsStationsStates <- DailyDetectionsStationsStates$spatialList$stationData
+#DailyDetectionsStationsStates <- DailyDetectionsStationsStates$spatialList$stationData
 # encounterDF <- createMARKEncounterHistories(DailyDetectionsStationsStates, GhostTags, AvianPredation, TimePeriods)
 
 library(janitor)
@@ -202,8 +202,9 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
   #   )
   weeklyActiveFish <- weeklyStates %>%
     filter(weekly_unique_events >4 | str_length(State) > 6)
-  
-  summarizedStates <- eventsWithPeriodsSelect %>%
+  #used for avain predation and also in encounter histories summary wide
+  #we want to keep TGM here so using original DF
+  summarizedStates <- as.data.frame(DailyDetectionsStationsStates) %>%
     group_by(TAG) %>%
     arrange(Datetime) %>%
     mutate(allStates = paste(State, collapse = ""),
@@ -235,7 +236,8 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
   end_time <- Sys.time()
   endMessage <- paste("createMARKEncounterHistories took", round(difftime(end_time, start_time, units = "mins"),2), "minutes.")
   print(endMessage)
-  return(list("MARKEncounterHistories" = tagsEventsWideCorrectTpLabels, 
+  return(list("MARKEncounterHistories" = tagsEventsWideCorrectTpLabels,
+              "States_summarized" = summarizedStates,
               "possibleAvianPredation" = possibleAvianPredation,
               "endMessage" = paste(c(startMessage, endMessage), collapse = "<br>")))
 }
