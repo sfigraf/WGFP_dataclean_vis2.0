@@ -157,7 +157,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     dplyr::filter(!TAG %in% c("230000999999"))
   
   ### This is getting the events dataframe to only the data relevant for joining with stations
-  
+  #stattions are used for movements, distance moved
   allEventsRelevantToStations <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
     #this part is for making sure the sequence of events will make sense
     # if there's no tag input then have to group_by TAG as well
