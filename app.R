@@ -48,6 +48,9 @@ if(!exists("Enc_release_data")){
 if(!exists("states_data_list")){
   states_data_list <- readRDS("data/flatFilesforApp/states_data_list.rds")
 }
+if(!exists("encounterMARKStates")){
+  encounterMARKStates <- readRDS("data/flatFilesforApp/encounterMARKStates.rds")
+}
 if(!exists("movements_list")){
   movements_list <- readRDS("data/flatFilesforApp/movements_list.rds")
 }
@@ -173,7 +176,7 @@ ui <- fluidPage(
 
             tabPanel("Weekly States",
                      value = "StatesTab",
-                     States_UI("StatesTab1", states_data_list)
+                     States_UI("StatesTab1")
                     ),#end of States ui Tab
 
 # Movements and Map UI Tab --------------------------------------------------------------
@@ -222,7 +225,7 @@ server <- function(input, output, session) {
       
       AllEncounters_Server("AllEncountersTab1", combinedData_df_list)
     
-      States_Server("StatesTab1", states_data_list, weeks)
+      States_Server("StatesTab1", encounterMARKStates$MARKEncounterHistories)
       
       PT_Server("PTtab1", PTData, movements_list$Movements_df, USGSData, SiteVisitData$WGFP_SiteVisits_FieldData, allColors)
    
