@@ -106,7 +106,7 @@ for (i in list.files("./miscR/")) {
 }
 
 end_time <- Sys.time()
-print(paste("Static File Read-in took", round((end_time-start_time),2)))
+print(paste("Static File Read-in took", round((end_time-start_time), 2)))
 
 
 #colors
