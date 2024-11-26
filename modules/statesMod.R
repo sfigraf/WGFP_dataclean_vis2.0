@@ -29,7 +29,15 @@ States_Server <- function(id, MARKEncounterHistories) {
                     
                     #buttons = list(list(extend = 'colvis', columns = c(2, 3, 4)))
                   )
-        ) 
+        ) %>%
+          formatStyle(
+            columns = grep("^\\d", names(MARKEncounterHistories), value = TRUE),   # Select columns starting with a number
+            backgroundColor = styleEqual(
+              levels = 0,
+              default = "lightblue",
+              values = c("transparent") # No color for 0
+            )
+          )
         
       })
     }

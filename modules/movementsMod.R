@@ -320,8 +320,10 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
         
         leaflet(filtered_movements_data()) %>% #Warning: Error in UseMethod: no applicable method for 'metaData' applied to an object of class "NULL"  solved becuase leaflet() needs an arg leaflet(x)
           addProviderTiles(providers$Esri.WorldImagery,
-                           options = providerTileOptions(maxZoom = 19.5)
+                           options = providerTileOptions(maxZoom = 19.5), 
+                           group = "Satellite"
           ) %>%
+          
           setView(lng = -106.0773, lat = 40.14075, zoom = 12) %>%
           ##detections: based off reactives
           addAwesomeMarkers(
@@ -375,9 +377,16 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
                        label = simpleStations$ET_STATION,
                        labelOptions = labelOptions(noHide = T, textOnly = TRUE, style = label_style),
                        group = "Stations (m)") %>%
+          addPolygons(data = WGFP_States_2024,
+                      label = WGFP_States_2024$State, 
+                      color = "#702963", 
+                      group = "States") %>%
          
-          addLayersControl(overlayGroups = c("Detections", "Antennas", "Release Sites", "Stream Centerlines", "Stations (m)", "Mobile Reaches")) %>%
-          hideGroup(c("Stream Centerlines", "Stations (m)", "Antennas", "Release Sites", "Mobile Reaches"))
+          addLayersControl(overlayGroups = c("Detections", "Antennas", "Release Sites", "Stream Centerlines", "Stations (m)", "Mobile Reaches", "States"), 
+                           baseGroups = c("Satellite")
+                                          ) %>%
+          hideGroup(c("Stream Centerlines", "Stations (m)", "Antennas", "Release Sites", "Mobile Reaches", "States")) %>%
+          addMeasure(primaryLengthUnit = "meters")
         
         # leafletProxy("map") %>%
         #   ### always remove the prior minichart
