@@ -1,7 +1,7 @@
-TimePeriods <- wgfpMetadata$TimePeriods 
+#TimePeriods <- wgfpMetadata$TimePeriods 
 
 # ### this comes from runscript after spatial join detections stations function
-DailyDetectionsStationsStates <- DailyDetectionsStationsStates$spatialList$stationData
+#DailyDetectionsStationsStates <- DailyDetectionsStationsStates$spatialList$stationData
 #encounterDF <- createMARKEncounterHistories(DailyDetectionsStationsStates, GhostTags, AvianPredation, TimePeriods)
 
 library(janitor)
@@ -73,7 +73,7 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
         first()
     ) %>%
     ungroup() #stops rowwise()
-  
+  #for qaqc: this should be a blank df, otherwise it means some data don't fall within the time periods sepecified in the csv
   dataWithoutPeriods <- eventsWithPeriods %>%
     filter(is.na(TimePeriod))
   
@@ -96,10 +96,16 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
                 mutate(group = group + 1)
     ) %>%
     arrange(TAG, Datetime)
-
   
+  # ghost state cannot occur the same state as a fish is released. So this code adds 1 period where the ghost state occurs as the same time period as the release. 
+
+  releaseGhostCorrection <- additionalRecapInstance %>%
+    mutate(TimePeriod = as.numeric(TimePeriod)) %>%
+    group_by(TAG, TimePeriod) %>%
+    arrange(Datetime) %>%
+    mutate(TimePeriod = ifelse(State == "G" & any(Event %in% c("Release", "Recapture and Release")), TimePeriod + 1, TimePeriod))
   #grabs the last state the tag appeared in for that time period
-  lastStateInTimePeriod <- additionalRecapInstance %>%
+  lastStateInTimePeriod <- releaseGhostCorrection %>%
     group_by(TAG, TimePeriod, group) %>%
     summarize(condensedStates = gsub('([[:alpha:]])\\1+', '\\1', paste(State, collapse = ""))
     ) %>%
