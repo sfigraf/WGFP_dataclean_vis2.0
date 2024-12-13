@@ -82,8 +82,38 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
   eventsWithPeriodsSelect <- eventsWithPeriods %>%
     select(TAG, Datetime, Event, TimePeriod, State) 
   
+  ##There are some fish that were recaptured in the same time period they were released. 
+  #for these fish, we just want their second event (the recapture) as their "Release" event.
+  #this code finds fish where this is the case and removes rows previous to the "Recapture" event
+  x <- eventsWithPeriodsSelect %>%
+    group_by(TAG, TimePeriod) %>%
+    arrange(Datetime) %>%
+    mutate(releasedAndRecappedInSamePeriod = any(Event %in% c("Release", "Recapture and Release")) & any(Event %in% c("Recapture")), 
+           recapTime = as_datetime(ifelse(Event == "Recapture" & releasedAndRecappedInSamePeriod == TRUE, Datetime, NA))) %>%
+    tidyr::fill(recapTime, .direction = "downup") %>%
+    filter(is.na(recapTime) | Datetime >= recapTime)
+  
+  
+  #getting times where a fish was just recapped twice in the same period
+  x2 <- x %>%
+    filter(Event == "Recapture") %>%
+    group_by(TAG, TimePeriod) %>%
+    count(name = "recapsInSinglePeriod") %>%
+    filter(recapsInSinglePeriod > 1) %>%
+    mutate(multipleRecapsInPeriod = TRUE) %>%
+    select(-recapsInSinglePeriod)
+  
+  #joins to get instances of multiple "Recaptures" in the same period
+  x3 <- x %>%
+    left_join(x2, by = c("TAG", "TimePeriod")) %>%
+    filter(!(Event == "Recapture" & row_number() < max(which(Event == "Recapture"), na.rm = T)))
+  
+  #this changes Event to Release
+  x4 <- x3 %>%
+    mutate(Event = ifelse(Event == "Recapture" & releasedAndRecappedInSamePeriod, "Release", Event))
+  ###need to also mark double recaps in same time period: ie 230000143396
   #makes Identifier (group) for TAGs based on number of times they've been recapped
-  groupedRecapEventsByTag <- eventsWithPeriodsSelect %>%
+  groupedRecapEventsByTag <- x4 %>%
     group_by(TAG) %>%
     mutate(
       isRecapture = ifelse(str_trim(Event) == "Recapture", 1, 0),
@@ -91,20 +121,7 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
     )
   
   
-  ##There are some fish that were recaptured in the same time period they were released. 
-  #for these fish, we just want their second event (the recapture) as their "Release" event.
-  #this code finds fish where this is the case and removes rows previous to the "Recapture" event
-  x <- groupedRecapEventsByTag %>%
-    group_by(TAG, TimePeriod) %>%
-    arrange(Datetime) %>%
-    mutate(hasTheseEvents = any(Event %in% c("Release", "Recapture and Release")) & any(Event %in% c("Recapture")), 
-           recapTime = as_datetime(ifelse(Event == "Recapture" & hasTheseEvents == TRUE, Datetime, NA))) %>%
-    tidyr::fill(recapTime, .direction = "downup") %>%
-    filter(is.na(recapTime) | Datetime >= recapTime)
   
-  #this changes Event to Release
-  x1 <- x %>%
-    mutate(Event1 = ifelse(Event == "Recapture" & hasTheseEvents, "Release", Event))
   #####
   
   
