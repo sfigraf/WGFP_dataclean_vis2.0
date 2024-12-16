@@ -332,21 +332,12 @@ problemNAtagsMessage <- ifelse(nrow(DailyDetectionsStationsStates$spatialList$no
                                paste0("The following tags could not be assigned stations because of an NA entry for UTMs: ", unique(DailyDetectionsStationsStates$spatialList$noUTMS$TAG),
                                          "."), 
                                "")
-# if(nrow(DailyDetectionsStationsStates$spatialList$noUTMS) > 0){
-#   problemNAtagsMessage <- 
-# } else{
-#   problemNAtagsMessage <- ""
-# }
+
 problemNoStatetagsMessage <- ifelse(nrow(DailyDetectionsStationsStates$spatialList$noState) > 0,
                                     paste0("The following tags could not be assigned a state (aside from TGM) because their boundary was outside the states polygon: ", unique(DailyDetectionsStationsStates$spatialList$noState$TAG),
                                          "."), 
                                     ""
                                     )
-# if(){
-#   problemNoStatetagsMessage <- 
-# } else{
-#   problemNoStatetagsMessage <- ""
-# }
 
 encounterMARKStates <- createMARKEncounterHistories(DailyDetectionsStationsStates$spatialList$stationData, GhostTags, AvianPredation, wgfpMetadata$TimePeriods)
 
