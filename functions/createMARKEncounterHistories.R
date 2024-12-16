@@ -89,15 +89,10 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
   eventsReleaseRecapSameTimePeriodCorrection <- eventsWithPeriodsSelect %>%
     group_by(TAG, TimePeriod) %>%
     arrange(Datetime) %>%
-    mutate(releasedAndRecappedInSamePeriod = any(Event %in% c("Release", "Recapture and Release")) & any(Event %in% c("Recapture"))#, 
-           #recapTime = as_datetime(ifelse(Event == "Recapture" & releasedAndRecappedInSamePeriod == TRUE, Datetime, NA))
-           ) %>%
+    mutate(releasedAndRecappedInSamePeriod = any(Event %in% c("Release", "Recapture and Release")) & any(Event %in% c("Recapture"))) %>%
     filter(!(releasedAndRecappedInSamePeriod & row_number() < max(which(Event == "Recapture"), default = 0))) %>%
     #this changes recap Event to Release when there is a release/recap in the same time period
     mutate(Event = ifelse(Event == "Recapture" & releasedAndRecappedInSamePeriod, "Release", Event))
-    # tidyr::fill(recapTime, .direction = "downup") %>%
-  #   # filter(is.na(recapTime) | Datetime >= recapTime)
-  # y <- setdiff(x, originalX[,-which(names(originalX) == "recapTime")])
   
   # Now getting times where a fish was recapped twice in the same period
   multipleRecapInstancesSamePeriod <- eventsReleaseRecapSameTimePeriodCorrection %>%
@@ -132,8 +127,6 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
   
   
   #####
-  
-  #230000143396
 
   #adds another row for recapture with a new group so that later the new recap will start the new line of data
   additionalRecapInstance <- groupedRecapEventsByTag %>%
@@ -155,12 +148,7 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
   #grabs the last state the tag appeared in for that time period
   lastStateInTimePeriod <- releaseGhostCorrection %>%
     group_by(TAG, TimePeriod, group) %>%
-    summarize(condensedStates = gsub('([[:alpha:]])\\1+', '\\1', paste(State, collapse = ""))
-              #releaseAndGhostSamePeriod = releaseAndGhostSamePeriod
-              # releasedAndRecappedInSamePeriod = releasedAndRecappedInSamePeriod,
-              # multipleRecapsInPeriod = multipleRecapsInPeriod 
-              
-    ) %>%
+    summarize(condensedStates = gsub('([[:alpha:]])\\1+', '\\1', paste(State, collapse = ""))) %>%
     mutate(newState = str_sub(condensedStates,-1,-1)) %>%
     select(-condensedStates) 
   
@@ -182,9 +170,6 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
   
   ###### 
   QAQCColumnsDF <- releaseGhostCorrection %>%
-    # filter(releaseAndGhostSamePeriod ==T |
-    #   releasedAndRecappedInSamePeriod==T |
-    #   multipleRecapsInPeriod ==T) %>%
     group_by(TAG) %>%
     summarize(releaseAndGhostSamePeriod = any(releaseAndGhostSamePeriod), 
               releasedAndRecappedInSamePeriod = any(releasedAndRecappedInSamePeriod),
@@ -211,12 +196,10 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
     group_by(TAG) %>%
     arrange(Datetime) %>%
     mutate(group = row_number())
-    # distinct(.keep_all = TRUE)
-  # #can't join by event because 2nd recap events have already been changed to "Release" now
-  # recapsAndReleaseWithGroup <- recapsAndReleaseWithGroup %>%
-    
+   
   
   #joining by TAG and group, merging all LEgnth/weight columns and deselecting redundant ones
+  ##can't join by event because 2nd recap events have already been changed to "Release" now
   tagsEventsWideLW <- tagsEventsWideWithGhost %>%
     #adding length and weight columns
     #coalescing recap dat first so that will take priority
