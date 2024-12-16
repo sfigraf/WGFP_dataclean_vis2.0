@@ -133,7 +133,8 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
   
   #####
   
-  
+  #230000143396
+
   #adds another row for recapture with a new group so that later the new recap will start the new line of data
   additionalRecapInstance <- groupedRecapEventsByTag %>%
     bind_rows(groupedRecapEventsByTag %>%
@@ -148,14 +149,14 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
     mutate(TimePeriod = as.numeric(TimePeriod)) %>%
     group_by(TAG, TimePeriod) %>%
     arrange(Datetime) %>%
-    mutate(releaseAndGhostSameState = State == "G" & any(Event %in% c("Release", "Recapture and Release")),
-      TimePeriod = ifelse(releaseAndGhostSameState, TimePeriod + 1, TimePeriod))
+    mutate(releaseAndGhostSamePeriod = State == "G" & any(Event %in% c("Release", "Recapture and Release")),
+      TimePeriod = ifelse(releaseAndGhostSamePeriod, TimePeriod + 1, TimePeriod))
   
   #grabs the last state the tag appeared in for that time period
   lastStateInTimePeriod <- releaseGhostCorrection %>%
     group_by(TAG, TimePeriod, group) %>%
     summarize(condensedStates = gsub('([[:alpha:]])\\1+', '\\1', paste(State, collapse = ""))
-              #releaseAndGhostSameState = releaseAndGhostSameState
+              #releaseAndGhostSamePeriod = releaseAndGhostSamePeriod
               # releasedAndRecappedInSamePeriod = releasedAndRecappedInSamePeriod,
               # multipleRecapsInPeriod = multipleRecapsInPeriod 
               
@@ -179,13 +180,13 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
     ) %>%
     ungroup() #stops rowwise()
   
-  ###### NEED TO GET ROWS WITH QAQC COLUMNS JOINED WITH WIDE DF
+  ###### 
   QAQCColumnsDF <- releaseGhostCorrection %>%
-    # filter(releaseAndGhostSameState ==T |
+    # filter(releaseAndGhostSamePeriod ==T |
     #   releasedAndRecappedInSamePeriod==T |
     #   multipleRecapsInPeriod ==T) %>%
     group_by(TAG) %>%
-    summarize(releaseAndGhostSameState = any(releaseAndGhostSameState), 
+    summarize(releaseAndGhostSamePeriod = any(releaseAndGhostSamePeriod), 
               releasedAndRecappedInSamePeriod = any(releasedAndRecappedInSamePeriod),
               multipleRecapsInPeriod = any(multipleRecapsInPeriod)) %>%
     
@@ -193,14 +194,27 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
   
   
   #getting recap and release info ready to join with MARK data; 
-  # creating the same identifier (group) to help join
+  # using the same identifier (group) to help join
+  #can't just create new group() because group number has already been corrected for in groupedRecapEventsByTag (release/recaps in same time period)
+  #but there hasn't been additoinal recap instance added yet in groupedRecapEventsByTag so we should get that we need
+  
   recapsAndReleaseWithGroup <- recapsAndRelease %>%
-    group_by(TAG) %>%
-    arrange(Datetime) %>%
-    mutate(group = row_number(), 
+    
+    mutate( 
            RBT = ifelse(Species == "RBT", 1, 0),
            LOC = ifelse(Species == "LOC", 1, 0), 
-           MTS = ifelse(Species == "MTS", 1, 0))
+           MTS = ifelse(Species == "MTS", 1, 0)) %>%
+    #first, filter out which recaps/release we don't want based off group assinings from earlier
+    left_join(groupedRecapEventsByTag[,c("TAG", "Datetime", "group")], by = c("TAG", "Datetime")) %>%
+    filter(!is.na(group)) %>%
+    #then make new group numbers
+    group_by(TAG) %>%
+    arrange(Datetime) %>%
+    mutate(group = row_number())
+    # distinct(.keep_all = TRUE)
+  # #can't join by event because 2nd recap events have already been changed to "Release" now
+  # recapsAndReleaseWithGroup <- recapsAndReleaseWithGroup %>%
+    
   
   #joining by TAG and group, merging all LEgnth/weight columns and deselecting redundant ones
   tagsEventsWideLW <- tagsEventsWideWithGhost %>%
