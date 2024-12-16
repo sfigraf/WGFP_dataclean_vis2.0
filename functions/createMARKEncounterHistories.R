@@ -1,17 +1,18 @@
-# TimePeriods <- wgfpMetadata$TimePeriods
+# TimePeriods <- wgfpMetadata$TimePeriods 
+# 
 # # ### this comes from runscript after spatial join detections stations function
-# DailyDetectionsStationsStates <- DailyDetectionsStationsStates$spatialList$stationData
-# encounterDF <- createMARKEncounterHistories(DailyDetectionsStationsStates, GhostTags, AvianPredation, TimePeriods)
-
+# DailyDetectionsStationsStates1 <- DailyDetectionsStationsStates$spatialList$stationData
+# encounterDF <- createMARKEncounterHistories(DailyDetectionsStationsStates1, GhostTags, AvianPredation, TimePeriods)
+# x <- encounterDF$MARKEncounterHistories
 library(janitor)
-createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTags, AvianPredation, TimePeriods){
+createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTags, AvianPredation, TimePeriods){
   
   start_time <- Sys.time()
   startMessage <- "Running createMARKEncounterHistories: Taking events, ghost/predation, and time periods and creating MARK ready dataframe."
   print(startMessage)
   
   #don't need TGM in analysis
-  detectionsWithStates <- as.data.frame(DailyDetectionsStationsStates) %>%
+  detectionsWithStates <- as.data.frame(DailyDetectionsStationsStates1) %>%
     filter(Species != "TGM")
   #getting most pertinent info
   GhostTagsForJoining <- GhostTags %>%
@@ -56,7 +57,8 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
     )
   #release and recaps only
   recapsAndRelease <- detectionsWithStates %>%
-    filter(Event %in% c("Recapture", "Recapture and Release", "Release", "Recapture "))
+    filter(Event %in% c("Recapture", "Recapture and Release", "Release", "Recapture ")) %>%
+    mutate(NeedsLogWeight = ifelse((Release_Length > 0 & Release_Weight == 0) | (Event %in% c("Recapture") & is.na(Recap_Weight)), TRUE, FALSE))
 
   #need to add the datetime to make sure the <= and >= filtering later is interpreted correctly
   timePeriodsCorrect <- timePeriodsClean %>%
@@ -72,19 +74,60 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
         first()
     ) %>%
     ungroup() #stops rowwise()
+  #for qaqc: this should be a blank df, otherwise it means some data don't fall within the time periods sepecified in the csv
+  dataWithoutPeriods <- eventsWithPeriods %>%
+    filter(is.na(TimePeriod))
   
   #select pertinent columns
   eventsWithPeriodsSelect <- eventsWithPeriods %>%
     select(TAG, Datetime, Event, TimePeriod, State) 
   
-  #makes Identifier (group) for TAGs based on number of times they've been recapped
-  groupedRecapEventsByTag <- eventsWithPeriodsSelect %>%
+  ####There are some fish that were recaptured in the same time period they were released. 
+  #for these fish, we just want their second event (the recapture) as their "Release" event.
+  #this code finds fish where this is the case and removes rows previous to the "Recapture" event
+  
+  eventsReleaseRecapSameTimePeriodCorrection <- eventsWithPeriodsSelect %>%
+    group_by(TAG, TimePeriod) %>%
+    arrange(Datetime) %>%
+    mutate(releasedAndRecappedInSamePeriod = any(Event %in% c("Release", "Recapture and Release")) & any(Event %in% c("Recapture"))) %>%
+    filter(!(releasedAndRecappedInSamePeriod & row_number() < max(which(Event == "Recapture"), default = 0))) %>%
+    #this changes recap Event to Release when there is a release/recap in the same time period
+    mutate(Event = ifelse(Event == "Recapture" & releasedAndRecappedInSamePeriod, "Release", Event))
+  
+  # Now getting times where a fish was recapped twice in the same period
+  multipleRecapInstancesSamePeriod <- eventsReleaseRecapSameTimePeriodCorrection %>%
+    filter(Event == "Recapture") %>%
+    group_by(TAG, TimePeriod) %>%
+    count(name = "recapsInSinglePeriod") %>%
+    filter(recapsInSinglePeriod > 1) %>%
+    mutate(multipleRecapsInPeriod = TRUE) %>%
+    select(-recapsInSinglePeriod)
+  
+  #joins to get instances of multiple "Recaptures" in the same period
+  eventsWithRecapReleaseSameTimePeriodCorrection <- eventsReleaseRecapSameTimePeriodCorrection %>%
+    left_join(multipleRecapInstancesSamePeriod, by = c("TAG", "TimePeriod")) %>%
+    group_by(TAG, TimePeriod) %>%
+    arrange(Datetime) %>%
+    #removes rows where there are 2 instances of recaps in the same period
+    #it's already arranged by datetime, so it finds where the max (most recent) recap is within that grouping of TAG and timePeriod, 
+    # and removes instances of Recap that have row numbers beofre the max recap instance within that time period
+    #using default = 0 makes sure there's a value when there's no recap events. Speeds up the code, ensures there's no warnings.
+    filter(!(Event == "Recapture" & row_number() < max(which(Event == "Recapture"), default = 0))) %>%
+    ungroup()
+
+    
+  ### makes Identifier (group) for TAGs based on number of times they've been recapped
+  groupedRecapEventsByTag <- eventsWithRecapReleaseSameTimePeriodCorrection %>%
     group_by(TAG) %>%
     mutate(
       isRecapture = ifelse(str_trim(Event) == "Recapture", 1, 0),
       group = cumsum(lag(isRecapture, default = 0)) + 1
-    ) 
+    )
   
+  
+  
+  #####
+
   #adds another row for recapture with a new group so that later the new recap will start the new line of data
   additionalRecapInstance <- groupedRecapEventsByTag %>%
     bind_rows(groupedRecapEventsByTag %>%
@@ -92,18 +135,26 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
                 mutate(group = group + 1)
     ) %>%
     arrange(TAG, Datetime)
+  
+  # ghost state cannot occur the same state as a fish is released. So this code adds 1 period where the ghost state occurs as the same time period as the release. 
 
+  releaseGhostCorrection <- additionalRecapInstance %>%
+    mutate(TimePeriod = as.numeric(TimePeriod)) %>%
+    group_by(TAG, TimePeriod) %>%
+    arrange(Datetime) %>%
+    mutate(releaseAndGhostSamePeriod = State == "G" & any(Event %in% c("Release", "Recapture and Release")),
+      TimePeriod = ifelse(releaseAndGhostSamePeriod, TimePeriod + 1, TimePeriod))
   
   #grabs the last state the tag appeared in for that time period
-  lastStateInTimePeriod <- additionalRecapInstance %>%
+  lastStateInTimePeriod <- releaseGhostCorrection %>%
     group_by(TAG, TimePeriod, group) %>%
-    summarize(condensedStates = gsub('([[:alpha:]])\\1+', '\\1', paste(State, collapse = ""))
-    ) %>%
+    summarize(condensedStates = gsub('([[:alpha:]])\\1+', '\\1', paste(State, collapse = ""))) %>%
     mutate(newState = str_sub(condensedStates,-1,-1)) %>%
     select(-condensedStates) 
   
   #puts the data to wide format and assigns the number based on if the Tag's history ended or not (group identifier)
   tagsEventsWideFormatWithCount <- lastStateInTimePeriod %>% 
+    group_by(TAG, TimePeriod, group) %>%
     arrange(as.numeric(TimePeriod)) %>% 
     pivot_wider(names_from = TimePeriod, values_from = newState) %>% 
     group_by(TAG) %>% 
@@ -117,23 +168,45 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
     ) %>%
     ungroup() #stops rowwise()
   
-  #getting recap and release info ready to join with MARK data; 
-  # creating the same identifier (group) to help join
-  recapsAndReleaseWithGroup <- recapsAndRelease %>%
+  ###### 
+  QAQCColumnsDF <- releaseGhostCorrection %>%
     group_by(TAG) %>%
-    arrange(Datetime) %>%
-    mutate(group = row_number(), 
+    summarize(releaseAndGhostSamePeriod = any(releaseAndGhostSamePeriod), 
+              releasedAndRecappedInSamePeriod = any(releasedAndRecappedInSamePeriod),
+              multipleRecapsInPeriod = any(multipleRecapsInPeriod)) %>%
+    
+     mutate(multipleRecapsInPeriod = replace_na(multipleRecapsInPeriod, FALSE) )
+  
+  
+  #getting recap and release info ready to join with MARK data; 
+  # using the same identifier (group) to help join
+  #can't just create new group() because group number has already been corrected for in groupedRecapEventsByTag (release/recaps in same time period)
+  #but there hasn't been additoinal recap instance added yet in groupedRecapEventsByTag so we should get that we need
+  
+  recapsAndReleaseWithGroup <- recapsAndRelease %>%
+    
+    mutate( 
            RBT = ifelse(Species == "RBT", 1, 0),
            LOC = ifelse(Species == "LOC", 1, 0), 
-           MTS = ifelse(Species == "MTS", 1, 0))
+           MTS = ifelse(Species == "MTS", 1, 0)) %>%
+    #first, filter out which recaps/release we don't want based off group assinings from earlier
+    left_join(groupedRecapEventsByTag[,c("TAG", "Datetime", "group")], by = c("TAG", "Datetime")) %>%
+    filter(!is.na(group)) %>%
+    #then make new group numbers
+    group_by(TAG) %>%
+    arrange(Datetime) %>%
+    mutate(group = row_number())
+   
   
   #joining by TAG and group, merging all LEgnth/weight columns and deselecting redundant ones
+  ##can't join by event because 2nd recap events have already been changed to "Release" now
   tagsEventsWideLW <- tagsEventsWideWithGhost %>%
     #adding length and weight columns
     #coalescing recap dat first so that will take priority
-    left_join(recapsAndReleaseWithGroup[,c("TAG", "group", "Release_Length", "Release_Weight", "Recap_Length", "Recap_Weight", "RBT", "LOC", "MTS")] %>%
+    left_join(recapsAndReleaseWithGroup[,c("TAG", "group", "Release_Length", "Release_Weight", "Recap_Length", "Recap_Weight", "RBT", "LOC", "MTS", "NeedsLogWeight")] %>%
                 mutate(Length = coalesce(Recap_Length, Release_Length),
-                       Weight = coalesce(Recap_Weight, Release_Weight)), by = c("TAG", "group")) %>%
+                       Weight = ifelse(NeedsLogWeight, NA, coalesce(Recap_Weight, Release_Weight))), 
+              by = c("TAG", "group")) %>%
     select(-c(Release_Length, Release_Weight, Recap_Length, Recap_Weight))
   
   ## replace NA with 0
@@ -155,19 +228,25 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
     mutate(NewColumnName = paste(`start date`, "to", `end date`))
   
   #getting columns in desired order
-  colsToMov <- c("Count", "Length", "Weight", "RBT", "LOC", "MTS")
+  colsToMov <- c("Count", "Length", "Weight", "RBT", "LOC", "MTS", "NeedsLogWeight")
   # Reshape back to wide format with new column names
-  # this is the final DF
+  # this df will not be the same number of rows as recaps and releases because some fish were released/recapped in the same time periods, 
+  # so for those fish, the most recent instance is taken as that recap/release
   tagsEventsWideCorrectTpLabels <- tagsEventsLongwithTpDates %>%
     select(-`start date`, -`end date`, -periods) %>%
     pivot_wider(names_from = NewColumnName, values_from = "State") %>%
     select(-all_of(colsToMov), all_of(colsToMov))
   
+  #adding on QAQC columns 
+  # this is the final DF
+  tagsEventsWideCorrectTpLabelswithQAQC <- tagsEventsWideCorrectTpLabels %>%
+    left_join(QAQCColumnsDF, by = "TAG") 
+  
   ##### Potential Avian Predation 
-  DailyMovements_withStationsWeeksSince <- as.data.frame(DailyDetectionsStationsStates) %>%
+  DailyMovements_withStationsWeeksSince <- as.data.frame(DailyDetectionsStationsStates1) %>%
     ungroup() %>%
     mutate(
-      #makes sense to use floor not cieling with weeks because then there are are more fish in week 0
+      #makes sense to use floor not ceiling with weeks because then there are are more fish in week 0
       # if you want to start at week 1 instead of week 0, add +1 to the end of expression
       # when you change this too, it changes the number of entries in the states dataframe
       weeks_since = as.numeric(floor(difftime(Datetime, min(Datetime), units = "weeks")))
@@ -187,11 +266,11 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
     rename(State = condensedWeeklyStates)
   
   weeklyActiveFish <- cleanedWeeklyStates %>%
-    filter(weekly_unique_events >4 | str_length(State) > 6) %>%
+    filter(weekly_unique_events > 4 | str_length(State) > 6) %>%
     select(TAG, Date, weeks_since, State, allWeeklyStates, weekly_unique_events)
   #used for avian predation and also in encounter histories summary wide
   #we want to keep TGM here so using original DF
-  summarizedStates <- as.data.frame(DailyDetectionsStationsStates) %>%
+  summarizedStates <- as.data.frame(DailyDetectionsStationsStates1) %>%
     group_by(TAG) %>%
     arrange(Datetime) %>%
     mutate(allStates = paste(State, collapse = ""),
@@ -223,10 +302,13 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates, GhostTag
   end_time <- Sys.time()
   endMessage <- paste("createMARKEncounterHistories took", round(difftime(end_time, start_time, units = "mins"),2), "minutes.")
   print(endMessage)
-  return(list("MARKEncounterHistories" = tagsEventsWideCorrectTpLabels,
+  return(list("MARKEncounterHistories" = tagsEventsWideCorrectTpLabelswithQAQC,
               "States_summarized" = summarizedStates,
               "possibleAvianPredation" = possibleAvianPredation,
-              "endMessage" = paste(c(startMessage, endMessage), collapse = "<br>")))
+              "endMessage" = paste(c(startMessage, endMessage), collapse = "<br>"), 
+              "timePeriodsMessage" = ifelse(nrow(dataWithoutPeriods) > 0, paste0("When assigning states for program MARK, some data don't have a time period assigned to them, date ranges ", as.Date(min(dataWithoutPeriods$Datetime)), " to ", as.Date(max(dataWithoutPeriods$Datetime)),". Add or adjust time periods in the csv."), "")
+              )
+         )
 }
 
 

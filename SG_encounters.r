@@ -3336,3 +3336,11 @@ x1 <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
 AllEvents <- AllCombinedEvents$df_list$All_Events %>%
   filter(Event %in% c("Recapture"))
 
+oldQAQC <- read_excel("MARK qaqc joined.xlsx")
+NewData <- read_excel("MARKEncounterHistories_2024-12-16 col correct.xlsx")
+
+x <- NewData %>%
+  left_join(oldQAQC[, c("TAG", "group", "QAQC", "Notes")], by = c("TAG", "group" ))
+write_csv(x, "MARKEncounterQAQC_20241216.csv")
+
+
