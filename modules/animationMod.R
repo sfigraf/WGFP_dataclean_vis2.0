@@ -38,7 +38,7 @@ mod_animationServer <- function(id, filtered_movements_data) {
       })
       
       observe({
-        set_defaults(map_service = "esri", map_type = "world_imagery")
+        basemaps::set_defaults(map_service = "esri", map_type = "world_imagery")
         
         map_with_data <- ggplot() +
           basemap_gglayer(animationDatalist()$coords1) +

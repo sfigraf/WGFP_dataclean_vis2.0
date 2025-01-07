@@ -129,11 +129,11 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                            ),
                            
                   ), #end of movement graphs tabpanel
-                  # tabPanel("Animation",
-                  #          br(),
-                  #          mod_animationUI(ns("movements_animation"))
-                  #          
-                  # ) #end of animation tabPanel
+                  tabPanel("Animation",
+                           br(),
+                           mod_animationUI(ns("movements_animation"))
+
+                  ) #end of animation tabPanel
                 ), # end of tabset panel
       )#end of mainPanel
     )#end of sidebarLayout including sidebarPanel and Mainpanel
@@ -412,8 +412,8 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
 
 
 # Movements Animation Output ----------------------------------------------
-      # mod_animationServer("movements_animation", filtered_movements_data = filtered_movements_data())
-      # 
+      mod_animationServer("movements_animation", filtered_movements_data = filtered_movements_data())
+
         
 # Movement Plots Output ----------------------------------------------------
       observe({

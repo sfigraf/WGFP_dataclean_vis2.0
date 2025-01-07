@@ -2405,7 +2405,7 @@ base_map1 <- basemap_magick(x, map_service = "esri", map_type = "world_imagery")
 set_defaults(map_service = "esri", map_type = "world_imagery")
 basemap_ggplot(x)
 x1 <- ggplot() + 
-  basemap_gglayer(x) +
+  basemap_gglayer(coords1) +
   scale_fill_identity() + 
   coord_sf()
 
@@ -2464,6 +2464,7 @@ baylor <- "baylor university"
 qmap(baylor, zoom = 14)
 #######
 #trying to get m1 coords to plot with x1 basemap
+library(sp)
 m1 <- m1 %>%
   ungroup() 
 
@@ -2473,11 +2474,15 @@ attr(m1, "datum") = "GRS80"
 
 # need a column that has x and Y for this 
 # converts lutms to lat/long
-m2 <- convUL(m1, km=FALSE, southern=NULL)
+#m2 <- convUL(m1, km=FALSE, southern=NULL)
+x1 <- ggplot() + 
+  basemap_gglayer(coords1) +
+  scale_fill_identity() + 
+  coord_sf()
 xy <- m1 %>%
   select(X, Y)
 
-spdf <- SpatialPointsDataFrame(coords = xy, data = m2,
+spdf <- SpatialPointsDataFrame(coords = xy, data = m1,
                                proj4string = CRS("+init=epsg:3857"))
 m3 <- as.data.frame(spdf)
 map_with_data <- x1 +
@@ -3344,3 +3349,42 @@ x <- NewData %>%
 write_csv(x, "MARKEncounterQAQC_20241216.csv")
 
 
+# More animation ----------------------------------------------------------
+`MovementsData_2025-01-07` <- readRDS("~/WGFP_dataclean_vis2.0/MovementsData_2025-01-07.rds")
+Movements_df <- `MovementsData_2025-01-07`[1:500,]
+
+library(rosm)
+base <- osm.raster(bounds)
+ggplot(base)
+basemaps::set_defaults(map_service = "esri", map_type = "world_imagery")
+base <- basemap_gglayer(coords1)
+ggplot() +
+  base
+
+spdf1 <-st_transform(st_as_sfc(spdf), crs = 3857)
+
+ggplot(spdf1) +
+  #basemap_gglayer(spdf) +
+  geom_sf() #+
+#coord_sf()
+#transition_time(weeks_since)  +
+ggtitle(
+  #paste("Date", m3$Date),
+  paste("test ", '{frame_time}'),
+  subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(spdf$Date) ))
+# basemap_gglayer(list1$coords1) +
+# coord_sf(default_crs = sf::st_crs(4326))
+animate(x, nframes = num_days)
+x
+map_with_data <- ggplot(spdf) +
+  basemap_gglayer(coords1, map_service = "esri", map_type = "world_imagery") +
+  scale_fill_identity() +
+  #coord_sf(crs = st_crs(4326)) +
+  theme_classic() +
+  guides(size = "none", color = guide_legend(title = "Movement"))
+map_with_data
+map_with_data + 
+  coord_sf(crs = 4326, datum = sf::st_crs(3857)) +
+  scale_fill_identity() +
+  geom_sf(data =spdf1) #, aes(x = webMercator$Y, y = webMercator$X, size = 10, color =webMercator$movement_only, group =webMercator$weeks_since)
+# + 
