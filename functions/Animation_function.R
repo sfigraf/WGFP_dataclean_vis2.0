@@ -2,9 +2,10 @@ library(sf)
 library(tidyverse)
 library(gganimate)
 library(basemaps)
-`MovementsData_2025-01-07` <- readRDS("~/WGFP_dataclean_vis2.0/MovementsData_2025-01-07.rds")
-Movements_df <- `MovementsData_2025-01-07` %>%
-  filter(TAG == 230000087597)
+# `MovementsData_2025-01-07` <- readRDS("~/WGFP_dataclean_vis2.0/MovementsData_2025-01-07.rds")
+movements <- movements_list$Movements_df
+Movements_df <- movements %>%
+  filter(TAG == 230000228275)
 # changes coords to put on webMercator projection to be ready for animation
 Animation_function <- function(Movements_df){
   
@@ -83,22 +84,28 @@ Animation_function <- function(Movements_df){
 # 
 #spdf1 <-st_transform(st_as_sfc(spdf), crs = 3857)
 # 
-x <- ggplot(spdf, aes(group = TAG)) +
-  #basemap_gglayer(spdf) +
-  geom_sf() +
-  transition_time(weeks_since) + 
-  #transition_states(TAG, transition_length = 3, state_length = 1) +
+#############WORKS FOR slow moving tranisitons 
+x <- ggplot() +
+  basemap_gglayer(coords1) +
+  scale_fill_identity() +
+  coord_sf() +
+  theme_classic() +
+  #####CHANGING COLOR changes the transition "movement" of the fish
+  geom_sf(data = w1, aes(
+                         size = 10, color = movement_only, group = TAG)) +
+  transition_time(weeks_since) +
+  #transition_states(TAG) +
   coord_sf() +
   #transition_time(weeks_since)  +
   ggtitle(
     #paste("Date", m3$Date),
     paste("test ", '{frame_time}'),
-    subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(spdf$Date) )) 
+    subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(spdf$Date) ))
   # enter_fade() +
   # exit_fade()
   # basemap_gglayer(list1$coords1) +
   # coord_sf(default_crs = sf::st_crs(4326))
-gganimate::animate(x, nframes = num_weeks)
+gganimate::animate(x, nframes = num_weeks, end_pause = 5)
 
 ###################
 iris$group <- seq_len(nrow(iris))
