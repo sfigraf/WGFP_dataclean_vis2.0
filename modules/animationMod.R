@@ -2,7 +2,13 @@ mod_animationUI <- function(id) {
   ns <- NS(id)
   tagList(
     fluidRow(
-      column(width = 4,
+      column(width = 6,
+             withSpinner(DTOutput(ns("movements1")))
+      ),#end of column
+      column(width = 4, 
+             textInput(ns("anim_Title"), "Animation Title"),
+             # radioButtons("renderOption", "Render as GIF or Video", 
+             #              choices = c("GIF","Video")), 
              radioButtons(ns("radio2"), "Timeframe", 
                           choices = c("days", "weeks"), 
                           selected = "weeks"),
@@ -14,15 +20,16 @@ mod_animationUI <- function(id) {
                          min = 0,
                          max = 15,
                          value = 10,
-                         step = .2),
-      ),#end of column
-      column(width = 4, 
-             textInput(ns("anim_Title"), "Animation Title"),
-             # radioButtons("renderOption", "Render as GIF or Video", 
-             #              choices = c("GIF","Video"))
+                         step = .2), 
+             pickerInput(ns("aggregator"),
+                         label = "Aggregate data in Selected Time Frame",
+                         choices = c("First Movement", "Last Movement"),
+                         selected = "",
+                         multiple = FALSE
+             )
       )
     ),#end of fluidrow
-    
+    br(), 
     actionButton(ns("button9"), "Render Animation: Need to click 'Render Map and Data' button in Sidebar first. Takes a couple minutes to render usually"), 
     imageOutput(ns("plot12"))
   
@@ -35,6 +42,28 @@ mod_animationServer <- function(id, filtered_movements_data) {
       
       animationDatalist <- eventReactive(input$button9,{
         Animation_function(filtered_movements_data)
+      })
+      #data output
+      output$movements1 <- renderDT({
+        
+        req(filtered_movements_data)
+        datatable(
+          filtered_movements_data,
+          rownames = FALSE,
+          selection = "single",
+          filter = 'top',
+          options = list(
+            scrollX = TRUE,
+            stateSave = TRUE,
+            pageLength = 5,
+            info = TRUE,
+            lengthMenu = list(c(1, 5, 10, 25, 50, 100, 200), c("1", "5", "10", "25", "50", "100", "200")),
+            dom = 'lfrtip',
+            #had to add 'lowercase L' letter to display the page length again
+            language = list(emptyTable = "No data to display for the selected filters.")
+          )
+        ) %>%
+          formatRound(columns = c("UTM_X", "UTM_Y"), digits = 0, mark = "")
       })
       
       observe({
