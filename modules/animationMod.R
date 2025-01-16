@@ -30,8 +30,8 @@ mod_animationUI <- function(id) {
       )
     ),#end of fluidrow
     br(), 
-    actionButton(ns("button9"), "Render Animation: Need to click 'Render Map and Data' button in Sidebar first. Takes a couple minutes to render usually"), 
-    imageOutput(ns("plot12"))
+    actionButton(ns("button9"), "Render Animation: Need to click 'Render Map and Data' button in Sidebar first. Takes a couple minutes to render usually. Will appear below"), 
+    #verbatimTextOutput(ns("textOutput")),
   
   )
 }
@@ -83,10 +83,12 @@ mod_animationServer <- function(id, filtered_movements_data) {
             #isolate makes it so it wont execute when all the inputs inside the isolate() are changed (title, fps, days/weeks)
             isolate(
               if (input$radio2 == "weeks"){
-                map_with_data <- map_with_data + 
-                  geom_sf(data = animationDatalist()$data, aes(#x = animationDatalist()$data$X.1, y = animationDatalist()$data$Y.1,
-                                                                  size = 10,
-                                                                  color = animationDatalist()$data$movement_only, group = animationDatalist()$data$TAG))+
+                  map_with_data <- map_with_data + 
+                    #to get the data to show up, it needs to be a layer over the basemap
+                    #to associate the right type of movements wth the same tag, need to group by Tag for aesthetics
+                    geom_sf(data = animationDatalist()$data, aes(#x = animationDatalist()$data$X.1, y = animationDatalist()$data$Y.1,
+                      size = 10,
+                      color = animationDatalist()$data$movement_only, group = animationDatalist()$data$TAG))+
                   transition_time(weeks_since) +
                   ggtitle(
                     
@@ -96,7 +98,7 @@ mod_animationServer <- function(id, filtered_movements_data) {
                 map_with_data
                 
                 anim_save("WindyGapFishMovements.gif", animate(map_with_data, nframes = animationDatalist()$num_weeks, fps = input$fps_Slider, height = 1200, width =1200)) # New
-                
+                  # consoleOutput(capture.output(
                 
               } else if (input$radio2 == "days"){
                 map_with_data <- map_with_data + 
@@ -113,7 +115,7 @@ mod_animationServer <- function(id, filtered_movements_data) {
                 map_with_data
                 
                 anim_save("WindyGapFishMovements.gif", animate(map_with_data, nframes = animationDatalist()$num_days, fps = input$fps_Slider, height = 1200, width =1200)) # New
-                
+                  #consoleOutput(capture.output(
               }
             )#end of isolate
             
@@ -121,7 +123,15 @@ mod_animationServer <- function(id, filtered_movements_data) {
           },
           deleteFile = FALSE
         )
-      })
+        })
+        
+        
+        #consoleOutput(capturedOutput)
+        
+        # output$textOutput <- renderText({
+        #   consoleOutput()
+        # })
+      #})
       
     }
   )
