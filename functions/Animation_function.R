@@ -3,7 +3,8 @@ library(tidyverse)
 library(gganimate)
 library(basemaps)
 `MovementsData_2025-01-07` <- readRDS("~/WGFP_dataclean_vis2.0/MovementsData_2025-01-07.rds")
-Movements_df <- `MovementsData_2025-01-07`[1:500,]
+Movements_df <- `MovementsData_2025-01-07` %>%
+  filter(TAG == 230000087597)
 # changes coords to put on webMercator projection to be ready for animation
 Animation_function <- function(Movements_df){
   
@@ -44,6 +45,27 @@ Animation_function <- function(Movements_df){
   list1 <- list("num_weeks" = num_weeks, "num_days" = num_days, "data" = w1, "coords1" = coords1)
   return(list1)
 }
+
+# basemaps::set_defaults(map_service = "esri", map_type = "world_imagery")
+# 
+# map_with_data <- ggplot() +
+#   basemap_gglayer(coords1) +
+#   scale_fill_identity() +
+#   coord_sf() +
+#   theme_classic() +
+#   guides(size = 'none', color = guide_legend(title = "Movement"))
+# 
+# map_with_data <- map_with_data + 
+#   geom_point(data = w1, aes(x = w1$X.1, y = w1$Y.1,
+#                                                   size = 10,
+#                                                   color = w1$movement_only, group = w1$days_since))+
+#   transition_time(days_since) + 
+#   labs(title = "Days") +
+#   ggtitle(
+#     
+#     paste('{frame_time}'),
+#     subtitle = paste("Day {frame} of {nframes} past Initial Date of", min(w1$Date) ))
+# animate(map_with_data, nframes = num_days,   height = 1200, width =1200)
 # crs(spdf)
 # 
 # bounds <- st_as_sfc(st_bbox(spdf))
@@ -59,20 +81,35 @@ Animation_function <- function(Movements_df){
 # ggplot() +
 #   base
 # 
-# spdf1 <-st_transform(st_as_sfc(spdf), crs = 3857)
+#spdf1 <-st_transform(st_as_sfc(spdf), crs = 3857)
 # 
-# ggplot(spdf1) +
-#   #basemap_gglayer(spdf) +
-#   geom_sf() #+
-#   #coord_sf()
-#   #transition_time(weeks_since)  +
-#   ggtitle(
-#     #paste("Date", m3$Date),
-#     paste("test ", '{frame_time}'),
-#     subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(spdf$Date) ))
-#   # basemap_gglayer(list1$coords1) +
-#   # coord_sf(default_crs = sf::st_crs(4326))
-# animate(x, nframes = num_days)
+x <- ggplot(spdf, aes(group = TAG)) +
+  #basemap_gglayer(spdf) +
+  geom_sf() +
+  transition_time(weeks_since) + 
+  #transition_states(TAG, transition_length = 3, state_length = 1) +
+  coord_sf() +
+  #transition_time(weeks_since)  +
+  ggtitle(
+    #paste("Date", m3$Date),
+    paste("test ", '{frame_time}'),
+    subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(spdf$Date) )) 
+  # enter_fade() +
+  # exit_fade()
+  # basemap_gglayer(list1$coords1) +
+  # coord_sf(default_crs = sf::st_crs(4326))
+gganimate::animate(x, nframes = num_weeks)
+
+###################
+iris$group <- seq_len(nrow(iris))
+anim1 <- ggplot(iris, aes(Sepal.Width, Petal.Width, group = group)) +
+  geom_point() +
+  labs(title = "{closest_state}") +
+  transition_states(Species, transition_length = 3, state_length = 1) +
+  enter_fade() +
+  exit_fade()
+
+#animate(x, nframes = num_days,  renderer = gifski_renderer(), height = 1200, width =1200)
 # x
 # map_with_data <- ggplot(spdf) +
 #   basemap_gglayer(coords1, map_service = "esri", map_type = "world_imagery") +
