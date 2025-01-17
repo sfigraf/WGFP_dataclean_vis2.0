@@ -32,6 +32,7 @@ mod_animationUI <- function(id) {
     br(), 
     actionButton(ns("button9"), "Render Animation: Need to click 'Render Map and Data' button in Sidebar first. Takes a couple minutes to render usually. Will appear below"), 
     #verbatimTextOutput(ns("textOutput")),
+    imageOutput(ns("plot12"))
   
   )
 }
