@@ -414,7 +414,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
 # Movements Animation Output ----------------------------------------------
       #Even though filtered_movements_data is reactive, when I pass this as unreactive, I am passing the reactive object
       #then inside the module, i call is with (), getting the evaluated result
-      mod_animationServer("movements_animation", filtered_movements_data = filtered_movements_data, filtered_movements_data_static = filtered_movements_data())
+      mod_animationServer("movements_animation", filtered_movements_data = filtered_movements_data) #filtered_movements_data_static = filtered_movements_data()
 
         
 # Movement Plots Output ----------------------------------------------------

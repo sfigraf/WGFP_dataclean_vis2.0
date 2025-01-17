@@ -36,13 +36,13 @@ mod_animationUI <- function(id) {
   
   )
 }
-mod_animationServer <- function(id, filtered_movements_data, filtered_movements_data_static) {
+mod_animationServer <- function(id, filtered_movements_data) {
   moduleServer(
     id,
     function(input, output, session) {
       
       animationDatalist <- eventReactive(input$button9,{
-        Animation_function(filtered_movements_data_static)
+        Animation_function(filtered_movements_data())
       })
       #data output
       output$movements1 <- renderDT({
@@ -101,7 +101,7 @@ mod_animationServer <- function(id, filtered_movements_data, filtered_movements_
                 
                 map_with_data1
                 
-                anim_save("WindyGapFishMovements.gif", animate(map_with_data, nframes = animationDatalist()$num_weeks, fps = input$fps_Slider, height = 1200, width =1200)) # New
+                anim_save("WindyGapFishMovements.gif", gganimate::animate(map_with_data1, nframes = animationDatalist()$num_weeks, fps = input$fps_Slider, height = 1200, width =1200)) # New
                   # consoleOutput(capture.output(
                 
               } else if (input$radio2 == "days"){
@@ -118,7 +118,7 @@ mod_animationServer <- function(id, filtered_movements_data, filtered_movements_
                 
                 map_with_data1
                 
-                anim_save("WindyGapFishMovements.gif", animate(map_with_data, nframes = animationDatalist()$num_days, fps = input$fps_Slider, height = 1200, width = 1200)) # New
+                anim_save("WindyGapFishMovements.gif", gganimate::animate(map_with_data1, nframes = animationDatalist()$num_days, fps = input$fps_Slider, height = 1200, width = 1200)) # New
                   #consoleOutput(capture.output(
               }
             )#end of isolate
