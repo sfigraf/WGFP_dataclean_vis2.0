@@ -84,8 +84,7 @@ if(!exists("SiteVisitData")){
 
 
 # # Functions Read-in -------------------------------------------------------
-# 
-# 
+ 
 # #functions
 neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R", "getSequences.R", "renderDTFunction.R")
 

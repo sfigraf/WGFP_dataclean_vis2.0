@@ -3,34 +3,50 @@ mod_animationUI <- function(id) {
   tagList(
     fluidRow(
       column(width = 6,
-             withSpinner(DTOutput(ns("movements1")))
+             titlePanel("Data to Animate"),
+               withSpinner(DTOutput(ns("movements1")))
+             
+             
       ),
       column(width = 4, 
-             textInput(ns("anim_Title"), "Animation Title"),
-             # radioButtons("renderOption", "Render as GIF or Video", 
-             #              choices = c("GIF","Video")), 
-             radioButtons(ns("radio2"), "Timeframe", 
-                          choices = c("days", "weeks"), 
-                          selected = "weeks"),
-             # sliderInput("pointSize_Slider", "Select Size of Point", 
-             #             min = 1, 
-             #             max = 12, 
-             #             value = 4),
-             sliderInput(ns("fps_Slider"), "Select frames per Second",
-                         min = 0,
-                         max = 15,
-                         value = 10,
-                         step = .2), 
-             pickerInput(ns("aggregator"),
-                         label = "Aggregate data in Selected Time Frame",
-                         choices = c("First Movement", "Last Movement"),
-                         selected = "",
-                         multiple = FALSE
+             sidebarPanel(
+               
+               width = 12,
+               titlePanel("Animation Specifications"),
+               textInput(ns("anim_Title"), "Animation Title"),
+               # radioButtons("renderOption", "Render as GIF or Video", 
+               #              choices = c("GIF","Video")),
+               column(width = 6,
+                      radioButtons(ns("TimeframeButtons"), "Timeframe", 
+                            #actual values are based off column names; so if they change, this needs to change as well
+                            choices = c("Days" = "days_since", "Weeks" = "weeks_since"), 
+                            selected = "weeks_since")
+               ),
+               column(width = 6,
+                      radioButtons(ns("aggregator"),
+                                  label = "Aggregate data in Selected Time Frame",
+                                  choices = c("First Movement", "Last Movement", "None"),
+                                  selected = "First Movement"
+                        )
+                      ),
+               # sliderInput("pointSize_Slider", "Select Size of Point", 
+               #             min = 1, 
+               #             max = 12, 
+               #             value = 4),
+               sliderInput(ns("fps_Slider"), "Select frames per Second",
+                           min = 0,
+                           max = 15,
+                           value = 10,
+                           step = .2), 
+               actionButton(ns("renderAnimationButton"), "Render Animation"), 
+               h6("Notes: Need to click 'Render Map and Data' button to obtain data. Render progress shown in RStudio console."),
+               h6("GIF will appear below and is autoamtically saved in project directory."), 
+               h6("Aggregating the data by timeframe avoids having multiple points for the same fish plotted at a time.")
              )
+             
       )
     ),#end of fluidrow
     br(), 
-    actionButton(ns("renderAnimationButton"), "Render Animation: Need to click 'Render Map and Data' button in Sidebar first. Takes a couple minutes to render usually. Will appear below"), 
     imageOutput(ns("movementsAnimation"))
   
   )
@@ -41,7 +57,38 @@ mod_animationServer <- function(id, filtered_movements_data) {
     function(input, output, session) {
       
       animationDatalist <- eventReactive(input$renderAnimationButton,{
-        Animation_function(filtered_movements_data())
+        print(input$TimeframeButtons)
+        
+        movementsWithTimeForFrames <- filtered_movements_data() %>%
+          mutate(
+            days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
+            #makes sense to use floor not cieling with weeks because then there are are more fish in week 0
+            # if you want to start at week 1 instead of week 0, add +1 to the end of expression
+            # when you change this too, it changes the number of entries in the states dataframe
+            weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks"))), 
+            hours_since = as.numeric(floor(difftime(Date, min(Date), units = "hours"))), 
+          ) %>%
+          # need to ungroup to get this code to work
+          ungroup()
+        filtered_movements_data()
+        
+        if(input$aggregator == "First Movement"){
+          
+          movementsGrouped <- movementsWithTimeForFrames %>%
+            group_by(TAG, !!sym(input$TimeframeButtons)) %>%
+            filter(Datetime == first(Datetime)) %>%
+            ungroup()
+          
+        } else if(input$aggregator == "Last Movement"){
+          movementsGrouped <- movementsWithTimeForFrames %>%
+            group_by(TAG, !!sym(input$TimeframeButtons)) %>%
+            filter(Datetime == last(Datetime)) %>%
+            ungroup()
+        } else{
+          movementsGrouped <- movementsWithTimeForFrames
+        }
+        
+        Animation_function(movementsGrouped)
       })
       
       #data output
@@ -82,9 +129,11 @@ mod_animationServer <- function(id, filtered_movements_data) {
           
             #makes it so code executes on button push
             input$renderAnimationButton
+          #number of frames to pause at the end f the gif
+            endPauseValue = 5
             #isolate makes it so it wont execute when all the inputs inside the isolate() are changed (title, fps, days/weeks)
             isolate(
-              if (input$radio2 == "weeks"){
+              if (input$TimeframeButtons == "weeks_since"){
                 
                   mapWithData <- basemapGGplot + 
                     #to get the data to show up, it needs to be a layer over the basemap
@@ -93,6 +142,8 @@ mod_animationServer <- function(id, filtered_movements_data) {
                                                                  color = animationDatalist()$mercatorSFMovements$movement_only, 
                                                                  group = animationDatalist()$mercatorSFMovements$TAG)) +
                   transition_time(weeks_since) +
+                  ease_aes('cubic-in-out') +
+                  labs(title = "Weeks")
                   ggtitle(
                     paste(input$anim_Title, '{frame_time}'),
                     subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(animationDatalist()$mercatorSFMovements$Date)))
@@ -100,16 +151,18 @@ mod_animationServer <- function(id, filtered_movements_data) {
                 mapWithData
                 
                 anim_save("WindyGapFishMovements.gif", gganimate::animate(mapWithData, 
-                                                                          nframes = animationDatalist()$num_weeks, 
+                                                                          nframes = animationDatalist()$num_weeks + endPauseValue, 
+                                                                          end_pause = endPauseValue,
                                                                           fps = input$fps_Slider, height = 1200, width =1200)) 
                   
                 
-              } else if (input$radio2 == "days"){
+              } else if (input$TimeframeButtons == "days_since"){
                 mapWithData <- basemapGGplot + 
                   geom_sf(data = animationDatalist()$mercatorSFMovements, aes(size = 10,
                                                                color = animationDatalist()$mercatorSFMovements$movement_only, 
                                                                group = animationDatalist()$mercatorSFMovements$TAG))+
                   transition_time(days_since) + 
+                  ease_aes('cubic-in-out') +
                   labs(title = "Days") +
                   ggtitle(
                     paste(input$anim_Title, '{frame_time}'),
@@ -118,7 +171,8 @@ mod_animationServer <- function(id, filtered_movements_data) {
                 mapWithData
                 
                 anim_save("WindyGapFishMovements.gif", gganimate::animate(mapWithData, 
-                                                                          nframes = animationDatalist()$num_days, 
+                                                                          nframes = animationDatalist()$num_days + endPauseValue, 
+                                                                          end_pause = endPauseValue, 
                                                                           fps = input$fps_Slider, height = 1200, width = 1200)) # New
                 
               }

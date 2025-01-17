@@ -1,7 +1,7 @@
 # TimePeriods <- wgfpMetadata$TimePeriods 
 # 
 # # ### this comes from runscript after spatial join detections stations function
-# DailyDetectionsStationsStates1 <- DailyDetectionsStationsStates$spatialList$stationData
+#DailyDetectionsStationsStates1 <- DailyDetectionsStationsStates$spatialList$stationData
 # encounterDF <- createMARKEncounterHistories(DailyDetectionsStationsStates1, GhostTags, AvianPredation, TimePeriods)
 # x <- encounterDF$MARKEncounterHistories
 library(janitor)

@@ -9,28 +9,33 @@ library(basemaps)
 # changes coords to put on webMercator projection to be ready for animation
 Animation_function <- function(Movements_df){
   
-  movementsWithTimeForFrames <- Movements_df %>%
-    mutate(
-      days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
-      #makes sense to use floor not cieling with weeks because then there are are more fish in week 0
-      # if you want to start at week 1 instead of week 0, add +1 to the end of expression
-      # when you change this too, it changes the number of entries in the states dataframe
-      weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks"))), 
-      hours_since = as.numeric(floor(difftime(Date, min(Date), units = "hours"))), 
-    ) %>%
-    # need to ungroup to get this code to work
-    ungroup()
+  # movementsWithTimeForFrames <- Movements_df %>%
+  #   mutate(
+  #     days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
+  #     #makes sense to use floor not cieling with weeks because then there are are more fish in week 0
+  #     # if you want to start at week 1 instead of week 0, add +1 to the end of expression
+  #     # when you change this too, it changes the number of entries in the states dataframe
+  #     weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks"))), 
+  #     hours_since = as.numeric(floor(difftime(Date, min(Date), units = "hours"))), 
+  #   ) %>%
+  #   # need to ungroup to get this code to work
+  #   ungroup()
+  # 
+  # m1 %>%
+  #   group_by(TAG, days_since) %>%
+  #   filter(Datetime == last(Datetime)) %>%
+  #   ungroup()
   
   boundingBox <- st_as_sfc(st_bbox(c(xmin = -106.0771, xmax = -105.8938, ymax = 40.14896, ymin = 40.05358), crs = st_crs(4326)))
 
   #turn movements df into a sf object
-  movementsWithTimeForFramesSF <- sf::st_as_sf(movementsWithTimeForFrames, coords = c("X", "Y"), crs = 4326, remove = FALSE)
+  movementsWithTimeForFramesSF <- sf::st_as_sf(Movements_df, coords = c("X", "Y"), crs = 4326, remove = FALSE)
   #need to tranform to web mercator for ggplotting
   mercatorSFMovements <- st_transform(movementsWithTimeForFramesSF, crs = 3857)
 
-  num_weeks <- max(movementsWithTimeForFrames$weeks_since) - min(movementsWithTimeForFrames$weeks_since) + 1
-  num_hours <- max(movementsWithTimeForFrames$hours_since) - min(movementsWithTimeForFrames$hours_since) + 1
-  num_days <- max(movementsWithTimeForFrames$days_since) - min(movementsWithTimeForFrames$days_since) + 1
+  num_weeks <- max(movementsWithTimeForFramesSF$weeks_since) - min(movementsWithTimeForFramesSF$weeks_since) + 1
+  num_hours <- max(movementsWithTimeForFramesSF$hours_since) - min(movementsWithTimeForFramesSF$hours_since) + 1
+  num_days <- max(movementsWithTimeForFramesSF$days_since) - min(movementsWithTimeForFramesSF$days_since) + 1
   animationList <- list("num_weeks" = num_weeks, "num_days" = num_days, 
                         "mercatorSFMovements" = mercatorSFMovements, 
                         "boundingBox" = boundingBox)
