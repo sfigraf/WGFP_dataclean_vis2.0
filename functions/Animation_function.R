@@ -3,13 +3,13 @@ library(tidyverse)
 library(gganimate)
 library(basemaps)
 # `MovementsData_2025-01-07` <- readRDS("~/WGFP_dataclean_vis2.0/MovementsData_2025-01-07.rds")
-movements <- movements_list$Movements_df
-Movements_df <- movements %>%
-  filter(TAG == 230000228275)
+# movements <- movements_list$Movements_df
+# Movements_df <- movements %>%
+#   filter(TAG == 230000228275)
 # changes coords to put on webMercator projection to be ready for animation
 Animation_function <- function(Movements_df){
   
-  m1 <- Movements_df %>%
+  m1 <- as.data.frame(Movements_df) %>%
     mutate(
       days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
       #makes sense to use floor not cieling with weeks because then there are are more fish in week 0

@@ -3352,21 +3352,42 @@ write_csv(x, "MARKEncounterQAQC_20241216.csv")
 # More animation ----------------------------------------------------------
 `MovementsData_2025-01-07` <- readRDS("~/WGFP_dataclean_vis2.0/MovementsData_2025-01-07.rds")
 Movements_df <- `MovementsData_2025-01-07`[1:500,]
+m1 <- Movements_df %>%
+  mutate(
+    days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
+    #makes sense to use floor not cieling with weeks because then there are are more fish in week 0
+    # if you want to start at week 1 instead of week 0, add +1 to the end of expression
+    # when you change this too, it changes the number of entries in the states dataframe
+    weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks")))
+    #months_since = as.numeric(floor(difftime(Date, min(Date), units = "months")))
+  ) %>%
+  ungroup()
+coords1 <- st_as_sfc(st_bbox(c(xmin = -106.0771, xmax = -105.8938, ymax = 40.14896, ymin = 40.05358), crs = st_crs(4326)))
 
-library(rosm)
+
+#library(rosm)
+library(basemaps)
 base <- osm.raster(bounds)
 ggplot(base)
 basemaps::set_defaults(map_service = "esri", map_type = "world_imagery")
 base <- basemap_gglayer(coords1)
 ggplot() +
   base
-
+spdf <- sf::st_as_sf(m1, coords = c("X", "Y"), crs = 4326, remove = FALSE)
 spdf1 <-st_transform(st_as_sfc(spdf), crs = 3857)
 
 ggplot(spdf1) +
   #basemap_gglayer(spdf) +
-  geom_sf() #+
-#coord_sf()
+  geom_sf() +
+  coord_sf(crs = st_crs(4326))
+
+
+coords1 <- st_as_sfc(st_bbox(c(xmin = -106.0771, xmax = -105.8938, ymax = 40.14896, ymin = 40.05358), crs = st_crs(4326)))#st_bbox(spdf)
+basemap1 <- basemap_gglayer(coords1)
+basemap1 <- basemaps::basemap_ggplot(basemap1)
+
+ggplot() +
+  coord_sf()
 #transition_time(weeks_since)  +
 ggtitle(
   #paste("Date", m3$Date),
@@ -3374,15 +3395,31 @@ ggtitle(
   subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(spdf$Date) ))
 # basemap_gglayer(list1$coords1) +
 # coord_sf(default_crs = sf::st_crs(4326))
-animate(x, nframes = num_days)
-x
-map_with_data <- ggplot(spdf) +
-  basemap_gglayer(coords1, map_service = "esri", map_type = "world_imagery") +
+# animate(x, nframes = num_days)
+# x
+# map_with_data <- ggplot() +
+#   #geom_sf() +
+#   basemap_gglayer(coords1, map_service = "esri", map_type = "world_imagery") +
+#   scale_fill_identity() +
+#   coord_sf(crs = st_crs(3857)) +
+#   theme_classic() +
+#   guides(size = "none", color = guide_legend(title = "Movement")) +
+#   geom_sf(data = spdf, mapping = aes(x = X, y = Y))
+# ggplot(spdf) +
+#   geom_sf() +
+#   coord_sf(crs = st_crs(3857)) +
+#   scale_fill_identity() +
+#   basemap_gglayer(coords1, map_service = "esri", map_type = "world_imagery") 
+  
+ggplot() +
+  geom_sf() +
+  coord_sf(crs = st_crs(3857)) +
   scale_fill_identity() +
-  #coord_sf(crs = st_crs(4326)) +
-  theme_classic() +
-  guides(size = "none", color = guide_legend(title = "Movement"))
-map_with_data
+  basemap_gglayer(coords1, map_service = "esri", map_type = "world_imagery") +
+  geom_sf(data = spdf1)
+  
+
+map_with_dspdf1map_with_data
 map_with_data + 
   coord_sf(crs = 4326, datum = sf::st_crs(3857)) +
   scale_fill_identity() +

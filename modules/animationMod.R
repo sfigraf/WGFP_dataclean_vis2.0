@@ -35,20 +35,20 @@ mod_animationUI <- function(id) {
   
   )
 }
-mod_animationServer <- function(id, filtered_movements_data) {
+mod_animationServer <- function(id, filtered_movements_data, filtered_movements_data_static) {
   moduleServer(
     id,
     function(input, output, session) {
       
       animationDatalist <- eventReactive(input$button9,{
-        Animation_function(filtered_movements_data)
+        Animation_function(filtered_movements_data_static)
       })
       #data output
       output$movements1 <- renderDT({
         
-        req(filtered_movements_data)
+        req(filtered_movements_data())
         datatable(
-          filtered_movements_data,
+          filtered_movements_data(),
           rownames = FALSE,
           selection = "single",
           filter = 'top',
@@ -67,8 +67,11 @@ mod_animationServer <- function(id, filtered_movements_data) {
       })
       
       observe({
+        fromAPP <<- animationDatalist()$data
+        #print(filtered_movements_data())
         basemaps::set_defaults(map_service = "esri", map_type = "world_imagery")
-        
+        print(paste("coords1:", animationDatalist()$coords1))
+        print(paste( "class:", class(animationDatalist()$data))) #"data for animating", animationDatalist()$data,
         map_with_data <- ggplot() +
           basemap_gglayer(animationDatalist()$coords1) +
           scale_fill_identity() +
@@ -83,7 +86,7 @@ mod_animationServer <- function(id, filtered_movements_data) {
             #isolate makes it so it wont execute when all the inputs inside the isolate() are changed (title, fps, days/weeks)
             isolate(
               if (input$radio2 == "weeks"){
-                  map_with_data <- map_with_data + 
+                  map_with_data1 <- map_with_data + 
                     #to get the data to show up, it needs to be a layer over the basemap
                     #to associate the right type of movements wth the same tag, need to group by Tag for aesthetics
                     geom_sf(data = animationDatalist()$data, aes(#x = animationDatalist()$data$X.1, y = animationDatalist()$data$Y.1,
@@ -95,13 +98,13 @@ mod_animationServer <- function(id, filtered_movements_data) {
                     paste(input$anim_Title, '{frame_time}'),
                     subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(animationDatalist()$data$Date)))
                 
-                map_with_data
+                map_with_data1
                 
                 anim_save("WindyGapFishMovements.gif", animate(map_with_data, nframes = animationDatalist()$num_weeks, fps = input$fps_Slider, height = 1200, width =1200)) # New
                   # consoleOutput(capture.output(
                 
               } else if (input$radio2 == "days"){
-                map_with_data <- map_with_data + 
+                map_with_data1 <- map_with_data + 
                   geom_sf(data = animationDatalist()$data, aes(#x = animationDatalist()$data$X.1, y = animationDatalist()$data$Y.1,
                                                                   size = 10,
                                                                   color = animationDatalist()$data$movement_only, group = animationDatalist()$data$TAG))+
@@ -112,9 +115,9 @@ mod_animationServer <- function(id, filtered_movements_data) {
                     paste(input$anim_Title, '{frame_time}'),
                     subtitle = paste("Day {frame} of {nframes} past Initial Date of", min(animationDatalist()$data$Date)))
                 
-                map_with_data
+                map_with_data1
                 
-                anim_save("WindyGapFishMovements.gif", animate(map_with_data, nframes = animationDatalist()$num_days, fps = input$fps_Slider, height = 1200, width =1200)) # New
+                anim_save("WindyGapFishMovements.gif", animate(map_with_data, nframes = animationDatalist()$num_days, fps = input$fps_Slider, height = 1200, width = 1200)) # New
                   #consoleOutput(capture.output(
               }
             )#end of isolate
