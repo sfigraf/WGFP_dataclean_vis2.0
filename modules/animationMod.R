@@ -4,7 +4,7 @@ mod_animationUI <- function(id) {
     fluidRow(
       column(width = 6,
              withSpinner(DTOutput(ns("movements1")))
-      ),#end of column
+      ),
       column(width = 4, 
              textInput(ns("anim_Title"), "Animation Title"),
              # radioButtons("renderOption", "Render as GIF or Video", 
@@ -30,9 +30,8 @@ mod_animationUI <- function(id) {
       )
     ),#end of fluidrow
     br(), 
-    actionButton(ns("button9"), "Render Animation: Need to click 'Render Map and Data' button in Sidebar first. Takes a couple minutes to render usually. Will appear below"), 
-    #verbatimTextOutput(ns("textOutput")),
-    imageOutput(ns("plot12"))
+    actionButton(ns("renderAnimationButton"), "Render Animation: Need to click 'Render Map and Data' button in Sidebar first. Takes a couple minutes to render usually. Will appear below"), 
+    imageOutput(ns("movementsAnimation"))
   
   )
 }
@@ -41,9 +40,10 @@ mod_animationServer <- function(id, filtered_movements_data) {
     id,
     function(input, output, session) {
       
-      animationDatalist <- eventReactive(input$button9,{
+      animationDatalist <- eventReactive(input$renderAnimationButton,{
         Animation_function(filtered_movements_data())
       })
+      
       #data output
       output$movements1 <- renderDT({
         
@@ -68,75 +68,67 @@ mod_animationServer <- function(id, filtered_movements_data) {
       })
       
       observe({
-        fromAPP <<- animationDatalist()$data
-        #print(filtered_movements_data())
+        #set basemaps default imagery to satellite and set up basemap with extent specified 
         basemaps::set_defaults(map_service = "esri", map_type = "world_imagery")
-        print(paste("coords1:", animationDatalist()$coords1))
-        print(paste( "class:", class(animationDatalist()$data))) #"data for animating", animationDatalist()$data,
-        map_with_data <- ggplot() +
-          basemap_gglayer(animationDatalist()$coords1) +
+        
+        basemapGGplot <- ggplot() +
+          basemap_gglayer(animationDatalist()$boundingBox) +
           scale_fill_identity() +
           coord_sf() +
           theme_classic() +
           guides(size = 'none', color = guide_legend(title = "Movement"))
         
-        output$plot12 <- renderImage(
-          {
+        output$movementsAnimation <- renderImage({
+          
             #makes it so code executes on button push
-            input$button9
+            input$renderAnimationButton
             #isolate makes it so it wont execute when all the inputs inside the isolate() are changed (title, fps, days/weeks)
             isolate(
               if (input$radio2 == "weeks"){
-                  map_with_data1 <- map_with_data + 
+                
+                  mapWithData <- basemapGGplot + 
                     #to get the data to show up, it needs to be a layer over the basemap
                     #to associate the right type of movements wth the same tag, need to group by Tag for aesthetics
-                    geom_sf(data = animationDatalist()$data, aes(#x = animationDatalist()$data$X.1, y = animationDatalist()$data$Y.1,
-                      size = 10,
-                      color = animationDatalist()$data$movement_only, group = animationDatalist()$data$TAG))+
+                    geom_sf(data = animationDatalist()$mercatorSFMovements, aes(size = 10,
+                                                                 color = animationDatalist()$mercatorSFMovements$movement_only, 
+                                                                 group = animationDatalist()$mercatorSFMovements$TAG)) +
                   transition_time(weeks_since) +
                   ggtitle(
-                    
                     paste(input$anim_Title, '{frame_time}'),
-                    subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(animationDatalist()$data$Date)))
+                    subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(animationDatalist()$mercatorSFMovements$Date)))
                 
-                map_with_data1
+                mapWithData
                 
-                anim_save("WindyGapFishMovements.gif", gganimate::animate(map_with_data1, nframes = animationDatalist()$num_weeks, fps = input$fps_Slider, height = 1200, width =1200)) # New
-                  # consoleOutput(capture.output(
+                anim_save("WindyGapFishMovements.gif", gganimate::animate(mapWithData, 
+                                                                          nframes = animationDatalist()$num_weeks, 
+                                                                          fps = input$fps_Slider, height = 1200, width =1200)) 
+                  
                 
               } else if (input$radio2 == "days"){
-                map_with_data1 <- map_with_data + 
-                  geom_sf(data = animationDatalist()$data, aes(#x = animationDatalist()$data$X.1, y = animationDatalist()$data$Y.1,
-                                                                  size = 10,
-                                                                  color = animationDatalist()$data$movement_only, group = animationDatalist()$data$TAG))+
+                mapWithData <- basemapGGplot + 
+                  geom_sf(data = animationDatalist()$mercatorSFMovements, aes(size = 10,
+                                                               color = animationDatalist()$mercatorSFMovements$movement_only, 
+                                                               group = animationDatalist()$mercatorSFMovements$TAG))+
                   transition_time(days_since) + 
                   labs(title = "Days") +
                   ggtitle(
-                    
                     paste(input$anim_Title, '{frame_time}'),
-                    subtitle = paste("Day {frame} of {nframes} past Initial Date of", min(animationDatalist()$data$Date)))
+                    subtitle = paste("Day {frame} of {nframes} past Initial Date of", min(animationDatalist()$mercatorSFMovements$Date)))
                 
-                map_with_data1
+                mapWithData
                 
-                anim_save("WindyGapFishMovements.gif", gganimate::animate(map_with_data1, nframes = animationDatalist()$num_days, fps = input$fps_Slider, height = 1200, width = 1200)) # New
-                  #consoleOutput(capture.output(
+                anim_save("WindyGapFishMovements.gif", gganimate::animate(mapWithData, 
+                                                                          nframes = animationDatalist()$num_days, 
+                                                                          fps = input$fps_Slider, height = 1200, width = 1200)) # New
+                
               }
-            )#end of isolate
+            )
             
             list(src = "WindyGapFishMovements.gif", contentType = "image/gif")
           },
           deleteFile = FALSE
         )
         })
-        
-        
-        #consoleOutput(capturedOutput)
-        
-        # output$textOutput <- renderText({
-        #   consoleOutput()
-        # })
-      #})
-      
     }
   )
 }
