@@ -1,5 +1,5 @@
 
-get_movements_function <- function(combined_events_stations, dailyUSGSData) {
+get_movements_function <- function(combined_events_stations, dailyUSGSData, eventsWithPeriodsSelect, TimePeriods) {
   start_time <- Sys.time()
   startMessage <- "Running get_movements_function: Calculates movements of fish based off a change in station."
   print(startMessage)
@@ -91,11 +91,23 @@ get_movements_function <- function(combined_events_stations, dailyUSGSData) {
   dailyMovementsTableSFLatLong$X <- coordinatesDf$X
   dailyMovementsTableSFLatLong$Y <- coordinatesDf$Y
   
+  ###get Time periods with movements: used to group together in animation
+  #time periods comees from WGFP metadata;
+  timePeriodsClean <- TimePeriods %>%
+    mutate(`start date` = janitor::excel_numeric_to_date(as.numeric(`start date`)), 
+           `end date` = janitor::excel_numeric_to_date(as.numeric(`end date`))
+    )
+  tagsEventsLongwithTpDates <- eventsWithPeriodsSelect %>%
+    left_join(timePeriodsClean[,c("periods", "start date", "end date")], by = c("TimePeriod" = "periods")) %>%
+    mutate(TimePeriodDates = paste(`start date`, "to", `end date`)) 
+  
   #as of now, movement table still has rows reminiscent from first_last etc which are helpful when you want to know where it ended the day and stuff.
   #but if you want to know concise movments, then this will eliminate uneeded rows
   #example: 230000142723
   dailyMovementsTable1 <- as.data.frame(dailyMovementsTableSFLatLong) %>%
-    select(Date, Datetime, TAG, movement_only, det_type, dist_moved, MPerSecondBetweenDetections, sum_dist, ET_STATION, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, USGSDischargeDaily, WtempF, UTM_X, UTM_Y, X, Y, marker_color, icon_color)
+    left_join(tagsEventsLongwithTpDates, by = c("TAG", "Datetime", "Event")) %>%
+    select(Date, Datetime, TAG, movement_only, det_type, dist_moved, MPerSecondBetweenDetections, sum_dist, ET_STATION, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, 
+           USGSDischargeDaily, WtempF, UTM_X, UTM_Y, X, Y, marker_color, icon_color, TimePeriod, TimePeriodDates, State)
   
   end_time <- Sys.time()
   endMessage <- paste("Movements Function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes")
