@@ -1,3 +1,10 @@
+###############To do:
+##### ADD periods as group to animation
+#try different transitions?
+#make sure to get period dates in title
+#mess around with different eases
+
+
 mod_animationUI <- function(id) {
   ns <- NS(id)
   tagList(
@@ -5,8 +12,6 @@ mod_animationUI <- function(id) {
       column(width = 6,
              titlePanel("Data to Animate"),
                withSpinner(DTOutput(ns("movements1")))
-             
-             
       ),
       column(width = 4, 
              sidebarPanel(
@@ -19,7 +24,7 @@ mod_animationUI <- function(id) {
                column(width = 6,
                       radioButtons(ns("TimeframeButtons"), "Timeframe", 
                             #actual values are based off column names; so if they change, this needs to change as well
-                            choices = c("Days" = "days_since", "Weeks" = "weeks_since"), 
+                            choices = c("Days" = "days_since", "Weeks" = "weeks_since", "MARK Time Period" = "TimePeriod"), 
                             selected = "weeks_since")
                ),
                column(width = 6,
@@ -40,7 +45,7 @@ mod_animationUI <- function(id) {
                            step = .2), 
                actionButton(ns("renderAnimationButton"), "Render Animation"), 
                h6("Notes: Need to click 'Render Map and Data' button to obtain data. Render progress shown in RStudio console."),
-               h6("GIF will appear below and is autoamtically saved in project directory."), 
+               h6("GIF will appear below and is automatically saved in project directory."), 
                h6("Aggregating the data by timeframe avoids having multiple points for the same fish plotted at a time.")
              )
              

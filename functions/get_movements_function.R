@@ -1,4 +1,4 @@
-
+#TimePeriods <- wgfpMetadata$TimePeriods 
 get_movements_function <- function(combined_events_stations, dailyUSGSData, eventsWithPeriodsSelect, TimePeriods) {
   start_time <- Sys.time()
   startMessage <- "Running get_movements_function: Calculates movements of fish based off a change in station."
