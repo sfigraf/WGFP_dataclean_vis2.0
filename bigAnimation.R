@@ -96,4 +96,4 @@ map_with_data1 <- map_with_data +
 
 #map_with_data1
 endPauseValue = 30
-anim_save("AllHourlyMovements.gif", animate(map_with_data1, nframes = num_hours + endPauseValue, end_pause = endPauseValue, fps = 10)) #, height = 1200, width =1200
+anim_save("AllHourlyMovements.gif", animate(map_with_data1, nframes = num_hours + endPauseValue, end_pause = endPauseValue, fps = 10, height = 1200, width =1200)) #, height = 1200, width =1200

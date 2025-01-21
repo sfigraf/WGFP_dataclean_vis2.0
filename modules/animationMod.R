@@ -1,9 +1,8 @@
 ###############To do:
-##### ADD periods as group to animation
+##### ADD
 #try different transitions?
-#make sure to get period dates in title
 #mess around with different eases
-#facet wrap by species or release site or none
+# add hourly??
 
 
 mod_animationUI <- function(id) {
@@ -20,13 +19,13 @@ mod_animationUI <- function(id) {
                width = 12,
                titlePanel("Animation Specifications"),
                textInput(ns("anim_Title"), "Animation Title"),
-               textInput(ns("anim_subTitle"), "Animatoin Subtitle"),
+               textInput(ns("anim_Caption"), "Animation Caption"),
                # radioButtons("renderOption", "Render as GIF or Video", 
                #              choices = c("GIF","Video")),
                column(width = 6,
                       radioButtons(ns("TimeframeButtons"), "Timeframe", 
                             #actual values are based off column names; so if they change, this needs to change as well
-                            choices = c("Days" = "days_since", "Weeks" = "weeks_since", "MARK Time Period" = "TimePeriodDates"), 
+                            choices = c("Days" = "daySequence", "Weeks" = "weeks_since", "MARK Time Period" = "TimePeriodDates"), 
                             selected = "weeks_since")
                ),
                column(width = 6,
@@ -40,6 +39,11 @@ mod_animationUI <- function(id) {
                #             min = 1, 
                #             max = 12, 
                #             value = 4),
+               #if these column names change then this will have to change too
+               selectInput(ns("facetWrapOption"), "Facet Wrap", 
+                           choices = c("None" = "None", 
+                                       "Species" = "Species", 
+                                       "Release Site" = "ReleaseSite")),
                sliderInput(ns("fps_Slider"), "Select frames per Second",
                            min = .2,
                            max = 15,
@@ -58,7 +62,7 @@ mod_animationUI <- function(id) {
   
   )
 }
-mod_animationServer <- function(id, filtered_movements_data) {
+mod_animationServer <- function(id, filtered_movements_data, allColors = allColors) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -73,11 +77,12 @@ mod_animationServer <- function(id, filtered_movements_data) {
             # if you want to start at week 1 instead of week 0, add +1 to the end of expression
             # when you change this too, it changes the number of entries in the states dataframe
             weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks"))), 
-            hours_since = as.numeric(floor(difftime(Datetime, min(Datetime), units = "hours"))), 
+            hours_since = as.numeric(floor(difftime(Datetime, min(Datetime), units = "hours"))),
+            daySequence = as.Date(as.character(round(Datetime, units = "days"))),
           ) %>%
           # need to ungroup to get this code to work
           ungroup()
-        filtered_movements_data()
+        #filtered_movements_data()
         
         if(input$aggregator == "First Movement"){
           
@@ -94,7 +99,7 @@ mod_animationServer <- function(id, filtered_movements_data) {
         } else{
           movementsGrouped <- movementsWithTimeForFrames
         }
-        
+        movementsGrouped111 <<- Animation_function(movementsGrouped)
         Animation_function(movementsGrouped)
       })
       
@@ -130,7 +135,8 @@ mod_animationServer <- function(id, filtered_movements_data) {
           scale_fill_identity() +
           coord_sf() +
           theme_classic() +
-          guides(size = 'none', color = guide_legend(title = "Movement"))
+          guides(size = 'none', color = guide_legend(title = "Movement")) +
+          theme(axis.title.x = element_blank(), axis.title.y = element_blank())
         
         mapWithData <- basemapGGplot + 
           #to get the data to show up, it needs to be a layer over the basemap
@@ -139,7 +145,8 @@ mod_animationServer <- function(id, filtered_movements_data) {
                                                                       color = animationDatalist()$mercatorSFMovements$movement_only, 
                                                                       group = animationDatalist()$mercatorSFMovements$TAG)) +
           scale_color_manual(values = allColors) +
-          ease_aes('cubic-in-out')
+          ease_aes('cubic-in-out') +
+          labs(caption = input$anim_Caption)
         
         output$movementsAnimation <- renderImage({
           
@@ -152,89 +159,51 @@ mod_animationServer <- function(id, filtered_movements_data) {
               if (input$TimeframeButtons == "weeks_since"){
                 nframesUnit <- "num_weeks"
                 
-                  mapWithData <- mapWithData +  
-                    # basemapGGplot + 
-                    # #to get the data to show up, it needs to be a layer over the basemap
-                    # #to associate the right type of movements wth the same tag, need to group by Tag for aesthetics
-                    # geom_sf(data = animationDatalist()$mercatorSFMovements, aes(size = 10,
-                    #                                              color = animationDatalist()$mercatorSFMovements$movement_only, 
-                    #                                              group = animationDatalist()$mercatorSFMovements$TAG)) +
+                mapWithData <- mapWithData +  
                   transition_time(weeks_since) +
-                  
-                  # ease_aes('cubic-in-out') +
-                  labs(title = "Weeks") +
                   ggtitle(
                     paste(input$anim_Title, '{frame_time}'),
                     subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(animationDatalist()$mercatorSFMovements$Date)))
                 
-                # mapWithData
-                # 
-                # anim_save("WindyGapFishMovements.gif", gganimate::animate(mapWithData, 
-                #                                                           nframes = animationDatalist()[[nframesUnit]] + endPauseValue, 
-                #                                                           end_pause = endPauseValue,
-                #                                                           fps = input$fps_Slider, height = 1200, width =1200)) 
-                  
                 
-              } else if (input$TimeframeButtons == "days_since"){
+              } else if (input$TimeframeButtons == "daySequence"){
                 nframesUnit <- "num_days"
+                print(animationDatalist()[[nframesUnit]])
                 
-                # mapWithData <- basemapGGplot + 
-                #   geom_sf(data = animationDatalist()$mercatorSFMovements, aes(size = 10,
-                #                                                color = animationDatalist()$mercatorSFMovements$movement_only, 
-                #                                                group = animationDatalist()$mercatorSFMovements$TAG))+
-                mapWithData <- mapWithData %>%
-                  transition_time(days_since) +
-                  #scale_color_manual(values = allColors) + 
-                  #ease_aes('cubic-in-out') +
-                  labs(title = "Days") +
+                mapWithData <- mapWithData +
+                  transition_time(daySequence) +
+                  #labs(title = "Days") +
                   ggtitle(
                     paste(input$anim_Title, '{frame_time}'),
                     subtitle = paste("Day {frame} of {nframes} past Initial Date of", min(animationDatalist()$mercatorSFMovements$Date)))
                 
-                # mapWithData
-                # 
-                # anim_save("WindyGapFishMovements.gif", gganimate::animate(mapWithData, 
-                #                                                           nframes = animationDatalist()$num_days + endPauseValue, 
-                #                                                           end_pause = endPauseValue, 
-                #                                                           fps = input$fps_Slider, height = 1200, width = 1200)) # New
                 
               } else if (input$TimeframeButtons == "TimePeriodDates"){
                 
                 nframesUnit <- "num_periods"
                 mapWithData <- mapWithData + 
-                  # geom_sf(data = animationDatalist()$mercatorSFMovements, aes(size = 10,
-                  #                                                             color = animationDatalist()$mercatorSFMovements$movement_only, 
-                  #                                                             group = animationDatalist()$mercatorSFMovements$TAG)) +
+                  
                   transition_states(TimePeriodDates, 
                                     transition_length = 4,
                                     state_length = 2) +
-                  #scale_color_manual(values = allColors) + 
                   labs(title = "MARK Periods") +
                   ggtitle(
 
                     paste(input$anim_Title, '{closest_state}')#, #{frame_time}
                     #subtitle = "Ghost/predated tags included, TGM excluded"
                     )
-                  #facet_wrap(~Species) +
-                  #transition_time(TimeperiodsSince) +
-                  # ease_aes('sine-in-out') +
-                  # enter_fade() + 
-                  # exit_shrink() +
-                  
-                  # transition_time(days_since) + 
-                  # ease_aes('cubic-in-out') +
-                  
-                  # ggtitle(
-                  #   paste(input$anim_Title, '{frame_time}'),
-                  #   subtitle = paste("Day {frame} of {nframes} past Initial Date of", min(animationDatalist()$mercatorSFMovements$Date)))
-                
-                # mapWithData
-                # 
-                # anim_save("WindyGapFishMovements.gif", gganimate::animate(mapWithData, 
-                #                                                           nframes = animationDatalist()$num_periods + endPauseValue, 
-                #                                                           end_pause = endPauseValue, 
-                #                                                           fps = input$fps_Slider, height = 1200, width = 1200))
               }
+              
+              if(input$facetWrapOption == "Species"){
+                
+                mapWithData <- mapWithData +
+                  facet_wrap(~Species)
+                
+              } else if(input$facetWrapOption == "ReleaseSite") {
+                
+                mapWithData <- mapWithData +
+                  facet_wrap(~ReleaseSite)
+              } 
               
               mapWithData
               
@@ -243,7 +212,6 @@ mod_animationServer <- function(id, filtered_movements_data) {
                                                                         end_pause = endPauseValue,
                                                                         fps = input$fps_Slider, height = 1200, width =1200)) 
             })
-            
             
             list(src = "WindyGapFishMovements.gif", contentType = "image/gif")
           },

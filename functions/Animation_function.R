@@ -36,7 +36,10 @@ Animation_function <- function(Movements_df){
   num_weeks <- max(movementsWithTimeForFramesSF$weeks_since) - min(movementsWithTimeForFramesSF$weeks_since) + 1
   num_hours <- max(movementsWithTimeForFramesSF$hours_since) - min(movementsWithTimeForFramesSF$hours_since) + 1
   num_days <- max(movementsWithTimeForFramesSF$days_since) - min(movementsWithTimeForFramesSF$days_since) + 1
+  num_periods <- max(as.numeric(movementsWithTimeForFramesSF$TimePeriod)) - min(as.numeric(movementsWithTimeForFramesSF$TimePeriod)) + 1
+  
   animationList <- list("num_weeks" = num_weeks, "num_days" = num_days, 
+                        "num_periods" = num_periods,
                         "mercatorSFMovements" = mercatorSFMovements, 
                         "boundingBox" = boundingBox)
   return(animationList)
