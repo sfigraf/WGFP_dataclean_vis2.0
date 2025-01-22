@@ -1,9 +1,3 @@
-###############To do:
-##### ADD
-#try different transitions?
-#mess around with different eases
-# add hourly??
-
 
 mod_animationUI <- function(id) {
   ns <- NS(id)
