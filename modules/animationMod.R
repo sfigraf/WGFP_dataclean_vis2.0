@@ -23,7 +23,7 @@ mod_animationUI <- function(id) {
                # radioButtons("renderOption", "Render as GIF or Video", 
                #              choices = c("GIF","Video")),
                column(width = 6,
-                      radioButtons(ns("TimeframeButtons"), "Timeframe", 
+                      radioButtons(ns("TimeframeButtons"), "Time Frame", 
                             #actual values are based off column names; so if they change, this needs to change as well
                             choices = c("Days" = "daySequence", "Weeks" = "weeks_since", "MARK Time Period" = "TimePeriodDates"), 
                             selected = "weeks_since")
@@ -68,21 +68,23 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
     function(input, output, session) {
       
       animationDatalist <- eventReactive(input$renderAnimationButton,{
-        print(input$TimeframeButtons)
-        
+
         movementsWithTimeForFrames <- filtered_movements_data() %>%
           mutate(
+            #currently days_since isn't being used since daySequence will show date when used in transition time than days_since
+            #however it might be a lto slower to render so still keeping it in just in case
             days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
             #makes sense to use floor not cieling with weeks because then there are are more fish in week 0
             # if you want to start at week 1 instead of week 0, add +1 to the end of expression
-            # when you change this too, it changes the number of entries in the states dataframe
             weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks"))), 
+            #hours not being used at all currently but could potentially be used in future. 
+            #Doesn't make sense to use with movement data since it's subsetted by day but hours are used in bigAnimation on all data
             hours_since = as.numeric(floor(difftime(Datetime, min(Datetime), units = "hours"))),
             daySequence = as.Date(as.character(round(Datetime, units = "days"))),
           ) %>%
           # need to ungroup to get this code to work
           ungroup()
-        #filtered_movements_data()
+
         
         if(input$aggregator == "First Movement"){
           
@@ -99,7 +101,6 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
         } else{
           movementsGrouped <- movementsWithTimeForFrames
         }
-        movementsGrouped111 <<- Animation_function(movementsGrouped)
         Animation_function(movementsGrouped)
       })
       
@@ -144,7 +145,9 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
           geom_sf(data = animationDatalist()$mercatorSFMovements, aes(size = 10,
                                                                       color = animationDatalist()$mercatorSFMovements$movement_only, 
                                                                       group = animationDatalist()$mercatorSFMovements$TAG)) +
+          #assigns based on manually set names in app.R
           scale_color_manual(values = allColors) +
+          #https://www.r-bloggers.com/2021/01/ease_aes-demo/ for dif options; not a big deal
           ease_aes('cubic-in-out') +
           labs(caption = input$anim_Caption)
         
@@ -156,7 +159,10 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
             endPauseValue = 5
             #isolate makes it so it wont execute when all the inputs inside the isolate() are changed (title, fps, days/weeks)
             isolate({
+              
+              #time frame options
               if (input$TimeframeButtons == "weeks_since"){
+                
                 nframesUnit <- "num_weeks"
                 
                 mapWithData <- mapWithData +  
@@ -167,12 +173,11 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
                 
                 
               } else if (input$TimeframeButtons == "daySequence"){
-                nframesUnit <- "num_days"
-                print(animationDatalist()[[nframesUnit]])
                 
+                nframesUnit <- "num_days"
+
                 mapWithData <- mapWithData +
                   transition_time(daySequence) +
-                  #labs(title = "Days") +
                   ggtitle(
                     paste(input$anim_Title, '{frame_time}'),
                     subtitle = paste("Day {frame} of {nframes} past Initial Date of", min(animationDatalist()$mercatorSFMovements$Date)))
@@ -181,6 +186,7 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
               } else if (input$TimeframeButtons == "TimePeriodDates"){
                 
                 nframesUnit <- "num_periods"
+                
                 mapWithData <- mapWithData + 
                   
                   transition_states(TimePeriodDates, 
@@ -189,10 +195,10 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
                   labs(title = "MARK Periods") +
                   ggtitle(
 
-                    paste(input$anim_Title, '{closest_state}')#, #{frame_time}
-                    #subtitle = "Ghost/predated tags included, TGM excluded"
+                    paste(input$anim_Title, '{closest_state}')
                     )
               }
+              ###Facet wrap options
               
               if(input$facetWrapOption == "Species"){
                 
@@ -204,13 +210,13 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
                 mapWithData <- mapWithData +
                   facet_wrap(~ReleaseSite)
               } 
-              
+              #display data in app
               mapWithData
-              
+              #save it automatically
               anim_save("WindyGapFishMovements.gif", gganimate::animate(mapWithData, 
                                                                         nframes = animationDatalist()[[nframesUnit]] + endPauseValue, 
                                                                         end_pause = endPauseValue,
-                                                                        fps = input$fps_Slider, height = 1200, width =1200)) 
+                                                                        fps = input$fps_Slider, height = 1200, width = 1200)) 
             })
             
             list(src = "WindyGapFishMovements.gif", contentType = "image/gif")

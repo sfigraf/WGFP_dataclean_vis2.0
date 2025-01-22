@@ -3,7 +3,7 @@
 # # ### this comes from runscript after spatial join detections stations function
 #DailyDetectionsStationsStates1 <- DailyDetectionsStationsStates$spatialList$stationData
 # encounterDF <- createMARKEncounterHistories(DailyDetectionsStationsStates1, GhostTags, AvianPredation, TimePeriods)
-# x <- encounterDF$MARKEncounterHistories
+
 library(janitor)
 createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTags, AvianPredation, TimePeriods){
   
@@ -21,6 +21,7 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
     mutate(`end date` = ymd_hms(paste(`end date`, "23:59:59")))
   
   # Gets DF with row of time periods based on when the detection was
+  # getting periods now so they are used in other DFs like movement animations
   DailyDetectionsPeriods <- DailyDetectionsStationsStates1  %>%
     rowwise() %>%
     mutate(
@@ -72,10 +73,7 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
     relocate(TAG, Datetime, GhostOrPredationDate, firstDatetime) %>%
     filter(is.na(GhostOrPredationDate) | is.na(firstDatetime) |
              Datetime == firstDatetime)
-  #######CHECKPOINT TO CHECK WORK
-  # OGeventswithOneGhostEvent <- eventswithOneGhostEvent
-  # x1 <- setdiff(nrow(OGeventswithOneGhostEvent), nrow(eventswithOneGhostEvent))
- 
+
   #release and recaps only
   recapsAndRelease <- detectionsWithStatesPeriods %>%
     filter(Event %in% c("Recapture", "Recapture and Release", "Release", "Recapture ")) %>%
@@ -126,8 +124,6 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
       isRecapture = ifelse(str_trim(Event) == "Recapture", 1, 0),
       group = cumsum(lag(isRecapture, default = 0)) + 1
     )
-  
-  
   
   #####
 
@@ -301,7 +297,6 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
     "weeklyActiveFish" = weeklyActiveFish,
     "overAllActiveFishNotinWeeklyDF" = overAllActiveFishNotinWeeklyDF
   )
-  #x <- setdiff(oGMRKlist$MARKEncounterHistories, tagsEventsWideCorrectTpLabelswithQAQC)
   end_time <- Sys.time()
   endMessage <- paste("createMARKEncounterHistories took", round(difftime(end_time, start_time, units = "mins"),2), "minutes.")
   print(endMessage)
