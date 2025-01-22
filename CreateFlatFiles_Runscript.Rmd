@@ -354,7 +354,7 @@ enc_hist_wide_df <- enc_hist_wide_list$enc_wide_list$encountersAndRelease_wide_s
 
 # applies get_movements_function
 Movements_list <- get_movements_function(combined_events_stations, dailyUSGSData = windyGapDaily, eventsWithPeriodsSelect = encounterMARKStates$eventsWithPeriodsSelectForMovementJoining, wgfpMetadata$TimePeriods)
-WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_list$dailyMovementsTable1)
+#WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_list$dailyMovementsTable1)
 
 ### Avian Predation: grouping together different methods of finding avian predated fish
 
@@ -460,7 +460,7 @@ names(indiv_datasets_list) <- names(indiv_datasets_list_og)
 
 movements_list <- list(
   "Movements_df" = Movements_list$dailyMovementsTable1,
-  "WeeklyMovementsbyType" = WeeklyMovementsbyType, 
+  #"WeeklyMovementsbyType" = WeeklyMovementsbyType, 
   "ghostTagsWithMovementAfterGhostDate" = ghostTagsWithMovementAfterGhostDate
 )
 

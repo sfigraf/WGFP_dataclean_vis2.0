@@ -1,4 +1,5 @@
 #Movements_df <- Movements_list$dailyMovementsTable1
+#Movements_df <- dataaa
 Wrangleminicharts_function <- function(Movements_df){
   
   WeeklyMovementsbyType <- Movements_df %>%
@@ -6,7 +7,9 @@ Wrangleminicharts_function <- function(Movements_df){
     ### mobile filter, no mobile data
     filter(!det_type %in% c("Mobile Run")) %>%
     mutate(weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks"))),
-           date_week = as.Date("2020-09-01")+weeks(weeks_since)
+           #doing this because round(), like we're doing in animation mod, doesn't take weeks as an arg
+           date_week = min(Date) + weeks(weeks_since)
+           #date_week2 = as.Date(as.character(round(Datetime, units = "weeks")))
     ) %>%
     #get total number of occurances at each UTM location for a given week
     group_by(UTM_X, UTM_Y, date_week, movement_only) %>%

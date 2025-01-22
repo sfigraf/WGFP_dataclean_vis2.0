@@ -211,7 +211,7 @@ server <- function(input, output, session) {
   
   observe({
     
-      movements_Server("MovementsTab1", movements_list$Movements_df, movements_list$WeeklyMovementsbyType, allColors)
+      movements_Server("MovementsTab1", movements_list$Movements_df, allColors)
     
       IndividualDatasets_Server("IndividualDatasetsTab1", indiv_datasets_list, allColors)
     
