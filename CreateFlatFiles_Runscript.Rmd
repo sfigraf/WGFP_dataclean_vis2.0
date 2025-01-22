@@ -351,8 +351,9 @@ combined_events_stations <- PrepareforStatesMovementsandSummary(DailyDetectionsS
 enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(AllCombinedEvents$df_list$Recaps_detections, cleanedRelease, combined_events_stations, encounterMARKStates$States_summarized, markerTags = unique(Cleaned_Marker_tags$TAG))
 unknown_tags <- enc_hist_wide_list$enc_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$enc_wide_list$encountersAndRelease_wide_summary
+
 # applies get_movements_function
-Movements_list <- get_movements_function(combined_events_stations, dailyUSGSData = windyGapDaily)
+Movements_list <- get_movements_function(combined_events_stations, dailyUSGSData = windyGapDaily, eventsWithPeriodsSelect = encounterMARKStates$eventsWithPeriodsSelectForMovementJoining, wgfpMetadata$TimePeriods)
 WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_list$dailyMovementsTable1)
 
 ### Avian Predation: grouping together different methods of finding avian predated fish

@@ -1,9 +1,9 @@
-# TimePeriods <- wgfpMetadata$TimePeriods 
+#TimePeriods <- wgfpMetadata$TimePeriods 
 # 
 # # ### this comes from runscript after spatial join detections stations function
-# DailyDetectionsStationsStates1 <- DailyDetectionsStationsStates$spatialList$stationData
+#DailyDetectionsStationsStates1 <- DailyDetectionsStationsStates$spatialList$stationData
 # encounterDF <- createMARKEncounterHistories(DailyDetectionsStationsStates1, GhostTags, AvianPredation, TimePeriods)
-# x <- encounterDF$MARKEncounterHistories
+
 library(janitor)
 createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTags, AvianPredation, TimePeriods){
   
@@ -11,8 +11,33 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
   startMessage <- "Running createMARKEncounterHistories: Taking events, ghost/predation, and time periods and creating MARK ready dataframe."
   print(startMessage)
   
+  #getting start/end dates to correct format
+  timePeriodsClean <- TimePeriods %>%
+    mutate(`start date` = janitor::excel_numeric_to_date(as.numeric(`start date`)), 
+           `end date` = janitor::excel_numeric_to_date(as.numeric(`end date`))
+    )
+  #need to add the datetime to make sure the <= and >= filtering later is interpreted correctly
+  timePeriodsCorrect <- timePeriodsClean %>%
+    mutate(`end date` = ymd_hms(paste(`end date`, "23:59:59")))
+  
+  # Gets DF with row of time periods based on when the detection was
+  # getting periods now so they are used in other DFs like movement animations
+  DailyDetectionsPeriods <- DailyDetectionsStationsStates1  %>%
+    rowwise() %>%
+    mutate(
+      TimePeriod = timePeriodsCorrect %>%
+        filter(Datetime >= `start date` & Datetime <= `end date`) %>%
+        pull(periods) %>%
+        first()
+    ) %>%
+    ungroup() #stops rowwise()
+  
+  #for qaqc: this should be a blank df, otherwise it means some data don't fall within the time periods sepecified in the csv
+  dataWithoutPeriods <- DailyDetectionsPeriods %>%
+    filter(is.na(TimePeriod))
+  
   #don't need TGM in analysis
-  detectionsWithStates <- as.data.frame(DailyDetectionsStationsStates1) %>%
+  detectionsWithStatesPeriods <- as.data.frame(DailyDetectionsPeriods) %>%
     filter(Species != "TGM")
   #getting most pertinent info
   GhostTagsForJoining <- GhostTags %>%
@@ -24,7 +49,7 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
     select(TAG, PredationDate)
   
   #joining with ghost tag and predation dfs
-  eventsWithGhostDates <- left_join(detectionsWithStates, GhostTagsForJoining, by = c("TAG"))
+  eventsWithGhostDates <- left_join(detectionsWithStatesPeriods, GhostTagsForJoining, by = c("TAG"))
   eventsWithGhostDatesAndAvianPredation <- left_join(eventsWithGhostDates, AvianPredationForJoining, by = c("TAG")) 
   
   #combining ghost and predation just to 1 state "G"
@@ -48,38 +73,14 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
     relocate(TAG, Datetime, GhostOrPredationDate, firstDatetime) %>%
     filter(is.na(GhostOrPredationDate) | is.na(firstDatetime) |
              Datetime == firstDatetime)
-  
-  
-  #getting start/end dates to correct format
-  timePeriodsClean <- TimePeriods %>%
-    mutate(`start date` = janitor::excel_numeric_to_date(as.numeric(`start date`)), 
-           `end date` = janitor::excel_numeric_to_date(as.numeric(`end date`))
-    )
+
   #release and recaps only
-  recapsAndRelease <- detectionsWithStates %>%
+  recapsAndRelease <- detectionsWithStatesPeriods %>%
     filter(Event %in% c("Recapture", "Recapture and Release", "Release", "Recapture ")) %>%
     mutate(NeedsLogWeight = ifelse((Release_Length > 0 & Release_Weight == 0) | (Event %in% c("Recapture") & is.na(Recap_Weight)), TRUE, FALSE))
 
-  #need to add the datetime to make sure the <= and >= filtering later is interpreted correctly
-  timePeriodsCorrect <- timePeriodsClean %>%
-    mutate(`end date` = ymd_hms(paste(`end date`, "23:59:59")))
-  
-  # Gets DF with row of time periods based on when the detection was
-  eventsWithPeriods <- eventswithOneGhostEvent  %>%
-    rowwise() %>%
-    mutate(
-      TimePeriod = timePeriodsCorrect %>%
-        filter(Datetime >= `start date` & Datetime <= `end date`) %>%
-        pull(periods) %>%
-        first()
-    ) %>%
-    ungroup() #stops rowwise()
-  #for qaqc: this should be a blank df, otherwise it means some data don't fall within the time periods sepecified in the csv
-  dataWithoutPeriods <- eventsWithPeriods %>%
-    filter(is.na(TimePeriod))
-  
   #select pertinent columns
-  eventsWithPeriodsSelect <- eventsWithPeriods %>%
+  eventsWithPeriodsSelect <- eventswithOneGhostEvent %>%
     select(TAG, Datetime, Event, TimePeriod, State) 
   
   ####There are some fish that were recaptured in the same time period they were released. 
@@ -123,8 +124,6 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
       isRecapture = ifelse(str_trim(Event) == "Recapture", 1, 0),
       group = cumsum(lag(isRecapture, default = 0)) + 1
     )
-  
-  
   
   #####
 
@@ -298,11 +297,11 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
     "weeklyActiveFish" = weeklyActiveFish,
     "overAllActiveFishNotinWeeklyDF" = overAllActiveFishNotinWeeklyDF
   )
-  
   end_time <- Sys.time()
   endMessage <- paste("createMARKEncounterHistories took", round(difftime(end_time, start_time, units = "mins"),2), "minutes.")
   print(endMessage)
   return(list("MARKEncounterHistories" = tagsEventsWideCorrectTpLabelswithQAQC,
+              "eventsWithPeriodsSelectForMovementJoining" = DailyDetectionsPeriods[, c("TAG", "Datetime", "Event", "TimePeriod", 'State')],
               "States_summarized" = summarizedStates,
               "possibleAvianPredation" = possibleAvianPredation,
               "endMessage" = paste(c(startMessage, endMessage), collapse = "<br>"), 
