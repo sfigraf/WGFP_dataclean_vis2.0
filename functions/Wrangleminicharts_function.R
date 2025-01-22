@@ -46,13 +46,26 @@ Wrangleminicharts_function <- function(Movements_df){
   x <- WeeklyMovementsbyType2 %>%
     left_join(x3[,c("X", "Y", "SiteName")], by = c("X", "Y"))
   ###join to release Sites
-  releaseSitesWithLatLong <- releasesites %>%
-    mutate(X = st_coordinates(releasesites)[row_number(), 1], 
-           Y = st_coordinates(releasesites)[row_number(), 2]) %>%
-    distinct(X, Y, ReleaseSit)
-  y = x %>%
-    left_join(releaseSitesWithLatLong[,c("X", "Y", "ReleaseSit")], by = c("X", "Y"))
+  releaseSites1 <- Release %>%
+    distinct(ReleaseSite, UTM_X, UTM_Y)
+  y1 <-  sf::st_as_sf(releaseSites1 %>%
+                        filter(!is.na(UTM_X)), coords = c("UTM_X", "UTM_Y"), crs = 32613)
+  y2 <- st_transform(y1, latLongCRS)
+  y3 <- y2 %>%
+    mutate(X = st_coordinates(y2)[row_number(), 1], 
+           Y = st_coordinates(y2)[row_number(), 2]) %>%
+    distinct(X, Y, ReleaseSite)
+  
+  # 
+  # releaseSitesWithLatLong <- releasesites %>%
+  #   mutate(X = st_coordinates(releasesites)[row_number(), 1], 
+  #          Y = st_coordinates(releasesites)[row_number(), 2]) %>%
+  #   distinct(X, Y, ReleaseSit)
+  y4 = x %>%
+    left_join(y3[,c("X", "Y", "ReleaseSite")], by = c("X", "Y")) %>%
+    mutate(siteName = coalesce(SiteName, ReleaseSite)) %>%
+    select(-SiteName, -ReleaseSite)
     
-  return(WeeklyMovementsbyType2)
+  return(y4)
   
 }
