@@ -116,7 +116,7 @@ rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD",
                           "#FF1C55", "#4682B4", "#556B2F", "#DC143C", "#B22222", "#7FFF00", "#8A2BE2", "#00CED1")
 #currently "Changed Rivers", "Downstream Movement" "Initial Release", "No Movement", "Upstream Movement" (5/17/24)
 #note: these are a little diffeerent than what we see in the map because the map/marker color optoins are very limited. 
-movementColors <- c("#4B0082", "#8B0000", "#FF8C00", "#253333", "#22bd74") #, "#66FF00"
+movementColors <- c("purple", "#eb0e2b", "#FF8C00", "gray", "#22bd74") #, "#66FF00"
 # currently "BRK" "LOC" "MERG" "MTS" "RBT" "RXN" "TGM" (5/17/24)
 speciesColors <- c("#FFD700", "#654321", "#4F7942", "#FF7F50", "#1E90FF", "#008080", "#DAA520", "#D2691E", "#9A5ECD") 
 
