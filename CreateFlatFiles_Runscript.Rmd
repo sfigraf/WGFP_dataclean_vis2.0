@@ -10,6 +10,8 @@ library(tidyverse)
 library(lubridate)
 library(readxl)
 library(dataRetrieval) #this is the usgs package for getting up to date data
+library(shiny) # only used for isTruthy(), found in getSequences
+library(janitor)
 
 whole_doc_startTime <- Sys.time()
 start_time <- Sys.time()
@@ -31,22 +33,27 @@ for (i in list.files("./miscR/")) {
 # if column names change in any of these read-ins, might require some modification to code to get them to combine
 # also if you change read.csv to read_csv, it should read in quicker but column names will change
 # could be a later task
-Stationary <- readRDS("./data/WGFP_Raw_20241003.rds")
+Stationary <- readRDS("./data/WGFP_Raw_20250108.rds")
 
 Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character", 14), rep("numeric", 4), rep("character", 3)))
 
-Biomark <- read.csv("./data/Biomark_Raw_20221102.csv", dec = ",") 
+Biomark <- readRDS("./data/Biomark_Raw_20241111.rds")
 
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
 
-Release <- read.csv("./data/WGFP_ReleaseData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",8), "numeric", "numeric",rep("character",9)))
-Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 9), rep("numeric", 2), rep("character", 8)))
+Release <- read.csv("./data/WGFP_ReleaseData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",7), "numeric", "numeric",rep("character",9))) %>%
+  janitor::remove_empty()
+Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 7), rep("numeric", 2), rep("character", 8))) %>%
+  janitor::remove_empty()
 
-#avian predation
+###Avian predation
 AvianPredation <- read_csv("./data/WGFP_AvianPredation.csv", 
                            col_types = cols(TagID = col_character(),Comments = col_character()))
+#Potential Avian Predated tags
+checkedTags <- read_csv("data/Potential Avian Predated tags.csv") 
 
-#ghost tag df
+
+###ghost tag df
 GhostTags <- read_csv("./data/WGFP_GhostTags.csv", 
                            col_types = cols(TagID = col_character()))
 
@@ -281,9 +288,9 @@ Mobile <- Mobile %>%
 Biomark <- Biomark %>%
   #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy
   # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
-  mutate(Scan.Date = ifelse(str_detect(Scan.Date, "/"),
-                            as.character(lubridate::mdy(Scan.Date)),
-                            Scan.Date))
+  mutate(`Scan Date` = ifelse(str_detect(`Scan Date`, "/"),
+                            as.character(lubridate::mdy(`Scan Date`)),
+                            `Scan Date`))
 
 
 cleanedRelease <- Release %>%
@@ -292,7 +299,8 @@ cleanedRelease <- Release %>%
 
 cleanedRecaptures <- Recaptures %>%
   mutate(Date = as.character(lubridate::mdy(Date)), 
-         Species = str_trim(Species))
+         Species = str_trim(Species)
+  )
 
 AvianPredation <- AvianPredation %>%
   mutate(PredationDate = lubridate::mdy(PredationDate))
@@ -318,36 +326,50 @@ Cleaned_Stationary_FishdetectionsOnly <- utmsStationary %>%
   filter(grepl("^230|^226", TAG))
 
 
-#spatially joins point (detection) data to lines (station) data based on nearest feature.
-#simpleStations is from polygon_readins
-DailyMovements_withStations <- spatial_join_stations_detections(AllCombinedEvents$df_list$All_Events_most_relevant, simpleStations = simpleStations)
+#spatially joins point (detection) data to lines (station) data based on nearest feature, and joins detections to States polygon as well based on intersection
+#simpleStations and WGFP_States_2024 are from polygon_readins
+DailyDetectionsStationsStates <- spatial_join_stations_detections(condensedEvents = AllCombinedEvents$df_list$All_Events_most_relevant, simpleStations = simpleStations, WGFP_States_2024)
 
-if(nrow(DailyMovements_withStations$spatialList$noUTMS) > 0){
-  problemNAtagsMessage <- paste0("The following tags could not be assigned stations because of an NA entry for UTMs: ", unique(DailyMovements_withStations$spatialList$noUTMS$TAG),
-                                         ".")
-} else{
-  problemNAtagsMessage <- ""
-}
+
+problemNAtagsMessage <- ifelse(nrow(DailyDetectionsStationsStates$spatialList$noUTMS) > 0, 
+                               paste0("The following tags could not be assigned stations because of an NA entry for UTMs: ", unique(DailyDetectionsStationsStates$spatialList$noUTMS$TAG),
+                                         "."), 
+                               "")
+
+problemNoStatetagsMessage <- ifelse(nrow(DailyDetectionsStationsStates$spatialList$noState) > 0,
+                                    paste0("The following tags could not be assigned a state (aside from TGM) because their boundary was outside the states polygon: ", unique(DailyDetectionsStationsStates$spatialList$noState$TAG),
+                                         "."), 
+                                    ""
+                                    )
+
+encounterMARKStates <- createMARKEncounterHistories(DailyDetectionsStationsStates$spatialList$stationData, GhostTags, AvianPredation, wgfpMetadata$TimePeriods)
 
 #prepares joined stations and relevant Movements dataset for movements summaries and states
-
-combined_events_stations <- PrepareforStatesMovementsandSummary(DailyMovements_withStations$spatialList$stationData)
+#Not sure if I need this function to be this extensive with the new state regime
+combined_events_stations <- PrepareforStatesMovementsandSummary(DailyDetectionsStationsStates$spatialList$stationData)
 
 # states
-states <- states_function(combined_events_stations, GhostTags, AvianPredation)
+
 # aplies enc_hist_summary wide function
-enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(AllCombinedEvents$df_list$Recaps_detections, cleanedRelease, combined_events_stations, states$states_df_list$States_summarized, markerTags = unique(Cleaned_Marker_tags$TAG))
+enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(AllCombinedEvents$df_list$Recaps_detections, cleanedRelease, combined_events_stations, encounterMARKStates$States_summarized, markerTags = unique(Cleaned_Marker_tags$TAG))
 unknown_tags <- enc_hist_wide_list$enc_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$enc_wide_list$encountersAndRelease_wide_summary
+
 # applies get_movements_function
-Movements_df <- get_movements_function(combined_events_stations, dailyUSGSData = windyGapDaily)
-WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_df$dailyMovementsTable1)
+Movements_list <- get_movements_function(combined_events_stations, dailyUSGSData = windyGapDaily, eventsWithPeriodsSelect = encounterMARKStates$eventsWithPeriodsSelectForMovementJoining, wgfpMetadata$TimePeriods)
+
+
+
+# ### Avian Predation: grouping together different methods of finding avian predated fish
+avianPredationList <- avianPredationListFunction(All_Events = AllCombinedEvents$df_list$All_Events, 
+                                       AvianPredation = AvianPredation, 
+                                       enc_hist_wide_listPossibleAvianPredation = enc_hist_wide_list$enc_wide_list$possibleAvianPredation, 
+                                       encounterMARKStates = encounterMARKStates, 
+                                       Movements_list = Movements_list, ghostdata = GhostTags, 
+                                       checkedTags = checkedTags)
 
 ###QAQC ghost tags
-ghostTagsWithMovementAfterGhostDate <- qaqcGhostTagMovements(GhostTags, Movements_df$dailyMovementsTable1)
-
-#this is used in states_data reactives
-weeks <- data.frame(weeks_since = min(states$states_df_list$All_States$weeks_since):max(states$states_df_list$All_States$weeks_since))
+ghostTagsWithMovementAfterGhostDate <- qaqcGhostTagMovements(GhostTags, Movements_list$dailyMovementsTable1)
 
 #more formatting
 Enc_release_data <- enc_hist_wide_df %>%
@@ -367,7 +389,7 @@ WGFP_SiteVisits_FieldDatawithPTData <- combineEnvironmentalAndSiteVisitData(WGFP
 ### taking dummy tag out
 
 Biomark <- Biomark %>%
-  filter(!DEC.Tag.ID %in% c("900.230000999999"))
+  filter(!`DEC Tag ID` %in% c("900.230000999999"))
 cleanedRelease <- cleanedRelease %>%
   filter(!TagID %in% c("230000999999"))
 Stationary <- Cleaned_Stationary_FishdetectionsOnly %>%
@@ -399,8 +421,7 @@ indiv_datasets_list <- lapply(names(indiv_datasets_list_og), function(name) {
 names(indiv_datasets_list) <- names(indiv_datasets_list_og)
 
 movements_list <- list(
-  "Movements_df" = Movements_df$dailyMovementsTable1,
-  "WeeklyMovementsbyType" = WeeklyMovementsbyType, 
+  "Movements_df" = Movements_list$dailyMovementsTable1,
   "ghostTagsWithMovementAfterGhostDate" = ghostTagsWithMovementAfterGhostDate
 )
 
@@ -424,13 +445,16 @@ SiteVisitData <- list(
 ```
 
 #### `r AllCombinedEvents$endMessage`
-#### `r DailyMovements_withStations$endMessage`
-#### `r states$endMessage`
+#### `r DailyDetectionsStationsStates$endMessage`
+#### `r encounterMARKStates$endMessage`
 #### `r enc_hist_wide_list$endMessage`
-#### `r Movements_df$message`
+#### `r Movements_list$message`
 
 
 <span style="color:red; font-size: 30px;" >`r problemNAtagsMessage`</span>
+<span style="color:red; font-size: 30px;" >`r problemNoStatetagsMessage`</span>
+<span style="color:red; font-size: 30px;" >`r encounterMARKStates$timePeriodsMessage`</span>
+
 
 ```{r saveFiles, include = FALSE, echo=FALSE}
 saveFilestartTime <- Sys.time()
@@ -438,10 +462,11 @@ allFlatFiles <- list(
   "combinedData_df_list" = AllCombinedEvents$df_list,
   "indiv_datasets_list" = indiv_datasets_list,
   "Enc_release_data" = Enc_release_data,
-  "states_data_list" = states$states_df_list,
+  "encounterMARKStates" = encounterMARKStates,
   "movements_list" = movements_list,
   "Marker_tags" = Cleaned_Marker_tags,
   "unknown_tags" = unknown_tags, 
+  "possibleAvianPredationDFs" = avianPredationList,
   "wgfpMetadata" = wgfpMetadata,
   "metaDataVariableNames" = metaDataVariableNames,
   "PTData" = PTData,

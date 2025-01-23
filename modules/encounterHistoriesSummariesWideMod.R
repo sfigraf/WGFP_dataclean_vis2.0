@@ -64,6 +64,16 @@ EncounterHistoriesSummariesWide_UI <- function(id, Enc_release_data) {
                                  `actions-box` = TRUE #this makes the "select/deselect all" option
                                )
                    ), #end of picker 13 input
+                   pickerInput(inputId = ns("channelSummaryPicker"),
+                               label = "CRCC Summary:",
+                               choices = sort(unique(Enc_release_data$channelSummary)),
+                               selected = unique(Enc_release_data$channelSummary),
+                               multiple = TRUE,
+                               options = list(
+                                 `actions-box` = TRUE #this makes the "select/deselect all" option
+                               )
+                   ), #end of picker 13 input
+                   
                    pickerInput(inputId = ns("stateSummaryPicker"),
                                label = "State Summary",
                                choices = sort(unique(Enc_release_data$condensedAllStates)),
@@ -107,6 +117,7 @@ EncounterHistoriesSummariesWide_Server <- function(id, Enc_release_data) {
                   Weight >= input$slider5[1] & Weight <= input$slider5[2],
                   sum_dist >= input$slider8[1] & sum_dist <= input$slider8[2],
                   through_dam %in% input$picker13,
+                  channelSummary %in% input$channelSummaryPicker,
                   condensedAllStates %in% input$stateSummaryPicker,
                   TotalEncounters %in% input$picker14
                 )
@@ -121,6 +132,7 @@ EncounterHistoriesSummariesWide_Server <- function(id, Enc_release_data) {
                   Weight >= input$slider5[1] & Weight <= input$slider5[2],
                   sum_dist >= input$slider8[1] & sum_dist <= input$slider8[2],
                   through_dam %in% input$picker13,
+                  channelSummary %in% input$channelSummaryPicker,
                   condensedAllStates %in% input$stateSummaryPicker,
                   TotalEncounters %in% input$picker14
                 )

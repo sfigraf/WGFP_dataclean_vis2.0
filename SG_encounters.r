@@ -1,4 +1,5 @@
 #########this is just a working playground for random code stuff
+
 library(readr)
 mobileDetect_2022 <- read_csv("mobileDetect_2022.csv")
 View(mobileDetect_2022)
@@ -167,7 +168,7 @@ x <- Stationary %>%
 x1 <- combinedData_df_list$All_Detections %>%
   filter(str_detect(TAG, "228468"))
 x1 <- Biomark %>%
-  filter(str_detect(DEC.Tag.ID, "^999"))
+  filter(str_detect(`DEC Tag ID`, "^999"))
 
 tag2323AtCD1 <- Stationary_Marker_tags %>%
   dplyr::filter(TAG %in% c("00000000000000002323"),
@@ -315,25 +316,25 @@ setdiff(joined, og)
 Biomark_cleanDate <- Biomark %>%
   #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy
   # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
-  mutate(Scan.Date = ifelse(str_detect(Scan.Date, "/"),
-                            as.character(lubridate::mdy(Scan.Date)),
-                            Scan.Date)) 
+  mutate(`Scan Date` = ifelse(str_detect(`Scan Date`, "/"),
+                            as.character(lubridate::mdy(`Scan Date`)),
+                            `Scan Date`)) 
 
 Biomark_cleanDateWG <- Biomark_cleanDate %>%
-  filter(!Reader.ID %in% c("A2", "B2"))
+  filter(!`Reader ID` %in% c("A2", "B2"))
 
 SchmuckChannel <- Biomark_cleanDateWG %>%
-  filter(Scan.Date >= "2021-12-31") %>%
-  mutate(Reader.ID = "B1")
+  filter(`Scan Date` >= "2021-12-31") %>%
+  mutate(`Reader ID` = "B1")
 
 Auxiliary <- Biomark_cleanDateWG %>%
-  filter(Scan.Date < "2021-12-31") %>%
-  mutate(Reader.ID = "A1")
+  filter(`Scan Date` < "2021-12-31") %>%
+  mutate(`Reader ID` = "A1")
 
 allBiom <- bind_rows(SchmuckChannel, Auxiliary)
 
 kaibabPark <- Biomark_cleanDate %>%
-  filter(Reader.ID %in% c("A2", "B2"))
+  filter(`Reader ID` %in% c("A2", "B2"))
 
 allBiom2 <- bind_rows(allBiom, kaibabPark)
 
@@ -370,19 +371,19 @@ Mobile = read.csv("WGFP_MobileDetections.csv", colClasses=c(rep("character",10))
 #Read Biomark
 # need to be put in with decimal registering as "," because otherwise it won't bring in the full DEC.Id tag
 #biomark1 <- read_csv("Biomark_Raw_20211109.csv", col_types = "cccccccccccccccc")
-# biomark_col_names <- c("Scan.Date","Scan.Time","Download.Date", "Download.Time" ,"Reader.ID","Antenna.ID","HEX.Tag.ID","DEC.Tag.ID","Temperature.C",
-#     "Signal.mV","Is.Duplicate","Latitude","Longitude","File.Name")
+# biomark_col_names <- c("`Scan Date`","`Scan Time`","`Download Date`", "`Download Time`" ,"`Reader ID`","`Antenna ID`","`HEX Tag ID`","`DEC Tag ID`","`Temperature,C`",
+#     "`Signal,mV`","`Is Duplicate`","Latitude","Longitude","`File Name`")
 # b <- read_csv("Biomark_Raw_20211109.csv", col_types = "ctcccccccccccccc", col_names = biomark_col_names)
 # 
 # b <- b[-1,]
 
 Biomark <- read.csv("Biomark_Raw_20211109_1.csv", dec = ","
-                    #, Scan.Time= strptime(Scan.Time)
+                    #, `Scan Time`= strptime(`Scan Time`)
                     #colClasses = c("character", "character", rep("character", 12))
                     )
 
 # Biomark1 <- read.csv("Biomark_Raw_1.csv", dec = ","
-#                     #, Scan.Time= strptime(Scan.Time)
+#                     #, `Scan Time`= strptime(`Scan Time`)
 #                     #colClasses = c("character", "character", rep("character", 12))
 # )
 #biomark11 <- read.csv("Biomark_Raw_2.csv", dec = ",")
@@ -770,7 +771,7 @@ x <- All_detections %>%
 
 ### Getting times correct
 
-x <- Biomark$Scan.Time[71755]
+x <- Biomark$`Scan Time`[71755]
 y <- mdy(x)
 str_length(x)
 str_detect(x, "/")
@@ -983,7 +984,7 @@ ENC_ALL <- all_enc12 %>%
 # # Biomark Antennas
 # BiomarkEnc <- biomark2 %>%
 #   mutate(TAG = ifelse(str_detect(TAG, "^900"), str_sub(TAG, 4,-1), TAG)) %>%
-#   count(TAG, Reader.ID, name = "Encounters")
+#   count(TAG, `Reader ID`, name = "Encounters")
 
 ### Separate Encounter histories by Antenna ###
 # Enc_RB1 = StationaryEnc%>%
@@ -1019,10 +1020,10 @@ ENC_ALL <- all_enc12 %>%
 # sum(Mob_M2$Encounters)
 # 
 # Bio_B1 <- BiomarkEnc %>%
-#   filter(Reader.ID == "B3")
+#   filter(`Reader ID` == "B3")
 # 
 # Bio_B2 <- BiomarkEnc %>%
-#   filter(Reader.ID == "B4")
+#   filter(`Reader ID` == "B4")
 # # Make Individual Encounter tables
 # 
 # RB1=Enc_RB1 %>%
@@ -2081,10 +2082,10 @@ Stationary <- Stationary %>%
 ### Biomark
 
 Biomark <- Biomark %>%
-  add_row(Scan.Date = "2022-12-03",Scan.Time = "59:59.9", Download.Date = "9/16/2022",Download.Time = "11:30:41",Reader.ID = "A3",Antenna.ID = 1,HEX.Tag.ID = "384.358D14F739",
-          DEC.Tag.ID = "900.230000999999",Temperature.C = NA,Signal.mV= NA,Is.Duplicate= "Yes",Latitude = NA,Longitude= NA,File.Name= NA) %>%
-  add_row(Scan.Date = "2022-12-03",Scan.Time = "59:59.9", Download.Date = "9/16/2022",Download.Time = "11:30:41",Reader.ID = "A4",Antenna.ID = 1,HEX.Tag.ID = "384.358D14F739",
-          DEC.Tag.ID = "900.230000999999",Temperature.C = NA,Signal.mV= NA,Is.Duplicate= "Yes",Latitude = NA,Longitude= NA,File.Name= NA)
+  add_row(`Scan Date` = "2022-12-03",`Scan Time` = "59:59.9", `Download Date` = "9/16/2022",`Download Time` = "11:30:41",`Reader ID` = "A3",`Antenna ID` = 1,`HEX Tag ID` = "384.358D14F739",
+          `DEC Tag ID` = "900.230000999999",`Temperature,C` = NA,`Signal,mV`= NA,`Is Duplicate`= "Yes",Latitude = NA,Longitude= NA,`File Name`= NA) %>%
+  add_row(`Scan Date` = "2022-12-03",`Scan Time` = "59:59.9", `Download Date` = "9/16/2022",`Download Time` = "11:30:41",`Reader ID` = "A4",`Antenna ID` = 1,`HEX Tag ID` = "384.358D14F739",
+          `DEC Tag ID` = "900.230000999999",`Temperature,C` = NA,`Signal,mV`= NA,`Is Duplicate`= "Yes",Latitude = NA,Longitude= NA,`File Name`= NA)
   
 x <- combined_events_stations %>%
   filter(Event %in% c("B5", "B6", "CD7", "CD8","CD9","CD10","CU11", "CU12"))
@@ -2404,7 +2405,7 @@ base_map1 <- basemap_magick(x, map_service = "esri", map_type = "world_imagery")
 set_defaults(map_service = "esri", map_type = "world_imagery")
 basemap_ggplot(x)
 x1 <- ggplot() + 
-  basemap_gglayer(x) +
+  basemap_gglayer(coords1) +
   scale_fill_identity() + 
   coord_sf()
 
@@ -2463,6 +2464,7 @@ baylor <- "baylor university"
 qmap(baylor, zoom = 14)
 #######
 #trying to get m1 coords to plot with x1 basemap
+library(sp)
 m1 <- m1 %>%
   ungroup() 
 
@@ -2472,11 +2474,15 @@ attr(m1, "datum") = "GRS80"
 
 # need a column that has x and Y for this 
 # converts lutms to lat/long
-m2 <- convUL(m1, km=FALSE, southern=NULL)
+#m2 <- convUL(m1, km=FALSE, southern=NULL)
+x1 <- ggplot() + 
+  basemap_gglayer(coords1) +
+  scale_fill_identity() + 
+  coord_sf()
 xy <- m1 %>%
   select(X, Y)
 
-spdf <- SpatialPointsDataFrame(coords = xy, data = m2,
+spdf <- SpatialPointsDataFrame(coords = xy, data = m1,
                                proj4string = CRS("+init=epsg:3857"))
 m3 <- as.data.frame(spdf)
 map_with_data <- x1 +
@@ -2930,5 +2936,772 @@ x <- WGFP_SiteVisits_FieldData %>%
          Date = mdy(Date)
   )
 
+####
+#gettign lsit of sampling locations and dates
+listOfSamplingLocations <- combinedData_df_list$All_Events %>%
+  dplyr::distinct(ReleaseSite, Release_Date) %>%
+  arrange(ReleaseSite, Release_Date)
+
+#also needs mobile run dates
+mobileDates <- combinedData_df_list$All_Events %>%
+  dplyr::filter(Event %in% c("M1", "M2")) %>%
+  dplyr::distinct(Date)
+
+mobile <- indiv_datasets_list$mobiledata %>%
+  dplyr::distinct(MobileSite, Date) %>%
+  arrange(MobileSite, Date)
+
+recaps <- indiv_datasets_list$recapdata %>%
+  dplyr::distinct(RecaptureSite, Date) %>%
+  mutate(Date = ymd(Date)) %>%
+  anti_join(listOfSamplingLocations, by = c("RecaptureSite" = "ReleaseSite", "Date" = "Release_Date")) %>%
+  arrange(RecaptureSite, Date)
+
+write_csv(recaps, file = "listOfUniqueRecapLocationsandDates.csv")
+
+write_csv(mobile, file = "listOfMobileLocationsandDates.csv")
 
 
+write_csv(listOfSamplingLocations, file = "listOfSamplingLocationsandDates.csv")
+# throgh_dam_no_channel <- encountersAndRelease6 %>%
+#   filter(went_above_dam_noChannel == TRUE | went_below_dam_noChannel == TRUE) %>%
+#   select(TAG, went_above_dam_noChannel, went_below_dam_noChannel, sum_dist)
+# possibleAvianPredation = left_join(throgh_dam_no_channel, )
+
+
+######## code to add avian predation to current sheet
+library(readr)
+library(tidyverse)
+Potential_Avian_Predated_tags <- read_csv("data/Potential Avian Predated tags.csv")
+library(readr)
+Release <- read_csv("data/WGFP_ReleaseData_Master_20241009.csv")
+
+library(readr)
+WGFP_AvianPredation <- read_csv("data/WGFP_AvianPredation.csv")
+
+newAvianPredationTags <- Potential_Avian_Predated_tags %>%
+  filter(`SG Opinion` %in% c("Yes", "yes")) %>%
+  left_join(Release, by = c("TAG" = "TagID")) %>%
+  rename(TagID = TAG, ReleaseDate = Date, PredationDate = `Proposed predation date`) %>%
+  select(c(names(WGFP_AvianPredation)))
+
+allNewAvianPredation <- bind_rows(WGFP_AvianPredation, newAvianPredationTags) 
+allNewAvianPredation <- allNewAvianPredation %>%
+  distinct(TagID, .keep_all = TRUE)
+write_csv(allNewAvianPredation, "WGFP_AvianPredation.csv")
+
+
+####chsnging biomark names to correct: B4 kaibab goes to B2, RR B5 goes to B3
+Biomark_Raw_20241111 <- readRDS("~/WGFP_dataclean_vis2.0/data/Biomark_Raw_20241111.rds")
+x <- Biomark_Raw_20241111 %>%
+  filter(as.Date(`Scan Date`) >= "2024-10-02")
+
+x1 <- Biomark_Raw_20241111 %>%
+  mutate(`Reader ID` = case_when( `Reader ID` == "B4" ~ "B2", 
+                                 `Reader ID` == "B5" ~ "B3", 
+                                 TRUE ~ `Reader ID`)) %>%
+  select(-`S/N`) %>%
+  distinct()
+unique(x1$`Reader ID`)
+saveRDS(x1, file = "data/Biomark_Raw_20241111_corectNames.rds")
+
+# x2 <- x1 %>%
+#   filter(`Reader ID` %in% c("B4", "B5"))
+# 
+# 
+# y <- Biomark_Raw_20241001 %>%
+#   filter(`Reader ID` %in% c("B4", "B5"))
+
+###more ghost tags
+
+GhostTags <- read_csv("./data/WGFP_GhostTags.csv", 
+                      col_types = cols(TagID = col_character()))
+#new mobile detections 
+newMobile <- read_csv("data/select_mobile2024.csv", 
+                                           skip = 7) %>%
+  select(TagID, `Total...10`, `Ghost`)
+
+alreadyChecked2023 <- read_csv("data/WGFP_GhostTags_SGChecked_20240315.csv", 
+                           skip = 6) %>%
+  select(TagID, `Total...9`, `Ghost`, Notes)
+
+x <- left_join(newMobile, alreadyChecked2023, by = "TagID") %>%
+  mutate(TagID = as.character(TagID)) %>%
+  anti_join(GhostTags, by = "TagID") %>%
+  mutate(toCheck = Total...9 != Total...10) %>%
+  filter(toCheck == TRUE | is.na(toCheck))
+
+write_csv(x, "tagsToCheck.csv")
+
+###after tags been checked: getting an updated selectedTags file
+alreadyChecked2023 <- read_csv("data/WGFP_GhostTags_SGChecked_20240315.csv", 
+                               skip = 6) %>%
+  select(TagID, `Total...9`, `Ghost`, Notes)
+
+newMobile <- read_csv("data/select_mobile2024.csv", 
+                      skip = 7)
+
+checkedTags2024 <- read_csv("tagsToCheck.csv")
+#isolating just the old comments
+tagsLreadyCheckedNeedtoGetOldCommentsEtc <- alreadyChecked2023 %>%
+  anti_join(checkedTags2024, by = "TagID")
+#adding old comments to new mobiel 2024
+tagsCheckedALready2024 <- left_join(newMobile, tagsLreadyCheckedNeedtoGetOldCommentsEtc, by = "TagID") %>%
+  select(-Total...9, -Ghost.y ) %>%
+  relocate(Notes, .after = Ghost.x)
+#adding new comments to new mobile 2024
+newMobileWithAllNotes <- left_join(tagsCheckedALready2024, checkedTags2024, by = "TagID") %>%
+  unite(Notes, c(Notes.x, `2024Checking`), na.rm = TRUE) %>%
+  select(-c())
+  
+write_csv(newMobileWithAllNotes, "newTagChecked.csv")
+
+
+###adding new ghost tags to the ghsot tag file
+Release <- indiv_datasets_list$releasedata
+
+NewTagsToAdd <- newMobileWithAllNotes %>%
+  filter(!is.na(ProposedGhostDate)) %>%
+  mutate(Notes = paste0(Notes, " using encounter history; field confirmation needed. ", `2024Notes`),
+         GhostDate = lubridate::mdy(ProposedGhostDate)
+         ) %>%
+  select(TagID, Notes, GhostDate) %>%
+  mutate(Event = case_when(grepl("^Likely|^likely", Notes) ~ "Ghost?", 
+                           grepl("Confirmed", Notes) ~ "Ghost"), 
+         TagID = as.character(TagID)) %>%
+  left_join(subset(Release, select = -c(Comments, Event)), by = "TagID")
+
+GhostTags <- indiv_datasets_list$ghostdata %>%
+  mutate(Time = as.character(Time))
+
+x <- alignColumns(dfToChange =  NewTagsToAdd, desiredColumns = names(GhostTags), dfWithIdealColumns = GhostTags) 
+
+# x <- x %>%
+#   mutate(GhostDate = lubridate::mdy(GhostDate))
+
+AllGhosts <- bind_rows(GhostTags, x)
+
+write_csv(AllGhosts, "newGhostTags.csv")
+
+### new states 11/16/24
+detectionsandStations <- DailyMovements_withStations$spatialList$stationData
+
+x1 <- st_join(detectionsandStations, WGFP_States_2024) 
+
+x2 <- head(x1)
+detectionsWithStates <- DailyDetectionsStationsStates$spatialList$stationData
+leaflet(WGFP_States_2024) %>%
+  addTiles() %>%
+  addPolygons() 
+
+x <- eventsWithPeriods %>%
+  filter(ReleaseSite == "Kinney Creek", Release_Date %in% c("2023-06-07", "2023-06-05"), Event %in% c("Release", "Recapture and Release"))
+
+timePeriods <- wgfpMetadata$TimePeriods
+library(janitor)
+timePeriodsWide <- timePeriods %>%
+  mutate(`start date` = janitor::excel_numeric_to_date(as.numeric(`start date`)), 
+         `end date` = janitor::excel_numeric_to_date(as.numeric(`end date`))
+         ) %>%
+  unite("totalPeriod", c("start date", "end date"), sep = " to ") %>%
+  pivot_wider(names_from = "totalPeriod", values_from = "periods") %>%
+  select(matches("^[0-9]"))
+
+newDF <- data.frame(matrix(ncol = length(names(timePeriodsWide)) + 1, nrow = 0))
+names(newDF) <- c("TagID", names(timePeriodsWide))
+
+# df1 <- data.frame(
+#   TagID = c(1, 2, 3),
+#   Datetime = as.POSIXct(c("2024-03-15 12:00:00", "2024-04-02 14:00:00", "2024-05-10 09:00:00")),
+#   State = c("A", "B", "C")
+# )
+# 
+# df2 <- data.frame(
+#   TimePeriod = 1:3,
+#   start_date = as.POSIXct(c("2024-01-01", "2024-03-14", "2024-05-01")),
+#   end_date = as.POSIXct(c("2024-03-13", "2024-04-14", "2024-06-01"))
+# )
+#need to add the datetime to make sure the <= and >= filtering later is interpreting correctly
+timePeriodsCorrect <- timePeriods %>%
+  mutate(`start date` = janitor::excel_numeric_to_date(as.numeric(`start date`)), 
+         `end date` = ymd_hms( paste(janitor::excel_numeric_to_date(as.numeric(`end date`)), "23:59:59"))
+  )
+  
+# Perform the join and filtering
+#no muskie
+df1_with_period <- as.data.frame(detectionsWithStates) %>%
+  filter(Species != "TGM") %>%
+  rowwise() %>%
+  mutate(
+    TimePeriod = timePeriodsCorrect %>%
+      filter(Datetime >= `start date` & Datetime <= `end date`) %>%
+      pull(periods) %>%
+      first()
+  )
+
+# df1_with_period <- as.data.frame(detectionsWithStates) %>%
+#   filter(TAG == "230000142692") %>%
+#   rowwise() %>%
+#   mutate(
+#     TimePeriod = timePeriodsCorrect %>%
+#       filter(Datetime >= `start date` & Datetime <= `end date`) %>%
+#        pull(periods) %>%
+#       first()
+#   )
+x <- df1_with_period %>%
+  filter(TAG == "230000142692")
+
+x[5, "Datetime"] <= timePeriodsCorrect[4, "end date"]
+x <- df1_with_period %>%
+  group_by(TAG) %>%
+  arrange(Datetime)
+
+result <- df1_with_period %>% 
+  mutate(TimePeriod = as.numeric(TimePeriod)) %>%
+  group_by(TAG, TimePeriod) %>% 
+  arrange(Datetime) %>% # Sort by most recent datetime 
+  #condensedWeeklyStates = gsub('([[:alpha:]])\\1+', '\\1', allWeeklyStates), #removes consecutive letters
+  summarize(allDetections = paste(Event, collapse = ", "), 
+            States = paste(State, collapse = ""),
+            condensedStates = gsub('([[:alpha:]])\\1+', '\\1', paste(State, collapse = ""))
+  )
+
+####need to check the recap rows; for rows that contain a recap but doesn't END in a recap, 
+#make a new line with the same time period starting with recap and contains the rest of the values in the first vector
+
+# library(dplyr)
+# library(tidyr)
+
+# Sample dataframe
+# df <- data.frame(
+#   TAG = c(230000167275, 230000167275, 230000167934),
+#   TimePeriod = c(28, 29, 31),
+#   allDetections = c("HP4, HP3, Recapture, RB1, RB2",
+#                     "Release, Recapture, HP4, HP5",
+#                     "M2"),
+#   States = c("A, A, C, B, B", "C, B, C, D", "F"),
+#   stringsAsFactors = FALSE
+# )
+
+# Function to split rows where "Recapture" appears
+# split_recapture_rows <- function(data) {
+#   x <- data %>%
+#     rowwise() %>%
+#     mutate(
+#       # Split allDetections and States into individual parts
+#       detections_list = strsplit(str_trim(allDetections), ", "),
+#       states_list = strsplit(str_trim(States), ", ")
+#     ) %>%
+#     unnest(c(detections_list, states_list)) %>%
+#     group_by(TAG, TimePeriod) %>%
+#     mutate(
+#       # Identify groups around "Recapture"
+#       recapture_found = str_trim(detections_list) == "Recapture",
+#       group_id = cumsum(recapture_found)
+#     ) %>%
+#     ungroup() %>%
+#     group_by(TAG, TimePeriod, group_id) %>%
+#     summarize(
+#       allDetections = paste(detections_list, collapse = ", "),
+#       States = paste(states_list, collapse = ", "),
+#       .groups = "drop"
+#     ) %>%
+#     arrange(TAG, TimePeriod, group_id)
+# }
+
+subsestResult = result %>%
+  filter(TAG == "230000143362")
+data = subsestResult
+# Apply the function to the dataframe
+result2 <- split_recapture_rows(result)
+
+# Print the result
+print(result)
+
+x1 <- df1_with_period %>%
+  filter(TAG == "230000143362") %>%
+  select(TAG, Datetime, Event, TimePeriod, State) #%>%
+  # group_by(TAG, TimePeriod) %>%
+  # mutate(
+  #   # Identify groups around "Recapture"
+  #   recapture_found = str_trim(Event) == "Recapture",
+  #   group_id = cumsum(recapture_found)
+  # )
+  # 
+x2 <- x1 %>%
+  ungroup() %>%
+  mutate(Event = str_trim(Event)) %>%
+  # bind_rows(x1 %>%
+  #            filter(str_trim(Event) == "Recapture")) %>%
+  arrange(TAG, Datetime) 
+
+x3 <- x2 %>%
+  
+  mutate(
+    is_recapture = ifelse(str_trim(Event) == "Recapture", 1, 0),
+    group = cumsum(lag(is_recapture, default = 0)) + 1
+  ) 
+
+x4 <- x3 %>%
+  bind_rows(x3 %>%
+             filter(str_trim(Event) == "Recapture") %>%
+              mutate(group = group + 1)
+  ) %>%
+  arrange(TAG, Datetime)
+
+x5 <- x4 %>%
+  group_by(TAG, TimePeriod, group) %>%
+  summarize(condensedStates = gsub('([[:alpha:]])\\1+', '\\1', paste(State, collapse = ""))
+  ) %>%
+  mutate(newState = str_sub(condensedStates,-1,-1)) %>%
+  select(-condensedStates)
+
+x6 <- x5 %>%
+  pivot_wider(names_from = TimePeriod, values_from = newState) %>%
+  group_by(TAG, group) %>%
+  mutate(number1 = ifelse(group == max(x5$group), 1, -1))
+  # mutate(#group1 = group != lag(group),   #case_when(group != lag(group) & lag(str_trim(Event)) != "Recapture" ~ lag(group))
+  #        #group2 = lag(str_trim(Event)) != "Recapture", 
+  #   group1 = cumsum(is_recapture),
+  #        group3 = case_when(group != lag(group) & lag(str_trim(Event)) == "Recapture" & str_trim(Event) != "Recapture" ~ lag(group) 
+  #                           )
+  # )
+    #lag(Event) == "Recapture" & Event != "Recapture" ~ group + 1))
+  # group_by(group) %>%
+  # mutate(group = ifelse(row_number() > 1 & lag(str_trim(Event)) == "Recapture", lag(group), group)) %>%
+  # ungroup()
+ # mutate( is_recapture = ifelse(str_trim(Event) == "Recapture", 1, 0), group = cumsum(lag(is_recapture, default = 0)) + 1 ) #%>% 
+  #select(-is_recapture)
+  #mutate(Group1 = cumsum(str_trim(Event) == "Recapture"))
+#   group_by(TAG, TimePeriod, group_id) %>%
+#   summarize(
+#     allDetections = paste(Event, collapse = ", "),
+#     States = paste(State, collapse = ", "),
+#     .groups = "drop"
+#   ) %>%
+#   arrange(TAG, TimePeriod, group_id)
+# 
+# 
+# result1 <- result %>%
+#   mutate(newCol = ifelse(allDetections %in% c("Recapture", "Recapture "), "Recapped", NA))
+# 
+#   
+#   mutate( last_period = ifelse( Event == "Recapture", TimePeriod, # End the period if "Recapture" 
+#                                 max(TimePeriod[Datetime <= timePeriodsCorrect$`end date`[TimePeriod]], na.rm = TRUE) # Closest to end date
+#   ) ) %>% 
+#   summarize( Period = first(last_period), # Take the last valid period
+#                      Event = first(Event) # Take the most recent detection type
+#   )
+
+wackoReadin <- recapsAndRelease
+#getting timestamps in order and getting relevant columns
+cleanedRelease <- Release %>%
+  rename(TAG = TagID) %>%
+  mutate(TAG = str_trim(TAG),
+         Species = str_trim(Species),
+         Date = mdy(Date),
+         DateTime = lubridate::ymd_hms(paste(Date, Time))) %>%
+  select(RS_Num, River, ReleaseSite, Date, Time, DateTime, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event)
+
+#getting timestamps in order and getting relevant columns
+
+cleanedRecaptures <- Recaptures %>%
+  rename(TAG = TagID) %>%
+  filter(!Date %in% c("", " ", NA)) %>%
+  mutate(TAG = str_trim(TAG),
+         Event = str_trim(Event),
+         Species = str_trim(Species),
+         Date = mdy(Date),
+         DateTime = ymd_hms(paste(Date, Time))) %>%
+  select(RS_Num, River, RecaptureSite, DateTime, Date, Time, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event) %>%
+  rename(
+    Recap_Length = Length,
+    Recap_Weight = Weight
+  )
+fromCSVs <- bind_rows(cleanedRecaptures, cleanedRelease) %>%
+  select(-c(RS_Num, River, TagSize, Ant)) %>%
+  rename(Datetime = DateTime, 
+         Release_Length = Length,
+         Release_Weight = Weight)
+
+x <- anti_join(fromCSVs, recapsAndRelease, by = "Release_Length") %>%
+  filter(!Species %in% c("TGM"))
+x <- base::intersect(fromCSVs, recapsAndRelease)
+x <- base::setdiff(fromCSVs, recapsAndRelease %>%
+                     select(names(fromCSVs)))
+
+x <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
+  filter(Event %in% c("Recapture and Release", "Release"))
+
+x1 <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
+  filter(Event %in% c("Recapture"))
+
+x1 <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
+  filter(Event %in% c("Recapture", "Recapture and Release", "Release"))
+AllEvents <- AllCombinedEvents$df_list$All_Events %>%
+  filter(Event %in% c("Recapture"))
+
+oldQAQC <- read_excel("MARK qaqc joined.xlsx")
+NewData <- read_excel("MARKEncounterHistories_2024-12-16 col correct.xlsx")
+
+x <- NewData %>%
+  left_join(oldQAQC[, c("TAG", "group", "QAQC", "Notes")], by = c("TAG", "group" ))
+write_csv(x, "MARKEncounterQAQC_20241216.csv")
+
+
+# More animation ----------------------------------------------------------
+`MovementsData_2025-01-07` <- readRDS("~/WGFP_dataclean_vis2.0/MovementsData_2025-01-07.rds")
+Movements_df <- `MovementsData_2025-01-07`[1:500,]
+m1 <- Movements_df %>%
+  mutate(
+    days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
+    #makes sense to use floor not cieling with weeks because then there are are more fish in week 0
+    # if you want to start at week 1 instead of week 0, add +1 to the end of expression
+    # when you change this too, it changes the number of entries in the states dataframe
+    weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks")))
+    #months_since = as.numeric(floor(difftime(Date, min(Date), units = "months")))
+  ) %>%
+  ungroup()
+coords1 <- st_as_sfc(st_bbox(c(xmin = -106.0771, xmax = -105.8938, ymax = 40.14896, ymin = 40.05358), crs = st_crs(4326)))
+
+
+#library(rosm)
+library(basemaps)
+base <- osm.raster(bounds)
+ggplot(base)
+basemaps::set_defaults(map_service = "esri", map_type = "world_imagery")
+base <- basemap_gglayer(coords1)
+ggplot() +
+  base
+spdf <- sf::st_as_sf(m1, coords = c("X", "Y"), crs = 4326, remove = FALSE)
+spdf1 <-st_transform(st_as_sfc(spdf), crs = 3857)
+
+ggplot(spdf1) +
+  #basemap_gglayer(spdf) +
+  geom_sf() +
+  coord_sf(crs = st_crs(4326))
+
+
+coords1 <- st_as_sfc(st_bbox(c(xmin = -106.0771, xmax = -105.8938, ymax = 40.14896, ymin = 40.05358), crs = st_crs(4326)))#st_bbox(spdf)
+basemap1 <- basemap_gglayer(coords1)
+basemap1 <- basemaps::basemap_ggplot(basemap1)
+
+ggplot() +
+  coord_sf()
+#transition_time(weeks_since)  +
+ggtitle(
+  #paste("Date", m3$Date),
+  paste("test ", '{frame_time}'),
+  subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(spdf$Date) ))
+# basemap_gglayer(list1$coords1) +
+# coord_sf(default_crs = sf::st_crs(4326))
+# animate(x, nframes = num_days)
+# x
+# map_with_data <- ggplot() +
+#   #geom_sf() +
+#   basemap_gglayer(coords1, map_service = "esri", map_type = "world_imagery") +
+#   scale_fill_identity() +
+#   coord_sf(crs = st_crs(3857)) +
+#   theme_classic() +
+#   guides(size = "none", color = guide_legend(title = "Movement")) +
+#   geom_sf(data = spdf, mapping = aes(x = X, y = Y))
+# ggplot(spdf) +
+#   geom_sf() +
+#   coord_sf(crs = st_crs(3857)) +
+#   scale_fill_identity() +
+#   basemap_gglayer(coords1, map_service = "esri", map_type = "world_imagery") 
+  
+ggplot() +
+  geom_sf() +
+  coord_sf(crs = st_crs(3857)) +
+  scale_fill_identity() +
+  basemap_gglayer(coords1, map_service = "esri", map_type = "world_imagery") +
+  geom_sf(data = spdf1)
+  
+
+map_with_dspdf1map_with_data
+map_with_data + 
+  coord_sf(crs = 4326, datum = sf::st_crs(3857)) +
+  scale_fill_identity() +
+  geom_sf(data =spdf1) #, aes(x = webMercator$Y, y = webMercator$X, size = 10, color =webMercator$movement_only, group =webMercator$weeks_since)
+# + 
+####################
+#TEST ANIMATION STUFF 2
+
+movements <- movements_list$Movements_df %>%
+  filter(Species != "TGM")
+Movements_df <- movements %>%
+  # group_by(TAG, TimePeriodDates) %>%
+  # filter(Datetime == last(Datetime)) %>%
+  # ungroup() %>%
+  filter(TAG == 230000228275,
+         Datetime > as.Date("2021-04-20")
+         #!as.numeric(TimePeriod) %in% c(1:20)
+  )
+#,
+#Datetime > as.Date("2021-01-01"
+x <- movementsGrouped111$mercatorSFMovements
+#fromAPPNew <- fromAPP[1:100,]
+Movements_df <- x[1:50,] 
+m1 <- Movements_df %>%
+  mutate(
+    days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
+    #makes sense to use floor not cieling with weeks because then there are are more fish in week 0
+    # if you want to start at week 1 instead of week 0, add +1 to the end of expression
+    # when you change this too, it changes the number of entries in the states dataframe
+    weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks"))), 
+    hours_since = as.numeric(floor(difftime(Datetime, min(Datetime), units = "hours"))), 
+    hourSequence = as_datetime(as.character(round(Datetime, units = "hours"))),
+    #standardizes timePeriods so it cna be used for fram number, gonna try at least. maybe not necessary?
+    TimeperiodsSince = as.numeric(TimePeriod) - min(as.numeric(TimePeriod)),
+    daySequence = as.Date(as.character(round(Datetime, units = "days"))),
+    
+    
+    #months_since = as.numeric(floor(difftime(Date, min(Date), units = "months")))
+  ) %>%
+  group_by(TAG, days_since) %>%
+  filter(Datetime == last(Datetime)) %>%
+  ungroup()
+#ungroup() 
+
+#change weeks_since as specified and either first or last as specified
+# test <- m1 %>%
+#   group_by(TAG, TimePeriodDates) %>%
+#   filter(Datetime == last(Datetime)) %>%
+#   ungroup() #%>%
+# complete(weeks_since = seq(min(weeks_since), max(weeks_since))
+# ) %>%
+# fill(movement_only, TAG, X, Y, .direction = "down")
+#complete(nesting(weeks_since))
+# mutate(first_last = case_when(Datetime == min(Datetime) ~ "First",
+#                               Datetime == max(Datetime) ~ "Last",
+#                               Datetime != min(Datetime) & Datetime != max(Datetime) ~ "0")
+# )
+
+coords1 <- st_as_sfc(st_bbox(c(xmin = -106.0771, xmax = -105.8938, ymax = 40.14896, ymin = 40.05358), crs = st_crs(4326)))
+
+# need to ungroup to get this code to work
+
+spdf <- sf::st_as_sf(m1, coords = c("X", "Y"), crs = 4326, remove = FALSE)
+# spdf <- SpatialPointsDataFrame(coords = xy, data = m1,
+#                                proj4string = CRS("+proj=longlat")) #"+init=epsg:3857" #+proj=aeqd +lat_0=53.6 +lon_0=12.7
+
+webMercator <- st_transform(spdf, crs = 3857)
+
+#w1 <- webMercator #%>%
+# mutate(X.1 = st_coordinates(webMercator)[,1], 
+#        Y.1 = st_coordinates(webMercator)[,2] )
+
+#m3 <- as.data.frame(webMercator) %>%
+
+
+num_weeks <- max(m1$weeks_since) - min(m1$weeks_since) + 1
+num_hours <- max(m1$hours_since) - min(m1$hours_since) + 1
+num_days <- max(m1$days_since) - min(m1$days_since) + 1
+num_periods <- max(as.numeric(m1$TimePeriod)) - min(as.numeric(m1$TimePeriod)) + 1
+
+basemaps::set_defaults(map_service = "esri", map_type = "world_imagery")
+map_with_data <- ggplot() +
+  basemap_gglayer(coords1) +
+  scale_fill_identity() +
+  coord_sf() +
+  theme_classic() +
+  guides(size = 'none', color = guide_legend(title = "Movement"))
+
+map_with_data1 <- map_with_data + 
+  #to get the data to show up, it needs to be a layer over the basemap
+  #to associate the right type of movements wth the same tag, need to group by Tag for aesthetics
+  geom_sf(data = webMercator, aes(#x = animationDatalist()$data$X.1, y = animationDatalist()$fromAPP$Y.1,
+    size = 10, 
+    color = movement_only, group = TAG)) +
+  # transition_states(TimePeriodDates, 
+  #                   transition_length = 4,
+  #                   state_length = 2) +
+  #scale_color_manual(values = allColors) + 
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank()) +
+  #facet_wrap(~Species) +
+  transition_time(daysSequence) +
+  # ease_aes('sine-in-out') +
+  # enter_fade() + 
+  # exit_shrink() +
+  ggtitle(
+    
+    paste("Day", '{frame_time}'), #{frame_time}
+    subtitle = "Ghost/predated tags included, TGM excluded") +
+  facet_wrap(~ReleaseSite)
+
+#map_with_data1
+endPauseValue = 5
+gganimate::animate(map_with_data1, nframes = num_days + endPauseValue, end_pause = endPauseValue, fps = 10) #, height = 1200, width =1200
+
+#anim_save("MovementsBySpeciesTimePeriod.gif", 
+
+
+##############
+##Error in if (times[1] <= 1) { : missing value where TRUE/FALSE needed
+#happens when the'res just 1 day/timeperiod/week to animate
+OG <- x
+x <- x[1:10,]
+x <- movements[6100:7200,]
+
+x <- x %>%
+  mutate(
+    days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
+    weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks"))), 
+    hours_since = as.numeric(floor(difftime(Datetime, min(Datetime), units = "hours"))), 
+    hourSequence = as_datetime(as.character(round(Datetime, units = "hours"))),
+    #standardizes timePeriods so it cna be used for fram number, gonna try at least. maybe not necessary?
+    TimeperiodsSince = as.numeric(TimePeriod) - min(as.numeric(TimePeriod)),
+    daySequence = as.Date(as.character(round(Datetime, units = "days")))
+  )
+
+x <- sf::st_as_sf(x, coords = c("X", "Y"), crs = 4326, remove = FALSE)
+# spdf <- SpatialPointsDataFrame(coords = xy, data = m1,
+#                                proj4string = CRS("+proj=longlat")) #"+init=epsg:3857" #+proj=aeqd +lat_0=53.6 +lon_0=12.7
+
+x <- st_transform(x, crs = 3857)
+
+num_days <- max(x$days_since) - min(x$days_since) + 1
+basemapGGplot <- ggplot() +
+  basemap_gglayer(coords1) +
+  scale_fill_identity() +
+  coord_sf() +
+  theme_classic() +
+  guides(size = 'none', color = guide_legend(title = "Movement")) +
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+mapWithData111 <- basemapGGplot + 
+  #to get the data to show up, it needs to be a layer over the basemap
+  #to associate the right type of movements wth the same tag, need to group by Tag for aesthetics
+  geom_sf(data = x, aes(size = 10,
+                        color = x$movement_only, 
+                        group = x$TAG)) +
+  scale_color_manual(values = allColors) +
+  ease_aes('cubic-in-out') +
+  labs(caption = "test")
+
+mapWithData111 <- mapWithData111 +
+  transition_time(days_since) +
+  #labs(title = "Days") +
+  ggtitle(
+    paste("tets", '{frame_time}'),
+    subtitle = paste("Day {frame} of {nframes} past Initial Date of", min(x$Date)))
+
+mapWithData111 <- mapWithData111 +
+  facet_wrap(~Species)
+animate(mapWithData111, nframes = num_days + endPauseValue, end_pause = endPauseValue, fps = 10) #, height = 1200, width =1200
+
+df <- tibble(
+  group = c(1:2, 1, 2),
+  item_id = c(1:2, 2, 3),
+  item_name = c("a", "a", "b", "b"),
+  value1 = c(1, NA, 3, 4),
+  value2 = 4:7
+)
+df
+df %>%
+  complete(
+    group,
+    nesting(item_id, item_name),
+    fill = list(value1 = 0, value2 = 99)
+  )
+
+######## MINICHARTS
+WeeklyMovementsbyType <- Movements_df %>%
+  ungroup() %>%
+  ### mobile filter, no mobile data
+  filter(!det_type %in% c("Mobile Run")) %>%
+  mutate(weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks"))),
+         date_week = as.Date("2020-09-01")+weeks(weeks_since)
+  ) %>%
+  #get total number of occurances at each UTM location for a given week
+  group_by(UTM_X, UTM_Y, date_week, movement_only) %>%
+  mutate(total = n()) %>%
+  ungroup() %>%
+  #filter(!det_type %in% c("Release")) %>%
+  distinct(UTM_X, UTM_Y, date_week, movement_only, .keep_all = TRUE) %>%
+  pivot_wider(id_cols = c("X", "Y", "date_week"), names_from = movement_only, values_from = total) %>%
+  #column 9 accouts for the NA movements so it's a NA column
+  select(-`NA`)
+
+WeeklyMovementsbyType[is.na(WeeklyMovementsbyType)] <- 0
+
+allWeeks = seq(min(WeeklyMovementsbyType$date_week), max(WeeklyMovementsbyType$date_week), by = "week")
+allSites <- WeeklyMovementsbyType %>%
+  distinct(X, Y)
+
+newX <- expand_grid(allSites, date_week = allWeeks) %>%
+  left_join(WeeklyMovementsbyType, by = c("X", "Y", "date_week")) %>%
+  mutate(across(c(`Initial Release`, `No Movement`, `Downstream Movement`, `Upstream Movement` , `Changed Rivers`), ~replace_na(.x, 0)))
+
+# x <- WeeklyMovementsbyType %>%
+#   complete(
+#     date_week = seq(min(date_week), max(date_week), by = "week"), 
+#     X, 
+#     Y, 
+#     fill = list(`Initial Release` = 0, `No Movement` = 0, `Downstream Movement` = 0, `Upstream Movement` = 0, `Changed Rivers`= 0)
+#   )
+
+## this part is making new row with UTM's to get the initial release back down to 0 to not show as a big bar graph the whole time on minicharts
+#just decided I'm going to put a disclaimer that it doesn't work as well with mobile detections
+# WeeklyMovementsbyType2 <- WeeklyMovementsbyType %>%
+#   group_by(X, Y, det_type) %>%
+#   arrange(date_week) %>%
+#   mutate(nextinitialRelease = lead(`Initial Release`, order_by = date_week)
+#   )
+# #x <- WeeklyMovementsbyType2
+# #this is to fill in rows back to 0 so a given week won't be displayed as more than it is 
+# df_skeleton <- WeeklyMovementsbyType2[1,]
+# df_skeleton[1,] <- list(-106, 55, NA, NA, 0, 0, 0, 0, 0, 0)
+# 
+# for (row in 1:nrow(WeeklyMovementsbyType2)) {
+#   #print(x$nextinitialRelease[row])
+#   if(is.na(WeeklyMovementsbyType2$nextinitialRelease[row]) & WeeklyMovementsbyType2$`Initial Release`[row] > 0) {
+#     #gettig values to make a new row with
+#     
+#     #get coordinates
+#     X1 <- WeeklyMovementsbyType2$X[row]
+#     Y1 <- WeeklyMovementsbyType2$Y[row]
+#     #get week and add 1
+#     next_week <- WeeklyMovementsbyType2$date_week[row] + weeks(1)
+#     #no events during that time
+#     events <- 0
+#     det_type <- WeeklyMovementsbyType2$det_type[row]
+#     
+#     new_row <- df_skeleton
+#     new_row[1,] <- list(X1, Y1, det_type, next_week, events, 0, 0, 0, 0, 0)
+#     WeeklyMovementsbyType2 <- rbind(WeeklyMovementsbyType2, new_row)
+#   }
+# }
+
+
+#WeeklyMovementsbyType <- movements_list$WeeklyMovementsbyType
+#WeeklyMovementsbyType <- WeeklyMovementsbyType2
+# WeeklyMovementsbyType2 <- WeeklyMovementsbyType2 %>%
+#   mutate(date_week = as.character(date_week)) %>%
+#   ungroup()
+
+newX <- Wrangleminicharts_function(Movements_df = movements_list$Movements_df)
+leaflet() %>%
+  addProviderTiles(providers$Esri.WorldImagery,
+                   options = providerTileOptions(maxZoom = 19.5)
+  ) %>%
+  ###minicharts
+  addMinicharts(
+    lng =  newX$X,
+    lat = newX$Y,
+    #layerId = WeeklyMovementsbyType$det_type,
+    type = "bar",
+    maxValues = 50,
+    height = 45,
+    width = 45,
+    chartdata = newX[,c("Initial Release", "No Movement", "Downstream Movement", "Upstream Movement", "Changed Rivers")],
+    time = newX$date_week,
+    popup = popupArgs(labels = newX$siteName)
+    
+  )
+
+
+data("eco2mix") 
+prodRegions <- eco2mix %>% 
+  filter(area != "France")

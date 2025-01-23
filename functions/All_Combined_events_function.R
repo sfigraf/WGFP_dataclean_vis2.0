@@ -11,26 +11,26 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   
   # biomark cleaning, getting dates into uniform format, 
   biomarkCleaned <- Biomark %>%
-    mutate(TAG = str_replace(DEC.Tag.ID, "\\.", ""),
+    mutate(TAG = str_replace(`DEC Tag ID`, "\\.", ""),
            # i wish this could be a join, but when there are 2 dif codes (A1, B1, etc) used for backend name, this is a bit simpler
-           Reader.ID = case_when(
-             Reader.ID %in% WindyGapBypassAntennaBackendSiteCode ~ WindyGapBypassAntennaFrontendSiteCode,
-             Reader.ID %in% WindyGapAuxiliaryAntennaBackendSiteCode ~ WindyGapAuxiliaryAntennaFrontendSiteCode,
-             Reader.ID %in% GranbyDiversionAntennaBackendSiteCode ~ GranbyDiversionAntennaFrontendSiteCode,
-             Reader.ID %in% RiverRunAntennaBackendSiteCode ~ RiverRunAntennaFrontendSiteCode,
-             Reader.ID %in% FraserRiverCanyonAntennaBackendSiteCode ~ FraserRiverCanyonAntennaFrontendSiteCode,
-             TRUE ~ Reader.ID),
+           `Reader ID` = case_when(
+             `Reader ID` %in% WindyGapBypassAntennaBackendSiteCode ~ WindyGapBypassAntennaFrontendSiteCode,
+             `Reader ID` %in% WindyGapAuxiliaryAntennaBackendSiteCode ~ WindyGapAuxiliaryAntennaFrontendSiteCode,
+             `Reader ID` %in% GranbyDiversionAntennaBackendSiteCode ~ GranbyDiversionAntennaFrontendSiteCode,
+             `Reader ID` %in% RiverRunAntennaBackendSiteCode ~ RiverRunAntennaFrontendSiteCode,
+             `Reader ID` %in% FraserRiverCanyonAntennaBackendSiteCode ~ FraserRiverCanyonAntennaFrontendSiteCode,
+             TRUE ~ `Reader ID`),
            #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy 
            # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
-           Scan.Date = ifelse(str_detect(Scan.Date, "/"), 
-                              as.character(mdy(Scan.Date)), 
-                              Scan.Date)
+           `Scan Date` = ifelse(str_detect(`Scan Date`, "/"), 
+                              as.character(mdy(`Scan Date`)), 
+                              `Scan Date`)
     ) %>%
     #we want to filter out test tags here, but not marker tags
     filter(!TAG %in% test_tags) %>%
     #get UTMs based off what is in metaDataTable
     #left_join() is faster than merge()
-    left_join(wgfpMetadata$AntennaMetadata, by = c("Reader.ID" = "FrontendSiteCode")) %>%
+    left_join(wgfpMetadata$AntennaMetadata, by = c("Reader ID" = "FrontendSiteCode")) %>%
     distinct()
   
   ###Create one big clean dataset
@@ -41,8 +41,8 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   
   condensedBiomark <- biomarkCleaned %>%
     mutate(TAG = ifelse(str_detect(TAG, "^900"), str_sub(TAG, 4,-1), TAG)) %>%
-    select(Scan.Date, Scan.Time, TAG, Reader.ID, UTM_X, UTM_Y) %>%
-    rename(Scan_Date = Scan.Date, Scan_Time = Scan.Time, Site_Code = Reader.ID, UTM_X = UTM_X, UTM_Y = UTM_Y)
+    select(`Scan Date`, `Scan Time`, TAG, `Reader ID`, UTM_X, UTM_Y) %>%
+    rename(Scan_Date = `Scan Date`, Scan_Time = `Scan Time`, Site_Code = `Reader ID`, UTM_X = UTM_X, UTM_Y = UTM_Y)
   
   condensedMobile <- Mobile %>% #gonna have to just change to mobile eventually
     rename(TAG = TagID) %>%
@@ -75,7 +75,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
            Species = str_trim(Species),
            Date = mdy(Date),
            DateTime = lubridate::ymd_hms(paste(Date, Time))) %>%
-    select(RS_Num, River, ReleaseSite, Date, Time, DateTime, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event)
+    select(River, ReleaseSite, Date, Time, DateTime, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event)
   
   #getting timestamps in order and getting relevant columns
   
@@ -83,10 +83,11 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     rename(TAG = TagID) %>%
     filter(!Date %in% c("", " ", NA)) %>%
     mutate(TAG = str_trim(TAG),
+           Event = str_trim(Event),
            Species = str_trim(Species),
            Date = mdy(Date),
            DateTime = ymd_hms(paste(Date, Time))) %>%
-    select(RS_Num, River, RecaptureSite, DateTime, Date, Time, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event) %>%
+    select(River, RecaptureSite, DateTime, Date, Time, UTM_X, UTM_Y, Species, Length, Weight, TAG, TagSize, Ant, Event) %>%
     rename(
       Recap_Length = Length,
       Recap_Weight = Weight
@@ -147,13 +148,16 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   #Change na to "No info" in select columns so that it will register with the Picker input in the app
   #pretty sure that's just a bug on the DT or shinyWidgets end that it can't select by NA
   # 87 rows were not even showing up on the all_events app because the Species was NA -12/14/21 SG
+  # 840 rows weren't showing up on the display bc length weights are NA i nthe release file -11/6/24 SG
   condensedAllEventsWithReleaseandEnvironmentalInfo <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
     replace_na(list(Species = "No Info", ReleaseSite = "No Info", 
+                    #changing release wight and length to 0 keeps the fish in the df when weight/lentgh filters are active
+                    Release_Weight = 0, Release_Length = 0,
                     Site = "No Site Associated")) %>%
     dplyr::filter(!TAG %in% c("230000999999"))
   
   ### This is getting the events dataframe to only the data relevant for joining with stations
-  
+  #stattions are used for movements, distance moved
   allEventsRelevantToStations <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
     #this part is for making sure the sequence of events will make sense
     # if there's no tag input then have to group_by TAG as well

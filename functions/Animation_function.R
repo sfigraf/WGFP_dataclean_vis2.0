@@ -1,32 +1,26 @@
-library(sf)
+# Movements_df <- movements %>%
+#   filter(TAG == 230000228275)
 # changes coords to put on webMercator projection to be ready for animation
+#currently this function doesn't really do that much
 Animation_function <- function(Movements_df){
   
-  m1 <- Movements_df %>%
-    mutate(
-      days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
-      #makes sense to use floor not cieling with weeks because then there are are more fish in week 0
-      # if you want to start at week 1 instead of week 0, add +1 to the end of expression
-      # when you change this too, it changes the number of entries in the states dataframe
-      weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks")))
-      #months_since = as.numeric(floor(difftime(Date, min(Date), units = "months")))
-    ) %>%
-    ungroup()
-  coords1 <- st_as_sfc(st_bbox(c(xmin = -106.0771, xmax = -105.8938, ymax = 40.14896, ymin = 40.05358), crs = st_crs(4326)))
+  boundingBox <- st_as_sfc(st_bbox(c(xmin = -106.0771, xmax = -105.8938, ymax = 40.14896, ymin = 40.05358), crs = st_crs(4326)))
+
+  #turn movements df into a sf object
+  movementsWithTimeForFramesSF <- sf::st_as_sf(Movements_df, coords = c("X", "Y"), crs = 4326, remove = FALSE)
+  #need to tranform to web mercator for ggplotting
+  mercatorSFMovements <- st_transform(movementsWithTimeForFramesSF, crs = 3857)
   
+  #these are the values used to get frame time
+  num_weeks <- max(movementsWithTimeForFramesSF$weeks_since) - min(movementsWithTimeForFramesSF$weeks_since) + 1
+  num_hours <- max(movementsWithTimeForFramesSF$hours_since) - min(movementsWithTimeForFramesSF$hours_since) + 1
+  num_days <- max(movementsWithTimeForFramesSF$days_since) - min(movementsWithTimeForFramesSF$days_since) + 1
+  num_periods <- max(as.numeric(movementsWithTimeForFramesSF$TimePeriod)) - min(as.numeric(movementsWithTimeForFramesSF$TimePeriod)) + 1
   
-  
-  xy <- m1 %>%
-    select(X, Y)
-  # need to ungroup to get this code to work
-  spdf <- SpatialPointsDataFrame(coords = xy, data = m1,
-                                 proj4string = CRS("+proj=longlat")) #"+init=epsg:3857" #+proj=aeqd +lat_0=53.6 +lon_0=12.7
-  
-  webMercator <- spTransform(spdf, CRS("+init=epsg:3857"))
-  m3 <- as.data.frame(webMercator)
-  
-  num_weeks <- max(m1$weeks_since) - min(m1$weeks_since) + 1
-  num_days <- max(m1$days_since) - min(m1$days_since) + 1
-  list1 <- list("num_weeks" = num_weeks, "num_days" = num_days, "data" = m3, "coords1" = coords1)
-  return(list1)
+  animationList <- list("num_weeks" = num_weeks, "num_days" = num_days, 
+                        "num_periods" = num_periods,
+                        "mercatorSFMovements" = mercatorSFMovements, 
+                        "boundingBox" = boundingBox)
+  return(animationList)
 }
+

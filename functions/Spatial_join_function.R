@@ -3,12 +3,13 @@
 
 #condensedEvents is the detection data filtered on distinct stuff from all_events. comes from all_combined_events function
 # condesned_events has UTMs for coordinates 
-#condensedEvents = df_list$All_Events_most_relevant
+#condensedEvents = AllCombinedEvents$df_list$All_Events_most_relevant
 # simpleStations = simpleStations2
 #simplestations is a sptial lines dataframe brought in with map_polygon_readins 
+#statesPolygon <- WGFP_States_2024
 
 library(sf)
-spatial_join_stations_detections <- function(condensedEvents, simpleStations) {
+spatial_join_stations_detections <- function(condensedEvents, simpleStations, statesPolygon) {
   
   start_time <- Sys.time()
   startMessage <-  "Running spatial_join_stations_detections function: Joining detections and events to stations shapefile."
@@ -25,9 +26,17 @@ spatial_join_stations_detections <- function(condensedEvents, simpleStations) {
   condensedEventsSF <- sf::st_as_sf(condensedEventsFiltered, coords = c("UTM_X", "UTM_Y"), crs = 32613)
   #convert to lat/long
   condensedEventsSFLatLong <- sf::st_transform(condensedEventsSF, latLongCRS)
+  #stattions needed to calculate movements and distance moved
+  stationsAndDetections <- sf::st_join(condensedEventsSFLatLong, simpleStations, st_nearest_feature)
+  #joins states based off states polygon
+  stationsStatesandDetections <- sf::st_join(stationsAndDetections, statesPolygon, st_intersects)
   
-  stationData <- sf::st_join(condensedEventsSFLatLong, simpleStations, st_nearest_feature)
-  spatialList <- list("stationData" = stationData, "noUTMS" = problemRows)
+  #TGM excepted, fish that weren;t assigned a state
+  noState <- as.data.frame(stationsStatesandDetections) %>%
+    filter(!Species %in% c("TGM"), 
+           is.na(State))
+  
+  spatialList <- list("stationData" = stationsStatesandDetections, "noUTMS" = problemRows, "noState" = noState)
   end_time <- Sys.time()
   endMessage <- paste("Spatial_join_stations_detections took", round(difftime(end_time, start_time, units = "mins"),2), "minutes.")
   print(endMessage)

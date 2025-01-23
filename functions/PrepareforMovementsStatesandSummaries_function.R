@@ -5,8 +5,6 @@
 
 #stations
 # dam is listed at DamLocation
-#b3 is 8190
-
 PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
   
   DailyMovements_withStationsFraserColoradoCorrected <- DailyMovements_withStations %>%
@@ -22,19 +20,8 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
            ) %>%
     select(-River.x, -River.y)
   
-      
-  # making these columns prepares the data for making states and pivoting wider to days/weeks
-  DailyMovements_withStationsDaysSince <- DailyMovements_withStationsFraserColoradoCorrected %>%
-    mutate(
-      days_since = as.numeric(ceiling(difftime(Date, min(Date), units = "days"))),
-      #makes sense to use floor not cieling with weeks because then there are are more fish in week 0
-      # if you want to start at week 1 instead of week 0, add +1 to the end of expression
-      # when you change this too, it changes the number of entries in the states dataframe
-      weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks")))
-    )
-  
   #getting number of daily events
-  DailyMovements_withStationsNumberofDailyEvents <- DailyMovements_withStationsDaysSince %>%
+  DailyMovements_withStationsNumberofDailyEvents <- DailyMovements_withStationsFraserColoradoCorrected %>%
     group_by(Date, TAG) %>%
     mutate(c_number_of_detections = n(),
            daily_unique_events = length(unique(Event))
@@ -71,7 +58,7 @@ PrepareforStatesMovementsandSummary <- function(DailyMovements_withStations){
   #need to convert class sf object back to dataframe so that it processes faster in combine_events_stations_function
   DailyMovements_withStationsAndDetectionType <- as.data.frame(DailyMovements_withStationsAndDetectionType)
   DailyMovements_withStationsAndSummaryInfo <- DailyMovements_withStationsAndDetectionType %>%
-    select(Date, Datetime, TAG, Event, det_type, ReleaseSite,Species, Release_Length, Release_Weight, Release_Date, RecaptureSite, River, days_since, weeks_since, first_last, c_number_of_detections, daily_unique_events, ET_STATION, above_below, UTM_X, UTM_Y) #next_event, next_event_2, same_day_next_events,
+    select(Date, Datetime, TAG, Event, det_type, ReleaseSite,Species, Release_Length, Release_Weight, Release_Date, RecaptureSite, River, first_last, c_number_of_detections, daily_unique_events, ET_STATION, above_below, UTM_X, UTM_Y) #next_event, next_event_2, same_day_next_events,
   
   return(DailyMovements_withStationsAndSummaryInfo)
 }

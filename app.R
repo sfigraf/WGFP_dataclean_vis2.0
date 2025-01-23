@@ -10,18 +10,21 @@ library(shinyWidgets) # for pickerinput
 library(shinythemes)
 library(shinydashboard)
 library(bslib)
+library(keys) #for alloiwng enter keypress to render data on certain pages
 #animation stuff
-library(mapedit)
+#library(mapedit)
 library(gganimate)
-#library(basemaps)
+library(basemaps)
 #minicharts
 library(leaflet.minicharts)
 library(shinyjs)
+library(shinyjqui)
 #library(mapview)
 #biomark test tags: 999000000007601, 999000000007602
 # to do: put qaqc stuff from combine files app in this file as well
 #continue with how-to
 # make mini charts on leaflet# 
+
 
 # cntrl + shft + A to reformat chunks of code
 # rsconnect::showLogs(appName="WGFP_dataclean_vis",streaming=TRUE) will show logs when trying to load app browser
@@ -43,8 +46,8 @@ if(!exists("indiv_datasets_list")){
 if(!exists("Enc_release_data")){
   Enc_release_data <- readRDS("data/flatFilesforApp/Enc_release_data.rds")
 }
-if(!exists("states_data_list")){
-  states_data_list <- readRDS("data/flatFilesforApp/states_data_list.rds")
+if(!exists("encounterMARKStates")){
+  encounterMARKStates <- readRDS("data/flatFilesforApp/encounterMARKStates.rds")
 }
 if(!exists("movements_list")){
   movements_list <- readRDS("data/flatFilesforApp/movements_list.rds")
@@ -54,6 +57,10 @@ if(!exists("Marker_tags")){
 }
 if(!exists("unknown_tags")){
   unknown_tags <- readRDS("data/flatFilesforApp/unknown_tags.rds")
+}
+
+if(!exists("avianPredationList")){
+  avianPredationList <- readRDS("data/flatFilesforApp/possibleAvianPredationDFs.rds")
 }
 
 if(!exists("wgfpMetadata")){
@@ -76,11 +83,12 @@ if(!exists("SiteVisitData")){
   SiteVisitData <- readRDS("data/flatFilesforApp/SiteVisitData.rds")
 }
 
+
 # # Functions Read-in -------------------------------------------------------
-# 
-# 
+ 
 # #functions
-neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R", "getSequences.R")
+neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R", "getSequences.R", "renderDTFunction.R", 
+                     "Wrangleminicharts_function.R")
 
 for (i in neededFunctions) {
   source(paste0("./functions/",i))
@@ -99,10 +107,8 @@ for (i in list.files("./miscR/")) {
 }
 
 end_time <- Sys.time()
-print(paste("Static File Read-in took", round((end_time-start_time),2)))
+print(paste("Static File Read-in took", round((end_time-start_time), 2)))
 
-
-weeks <- data.frame(weeks_since = min(states_data_list$All_States$weeks_since):max(states_data_list$All_States$weeks_since))
 
 #colors
 #rainbow trout color pallete used to assign to Sites:
@@ -112,14 +118,14 @@ rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD",
                           "#FF1C55", "#4682B4", "#556B2F", "#DC143C", "#B22222", "#7FFF00", "#8A2BE2", "#00CED1")
 #currently "Changed Rivers", "Downstream Movement" "Initial Release", "No Movement", "Upstream Movement" (5/17/24)
 #note: these are a little diffeerent than what we see in the map because the map/marker color optoins are very limited. 
-movementColors <- c("#4B0082", "#8B0000", "#FF8C00", "#253333", "#22bd74") #, "#66FF00"
-# currently "LOC" "MTS" "RBT" "RXN" "TGM" (5/17/24)
+movementColorsValues <- c("purple", "#eb0e2b", "#FF8C00", "gray", "#22bd74") #, "#66FF00"
+# currently "BRK" "LOC" "MERG" "MTS" "RBT" "RXN" "TGM" (5/17/24)
 speciesColors <- c("#FFD700", "#654321", "#4F7942", "#FF7F50", "#1E90FF", "#008080", "#DAA520", "#D2691E", "#9A5ECD") 
 
 #maybe a better method for this, but pressure transducer site names are changed to the same names as Site Visit site names
 #and that variable is what we use to assign colors to sites   
 allSites <- metaDataVariableNames$allDetectionDistanceSiteNames
-movementColors <- setNames(movementColors, sort(unique(movements_list$Movements_df$movement_only)))
+movementColors <- setNames(movementColorsValues, sort(unique(movements_list$Movements_df$movement_only)))
 siteColors <- setNames(rainbow_trout_colors[0:length(allSites)], allSites)
 speciesColors <- setNames(speciesColors[0:length(unique(indiv_datasets_list$releasedata$Species))], sort(unique(indiv_datasets_list$releasedata$Species)))
  
@@ -165,9 +171,9 @@ ui <- fluidPage(
 
 # States UI -----------------------------------------------------
 
-            tabPanel("Weekly States",
+            tabPanel("MARK States",
                      value = "StatesTab",
-                     States_UI("StatesTab1", states_data_list)
+                     States_UI("StatesTab1")
                     ),#end of States ui Tab
 
 # Movements and Map UI Tab --------------------------------------------------------------
@@ -206,7 +212,7 @@ server <- function(input, output, session) {
   
   observe({
     
-      movements_Server("MovementsTab1", movements_list$Movements_df, movements_list$WeeklyMovementsbyType, allColors)
+      movements_Server("MovementsTab1", movements_list$Movements_df, allColors)
     
       IndividualDatasets_Server("IndividualDatasetsTab1", indiv_datasets_list, allColors)
     
@@ -216,12 +222,12 @@ server <- function(input, output, session) {
       
       AllEncounters_Server("AllEncountersTab1", combinedData_df_list)
     
-      States_Server("StatesTab1", states_data_list, weeks)
+      States_Server("StatesTab1", encounterMARKStates$MARKEncounterHistories)
       
       PT_Server("PTtab1", PTData, movements_list$Movements_df, USGSData, SiteVisitData$WGFP_SiteVisits_FieldData, allColors)
    
       QAQC_Server("QAQCTab1", Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
-                  unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate,
+                  unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate, avianPredationList,
                   combinedData_df_list, wgfpMetadata, metaDataVariableNames, SiteVisitData$SiteVisitAndPTData, allColors)
     
   })

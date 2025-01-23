@@ -81,17 +81,17 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   
   # biomark cleaning, getting dates into uniform format, 
   biomark2 <- Biomark %>%
-    mutate(TAG = str_replace(DEC.Tag.ID, "\\.", ""),
-           Reader.ID = case_when(Reader.ID == "A1" | Reader.ID == "B1" ~ "B3",
-                                 Reader.ID == "A2" | Reader.ID == "B2" ~ "B4",
-                                 Reader.ID == "A3" ~ "B5",
-                                 Reader.ID == "A4" ~ "B6",
-                                 TRUE ~ Reader.ID),
+    mutate(TAG = str_replace(`DEC Tag ID`, "\\.", ""),
+           `Reader ID` = case_when(`Reader ID` == "A1" | `Reader ID` == "B1" ~ "B3",
+                                 `Reader ID` == "A2" | `Reader ID` == "B2" ~ "B4",
+                                 `Reader ID` == "A3" ~ "B5",
+                                 `Reader ID` == "A4" ~ "B6",
+                                 TRUE ~ `Reader ID`),
            #make a column for Scan>Date if parentheses are detected in the string, that means the format is in mdy 
            # and we want to convert it to YYYYMMDD format. elsewise, leave it as is
-           Scan.Date = ifelse(str_detect(Scan.Date, "/"), 
-                              as.character(mdy(Scan.Date)), 
-                              Scan.Date) ) %>%
+           `Scan Date` = ifelse(str_detect(`Scan Date`, "/"), 
+                              as.character(mdy(`Scan Date`)), 
+                              `Scan Date`) ) %>%
     
     filter(!TAG %in% c("900230000102751", "900226001581072", "999000000007586", "999000000007585", "999000000007601",
                        "999000000007602", "900230000087405", "900230000087408", "900226001546996", "900230000088083", 
@@ -103,14 +103,14 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     # b3 is wg, b4 is kaibab
     # b5 is river run
     # b6 is fraser river canyon
-    mutate(UTM_X =case_when(Reader.ID == "B3" ~ "416026",
-                            Reader.ID == "B4" ~ "420728",
-                            Reader.ID == "B5" ~ "419210",
-                            Reader.ID == "B6" ~ "424543"),
-           UTM_Y = case_when(Reader.ID == "B3" ~ "4440196",
-                             Reader.ID == "B4" ~ "4437221",
-                             Reader.ID == "B5" ~ "4439961",
-                             Reader.ID == "B6" ~ "4435559")) %>%
+    mutate(UTM_X =case_when(`Reader ID` == "B3" ~ "416026",
+                            `Reader ID` == "B4" ~ "420728",
+                            `Reader ID` == "B5" ~ "419210",
+                            `Reader ID` == "B6" ~ "424543"),
+           UTM_Y = case_when(`Reader ID` == "B3" ~ "4440196",
+                             `Reader ID` == "B4" ~ "4437221",
+                             `Reader ID` == "B5" ~ "4439961",
+                             `Reader ID` == "B6" ~ "4435559")) %>%
     distinct()
   
   ###Create one big clean dataset
@@ -121,8 +121,8 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   
   Biomark_condensed <- biomark2 %>%
     mutate(TAG = ifelse(str_detect(TAG, "^900"), str_sub(TAG, 4,-1), TAG)) %>%
-    select(Scan.Date, Scan.Time, TAG, Reader.ID, UTM_X, UTM_Y) %>%
-    rename(Scan_Date = Scan.Date, Scan_Time = Scan.Time, Site_Code = Reader.ID, UTM_X = UTM_X, UTM_Y = UTM_Y)
+    select(`Scan Date`, `Scan Time`, TAG, `Reader ID`, UTM_X, UTM_Y) %>%
+    rename(Scan_Date = `Scan Date`, Scan_Time = `Scan Time`, Site_Code = `Reader ID`, UTM_X = UTM_X, UTM_Y = UTM_Y)
   
   Mobile_condensed <- Mobile %>% #gonna have to just change to mobile eventually
     rename(TAG = TagID) %>%

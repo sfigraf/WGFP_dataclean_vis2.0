@@ -1,6 +1,13 @@
+#define hotkeys
+hotkeys <- c("enter")
+
 AllEncounters_UI <- function(id, combinedData_df_list) {
   ns <- NS(id)
+  
   tagList(
+    #makes it so we can use hot keys as a reactive
+    keys::useKeys(),
+    keys::keysInput(ns("keys"), hotkeys),
     sidebarLayout(
                    sidebarPanel(
                      textInput(ns("textinput1"), "Filter by Tag"),
@@ -272,7 +279,8 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
 
         # enc_release_data wasn't registering bc i used reactive() instead of reactive ({}).
         # i guess reactive ({}) makes it so you can make multiple expressions within a reactive context whereas reactive() can only do 1
-        all_events_data <- eventReactive(input$button3,ignoreNULL = FALSE,{
+        all_events_data <- eventReactive(list(input$button3, input$keys), ignoreNULL = FALSE,{
+
           
           All_Events <- combinedData_df_list$All_Events
           if(input$dischargeDataFilter){

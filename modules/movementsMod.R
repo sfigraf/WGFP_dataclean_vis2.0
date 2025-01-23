@@ -2,6 +2,7 @@
 ## movements module
 movements_UI <- function(id, Movements_df) { #could just get dates in UI and then just pass dates instead but no bigggie
   ns <- NS(id)
+  useShinyjs()
   tagList(
     sidebarLayout(
       sidebarPanel(width = 2,
@@ -11,19 +12,71 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                 tabsetPanel(
                   tabPanel("Map and Table",
                            hr(),
-                           splitLayout(cellWidths = c("40%", "60%"),
-                                       withSpinner(DT::dataTableOutput(ns("movements1"))),
-                                       withSpinner(leafletOutput(ns("map1"), height = 600))
+                           tags$head(
+                             tags$style(HTML("
+                                .table-container {
+                                    position: absolute;
+                                    bottom: 0; /* Position the table at the bottom of the map */
+                                    left: 5; /* Align the table to the left */
+                                    width: 40%; /* Table width is 100% of the map */
+                                    height: 550px; /* Initial height of the table */
+                                    background: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+                                    border-top: 1px solid #ccc; /* Border at the top to separate from the map */
+                                    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); /* Shadow effect for visibility */
+                                    z-index: 1000; /* Keeps the table on top */
+                                    overflow: hidden; /* Prevents content overflow */
+                                  }
+                                .table-header {
+                                  background: #007bff;
+                                  color: white;
+                                  padding: 5px 10px;
+                                  font-weight: bold;
+                                }
+                                .toggle-container {
+                                  position: absolute;
+                                  top: 80px;
+                                  left: 10px;
+                                  z-index: 1200; /* Keeps the toggle button on top */
+                                }
+                              "))
+                            ),
+                           fluidRow(
+                             column(
+                               width = 12,
+                               # Full-width Leaflet map
+                               div(
+                                 style = "position: relative;", # Ensure map is the relative parent
+                                 withSpinner(leafletOutput(ns("map1"), height = "700px")),
+                                 div(
+                                   id = "toggle-container",
+                                   #in a module, use classes instead of IDs because using ns() modifies the Id of the element (makes it movements_module-table-container)
+                                   class = "toggle-container",
+                                   actionButton(ns("toggle_table"), "Toggle Table") # Button remains always visible
+                                 ),
+                                 jqui_resizable(
+                                   div(
+                                     id = ns("table-container"), # Draggable and resizable container
+                                     class = "table-container",
+                                     div(
+                                       id = "table-header", # Draggable header
+                                       "Movements Table" # Label for the draggable area
+                                     ),
+                                     div(
+                                       id = "table-wrapper",
+                                       style = "width: 100%; height: calc(100% - 30px); overflow: auto;", # Adjust to account for header height
+                                       withSpinner(DTOutput(ns("movements1")))
+                                     )
+                                   )
+                                 ) 
+                               )
+                             )
                            ),
                            hr(),
                            downloadData_UI(ns("downloadmovements1")),
                   ), # end of Map and table tabPanel
                   tabPanel("Minicharts Map",
-                           fluidRow(
-                             column(12,
-                                    div("This is a work in progress, doesn't work with the sidebar filters yet and for some reason stops going after 7 ish months. Press the play button in the bottom right"))
-                           ),
-                           leafletOutput(ns("map2"))
+                           leafletOutput(ns("map2"), height="80vh"), 
+                           h6("Mobile data always excluded. Movement data filtered with sidebar filters and aggregated on a weekly scale.")
                            ),
                   
                   tabPanel("Movement Graphs",
@@ -73,18 +126,18 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                            ),
                            
                   ), #end of movement graphs tabpanel
-                  # tabPanel("Animation",
-                  #          br(),
-                  #          mod_animationUI(ns("movements_animation"))
-                  #          
-                  # ) #end of animation tabPanel
+                  tabPanel("Animation",
+                           br(),
+                           mod_animationUI(ns("movements_animation"))
+
+                  ) #end of animation tabPanel
                 ), # end of tabset panel
       )#end of mainPanel
     )#end of sidebarLayout including sidebarPanel and Mainpanel
     )
 }
 
-movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors) {
+movements_Server <- function(id, Movements_df, allColors) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -123,6 +176,7 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
       downloadData_Server("downloadmovements1", filtered_movements_data(), "MovementsData")
       
       output$movements1 <- renderDT({
+        
         req(filtered_movements_data())
         datatable(
           filtered_movements_data(),
@@ -130,13 +184,14 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
           selection = "single",
           filter = 'top',
           options = list(
+            scrollX = TRUE,
             stateSave = TRUE,
-            pageLength = 10,
+            pageLength = 5,
             info = TRUE,
-            lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
+            lengthMenu = list(c(1, 5, 10, 25, 50, 100, 200), c("1", "5", "10", "25", "50", "100", "200")),
             dom = 'lfrtip',
             #had to add 'lowercase L' letter to display the page length again
-            language = list(emptyTable = "Enter inputs and press Render Table")
+            language = list(emptyTable = "No data to display for the selected filters.")
           )
         ) %>%
           formatRound(columns = c("UTM_X", "UTM_Y"), digits = 0, mark = "")
@@ -170,85 +225,43 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
         
       })
       
+      # Toggle table visibility
+      observeEvent(input$toggle_table, {
+        shinyjs::toggle(id = "table-container")
+      })
+      
       
       
 
 # Minicharts Map outout ---------------------------------------------------
 
-      #data 
-      # WeeklyMovementsbyType <- reactive({
-      #   req(input$button7)
-      #   print(colnames(filtered_movements_data()))
-      #   #this is the start of a function as I envision
-      #   #WeeklyMovementsbyType <- filtered_movements_data()
-      #   print("True")
-      #   WeeklyMovementsbyType <- filtered_movements_data() %>%
-      #     ungroup() %>%
-      #     ### mobile filter
-      #     filter(!det_type %in% c("Mobile Run")) %>%
-      #     mutate(weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks"))),
-      #            date_week = as.Date("2020-09-01")+weeks(weeks_since)
-      #     ) %>%
-      #     group_by(UTM_X, UTM_Y, date_week, movement_only) %>%
-      #     mutate(total = n()) %>%
-      #     distinct(UTM_X, UTM_Y, date_week, movement_only, .keep_all = TRUE) %>%
-      #     pivot_wider(id_cols = c("X", "Y", "det_type", "date_week"), names_from = movement_only, values_from = total) %>%
-      #     select(-9)
-      #   print("got this far")
-      # 
-      #   WeeklyMovementsbyType[is.na(WeeklyMovementsbyType)] <- 0
-      # 
-      #   ## this part is making new row with UTM's to get the initla release back down to 0 to not show as a big bar graph the whole time on minicharts
-      #   #just decided I'm going to put a disclaimer that it doesn't work as well with mobile detections
-      #   WeeklyMovementsbyType2 <- WeeklyMovementsbyType %>%
-      #     group_by(X, Y, det_type) %>%
-      #     arrange(date_week) %>%
-      #     mutate(nextinitialRelease = lead(`Initial Release`, order_by = date_week)
-      #     )
-      #   x <- WeeklyMovementsbyType2
-      #   df_skeleton <- WeeklyMovementsbyType2[1,]
-      #   df_skeleton[1,] <- list(-106, 55, NA, NA, 0, 0, 0, 0, 0, 0)
-      # 
-      #   for (row in 1:nrow(WeeklyMovementsbyType2)) {
-      #     #print(x$nextinitialRelease[row])
-      #     if(is.na(WeeklyMovementsbyType2$nextinitialRelease[row]) & WeeklyMovementsbyType2$`Initial Release`[row] > 0) {
-      #       #gettig values to make a new row with
-      #       print("na val")
-      #       X1 <- WeeklyMovementsbyType2$X[row]
-      # 
-      #       Y1 <- WeeklyMovementsbyType2$Y[row]
-      #       next_week <- WeeklyMovementsbyType2$date_week[row] + weeks(1)
-      # 
-      #       events <- 0
-      #       det_type <- WeeklyMovementsbyType2$det_type[row]
-      # 
-      #       new_row <- df_skeleton
-      #       new_row[1,] <- list(X1, Y1, det_type, next_week, events, NA, NA, NA, NA, NA)
-      #       WeeklyMovementsbyType2 <- rbind(WeeklyMovementsbyType2, new_row)
-      #     }
-      #   }
-      #   return(WeeklyMovementsbyType2)
-      # })
+      WeeklyMovementsbyType <- reactive({
+        Wrangleminicharts_function(filtered_movements_data())
+      })
       
-  # output$map2 <- renderLeaflet({
-  #   leaflet() %>%
-  #     addProviderTiles(providers$Esri.WorldImagery,
-  #                      options = providerTileOptions(maxZoom = 19.5)
-  #     ) %>%
-  #     ###minicharts
-  #     addMinicharts(
-  #       lng =  WeeklyMovementsbyType$X,
-  #       lat = WeeklyMovementsbyType$Y,
-  #       #layerId = WeeklyMovementsbyType$det_type,
-  #       type = "bar",
-  #       maxValues = 50,
-  #       height = 45,
-  #       width = 45,
-  #       chartdata = WeeklyMovementsbyType[,c("Initial Release", "No Movement", "Downstream Movement", "Upstream Movement", "Changed Rivers")],
-  #       time = WeeklyMovementsbyType$date_week
-  # 
-  #     )
-  # })
+  output$map2 <- renderLeaflet({
+    chartColumns <- c("Changed Rivers", "Downstream Movement", "Initial Release", "No Movement", "Upstream Movement")
+    leaflet() %>%
+      addProviderTiles(providers$Esri.WorldImagery,
+                       options = providerTileOptions(maxZoom = 19.5)
+      ) %>%
+      ###minicharts
+      addMinicharts(
+        lng =  WeeklyMovementsbyType()$X,
+        lat = WeeklyMovementsbyType()$Y,
+        #layerId = WeeklyMovementsbyType()$det_type,
+        type = "bar",
+        maxValues = 50,
+        height = 100,
+        width = 45,
+        #chartdata columns are organized the same as sort(unique(movements_list$Movements_df$movement_only)) so that movement color values will line up correctly
+        chartdata = WeeklyMovementsbyType()[,chartColumns],
+        #gets desired colors based off movements
+        colorPalette = unname(allColors[chartColumns]), 
+        time = WeeklyMovementsbyType()$date_week
+
+      )
+  })
 
       
 # Movements Map Output ----------------------------------------------------
@@ -257,8 +270,11 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
         
         leaflet(filtered_movements_data()) %>% #Warning: Error in UseMethod: no applicable method for 'metaData' applied to an object of class "NULL"  solved becuase leaflet() needs an arg leaflet(x)
           addProviderTiles(providers$Esri.WorldImagery,
-                           options = providerTileOptions(maxZoom = 19.5)
+                           options = providerTileOptions(maxZoom = 19.5), 
+                           group = "Satellite"
           ) %>%
+          
+          setView(lng = -106.0773, lat = 40.14075, zoom = 12) %>%
           ##detections: based off reactives
           addAwesomeMarkers(
             group = "Detections",
@@ -311,9 +327,16 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
                        label = simpleStations$ET_STATION,
                        labelOptions = labelOptions(noHide = T, textOnly = TRUE, style = label_style),
                        group = "Stations (m)") %>%
+          addPolygons(data = WGFP_States_2024,
+                      label = WGFP_States_2024$State, 
+                      color = "#702963", 
+                      group = "States") %>%
          
-          addLayersControl(overlayGroups = c("Detections", "Antennas", "Release Sites", "Stream Centerlines", "Stations (m)", "Mobile Reaches")) %>%
-          hideGroup(c("Stream Centerlines", "Stations (m)", "Antennas", "Release Sites", "Mobile Reaches"))
+          addLayersControl(overlayGroups = c("Detections", "Antennas", "Release Sites", "Stream Centerlines", "Stations (m)", "Mobile Reaches", "States"), 
+                           baseGroups = c("Satellite")
+                                          ) %>%
+          hideGroup(c("Stream Centerlines", "Stations (m)", "Antennas", "Release Sites", "Mobile Reaches", "States")) %>%
+          addMeasure(primaryLengthUnit = "meters")
         
         # leafletProxy("map") %>%
         #   ### always remove the prior minichart
@@ -339,8 +362,10 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
 
 
 # Movements Animation Output ----------------------------------------------
-      # mod_animationServer("movements_animation", filtered_movements_data = filtered_movements_data())
-      # 
+      #Even though filtered_movements_data is reactive, when I pass this as unreactive, I am passing the reactive object
+      #then inside the module, i call is with (), getting the evaluated result
+      mod_animationServer("movements_animation", filtered_movements_data = filtered_movements_data, allColors = allColors) 
+
         
 # Movement Plots Output ----------------------------------------------------
       observe({

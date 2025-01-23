@@ -157,9 +157,18 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
     filter(!TAG %in% c("230000999999"))
   
   
+  ####avian predation filtering
+  possibleAvianPredation <- encountersAndRelease6 %>%
+    filter(sum_dist > 1000) %>%
+    select(TAG, went_above_dam_noChannel, went_below_dam_noChannel, sum_dist) %>%
+    arrange(desc(sum_dist))
+  
+  
   enc_wide_list <- list(
-    "encountersAndRelease_wide_summary" = encountersAndRelease6, "Unknown_Tags" = unknown_tags
+    "encountersAndRelease_wide_summary" = encountersAndRelease6, "Unknown_Tags" = unknown_tags, "possibleAvianPredation" = possibleAvianPredation
   )
+
+  
   
   end_time <- Sys.time()
   endMessage <-  paste("Encounter Histories Summary Wide Function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes")
