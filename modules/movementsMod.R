@@ -75,10 +75,6 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                            downloadData_UI(ns("downloadmovements1")),
                   ), # end of Map and table tabPanel
                   tabPanel("Minicharts Map",
-                           fluidRow(
-                             column(12,
-                                    div("This is a work in progress, doesn't work with the sidebar filters yet and for some reason stops going after 7 ish months. Press the play button in the bottom right"))
-                           ),
                            leafletOutput(ns("map2"))
                            ),
                   
@@ -256,7 +252,9 @@ movements_Server <- function(id, Movements_df, allColors) {
         maxValues = 50,
         height = 45,
         width = 45,
-        chartdata = WeeklyMovementsbyType()[,c("Initial Release", "No Movement", "Downstream Movement", "Upstream Movement", "Changed Rivers")],
+        #chartdata columns are organized the same as sort(unique(movements_list$Movements_df$movement_only)) so that movement color values will line up correctly
+        chartdata = WeeklyMovementsbyType()[,c("Changed Rivers", "Downstream Movement", "Initial Release", "No Movement", "Upstream Movement")],
+        colorPalette = movementColorsValues, 
         time = WeeklyMovementsbyType()$date_week
 
       )

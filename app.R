@@ -117,14 +117,14 @@ rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD",
                           "#FF1C55", "#4682B4", "#556B2F", "#DC143C", "#B22222", "#7FFF00", "#8A2BE2", "#00CED1")
 #currently "Changed Rivers", "Downstream Movement" "Initial Release", "No Movement", "Upstream Movement" (5/17/24)
 #note: these are a little diffeerent than what we see in the map because the map/marker color optoins are very limited. 
-movementColors <- c("purple", "#eb0e2b", "#FF8C00", "gray", "#22bd74") #, "#66FF00"
+movementColorsValues <- c("purple", "#eb0e2b", "#FF8C00", "gray", "#22bd74") #, "#66FF00"
 # currently "BRK" "LOC" "MERG" "MTS" "RBT" "RXN" "TGM" (5/17/24)
 speciesColors <- c("#FFD700", "#654321", "#4F7942", "#FF7F50", "#1E90FF", "#008080", "#DAA520", "#D2691E", "#9A5ECD") 
 
 #maybe a better method for this, but pressure transducer site names are changed to the same names as Site Visit site names
 #and that variable is what we use to assign colors to sites   
 allSites <- metaDataVariableNames$allDetectionDistanceSiteNames
-movementColors <- setNames(movementColors, sort(unique(movements_list$Movements_df$movement_only)))
+movementColors <- setNames(movementColorsValues, sort(unique(movements_list$Movements_df$movement_only)))
 siteColors <- setNames(rainbow_trout_colors[0:length(allSites)], allSites)
 speciesColors <- setNames(speciesColors[0:length(unique(indiv_datasets_list$releasedata$Species))], sort(unique(indiv_datasets_list$releasedata$Species)))
  

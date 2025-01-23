@@ -1,4 +1,4 @@
-Movements_df <- movements_list$Movements_df
+#Movements_df <- movements_list$Movements_df
 #Movements_df <- dataaa
 Wrangleminicharts_function <- function(Movements_df){
   
@@ -32,40 +32,9 @@ Wrangleminicharts_function <- function(Movements_df){
     #left join automatically fills in empty fields with NA
     left_join(WeeklyMovementsbyType, by = c("X", "Y", "date_week")) #%>%
     #mutate(across(c(`Initial Release`, `No Movement`, `Downstream Movement`, `Upstream Movement` , `Changed Rivers`), ~replace_na(.x, 0)))
-    WeeklyMovementsbyType2[is.na(WeeklyMovementsbyType2)] <- 0
+  WeeklyMovementsbyType2[is.na(WeeklyMovementsbyType2)] <- 0
+
     
-    x1 <-  sf::st_as_sf(wgfpMetadata$AntennaMetadata %>%
-                          filter(!is.na(UTM_X)), coords = c("UTM_X", "UTM_Y"), crs = 32613)
-    x2 <- st_transform(x1, latLongCRS)
-    x3 <- x2 %>%
-      mutate(X = st_coordinates(x2)[row_number(), 1], 
-             Y = st_coordinates(x2)[row_number(), 2]) %>%
-      distinct(X, Y, SiteName)
-    
-    
-  x <- WeeklyMovementsbyType2 %>%
-    left_join(x3[,c("X", "Y", "SiteName")], by = c("X", "Y"))
-  ###join to release Sites
-  releaseSites1 <- Release %>%
-    distinct(ReleaseSite, UTM_X, UTM_Y)
-  y1 <-  sf::st_as_sf(releaseSites1 %>%
-                        filter(!is.na(UTM_X)), coords = c("UTM_X", "UTM_Y"), crs = 32613)
-  y2 <- st_transform(y1, latLongCRS)
-  y3 <- y2 %>%
-    mutate(X = st_coordinates(y2)[row_number(), 1], 
-           Y = st_coordinates(y2)[row_number(), 2]) %>%
-    distinct(X, Y, ReleaseSite)
-  
-  # 
-  # releaseSitesWithLatLong <- releasesites %>%
-  #   mutate(X = st_coordinates(releasesites)[row_number(), 1], 
-  #          Y = st_coordinates(releasesites)[row_number(), 2]) %>%
-  #   distinct(X, Y, ReleaseSit)
-  y4 = x %>%
-    left_join(y3[,c("X", "Y", "ReleaseSite")], by = c("X", "Y")) %>%
-    mutate(siteName = coalesce(SiteName, ReleaseSite)) %>%
-    select(-SiteName, -ReleaseSite)
-    
-  return(y4)
+  return(WeeklyMovementsbyType2)
   
 }
