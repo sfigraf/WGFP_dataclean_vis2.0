@@ -3605,3 +3605,103 @@ df %>%
     nesting(item_id, item_name),
     fill = list(value1 = 0, value2 = 99)
   )
+
+######## MINICHARTS
+WeeklyMovementsbyType <- Movements_df %>%
+  ungroup() %>%
+  ### mobile filter, no mobile data
+  filter(!det_type %in% c("Mobile Run")) %>%
+  mutate(weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks"))),
+         date_week = as.Date("2020-09-01")+weeks(weeks_since)
+  ) %>%
+  #get total number of occurances at each UTM location for a given week
+  group_by(UTM_X, UTM_Y, date_week, movement_only) %>%
+  mutate(total = n()) %>%
+  ungroup() %>%
+  #filter(!det_type %in% c("Release")) %>%
+  distinct(UTM_X, UTM_Y, date_week, movement_only, .keep_all = TRUE) %>%
+  pivot_wider(id_cols = c("X", "Y", "date_week"), names_from = movement_only, values_from = total) %>%
+  #column 9 accouts for the NA movements so it's a NA column
+  select(-`NA`)
+
+WeeklyMovementsbyType[is.na(WeeklyMovementsbyType)] <- 0
+
+allWeeks = seq(min(WeeklyMovementsbyType$date_week), max(WeeklyMovementsbyType$date_week), by = "week")
+allSites <- WeeklyMovementsbyType %>%
+  distinct(X, Y)
+
+newX <- expand_grid(allSites, date_week = allWeeks) %>%
+  left_join(WeeklyMovementsbyType, by = c("X", "Y", "date_week")) %>%
+  mutate(across(c(`Initial Release`, `No Movement`, `Downstream Movement`, `Upstream Movement` , `Changed Rivers`), ~replace_na(.x, 0)))
+
+# x <- WeeklyMovementsbyType %>%
+#   complete(
+#     date_week = seq(min(date_week), max(date_week), by = "week"), 
+#     X, 
+#     Y, 
+#     fill = list(`Initial Release` = 0, `No Movement` = 0, `Downstream Movement` = 0, `Upstream Movement` = 0, `Changed Rivers`= 0)
+#   )
+
+## this part is making new row with UTM's to get the initial release back down to 0 to not show as a big bar graph the whole time on minicharts
+#just decided I'm going to put a disclaimer that it doesn't work as well with mobile detections
+# WeeklyMovementsbyType2 <- WeeklyMovementsbyType %>%
+#   group_by(X, Y, det_type) %>%
+#   arrange(date_week) %>%
+#   mutate(nextinitialRelease = lead(`Initial Release`, order_by = date_week)
+#   )
+# #x <- WeeklyMovementsbyType2
+# #this is to fill in rows back to 0 so a given week won't be displayed as more than it is 
+# df_skeleton <- WeeklyMovementsbyType2[1,]
+# df_skeleton[1,] <- list(-106, 55, NA, NA, 0, 0, 0, 0, 0, 0)
+# 
+# for (row in 1:nrow(WeeklyMovementsbyType2)) {
+#   #print(x$nextinitialRelease[row])
+#   if(is.na(WeeklyMovementsbyType2$nextinitialRelease[row]) & WeeklyMovementsbyType2$`Initial Release`[row] > 0) {
+#     #gettig values to make a new row with
+#     
+#     #get coordinates
+#     X1 <- WeeklyMovementsbyType2$X[row]
+#     Y1 <- WeeklyMovementsbyType2$Y[row]
+#     #get week and add 1
+#     next_week <- WeeklyMovementsbyType2$date_week[row] + weeks(1)
+#     #no events during that time
+#     events <- 0
+#     det_type <- WeeklyMovementsbyType2$det_type[row]
+#     
+#     new_row <- df_skeleton
+#     new_row[1,] <- list(X1, Y1, det_type, next_week, events, 0, 0, 0, 0, 0)
+#     WeeklyMovementsbyType2 <- rbind(WeeklyMovementsbyType2, new_row)
+#   }
+# }
+
+
+#WeeklyMovementsbyType <- movements_list$WeeklyMovementsbyType
+#WeeklyMovementsbyType <- WeeklyMovementsbyType2
+# WeeklyMovementsbyType2 <- WeeklyMovementsbyType2 %>%
+#   mutate(date_week = as.character(date_week)) %>%
+#   ungroup()
+
+newX <- Wrangleminicharts_function(Movements_df = movements_list$Movements_df)
+leaflet() %>%
+  addProviderTiles(providers$Esri.WorldImagery,
+                   options = providerTileOptions(maxZoom = 19.5)
+  ) %>%
+  ###minicharts
+  addMinicharts(
+    lng =  newX$X,
+    lat = newX$Y,
+    #layerId = WeeklyMovementsbyType$det_type,
+    type = "bar",
+    maxValues = 50,
+    height = 45,
+    width = 45,
+    chartdata = newX[,c("Initial Release", "No Movement", "Downstream Movement", "Upstream Movement", "Changed Rivers")],
+    time = newX$date_week,
+    popup = popupArgs(labels = newX$siteName)
+    
+  )
+
+
+data("eco2mix") 
+prodRegions <- eco2mix %>% 
+  filter(area != "France")

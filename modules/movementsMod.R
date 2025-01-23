@@ -75,7 +75,8 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                            downloadData_UI(ns("downloadmovements1")),
                   ), # end of Map and table tabPanel
                   tabPanel("Minicharts Map",
-                           leafletOutput(ns("map2"))
+                           leafletOutput(ns("map2"), height="80vh"), 
+                           h6("Mobile data always excluded. Movement data filtered with sidebar filters and aggregated on a weekly scale.")
                            ),
                   
                   tabPanel("Movement Graphs",
@@ -250,7 +251,7 @@ movements_Server <- function(id, Movements_df, allColors) {
         #layerId = WeeklyMovementsbyType()$det_type,
         type = "bar",
         maxValues = 50,
-        height = 45,
+        height = 100,
         width = 45,
         #chartdata columns are organized the same as sort(unique(movements_list$Movements_df$movement_only)) so that movement color values will line up correctly
         chartdata = WeeklyMovementsbyType()[,c("Changed Rivers", "Downstream Movement", "Initial Release", "No Movement", "Upstream Movement")],
