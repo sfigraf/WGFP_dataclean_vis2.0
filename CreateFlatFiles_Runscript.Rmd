@@ -422,7 +422,6 @@ names(indiv_datasets_list) <- names(indiv_datasets_list_og)
 
 movements_list <- list(
   "Movements_df" = Movements_list$dailyMovementsTable1,
-  #"WeeklyMovementsbyType" = WeeklyMovementsbyType, 
   "ghostTagsWithMovementAfterGhostDate" = ghostTagsWithMovementAfterGhostDate
 )
 

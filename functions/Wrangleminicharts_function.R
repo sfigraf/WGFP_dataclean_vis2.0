@@ -1,5 +1,5 @@
 #Movements_df <- movements_list$Movements_df
-#Movements_df <- dataaa
+
 Wrangleminicharts_function <- function(Movements_df){
   
   WeeklyMovementsbyType <- Movements_df %>%
@@ -30,8 +30,8 @@ Wrangleminicharts_function <- function(Movements_df){
   
   WeeklyMovementsbyType2 <- expand_grid(allSites, date_week = allWeeks) %>%
     #left join automatically fills in empty fields with NA
-    left_join(WeeklyMovementsbyType, by = c("X", "Y", "date_week")) #%>%
-    #mutate(across(c(`Initial Release`, `No Movement`, `Downstream Movement`, `Upstream Movement` , `Changed Rivers`), ~replace_na(.x, 0)))
+    left_join(WeeklyMovementsbyType, by = c("X", "Y", "date_week")) 
+  
   WeeklyMovementsbyType2[is.na(WeeklyMovementsbyType2)] <- 0
 
     
