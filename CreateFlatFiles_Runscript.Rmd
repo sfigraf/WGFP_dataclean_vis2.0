@@ -46,11 +46,14 @@ Release <- read.csv("./data/WGFP_ReleaseData_Master_20241009.csv", na.strings = 
 Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 7), rep("numeric", 2), rep("character", 8))) %>%
   janitor::remove_empty()
 
-#avian predation
+###Avian predation
 AvianPredation <- read_csv("./data/WGFP_AvianPredation.csv", 
                            col_types = cols(TagID = col_character(),Comments = col_character()))
+#Potential Avian Predated tags
+checkedTags <- read_csv("data/Potential Avian Predated tags.csv") 
 
-#ghost tag df
+
+###ghost tag df
 GhostTags <- read_csv("./data/WGFP_GhostTags.csv", 
                            col_types = cols(TagID = col_character()))
 
@@ -354,58 +357,17 @@ enc_hist_wide_df <- enc_hist_wide_list$enc_wide_list$encountersAndRelease_wide_s
 
 # applies get_movements_function
 Movements_list <- get_movements_function(combined_events_stations, dailyUSGSData = windyGapDaily, eventsWithPeriodsSelect = encounterMARKStates$eventsWithPeriodsSelectForMovementJoining, wgfpMetadata$TimePeriods)
-WeeklyMovementsbyType <- WrangleMinicharts_function(Movements_list$dailyMovementsTable1)
 
-### Avian Predation: grouping together different methods of finding avian predated fish
 
-allEventsAvianPredationFiltered <- AllCombinedEvents$df_list$All_Events %>%
-  dplyr::filter(!TAG %in% unique(AvianPredation$TagID))
 
-movingDownstream <- getSequences(allEventsAvianPredationFiltered, c("CF", "GD1", "RR1"), "", c("HP", "RB", "WG1", "WG2"), c("M1", "M2"))
-movingUpstream <- getSequences(allEventsAvianPredationFiltered, c("HP", "RB", "WG1", "WG2") , "", c("CF", "GD1", "RR1"), c("M1", "M2"))
+# ### Avian Predation: grouping together different methods of finding avian predated fish
+avianPredationList <- avianPredationListFunction(All_Events = AllCombinedEvents$df_list$All_Events, 
+                                       AvianPredation = AvianPredation, 
+                                       enc_hist_wide_listPossibleAvianPredation = enc_hist_wide_list$enc_wide_list$possibleAvianPredation, 
+                                       encounterMARKStates = encounterMARKStates, 
+                                       Movements_list = Movements_list, ghostdata = GhostTags, 
+                                       checkedTags = checkedTags)
 
-avianPredationList <- list(
-  "movingDownstream" = movingDownstream, 
-  "movingUpstream" = movingUpstream, 
-  "largeMovementsWithoutChannel" = enc_hist_wide_list$enc_wide_list$possibleAvianPredation, 
-  "statesWeeklyActiveFish" = encounterMARKStates$possibleAvianPredation$weeklyActiveFish, 
-  "statesAllActiveFish" = encounterMARKStates$possibleAvianPredation$overAllActiveFishNotinWeeklyDF, 
-  "fastMovements" = Movements_list$avianPredationDFS$fastMovements,
-  "longMovements" = Movements_list$avianPredationDFS$longMovements
-  )
-#removing all tags already discerned as avian predation from each df
-avianPredationList <- purrr::map(avianPredationList, ~anti_join(.x, AvianPredation, by = c("TAG" = "TagID")))
-
-###making df of frequency counts for each time a fish appears on a df to get "priority" list
-tagCountsNoPredation <- purrr::map_dfr(avianPredationList, ~ {
-  # Count occurrences within this dataframe
-  .x %>%
-    count(TAG)
-}) %>%
-  # Summarize counts across all dataframes
-  group_by(TAG) %>%
-  summarize(Frequency = sum(n), .groups = 'drop') %>%
-  arrange(desc(Frequency))
-
-avianPredationList[["tagCountsNoPredation"]] = tagCountsNoPredation
-#adding checked tags to the list
-checkedTags <- read_csv("data/Potential Avian Predated tags.csv") #Potential Avian Predated tags
-
-checkedTags$TAG <- as.character(checkedTags$TAG)
-avianPredationList <- purrr::map(avianPredationList, ~{
-  originalColumns <- names(.x)
-  outputDatWithCheckedTags <- left_join(.x, checkedTags, by = "TAG")
-  outputDatWithRowColor <- outputDatWithCheckedTags %>%
-    mutate(rowColor = case_when(`SG Opinion` %in% c("Yes", "yes") ~ "red", 
-                                `SG Opinion` %in% c("No", "no") ~ "green", 
-                                !is.na(`SG Opinion`) ~ "yellow", 
-                                is.na(`SG Opinion`) ~ "none"
-    )) %>%
-    select(c(originalColumns, rowColor))
-  return(outputDatWithRowColor)
-}
-)
-                                 
 ###QAQC ghost tags
 ghostTagsWithMovementAfterGhostDate <- qaqcGhostTagMovements(GhostTags, Movements_list$dailyMovementsTable1)
 
@@ -460,7 +422,6 @@ names(indiv_datasets_list) <- names(indiv_datasets_list_og)
 
 movements_list <- list(
   "Movements_df" = Movements_list$dailyMovementsTable1,
-  "WeeklyMovementsbyType" = WeeklyMovementsbyType, 
   "ghostTagsWithMovementAfterGhostDate" = ghostTagsWithMovementAfterGhostDate
 )
 

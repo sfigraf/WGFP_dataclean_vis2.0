@@ -70,6 +70,17 @@ avianPredationMod_UI <- function(id) {
                                         )
                                  )
                                )
+                      ), 
+                      tabPanel("QAQC Predated Tag Movements", 
+                               fluidRow(
+                                 column(12, 
+                                        box(
+                                          title = "Predated Tag Movements",
+                                          width = 12,
+                                          withSpinner(DT::dataTableOutput(ns("predTagMovements")))
+                                        )
+                                 )
+                               )
                       )
                     )
                     )
@@ -86,7 +97,9 @@ avianPredationMod_Server <- function(id, avianPredationList) {
 
       
       renderDTFunction(output, "tagsFrequencyTable", avianPredationList$tagCountsNoPredation, 
-                       c("The amount of times a tag has shown up in the selected potential avian predation DFs to the right."))
+                       c("The amount of times a tag has shown up in the selected potential avian predation DFs to the right. 
+                         Shading: Green are tags previously checked and deemed not predated, yellows are maybes, red are predated tags that just haven't been 
+                         added to the master list yet. No color are tags that haven't been checked. After checking a tag, record findings in 'Potential Avian predated Tags.csv'"))
       
       renderDTFunction(output, "downstreamSequences", avianPredationList$movingDownstream, 
                        c("Tags that first hit either CF, GD1, or RR1, then hit either HP, RB, WG1, or WG2 without any antennas in between.
@@ -116,6 +129,10 @@ avianPredationMod_Server <- function(id, avianPredationList) {
       
       renderDTFunction(output, "fastMovements", avianPredationList$fastMovements, 
                        c("Top 5% of individual movements by fish by speed (meters per second between detections) upstream or downstream."))
+      
+      renderDTFunction(output, "predTagMovements", avianPredationList$avianPredatedTagsMovementsMonthAfterPD, 
+                       c("Movements of tags in predation list that have detections >1 month after predation date. 
+                         Shaded green tags are already listed in ghost tag file."))
 
     }
   )

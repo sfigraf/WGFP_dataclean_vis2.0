@@ -75,11 +75,8 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                            downloadData_UI(ns("downloadmovements1")),
                   ), # end of Map and table tabPanel
                   tabPanel("Minicharts Map",
-                           fluidRow(
-                             column(12,
-                                    div("This is a work in progress, doesn't work with the sidebar filters yet and for some reason stops going after 7 ish months. Press the play button in the bottom right"))
-                           ),
-                           leafletOutput(ns("map2"))
+                           leafletOutput(ns("map2"), height="80vh"), 
+                           h6("Mobile data always excluded. Movement data filtered with sidebar filters and aggregated on a weekly scale.")
                            ),
                   
                   tabPanel("Movement Graphs",
@@ -140,7 +137,7 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
     )
 }
 
-movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors) {
+movements_Server <- function(id, Movements_df, allColors) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -238,80 +235,33 @@ movements_Server <- function(id, Movements_df, WeeklyMovementsbyType, allColors)
 
 # Minicharts Map outout ---------------------------------------------------
 
-      #data 
-      # WeeklyMovementsbyType <- reactive({
-      #   req(input$button7)
-      #   print(colnames(filtered_movements_data()))
-      #   #this is the start of a function as I envision
-      #   #WeeklyMovementsbyType <- filtered_movements_data()
-      #   print("True")
-      #   WeeklyMovementsbyType <- filtered_movements_data() %>%
-      #     ungroup() %>%
-      #     ### mobile filter
-      #     filter(!det_type %in% c("Mobile Run")) %>%
-      #     mutate(weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks"))),
-      #            date_week = as.Date("2020-09-01")+weeks(weeks_since)
-      #     ) %>%
-      #     group_by(UTM_X, UTM_Y, date_week, movement_only) %>%
-      #     mutate(total = n()) %>%
-      #     distinct(UTM_X, UTM_Y, date_week, movement_only, .keep_all = TRUE) %>%
-      #     pivot_wider(id_cols = c("X", "Y", "det_type", "date_week"), names_from = movement_only, values_from = total) %>%
-      #     select(-9)
-      #   print("got this far")
-      # 
-      #   WeeklyMovementsbyType[is.na(WeeklyMovementsbyType)] <- 0
-      # 
-      #   ## this part is making new row with UTM's to get the initla release back down to 0 to not show as a big bar graph the whole time on minicharts
-      #   #just decided I'm going to put a disclaimer that it doesn't work as well with mobile detections
-      #   WeeklyMovementsbyType2 <- WeeklyMovementsbyType %>%
-      #     group_by(X, Y, det_type) %>%
-      #     arrange(date_week) %>%
-      #     mutate(nextinitialRelease = lead(`Initial Release`, order_by = date_week)
-      #     )
-      #   x <- WeeklyMovementsbyType2
-      #   df_skeleton <- WeeklyMovementsbyType2[1,]
-      #   df_skeleton[1,] <- list(-106, 55, NA, NA, 0, 0, 0, 0, 0, 0)
-      # 
-      #   for (row in 1:nrow(WeeklyMovementsbyType2)) {
-      #     #print(x$nextinitialRelease[row])
-      #     if(is.na(WeeklyMovementsbyType2$nextinitialRelease[row]) & WeeklyMovementsbyType2$`Initial Release`[row] > 0) {
-      #       #gettig values to make a new row with
-      #       print("na val")
-      #       X1 <- WeeklyMovementsbyType2$X[row]
-      # 
-      #       Y1 <- WeeklyMovementsbyType2$Y[row]
-      #       next_week <- WeeklyMovementsbyType2$date_week[row] + weeks(1)
-      # 
-      #       events <- 0
-      #       det_type <- WeeklyMovementsbyType2$det_type[row]
-      # 
-      #       new_row <- df_skeleton
-      #       new_row[1,] <- list(X1, Y1, det_type, next_week, events, NA, NA, NA, NA, NA)
-      #       WeeklyMovementsbyType2 <- rbind(WeeklyMovementsbyType2, new_row)
-      #     }
-      #   }
-      #   return(WeeklyMovementsbyType2)
-      # })
+      WeeklyMovementsbyType <- reactive({
+        Wrangleminicharts_function(filtered_movements_data())
+      })
       
-  # output$map2 <- renderLeaflet({
-  #   leaflet() %>%
-  #     addProviderTiles(providers$Esri.WorldImagery,
-  #                      options = providerTileOptions(maxZoom = 19.5)
-  #     ) %>%
-  #     ###minicharts
-  #     addMinicharts(
-  #       lng =  WeeklyMovementsbyType$X,
-  #       lat = WeeklyMovementsbyType$Y,
-  #       #layerId = WeeklyMovementsbyType$det_type,
-  #       type = "bar",
-  #       maxValues = 50,
-  #       height = 45,
-  #       width = 45,
-  #       chartdata = WeeklyMovementsbyType[,c("Initial Release", "No Movement", "Downstream Movement", "Upstream Movement", "Changed Rivers")],
-  #       time = WeeklyMovementsbyType$date_week
-  # 
-  #     )
-  # })
+  output$map2 <- renderLeaflet({
+    chartColumns <- c("Changed Rivers", "Downstream Movement", "Initial Release", "No Movement", "Upstream Movement")
+    leaflet() %>%
+      addProviderTiles(providers$Esri.WorldImagery,
+                       options = providerTileOptions(maxZoom = 19.5)
+      ) %>%
+      ###minicharts
+      addMinicharts(
+        lng =  WeeklyMovementsbyType()$X,
+        lat = WeeklyMovementsbyType()$Y,
+        #layerId = WeeklyMovementsbyType()$det_type,
+        type = "bar",
+        maxValues = 50,
+        height = 100,
+        width = 45,
+        #chartdata columns are organized the same as sort(unique(movements_list$Movements_df$movement_only)) so that movement color values will line up correctly
+        chartdata = WeeklyMovementsbyType()[,chartColumns],
+        #gets desired colors based off movements
+        colorPalette = unname(allColors[chartColumns]), 
+        time = WeeklyMovementsbyType()$date_week
+
+      )
+  })
 
       
 # Movements Map Output ----------------------------------------------------
