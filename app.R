@@ -10,8 +10,9 @@ library(shinyWidgets) # for pickerinput
 library(shinythemes)
 library(shinydashboard)
 library(bslib)
+library(keys) #for alloiwng enter keypress to render data on certain pages
 #animation stuff
-library(mapedit)
+#library(mapedit)
 library(gganimate)
 library(basemaps)
 #minicharts
