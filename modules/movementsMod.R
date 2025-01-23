@@ -240,6 +240,7 @@ movements_Server <- function(id, Movements_df, allColors) {
       })
       
   output$map2 <- renderLeaflet({
+    chartColumns <- c("Changed Rivers", "Downstream Movement", "Initial Release", "No Movement", "Upstream Movement")
     leaflet() %>%
       addProviderTiles(providers$Esri.WorldImagery,
                        options = providerTileOptions(maxZoom = 19.5)
@@ -254,8 +255,9 @@ movements_Server <- function(id, Movements_df, allColors) {
         height = 100,
         width = 45,
         #chartdata columns are organized the same as sort(unique(movements_list$Movements_df$movement_only)) so that movement color values will line up correctly
-        chartdata = WeeklyMovementsbyType()[,c("Changed Rivers", "Downstream Movement", "Initial Release", "No Movement", "Upstream Movement")],
-        colorPalette = movementColorsValues, 
+        chartdata = WeeklyMovementsbyType()[,chartColumns],
+        #gets desired colors based off movements
+        colorPalette = unname(allColors[chartColumns]), 
         time = WeeklyMovementsbyType()$date_week
 
       )
