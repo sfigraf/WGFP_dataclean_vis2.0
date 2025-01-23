@@ -12,7 +12,7 @@ renderDTFunction <- function(output, outputID, outputData, dataCaption){
       options = list(
         columnDefs = list(list(visible=FALSE, targets="rowColor")),
         #statesave is restore table state on page reload
-        stateSave = TRUE,
+        #stateSave = TRUE,
         scrollX = TRUE,
         pageLength = 10,
         info = TRUE,
