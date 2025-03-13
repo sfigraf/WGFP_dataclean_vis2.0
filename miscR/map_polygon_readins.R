@@ -10,6 +10,16 @@ layerLocation <- file.path("./gis/")
 latLongCRS <- st_crs("+proj=longlat +datum=WGS84 +no_defs") #should be same as +init=epsg:4326
 
 antenna_sites <- st_transform(read_sf(file.path(layerLocation, "antenna_sites1.shp")), latLongCRS)
+antenna_sitesNew <- st_transform(read_sf(file.path(layerLocation, "newAntennaSites.shp")), latLongCRS)
+toBind <- antenna_sites %>%
+  filter(Objective == "Secondary") %>%
+  select(-ChannelWid)
+
+toBindNew <- antenna_sitesNew %>%
+  select(-River, -Antenna_Ty)
+
+newAntennaSites <- dplyr::bind_rows(toBind, toBindNew)
+write_sf(newAntennaSites, "newSites.shp")
 
 stream_centerline <- st_transform(read_sf(file.path(layerLocation, "Stream_Centerline_Post.shp")), latLongCRS)
 
