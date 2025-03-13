@@ -222,7 +222,6 @@ movements_Server <- function(id, Movements_df, allColors) {
             lat=row_selected$Y,
             icon = my_icon)
         
-        
       })
       
       # Toggle table visibility
@@ -240,11 +239,27 @@ movements_Server <- function(id, Movements_df, allColors) {
       })
       
   output$map2 <- renderLeaflet({
+    #all options for chart
     chartColumns <- c("Changed Rivers", "Downstream Movement", "Initial Release", "No Movement", "Upstream Movement")
+    #these are the columns you can actually use in the data because you don't always have all movement types 
+     subsetChartColumns <- chartColumns[which(chartColumns %in% names(WeeklyMovementsbyType()))]
+     
     leaflet() %>%
       addProviderTiles(providers$Esri.WorldImagery,
                        options = providerTileOptions(maxZoom = 19.5)
       ) %>%
+      addAwesomeMarkers(data = antenna_sites,
+                        icon = Station_icons,
+                        #clusterOptions = markerClusterOptions(),
+                        label = paste(antenna_sites$SiteLabel),
+                        popup = paste(antenna_sites$SiteName),
+                        group = "Antennas") %>%
+      addAwesomeMarkers(data = releasesites,
+                        icon = release_icons,
+                        clusterOptions = markerClusterOptions(),
+                        label = releasesites$ReleaseSit, 
+                        popup = paste("Release Date1:", releasesites$ReleaseDat, "<br>","Release Date 2:",  releasesites$ReleaseD_1),
+                        group = "Release Sites") %>%
       ###minicharts
       addMinicharts(
         lng =  WeeklyMovementsbyType()$X,
@@ -255,12 +270,16 @@ movements_Server <- function(id, Movements_df, allColors) {
         height = 100,
         width = 45,
         #chartdata columns are organized the same as sort(unique(movements_list$Movements_df$movement_only)) so that movement color values will line up correctly
-        chartdata = WeeklyMovementsbyType()[,chartColumns],
+        chartdata = WeeklyMovementsbyType()[,subsetChartColumns],
         #gets desired colors based off movements
-        colorPalette = unname(allColors[chartColumns]), 
+        colorPalette = unname(allColors[subsetChartColumns]), 
         time = WeeklyMovementsbyType()$date_week
-
-      )
+        
+      ) %>%
+      addLayersControl(overlayGroups = c("Antennas", "Release Sites"), 
+                       baseGroups = c("Satellite")
+      ) %>%
+      hideGroup(c("Antennas", "Release Sites"))
   })
 
       
@@ -297,8 +316,7 @@ movements_Server <- function(id, Movements_df, allColors) {
                             icon = Station_icons,
                             clusterOptions = markerClusterOptions(),
                             label = paste(antenna_sites$SiteLabel),
-                            popup = paste(antenna_sites$SiteName, "<br>",
-                                          "Channel Width:", antenna_sites$ChannelWid, "feet"),
+                            popup = paste(antenna_sites$SiteName),
                             group = "Antennas") %>% # error: don't know how to get path Data from x....solved by specifying coordinate location with @ within data
           addPolylines(data = stream_centerline[stream_centerline$River == "Colorado River",], 
                        color = "blue",
