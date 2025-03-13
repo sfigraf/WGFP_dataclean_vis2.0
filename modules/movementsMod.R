@@ -252,8 +252,7 @@ movements_Server <- function(id, Movements_df, allColors) {
                         icon = Station_icons,
                         #clusterOptions = markerClusterOptions(),
                         label = paste(antenna_sites$SiteLabel),
-                        popup = paste(antenna_sites$SiteName, "<br>",
-                                      "Channel Width:", antenna_sites$ChannelWid, "feet"),
+                        popup = paste(antenna_sites$SiteName),
                         group = "Antennas") %>%
       addAwesomeMarkers(data = releasesites,
                         icon = release_icons,
@@ -317,8 +316,7 @@ movements_Server <- function(id, Movements_df, allColors) {
                             icon = Station_icons,
                             clusterOptions = markerClusterOptions(),
                             label = paste(antenna_sites$SiteLabel),
-                            popup = paste(antenna_sites$SiteName, "<br>",
-                                          "Channel Width:", antenna_sites$ChannelWid, "feet"),
+                            popup = paste(antenna_sites$SiteName),
                             group = "Antennas") %>% # error: don't know how to get path Data from x....solved by specifying coordinate location with @ within data
           addPolylines(data = stream_centerline[stream_centerline$River == "Colorado River",], 
                        color = "blue",
