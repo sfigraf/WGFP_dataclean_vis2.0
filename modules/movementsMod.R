@@ -240,7 +240,60 @@ movements_Server <- function(id, Movements_df, allColors) {
       })
       
   output$map2 <- renderLeaflet({
+    #all options for chart
     chartColumns <- c("Changed Rivers", "Downstream Movement", "Initial Release", "No Movement", "Upstream Movement")
+    #these are the columns you can actually use in the data because you don't always have all movement types 
+     subsetChartColumns <- chartColumns[which(chartColumns %in% names(WeeklyMovementsbyType()))]
+     #subsetChartColumns <- chartColumns
+     # popup_text <- pmap_chr(WeeklyMovementsbyType2, function(Site, X, Y, ...) {
+     #   values <- list(...)
+     #   value_text <- paste(paste0("<b>", names(values), ":</b> ", values), collapse = "<br>")
+     #   paste0("<b>Site:<b>", Site, "<br>", value_text)
+     # })
+     # popup_text <- apply(WeeklyMovementsbyType2, 1, function(row){
+     #   values = paste(paste0("<b>", subsetChartColumns, ":</b> ", row[subsetChartColumns]), collapse = "<br>")
+     #   paste0("<b>Site:<b>", row["Site"], "<br>", values)
+     # })
+     # x <<- popup_text
+     # myDF <<- WeeklyMovementsbyType()
+     # chartDataArray <- array(
+     #   as.matrix(WeeklyMovementsbyType()[,subsetChartColumns]), 
+     #   dim = c(length(unique(WeeklyMovementsbyType()$Site)), length(unique(WeeklyMovementsbyType()$date_week)), length(subsetChartColumns))
+     # )
+     # dfSites <- WeeklyMovementsbyType() %>%
+     #   group_by(Site) %>%
+     #   slice(1) %>%
+     #   ungroup()
+     # popup_text <- dfSites %>%
+     #   rowwise() %>%
+     #   mutate(popup = 
+     #            paste0("<b>Site:<b>", Site, "<br>",
+     #                   paste0(
+     #                     "<b>", subsetChartColumns, ": </b> ", 
+     #                     sapply(subsetChartColumns, function(col) paste(unique(WeeklyMovementsbyType()[[col]]), collapse = ", ")), 
+     #                            collapse = "<br>")
+     #                     
+     #                   )
+     #            ) %>%
+     #            pull(popup)
+                
+     #cols <- colnames(WeeklyMovementsbyType2)     
+     #coln <- cols[subsetChartColumns]
+     
+     # coln <- paste0("<b>",coln[2:length(coln)],":" )
+     # coln<- c(coln, "<b>")
+     # df$popup <- apply(df[,-1],1,paste,coln,collapse="") 
+     # df %>% mutate(popup = paste0("<h3>", location,"grp1:", popup))
+     
+     # my_popups <- WeeklyMovementsbyType2 %>% 
+     #   group_by(Site) %>% 
+     #   mutate(popup = paste0("<h3>", 
+     #                         Site, 
+     #                         "</h3><br>",
+     #                         paste("ID:", surveyID1, "Alter:", Alter, collapse = "<br>"))) %>% 
+     #   pull(popup)
+    
+    
     leaflet() %>%
       addProviderTiles(providers$Esri.WorldImagery,
                        options = providerTileOptions(maxZoom = 19.5)
@@ -255,12 +308,18 @@ movements_Server <- function(id, Movements_df, allColors) {
         height = 100,
         width = 45,
         #chartdata columns are organized the same as sort(unique(movements_list$Movements_df$movement_only)) so that movement color values will line up correctly
-        chartdata = WeeklyMovementsbyType()[,chartColumns],
+        chartdata = WeeklyMovementsbyType()[,subsetChartColumns],
         #gets desired colors based off movements
-        colorPalette = unname(allColors[chartColumns]), 
-        time = WeeklyMovementsbyType()$date_week
+        colorPalette = unname(allColors[subsetChartColumns]), 
+        time = WeeklyMovementsbyType()$date_week,
+        #popup = popup_text
 
-      )
+      ) #%>%
+      # addLabelOnlyMarkers(
+      #   lng =  WeeklyMovementsbyType()$X,
+      #   lat = WeeklyMovementsbyType()$Y,
+      #   label = WeeklyMovementsbyType()$Site
+      # )
   })
 
       
