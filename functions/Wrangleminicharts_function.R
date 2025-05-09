@@ -1,4 +1,6 @@
-#Movements_df <- movements_list$Movements_df
+#Movements_df <- movements_list$Movements_df #%>%
+  #filter(Date > as.Date("2024-12-01"))
+
 
 Wrangleminicharts_function <- function(Movements_df){
   
@@ -17,20 +19,27 @@ Wrangleminicharts_function <- function(Movements_df){
     ungroup() %>%
     #filter(!det_type %in% c("Release")) %>%
     distinct(UTM_X, UTM_Y, date_week, movement_only, .keep_all = TRUE) %>%
-    pivot_wider(id_cols = c("X", "Y", "date_week"), names_from = movement_only, values_from = total)# %>%
+    mutate(Site = case_when(det_type == "Recapture" ~ RecaptureSite,
+                            det_type %in% c("Release", "Recapture and Release") ~ ReleaseSite, 
+                            TRUE ~ det_type)
+    ) %>%
+    pivot_wider(id_cols = c("X", "Y", "date_week", "Site"), names_from = movement_only, values_from = total) #%>%
+    #select(-Site)
     #column 9 accouts for the NA movements so it's a NA column
   #only needed in all data, not needed in ap since NA movement will be filtered out already
     #select(-`NA`)
   
   
   
+  
+  
   allWeeks = seq(min(WeeklyMovementsbyType$date_week), max(WeeklyMovementsbyType$date_week), by = "week")
   allSites <- WeeklyMovementsbyType %>%
-    distinct(X, Y)
+    distinct(X, Y, Site)
   
   WeeklyMovementsbyType2 <- expand_grid(allSites, date_week = allWeeks) %>%
     #left join automatically fills in empty fields with NA
-    left_join(WeeklyMovementsbyType, by = c("X", "Y", "date_week")) 
+    left_join(WeeklyMovementsbyType, by = c("X", "Y", "date_week", "Site")) 
   
   WeeklyMovementsbyType2[is.na(WeeklyMovementsbyType2)] <- 0
 

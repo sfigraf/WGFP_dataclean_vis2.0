@@ -104,7 +104,9 @@ MarkerTagQAQC_Server <- function(id, Marker_Tag_data) {
           theme(
             axis.text.y = element_blank(),
             axis.text.x = element_blank(),
-            axis.ticks = element_blank())
+            axis.ticks = element_blank()) +
+          scale_color_brewer(palette="Dark2")
+          
         
       })
       downloadData_Server("downloadmarkerTagsPlotData", plotAndTableMarkerTagDataList()$markerTagDataForPlot, "MarkerTagData")

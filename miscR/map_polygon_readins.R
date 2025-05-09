@@ -9,7 +9,7 @@ library(readr)
 layerLocation <- file.path("./gis/")
 latLongCRS <- st_crs("+proj=longlat +datum=WGS84 +no_defs") #should be same as +init=epsg:4326
 
-antenna_sites <- st_transform(read_sf(file.path(layerLocation, "antenna_sites1.shp")), latLongCRS)
+antenna_sites <- st_transform(read_sf(file.path(layerLocation, "newAntennaSites.shp")), latLongCRS)
 
 stream_centerline <- st_transform(read_sf(file.path(layerLocation, "Stream_Centerline_Post.shp")), latLongCRS)
 
