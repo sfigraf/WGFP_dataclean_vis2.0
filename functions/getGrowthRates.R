@@ -1,4 +1,5 @@
 getGrowthRates <- function(Recaptures, Release){
+  #align columns in preparation for binding
   RecapturesforBind <- alignColumns(Recaptures, names(Release), Release) %>%
     left_join(Recaptures[,c("TagID", "Length", "Weight", "RecaptureSite")], by = c("TagID", "Length", "Weight"))
   

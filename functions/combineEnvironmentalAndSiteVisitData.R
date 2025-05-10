@@ -1,4 +1,4 @@
-combineEnvironmentalAndSiteVisitData <- function(WGFPSiteVisitsFieldData, PTDataWide){
+combineEnvironmentalAndSiteVisitData <- function(WGFPSiteVisitsFieldData, EnvironmentalData){
   
   #expect nAs here so suprressing these warnings
   suppressWarnings({
@@ -7,15 +7,15 @@ combineEnvironmentalAndSiteVisitData <- function(WGFPSiteVisitsFieldData, PTData
              fieldDataNotes = Notes)
   })
   
-  #perform rolling join with PT data
-  ptdataWide <- PTDataWide %>%
+  #prep for rolling join with PT data
+  EnvironmentalData_prepped <- EnvironmentalData %>%
     dplyr::filter(!is.na(Site)) %>%
     mutate(ptTimeRecorded = dateTime, 
            ptDataNotes = Notes)
   
-  #exact time matches: 12 in total
+  #exact time matches: 17 in total
   ExactTimeMatches <- WGFPSiteVisitsFieldData1 %>%
-    inner_join(ptdataWide, by = c("Site", "dateTime")) %>%
+    inner_join(EnvironmentalData_prepped, by = c("Site", "dateTime")) %>%
     rename(Notes = Notes.x)
   
   #rest of them: 
@@ -27,17 +27,17 @@ combineEnvironmentalAndSiteVisitData <- function(WGFPSiteVisitsFieldData, PTData
   
   #make PT data and timestamps into data.table objects so that we can perform rolling join
   WGFPSiteVisitsFieldData2 <- data.table(WGFPSiteVisitsFieldData2)
-  ptdataWide <- data.table(ptdataWide)
+  EnvironmentalData_prepped <- data.table(EnvironmentalData_prepped)
   
   
   #set keycols
   #the order these are in matter
   keycols <- c("Site","dateTime")
   setkeyv(WGFPSiteVisitsFieldData2, keycols)
-  setkeyv(ptdataWide, keycols)
+  setkeyv(EnvironmentalData_prepped, keycols)
   
   
-  WGFPSiteVisitsFieldData3 <- ptdataWide[WGFPSiteVisitsFieldData2, roll = "nearest", on = .(Site, dateTime), nomatch = NULL]
+  WGFPSiteVisitsFieldData3 <- EnvironmentalData_prepped[WGFPSiteVisitsFieldData2, roll = "nearest", on = .(Site, dateTime), nomatch = NULL]
   
   WGFPSiteVisitsFieldData3 <- as.data.frame(WGFPSiteVisitsFieldData3) #%>%
   #relocate(Site, Date, Time, dateTime, ptTimeRecorded, `32mm RR (ft) DS Initial`, `32mm Initial (Biomark)`, USGSDischarge, Water_Level_NoIce_ft)

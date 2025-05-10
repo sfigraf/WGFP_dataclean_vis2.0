@@ -116,11 +116,11 @@ avianPredationMod_Server <- function(id, avianPredationList) {
       
       
       renderDTFunction(output, "statesWeeklyActiveFish", avianPredationList$statesWeeklyActiveFish, 
-                       c("Tags with > 2 state changes in a week or > 4 weekly unique events. Very active fish on a weekly basis."))
+                       c("Tags with > 6 state changes in a week or > 4 weekly unique events. Very active fish on a weekly basis."))
 
       
       renderDTFunction(output, "statesAllActiveFish", avianPredationList$statesAllActiveFish, 
-                       c("Tags >2 total state changes across its entire encounter history. Very active fish on an overall basis."))
+                       c("Tags NOT in 'High Weekly Activity' with >6 total state changes across its entire encounter history. Very active fish on an overall basis."))
       
       
       renderDTFunction(output, "largeMovements", avianPredationList$longMovements, 

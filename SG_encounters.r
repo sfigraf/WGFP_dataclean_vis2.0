@@ -3607,6 +3607,7 @@ df %>%
   )
 
 ######## MINICHARTS
+Movements_df <- movements_list$Movements_df
 WeeklyMovementsbyType <- Movements_df %>%
   ungroup() %>%
   ### mobile filter, no mobile data
@@ -3705,3 +3706,74 @@ leaflet() %>%
 data("eco2mix") 
 prodRegions <- eco2mix %>% 
   filter(area != "France")
+##########
+leaflet() %>%
+  addProviderTiles(providers$Esri.WorldImagery,
+                   options = providerTileOptions(maxZoom = 19.5)
+  ) %>%
+  addAwesomeMarkers(data = antenna_sites,
+                    icon = Station_icons,
+                    #clusterOptions = markerClusterOptions(),
+                    label = paste(antenna_sites$SiteLabel),
+                    popup = paste(antenna_sites$SiteName),
+                    group = "Antennas") %>%
+  addAwesomeMarkers(data = releasesites,
+                    icon = release_icons,
+                    clusterOptions = markerClusterOptions(),
+                    label = releasesites$ReleaseSit, 
+                    popup = paste("Release Date1:", releasesites$ReleaseDat, "<br>","Release Date 2:",  releasesites$ReleaseD_1),
+                    group = "Release Sites") %>%
+  ###minicharts
+  addMinicharts(
+    lng =  WeeklyMovementsbyType2$X,
+    lat = WeeklyMovementsbyType2$Y,
+    #layerId = WeeklyMovementsbyType2$det_type,
+    type = "bar",
+    maxValues = 50,
+    height = 100,
+    width = 45,
+    #chartdata columns are organized the same as sort(unique(movements_list$Movements_df$movement_only)) so that movement color values will line up correctly
+    chartdata = WeeklyMovementsbyType2[,subsetChartColumns],
+    #gets desired colors based off movements
+    colorPalette = unname(allColors[subsetChartColumns]), 
+    time = WeeklyMovementsbyType2$date_week
+    
+  ) %>%
+  addLayersControl(overlayGroups = c("Antennas", "Release Sites"), 
+                   baseGroups = c("Satellite")
+  ) %>%
+  hideGroup(c("Antennas", "Release Sites"))
+
+####Movement questions
+movements <- movements_list$Movements_df
+
+
+
+totalMovements <- movements %>%
+  filter(movement_only %in% c("Initial Release"), 
+         !Species %in% "TGM") %>%
+  count(movement_only, ReleaseSite)
+
+totalMovementsSpecies <- movements %>%
+  filter(!movement_only %in% c("Initial Release")) %>%
+  count(movement_only, Species)
+movementsLength <- movements %>%
+  filter(!movement_only %in% c("Initial Release")) %>%
+  mutate(length_bin = cut(
+    Release_Length,
+    breaks = c(0, 100, 200, 300, 400, 500, Inf),
+    labels = c("0-100", "100-200", "200-300", "300-400", "400-500", "500+"),
+    right = FALSE
+)) %>%
+  count(length_bin, movement_only, Species)
+
+ggplot(movementsLength, aes(x = length_bin, y = n, fill = movement_only)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    x = "Length Bin (mm)",
+    y = "Count of Movements",
+    fill = "Movement Type",
+    title = "Distribution of Movement Types Across Length Bins"
+  ) +
+  theme_minimal() +
+  facet_wrap(~Species)
