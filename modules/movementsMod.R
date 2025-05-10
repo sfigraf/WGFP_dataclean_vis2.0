@@ -76,7 +76,8 @@ movements_UI <- function(id, Movements_df) { #could just get dates in UI and the
                   ), # end of Map and table tabPanel
                   tabPanel("Minicharts Map",
                            leafletOutput(ns("map2"), height="80vh"), 
-                           h6("Mobile data always excluded. Movement data filtered with sidebar filters and aggregated on a weekly scale.")
+                           h6("Mobile data always excluded. Movement data filtered with sidebar filters and aggregated on a weekly scale."), 
+                           downloadButton(ns("minichartsDownload"), "Save Map as .HTML")
                            ),
                   
                   tabPanel("Movement Graphs",
@@ -234,53 +235,67 @@ movements_Server <- function(id, Movements_df, allColors) {
 
 # Minicharts Map outout ---------------------------------------------------
 
-      WeeklyMovementsbyType <- reactive({
-        Wrangleminicharts_function(filtered_movements_data())
+      
+      minichartsMap <- reactive({
+        
+        WeeklyMovementsbyType <- Wrangleminicharts_function(filtered_movements_data())
+        
+        #all options for chart
+        chartColumns <- c("Changed Rivers", "Downstream Movement", "Initial Release", "No Movement", "Upstream Movement")
+        #these are the columns you can actually use in the data because you don't always have all movement types 
+        subsetChartColumns <- chartColumns[which(chartColumns %in% names(WeeklyMovementsbyType))]
+        
+        leaflet() %>%
+          addProviderTiles(providers$Esri.WorldImagery,
+                           options = providerTileOptions(maxZoom = 19.5)
+          ) %>%
+          addAwesomeMarkers(data = antenna_sites,
+                            icon = Station_icons,
+                            #clusterOptions = markerClusterOptions(),
+                            label = paste(antenna_sites$SiteLabel),
+                            popup = paste(antenna_sites$SiteName),
+                            group = "Antennas") %>%
+          addAwesomeMarkers(data = releasesites,
+                            icon = release_icons,
+                            clusterOptions = markerClusterOptions(),
+                            label = releasesites$ReleaseSit, 
+                            popup = paste("Release Date1:", releasesites$ReleaseDat, "<br>","Release Date 2:",  releasesites$ReleaseD_1),
+                            group = "Release Sites") %>%
+          ###minicharts
+          addMinicharts(
+            lng =  WeeklyMovementsbyType$X,
+            lat = WeeklyMovementsbyType$Y,
+            #layerId = WeeklyMovementsbyType$det_type,
+            type = "bar",
+            maxValues = 50,
+            height = 100,
+            width = 45,
+            #chartdata columns are organized the same as sort(unique(movements_list$Movements_df$movement_only)) so that movement color values will line up correctly
+            chartdata = WeeklyMovementsbyType[,subsetChartColumns],
+            #gets desired colors based off movements
+            colorPalette = unname(allColors[subsetChartColumns]), 
+            time = WeeklyMovementsbyType$date_week
+            
+          ) %>%
+          addLayersControl(overlayGroups = c("Antennas", "Release Sites"), 
+                           baseGroups = c("Satellite")
+          ) %>%
+          hideGroup(c("Antennas", "Release Sites"))
       })
       
   output$map2 <- renderLeaflet({
-    #all options for chart
-    chartColumns <- c("Changed Rivers", "Downstream Movement", "Initial Release", "No Movement", "Upstream Movement")
-    #these are the columns you can actually use in the data because you don't always have all movement types 
-     subsetChartColumns <- chartColumns[which(chartColumns %in% names(WeeklyMovementsbyType()))]
-     
-    leaflet() %>%
-      addProviderTiles(providers$Esri.WorldImagery,
-                       options = providerTileOptions(maxZoom = 19.5)
-      ) %>%
-      addAwesomeMarkers(data = antenna_sites,
-                        icon = Station_icons,
-                        #clusterOptions = markerClusterOptions(),
-                        label = paste(antenna_sites$SiteLabel),
-                        popup = paste(antenna_sites$SiteName),
-                        group = "Antennas") %>%
-      addAwesomeMarkers(data = releasesites,
-                        icon = release_icons,
-                        clusterOptions = markerClusterOptions(),
-                        label = releasesites$ReleaseSit, 
-                        popup = paste("Release Date1:", releasesites$ReleaseDat, "<br>","Release Date 2:",  releasesites$ReleaseD_1),
-                        group = "Release Sites") %>%
-      ###minicharts
-      addMinicharts(
-        lng =  WeeklyMovementsbyType()$X,
-        lat = WeeklyMovementsbyType()$Y,
-        #layerId = WeeklyMovementsbyType()$det_type,
-        type = "bar",
-        maxValues = 50,
-        height = 100,
-        width = 45,
-        #chartdata columns are organized the same as sort(unique(movements_list$Movements_df$movement_only)) so that movement color values will line up correctly
-        chartdata = WeeklyMovementsbyType()[,subsetChartColumns],
-        #gets desired colors based off movements
-        colorPalette = unname(allColors[subsetChartColumns]), 
-        time = WeeklyMovementsbyType()$date_week
-        
-      ) %>%
-      addLayersControl(overlayGroups = c("Antennas", "Release Sites"), 
-                       baseGroups = c("Satellite")
-      ) %>%
-      hideGroup(c("Antennas", "Release Sites"))
+    minichartsMap()
   })
+  
+  output$minichartsDownload <- downloadHandler(
+      filename = function() {
+        paste("WGFPMinichartsDownload", "_", Sys.Date(), ".html", sep = "")
+      },
+      content = function(file) {
+        saveWidget(minichartsMap(), file = file)
+        
+      }
+    )
 
       
 # Movements Map Output ----------------------------------------------------
@@ -356,11 +371,8 @@ movements_Server <- function(id, Movements_df, allColors) {
           hideGroup(c("Stream Centerlines", "Stations (m)", "Antennas", "Release Sites", "Mobile Reaches", "States")) %>%
           addMeasure(primaryLengthUnit = "meters")
         
-        # leafletProxy("map") %>%
-        #   ### always remove the prior minichart
-        #   removeMinicharts(cems$towncode)
+       
       })
-      
       
       
       #when map is clicked, go to that icon in the dataTable
@@ -371,11 +383,20 @@ movements_Server <- function(id, Movements_df, allColors) {
         #need to assign layer ID's in leafletrender to have an id associated with the click
         #clicking the map gives info in the form of a list, including the layer id assigned in leaflet
         clickId <- input$map1_marker_click$id
-        
+        #finding page to select based on total rows and length of table: divide cliked row number by selected table length to get remainder.
+        #if remainder is above 0 then you need to add on a page number to display the correct row on click
+        #but if remainder is 0 then you can navigate right to that page (ie if selected table lenght is 0)
+
+        pageToSelect <- ifelse(which(input$movements1_rows_all == clickId) %% input$movements1_state$length != 0, 
+                              which(input$movements1_rows_all == clickId) %/% input$movements1_state$length + 1, 
+                              which(input$movements1_rows_all == clickId) %/% input$movements1_state$length)
+
         #saying get the rows in the data with the same id as clickId; clickId is the row number
         dataTableProxy("movements1") %>%
           selectRows(which(filtered_movements_data()$id == clickId)) %>%
-          selectPage(which(input$movements1_rows_all == clickId) %/% input$movements1_state$length + 1)
+          selectPage(
+            pageToSelect
+            )
       })
 
 

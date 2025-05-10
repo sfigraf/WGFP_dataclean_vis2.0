@@ -1,8 +1,8 @@
-#TimePeriods <- wgfpMetadata$TimePeriods 
-# 
-# # ### this comes from runscript after spatial join detections stations function
-#DailyDetectionsStationsStates1 <- DailyDetectionsStationsStates$spatialList$stationData
-# encounterDF <- createMARKEncounterHistories(DailyDetectionsStationsStates1, GhostTags, AvianPredation, TimePeriods)
+# TimePeriods <- wgfpMetadata$TimePeriods 
+# # 
+# # # ### this comes from runscript after spatial join detections stations function
+# DailyDetectionsStationsStates1 <- DailyDetectionsStationsStates$spatialList$stationData
+# #encounterDF <- createMARKEncounterHistories(DailyDetectionsStationsStates1, GhostTags, AvianPredation, TimePeriods)
 
 library(janitor)
 createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTags, AvianPredation, TimePeriods){
@@ -32,7 +32,8 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
     ) %>%
     ungroup() #stops rowwise()
   
-  #for qaqc: this should be a blank df, otherwise it means some data don't fall within the time periods sepecified in the csv
+  #for qaqc: this should be a blank df,
+  #otherwise it means some data don't fall within the time periods sepecified in the csv
   dataWithoutPeriods <- DailyDetectionsPeriods %>%
     filter(is.na(TimePeriod))
   
@@ -63,13 +64,13 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
     #makes sure to keep non-predated tags if they don'thave a ghost/predation date
     filter(is.na(GhostOrPredationDate) |
              Date <= GhostOrPredationDate)
+  
   # we don't need duplicated rows of states and tags that fall on the same day. 
-
   #getting rid of same-day ghost data, keeping just the first detection that day that qualifies as ghost/predation
   eventswithOneGhostEvent <- eventsWithGhostDatesAndAvianPredation %>%
     arrange(TAG, Datetime) %>%
     group_by(TAG, State) %>%
-    mutate(firstDatetime = dplyr::if_else(!is.na(GhostOrPredationDate) & State == "G", first(Datetime), NA)) %>% #first(Datetime)) %>%
+    mutate(firstDatetime = dplyr::if_else(!is.na(GhostOrPredationDate) & State == "G", first(Datetime), NA)) %>% 
     relocate(TAG, Datetime, GhostOrPredationDate, firstDatetime) %>%
     filter(is.na(GhostOrPredationDate) | is.na(firstDatetime) |
              Datetime == firstDatetime)
@@ -286,7 +287,8 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
            entered_channel_from_US = str_detect(condensedAllStates, "ED|FD|HD"),
            
     ) %>%
-    select(TAG, condensedAllStates, channelSummary, went_above_dam_noChannel, went_below_dam_noChannel,went_below_dam_throughChannel,went_above_dam_throughChannel,entered_channel_from_DS,entered_channel_from_US) %>%
+    select(TAG, condensedAllStates, channelSummary, went_above_dam_noChannel, went_below_dam_noChannel,went_below_dam_throughChannel,
+           went_above_dam_throughChannel,entered_channel_from_DS,entered_channel_from_US) %>%
     distinct(TAG, .keep_all = TRUE)
   
   overAllActiveFish <- summarizedStates %>%

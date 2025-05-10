@@ -1,6 +1,6 @@
 # # #### ENC HIST summary table function
-# allDetectionsAndRecaptures <- df_list$Recaps_detections
-# Release <- Release
+# allDetectionsAndRecaptures <- AllCombinedEvents$df_list$Recaps_detections
+# Release <- cleanedRelease
 # markerTags = unique(Cleaned_Marker_tags$TAG)
 # combined_events_stations <- combined_events_stations #resulting df from combined_events and stations function
 # States_summarized <- states_data_list$States_summarized
@@ -17,8 +17,8 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
     rename_with(~ paste0(., "_n"), -TAG) 
   
   #column order is just nice to have for the user
-  columnOrder <- c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes, ConnectivityChannelUpstreamFrontendCodes, 
-                   MobileRunFrontendCodes, WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode, 
+  columnOrder <- c(RedBarnFrontendCodes, HitchingPostFrontendCodes, ConfluenceFrontendCodes, ConnectivityChannelDownstreamFrontendCodes, ConnectivityChannelSideChannelFrontendCodes, 
+                   ConnectivityChannelUpstreamFrontendCodes, MobileRunFrontendCodes, WindyGapBypassAntennaFrontendSiteCode, WindyGapAuxiliaryAntennaFrontendSiteCode, 
                    GranbyDiversionAntennaFrontendSiteCode, RiverRunAntennaFrontendSiteCode, FraserRiverCanyonAntennaFrontendSiteCode
                    )
   allEncountersWideOrdered <- allEncountersWide %>%
@@ -42,6 +42,8 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   
   #gets rest of the number count columns to 0 from NA
   encountersAndRelease[is.na(encountersAndRelease)] = 0 
+  
+  
   
   #### Make 1 or 0 for encounter history rather than counts ###
   #gets df with TF of whether a fish was detected at a antenna
@@ -97,9 +99,9 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
     filter(TAG %in% unique(releasePreparedForJoin$TAG)) 
   
   ###Bringing in Station data with info about ABOVE/BELOW dam for joining
-  ### the release data isn't being brought in well; The tags aren't being brought in as full numbers, so when the release data is joined,
+  ### was running into issue where release data isn't being brought in well; The tags aren't being brought in as full numbers, so when the release data is joined,
   # it can't match up 23000088888 to 2.3E+11; so release site gets put in as "no info", and
-  #therefore when the columns join, it doesn't make a column called "release above dam" (should I cahnge to subset by number instead of column name?)
+  #therefore when the columns join, it doesn't make a column called "release above dam" 
   #SOLVED: needed to change the format in release csv file
   
   # trying to go based on movements
@@ -120,7 +122,8 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   
   aboveAndBelowInfo1 <- pivot_wider(data = aboveAndBelowInfo, id_cols = TAG, names_from = combined_event, values_from = EncountersTF)
   aboveAndBelowInfoRecapsAndMobile <- aboveAndBelowInfo1 %>%
-    select(TAG, `Release Above the Dam`, `Release Below the Dam`,`Recapture Above the Dam`,`Recapture Below the Dam`,`Recapture and Release Above the Dam`,`Recapture and Release Below the Dam`, `Mobile Run Above the Dam`, `Mobile Run Below the Dam`)
+    select(TAG, `Release Above the Dam`, `Release Below the Dam`,`Recapture Above the Dam`,`Recapture Below the Dam`,`Recapture and Release Above the Dam`,
+           `Recapture and Release Below the Dam`, `Mobile Run Above the Dam`, `Mobile Run Below the Dam`)
   #turns all the NA's made to FALSE
   aboveAndBelowInfoRecapsAndMobile[is.na(aboveAndBelowInfoRecapsAndMobile)] = FALSE
 

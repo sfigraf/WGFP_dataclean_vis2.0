@@ -194,7 +194,11 @@ getSequences <- function(All_Events, firstAntennas, middle_antennas, lastAntenna
            `Time Between First/Last Detections (For Sorting)` = difftime(DatetimeDetectedAtFirstAntennas, DatetimeDetectedAtLastAntennas, units = "secs")) %>%
     distinct()
   
-  return(sequencesWithTiming)
+  sequenceswReleaseData <- sequencesWithTiming %>%
+    left_join(All_Events[,c("TAG","Species", "Release_Length", "Release_Weight")] %>%
+                distinct(TAG, .keep_all = TRUE), by = "TAG")
+  
+  return(sequenceswReleaseData)
 }
 
 ##variables used to just help troubleshoot

@@ -17,7 +17,7 @@ spatial_join_stations_detections <- function(condensedEvents, simpleStations, st
  
   ### converting to lat/longs instead of UTM's
   #convert events to sf object
-  #the utms are grs80 and utm zone 13, which corresponds to crs  32613
+  #the utms are grs80 and utm zone 13, which corresponds to espg  32613
   #can't do it if there's any NA values in the utm fields
   problemRows <- condensedEvents %>%
     filter(is.na(UTM_X))
@@ -36,7 +36,7 @@ spatial_join_stations_detections <- function(condensedEvents, simpleStations, st
     filter(!Species %in% c("TGM"), 
            is.na(State))
   
-  spatialList <- list("stationData" = stationsStatesandDetections, "noUTMS" = problemRows, "noState" = noState)
+  spatialList <- list("stationStateData" = stationsStatesandDetections, "noUTMS" = problemRows, "noState" = noState)
   end_time <- Sys.time()
   endMessage <- paste("Spatial_join_stations_detections took", round(difftime(end_time, start_time, units = "mins"),2), "minutes.")
   print(endMessage)

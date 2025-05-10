@@ -4,10 +4,10 @@ get_movements_function <- function(combined_events_stations, dailyUSGSData, even
   startMessage <- "Running get_movements_function: Calculates movements of fish based off a change in station."
   print(startMessage)
   
-  dailyMovementsTable <- combined_events_stations %>%
+  dailyMovementsTableAll <- combined_events_stations %>%
     #### removing dummy tag
     filter(!TAG %in% c("230000999999")) %>%
-    select(Date, Datetime, TAG, det_type, Event, ET_STATION, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, UTM_X, UTM_Y) %>%
+    select(Date, Datetime, TAG, det_type, Event, ET_STATION, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, UTM_X, UTM_Y, first_last) %>%
     #grouping by TAG and arranging by datetime makes sure that total distance moved is totalled and summed in order
     group_by(TAG) %>%
     arrange(Datetime) %>%
@@ -49,9 +49,21 @@ get_movements_function <- function(combined_events_stations, dailyUSGSData, even
                            det_type %in% c("Release", "Recapture and Release") ~ "blue",
                            det_type == "Recapture" ~ "brown",
     )
-    ) %>%
+    ) 
+  
+  dailyMovementsTableMost <- dailyMovementsTableAll %>%
     #takes “movement” into account instead of “first_last”, this is why this df winds up with less rows than combined_events_stations
     distinct(Date, TAG, det_type, movement_only, UTM_X, UTM_Y, .keep_all = TRUE)
+  ###upstream and downstream movements that are not captured in the above code: 
+  #typically predated fish that have multipl US/DS movements in the same day to an antenna, but we have them just to be safe. 
+  #FOr example: 230000144498 went to CU to CF to CU on the same day and this code captures that last movement to end at CU
+  dailyMovementsEdgeCases <- dailyMovementsTableAll %>%
+    distinct(Date, TAG, det_type, first_last, movement_only, UTM_X, UTM_Y, .keep_all = TRUE) %>%
+    anti_join(dailyMovementsTableMost) %>%
+    filter(movement_only %in% c("Upstream Movement", "Downstream Movement", "Changed Rivers"))
+  
+  dailyMovementsTable <- bind_rows(dailyMovementsTableMost, dailyMovementsEdgeCases)
+  
   
   ##add on environmental Data
   dailyMovementsTable <- dailyMovementsTable %>%
@@ -67,7 +79,7 @@ get_movements_function <- function(combined_events_stations, dailyUSGSData, even
     arrange(desc(abs(dist_moved))) %>%
     relocate(dist_moved, .after = TAG)
   #gets top 5% of speedy movements, US or DS
-  fastMovements <- head(dailyMovementsTable[order(abs(dailyMovementsTable$MPerSecondBetweenDetections),decreasing=T),],.05*nrow(dailyMovementsTable))
+  fastMovements <- head(dailyMovementsTable[order(abs(dailyMovementsTable$MPerSecondBetweenDetections),decreasing=T),], .05*nrow(dailyMovementsTable))
   fastMovements <- fastMovements %>%
     relocate(MPerSecondBetweenDetections, .after = TAG)
   
@@ -106,7 +118,8 @@ get_movements_function <- function(combined_events_stations, dailyUSGSData, even
   #example: 230000142723
   dailyMovementsTable1 <- as.data.frame(dailyMovementsTableSFLatLong) %>%
     left_join(tagsEventsLongwithTpDates, by = c("TAG", "Datetime", "Event")) %>%
-    select(Date, Datetime, TAG, movement_only, det_type, dist_moved, MPerSecondBetweenDetections, sum_dist, ET_STATION, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, 
+    select(Date, Datetime, TAG, movement_only, det_type, dist_moved, MPerSecondBetweenDetections, sum_dist, 
+           ET_STATION, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, 
            USGSDischargeDaily, WtempF, UTM_X, UTM_Y, X, Y, marker_color, icon_color, TimePeriod, TimePeriodDates, State)
   
   end_time <- Sys.time()

@@ -1,0 +1,405 @@
+---
+title: "Movement Exploration"
+author: "Sam Graf"
+date: "2025-04-29"
+output: html_document
+---
+#### All data excludes "No Movement", "Changed Rivers", and "Initial Release". Inclues Ghost tags and Avian Predated Tags
+```{r setup, include=FALSE}
+library(tidyverse)
+library(DT)
+library(plotly)
+
+####want to do all movements, species graph, etc
+#exlcude no movements?
+movements <- readRDS("movements.rds")
+
+movementsData <- movements %>%
+  filter(!movement_only %in% c("Initial Release", "No Movement", "Changed Rivers"), 
+         !is.na(movement_only))
+
+movementsLength <- movementsData %>%
+  mutate(length_bin = cut(
+    Release_Length,
+    breaks = c(0, 100, 200, 300, 400, 500, Inf),
+    labels = c("0-100", "100-200", "200-300", "300-400", "400-500", "500+"),
+    right = FALSE
+))
+
+
+```
+## Total Movement
+```{r total Movement, echo=FALSE}
+ totalMovementsWide <- movementsData %>%
+  count(movement_only) %>%
+  pivot_wider(names_from = movement_only, values_from = n) %>%
+  mutate(`DS Percentage` = `Downstream Movement`/(`Upstream Movement` + `Downstream Movement`))
+
+datatable(totalMovementsWide, 
+          caption = "Upstream and Downstream Movement Totals",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  rownames = FALSE
+  ) %>%
+  formatPercentage(c("DS Percentage"), 2)
+```
+
+## Movement by Species
+
+```{r species, echo=FALSE}
+# movementsLengthsSpecies <- movementsLength %>%
+#   count(length_bin, movement_only, Species) %>%
+#   arrange(length_bin, movement_only, Species) 
+totalMovementsSpecies <- movementsData %>%
+  count(movement_only, Species)
+
+totalMovementsSpeciesWide <- totalMovementsSpecies %>%
+  pivot_wider(names_from = movement_only, values_from = n)
+
+# x <- totalMovementsSpecies %>%
+#   group_by(Species) %>%
+#   summarize(DSPercent =  / sum(n))
+# totalMovementsSpeciesWide$percent_diff_abs <- with(totalMovementsSpeciesWide, abs(`Upstream Movement` - `Downstream Movement`) / ((`Upstream Movement` + `Downstream Movement`) / 2) * 100)
+
+totalMovementsSpeciesWide <- totalMovementsSpeciesWide %>%
+  mutate(`DS Percentage` = `Downstream Movement`/(`Upstream Movement` + `Downstream Movement`))
+
+datatable(totalMovementsSpeciesWide, 
+          caption = "Movements by Species",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  ) %>%
+  formatPercentage(c("DS Percentage"), 2)
+
+plot <- ggplot(totalMovementsSpecies, aes(x = Species, y = n, fill = movement_only)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    x = "Species",
+    y = "Count of Movements",
+    fill = "Movement Type",
+    title = "Movement Types by Species"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(
+    values = c(
+      "Changed Rivers"        = "purple",
+      "Downstream Movement"   = "#eb0e2b",
+      "No Movement"           = "gray",
+      "Upstream Movement"     = "#22bd74"
+    )
+  ) +
+  #facet_wrap(~Species, ncol = 2) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+ggplotly(plot)
+```
+
+## Movement by Length
+```{r by length, echo=FALSE}
+
+movementsLengths <- movementsLength %>%
+  count(length_bin, movement_only) %>%
+  arrange(length_bin, movement_only) 
+
+movementsLengthsWide <- movementsLengths %>%
+  pivot_wider(names_from = movement_only, values_from = n) %>%
+  mutate(`DS Percentage` = `Downstream Movement`/(`Upstream Movement` + `Downstream Movement`))
+
+datatable(movementsLengthsWide, 
+          caption = "Movement Summary Table by Length Bins",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  ) %>%
+  formatPercentage(c("DS Percentage"), 2)
+
+plot <- ggplot(movementsLengths, aes(x = length_bin, y = n, fill = movement_only)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    x = "Length Bin (mm)",
+    y = "Count of Movements",
+    fill = "Movement Type",
+    title = "Distribution of Movement Types Across Length Bins"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(
+    values = c(
+      "Changed Rivers"        = "purple",
+      "Downstream Movement"   = "#eb0e2b",
+      "No Movement"           = "gray",
+      "Upstream Movement"     = "#22bd74"
+    )
+  ) +
+  #facet_wrap(~Species, ncol = 2) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+ggplotly(plot)
+
+```
+
+
+## Movement by Species and Length
+
+```{r by species and length,  fig.width = 12, fig.height = 6, echo=FALSE}
+
+
+movementsLengthsSpecies <- movementsLength %>%
+  count(length_bin, movement_only, Species) %>%
+  arrange(length_bin, movement_only, Species) 
+
+movementsLengthsSpeciesWide <- movementsLengthsSpecies %>%
+  pivot_wider(values_from = n, names_from = movement_only) %>%
+  mutate(`DS Percentage` = `Downstream Movement`/(`Upstream Movement` + `Downstream Movement`))
+
+datatable(movementsLengthsSpeciesWide, 
+          caption = "Movements by length and species",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  ) %>%
+  formatPercentage(c("DS Percentage"), 2)
+
+plot <- ggplot(movementsLengthsSpecies, aes(x = length_bin, y = n, fill = movement_only)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    x = "Length Bin (mm)",
+    y = "Count of Movements",
+    fill = "Movement Type",
+    title = "Distribution of Movement Types Across Length Bins and Species"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(
+    values = c(
+      "Changed Rivers"        = "purple",
+      "Downstream Movement"   = "#eb0e2b",
+      "No Movement"           = "gray",
+      "Upstream Movement"     = "#22bd74"
+    )
+  ) +
+  facet_wrap(~Species, ncol = 2) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+ggplotly(plot)
+```
+
+
+## By Antenna
+
+```{r by antenna, fig.width = 12, fig.height = 6, echo=FALSE}
+
+movementsAntenna <- movementsData %>%
+  count(movement_only, det_type) 
+
+movementsAntennaWide <- movementsAntenna %>%
+  pivot_wider(values_from = n, names_from = movement_only) %>%
+  mutate(`DS Percentage` = `Downstream Movement`/(`Upstream Movement` + `Downstream Movement`))
+
+datatable(movementsAntennaWide, 
+          caption = "Movements by Antenna",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  ) %>%
+  formatPercentage(c("DS Percentage"), 2)
+
+plot <- ggplot(movementsAntenna, aes(x = det_type, y = n, fill = movement_only)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    x = "Detection Type",
+    y = "Count of Movements",
+    fill = "Movement Type",
+    title = "Distribution of Movement Types Across Antennas"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(
+    values = c(
+      "Changed Rivers"        = "purple",
+      "Downstream Movement"   = "#eb0e2b",
+      "No Movement"           = "gray",
+      "Upstream Movement"     = "#22bd74"
+    )
+  ) +
+  #facet_wrap(~Species, ncol = 2) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+ggplotly(plot)
+```
+
+## By Species and Antenna
+
+```{r by Species and Antenna,  fig.width = 12, fig.height = 12, echo=FALSE}
+
+movementsSpeciesAntenna <- movementsData %>%
+  count(movement_only, Species, det_type) 
+
+movementsSpeciesAntennaWide <- movementsSpeciesAntenna %>%
+  pivot_wider(values_from = n, names_from = movement_only) %>%
+  mutate(`DS Percentage` = `Downstream Movement`/(`Upstream Movement` + `Downstream Movement`))
+
+datatable(movementsSpeciesAntennaWide, 
+          caption = "Movements by Release Site and Antenna",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  ) %>%
+  formatPercentage(c("DS Percentage"), 2)
+
+plot <- ggplot(movementsSpeciesAntenna, aes(x = Species, y = n, fill = movement_only)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    x = "Species",
+    y = "Count of Movements",
+    fill = "Movement Type",
+    title = "Distribution of Movement Types Across Species and Antenna"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(
+    values = c(
+      "Changed Rivers"        = "purple",
+      "Downstream Movement"   = "#eb0e2b",
+      "No Movement"           = "gray",
+      "Upstream Movement"     = "#22bd74"
+    )
+  ) +
+  facet_wrap(~det_type, ncol = 2, scales = "free_y") +
+  theme(
+    axis.text.x = element_text(angle = 80, hjust = 1)
+  )
+
+ggplotly(plot)
+```
+
+## By Release Site
+
+```{r by Release Site,  fig.width = 12, fig.height = 6, echo=FALSE}
+
+movementsReleaseSite <- movementsData %>%
+  count(movement_only, ReleaseSite) 
+
+movementsReleaseSiteWide <- movementsReleaseSite %>%
+  pivot_wider(values_from = n, names_from = movement_only) %>%
+  mutate(`DS Percentage` = `Downstream Movement`/(`Upstream Movement` + `Downstream Movement`))
+
+datatable(movementsReleaseSiteWide, 
+          caption = "Movements by Release Site",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  ) %>%
+  formatPercentage(c("DS Percentage"), 2)
+
+plot <- ggplot(movementsReleaseSite, aes(x = ReleaseSite, y = n, fill = movement_only)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    x = "Site",
+    y = "Count of Movements",
+    fill = "Movement Type",
+    title = "Distribution of Movement Types Across Release Site"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(
+    values = c(
+      "Changed Rivers"        = "purple",
+      "Downstream Movement"   = "#eb0e2b",
+      "No Movement"           = "gray",
+      "Upstream Movement"     = "#22bd74"
+    )
+  ) +
+  #facet_wrap(~Species, ncol = 2) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+ggplotly(plot)
+```
+
+## By Release Site and Antenna
+
+```{r by Release Site and Antenna,  fig.width = 12, fig.height = 12, echo=FALSE}
+
+movementsReleaseSiteAntenna <- movementsData %>%
+  count(movement_only, ReleaseSite, det_type) 
+
+movementsReleaseSiteAntennaWide <- movementsReleaseSiteAntenna %>%
+  pivot_wider(values_from = n, names_from = movement_only) %>%
+  mutate(`DS Percentage` = `Downstream Movement`/(`Upstream Movement` + `Downstream Movement`))
+
+datatable(movementsReleaseSiteAntennaWide, 
+          caption = "Movements by Release Site and Antenna",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  ) %>%
+  formatPercentage(c("DS Percentage"), 2)
+
+plot <- ggplot(movementsReleaseSiteAntenna, aes(x = det_type, y = n, fill = movement_only)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    x = "Detection Type",
+    y = "Count of Movements",
+    fill = "Movement Type",
+    title = "Distribution of Movement Types Across Release Site and Antenna"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(
+    values = c(
+      "Changed Rivers"        = "purple",
+      "Downstream Movement"   = "#eb0e2b",
+      "No Movement"           = "gray",
+      "Upstream Movement"     = "#22bd74"
+    )
+  ) +
+  facet_wrap(~ReleaseSite, scales = "free_y") +
+  theme(
+    axis.text.x = element_text(angle = 80, hjust = 1)
+  )
+
+ggplotly(plot)
+```
+
+
+

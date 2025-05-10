@@ -362,7 +362,8 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
         } else{
           filteredData <- USGSData$USGSDaily %>%
             rename(dailyAverage = case_when(input$variableSelect2 == "USGSDischarge" ~ "Flow", 
-                                            input$variableSelect2 == "USGSWatertemp" ~ "WtempF"))
+                                            input$variableSelect2 == "USGSWatertemp" ~ "WtempF")) %>%
+            dplyr::filter(lubridate::date(Date) >= input$dateSlider2[1] & lubridate::date(Date) <= input$dateSlider2[2])
         }
         
         return(filteredData)

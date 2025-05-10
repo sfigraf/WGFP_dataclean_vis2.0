@@ -141,6 +141,8 @@ Sequences_Server <- function(id, All_Events, antennaChoices, mobileCodes, AvianP
         
         #get Sequences
         sequences <- getSequences(dateFilteredData, input$antennas1, middle_antennas, lastAntenna, mobileCodes)
+        # sequenceswReleaseData <- sequences %>%
+        #   left_join()
         
         return(sequences)
       })

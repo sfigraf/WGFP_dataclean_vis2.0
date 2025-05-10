@@ -1,13 +1,15 @@
 
 combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransducerDataWithDischarge, DischargeData){
-  #using this package for the main nearest naighbor timestamp join, but it has a lot of cross functionality with other packages especiallly lubridate
+  #using this package for the main nearest naighbor timestamp join,
+  #but it has a lot of cross functionality with other packages especiallly lubridate
   #so we're going to detach it at the end
   library(data.table, quietly = TRUE,warn.conflicts	= FALSE)
-  #########joining to get PT siteNmae from metadata
+  #########joining to get PT siteName from metadata
   DetectionswithPTSiteName <- Detections %>%
     #add pressure transducer site name to have a key to join with PT data
     #this part works as long as the site name in the metadata is what is used in the PT files as well
-    #as more sites are added, we'll have to make sure the names in the pressure transducer files are the same as in the metadata "PressureTransducerSiteName" field
+    #as more sites are added, we'll have to make sure the names in the pressure transducer files 
+    #are the same as in the metadata "PressureTransducerSiteName" field
     left_join(wgfpMetadata$AntennaMetadata[,c("FrontendSiteCode", "PressureTransducerSiteName")], by = c("Event" = "FrontendSiteCode")) %>%
     rename(SiteName = PressureTransducerSiteName)
   
@@ -60,7 +62,8 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   #first joins on sitename then datetime
   #for data where we have a stationary site attached, discharge data is from the closest hour. Otherwise, dishcarge data is within 15 minutes
   #gives df of envrionmental data and detections with closest timestamps
-  notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading <- PTData[notExactTimestampMatchesDetectionsStationaryOnly, roll = "nearest", on = .(SiteName,Datetime), nomatch = NULL]
+  notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading <- PTData[notExactTimestampMatchesDetectionsStationaryOnly, 
+                                                                              roll = "nearest", on = .(SiteName,Datetime), nomatch = NULL]
   
   # x <- as.data.frame(notExactTimestampMatchesDetectionsWithClosestEnvironmentalReading) %>%
   #   dplyr::filter(Datetime == as.POSIXct("2020-11-28 11:58:27"))
@@ -108,7 +111,8 @@ combineEnvironmentalandDetectionsData <- function(Detections, allPressureTransdu
   setkeyv(restOftheNotExactTimestampMatches, keycols)
   setkeyv(DischargeDataforJoin, keycols)
 
-  restOftheNotExactTimestampMatchesWithDischargeReading <- DischargeDataforJoin[restOftheNotExactTimestampMatches, roll = "nearest", on = .(Datetime), nomatch = NULL]
+  restOftheNotExactTimestampMatchesWithDischargeReading <- DischargeDataforJoin[restOftheNotExactTimestampMatches, roll = "nearest", on = .(Datetime), 
+                                                                                nomatch = NULL]
 
   
   restOftheNotExactTimestampMatchesWithDischargeReading <- restOftheNotExactTimestampMatchesWithDischargeReading %>%
