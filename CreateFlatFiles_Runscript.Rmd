@@ -37,7 +37,7 @@ Stationary <- readRDS("./data/WGFP_Stationary_Raw_20250505.rds")
 
 Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character", 14), rep("numeric", 4), rep("character", 3)))
 
-Biomark <- readRDS("./data/WGFP_Biomark_Raw_20250507.rds")
+Biomark <- readRDS("./data/WGFP_Biomark_Raw_20250520.rds")
 
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
 
