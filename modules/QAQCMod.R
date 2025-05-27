@@ -121,12 +121,15 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
       
       output$growthRatesSummarizedTable <- renderDT({
         dataSummarized <- combinedData_df_list$growthRates %>%
+          mutate(Species = str_trim(Species)) %>%
           dplyr::group_by(Species) %>%
           dplyr::summarise(`Median Length Growth Rate (g per year)` = round(median(`Length Growth Rate mm per Year`, na.rm = TRUE), 2), 
                            `Median Weight Growth Rate (mm per year)` = round(median(`Weight Growth Rate g per Year`, na.rm = TRUE), 2), 
                            `Mean Length Growth Rate (g per year)` = round(mean(`Length Growth Rate mm per Year`, na.rm = TRUE), 2), 
-                           `Mean Weight Growth Rate (mm per year)` = round(mean(`Weight Growth Rate g per Year`, na.rm = TRUE), 2)
+                           `Mean Weight Growth Rate (mm per year)` = round(mean(`Weight Growth Rate g per Year`, na.rm = TRUE), 2), 
+                           `Number of Observations` = n()
           )
+                           
         datatable(dataSummarized,
                   rownames = FALSE,
                   selection = "single",

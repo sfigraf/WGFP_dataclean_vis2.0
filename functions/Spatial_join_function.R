@@ -3,10 +3,10 @@
 
 #condensedEvents is the detection data filtered on distinct stuff from all_events. comes from all_combined_events function
 # condesned_events has UTMs for coordinates 
-#condensedEvents = AllCombinedEvents$df_list$All_Events_most_relevant
-# simpleStations = simpleStations2
-#simplestations is a sptial lines dataframe brought in with map_polygon_readins 
-#statesPolygon <- WGFP_States_2024
+# condensedEvents = AllCombinedEvents$df_list$All_Events_most_relevant
+# #simpleStations = simpleStations2
+# #simplestations is a sptial lines dataframe brought in with map_polygon_readins 
+# statesPolygon <- WGFP_States_2024
 
 library(sf)
 spatial_join_stations_detections <- function(condensedEvents, simpleStations, statesPolygon) {

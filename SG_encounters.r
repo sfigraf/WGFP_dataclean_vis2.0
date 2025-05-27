@@ -3777,3 +3777,14 @@ ggplot(movementsLength, aes(x = length_bin, y = n, fill = movement_only)) +
   ) +
   theme_minimal() +
   facet_wrap(~Species)
+
+####troubleshootting for incorect UTM assigning
+# x <- stationsStatesandDetections %>%
+#   filter(!Species %in% c("TGM"), 
+#          is.na(State))
+# probelmKinneyCreeka <- condensedEvents %>%
+#   inner_join(x)
+# allKinney <- condensedEvents %>%
+#   filter(ReleaseSite == "Kinney Creek", Event == "Release") %>%
+#   count(UTM_X, UTM_Y)
+# #411432	4438897
