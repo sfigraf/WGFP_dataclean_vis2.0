@@ -452,7 +452,7 @@ SiteVisitData <- list(
 
 ```{r qaqcTables, echo = FALSE, results='asis'}
 if (nrow(AllCombinedEvents$df_list$QAQCtables$tagsWithMoreThan1Release) > 0) {
-  cat('<span style="color:red; font-size: 30px;"><strong>Matching Records Found</strong></span><br><br>')
+  cat('<span style="color:red; font-size: 30px;"><strong>The following tags have multiple "Release" Events</strong></span><br><br>')
   knitr::kable(AllCombinedEvents$df_list$QAQCtables$tagsWithMoreThan1Release)
 }
 ```
