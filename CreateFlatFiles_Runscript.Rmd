@@ -450,6 +450,13 @@ SiteVisitData <- list(
 #### `r enc_hist_wide_list$endMessage`
 #### `r Movements_list$message`
 
+```{r qaqcTables, echo = FALSE, results='asis'}
+if (nrow(AllCombinedEvents$df_list$QAQCtables$tagsWithMoreThan1Release) > 0) {
+  cat('<span style="color:red; font-size: 30px;"><strong>Matching Records Found</strong></span><br><br>')
+  knitr::kable(AllCombinedEvents$df_list$QAQCtables$tagsWithMoreThan1Release)
+}
+```
+
 
 <span style="color:red; font-size: 30px;" >`r problemNAtagsMessage`</span>
 <span style="color:red; font-size: 30px;" >`r problemNoStatetagsMessage`</span>
