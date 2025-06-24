@@ -176,15 +176,12 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   
   ###tags released after detections
   
-  # x <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
-  #   group_by(TAG) %>%
-  #   mutate(
-  #     release_date = {
-  #       rel_dates <- Datetime[Event %in% c("Release", "Recapture and Release")]
-  #       #using ifelse() is vectorized and changes format, where if() else does not
-  #       if (length(rel_dates) > 0) rel_dates[1] else as.POSIXct(NA)
-  #     }
-  #   )
+  dataBeforeRelease <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
+    group_by(TAG) %>%
+    filter(Datetime < Datetime[Event %in% c("Release", "Recapture and Release")])
+  # tags <- unique(x$TAG)
+  # releaseDRtags <- Release %>%
+  #   filter(TagID %in% tags)
   # x1 <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
   #   filter(TAG == "230000226055")
   
@@ -193,7 +190,15 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     count(TAG) %>%
     filter(n >1)
   
+  tagsWithMoreThan1Species <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
+    distinct(TAG, Species, .keep_all = T) %>% 
+    #add_row(TAG = "230000087879", Species = "RBT") %>%
+    count(TAG) %>%
+    filter(n >1)
+  
   QAQCtables <- list("tagsWithMoreThan1Release" = tagsWithMoreThan1Release,
+                     "detectionsBeforeReleaseEvent" = dataBeforeRelease,
+                     "tagsWithMoreThan1Species" = tagsWithMoreThan1Species,
                      "growthRates" = growthRates)
 
   df_list <- list("All_Detections" = cleanedAllDetections, 

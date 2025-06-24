@@ -12,6 +12,7 @@ library(readxl)
 library(dataRetrieval) #this is the usgs package for getting up to date data
 library(shiny) # only used for isTruthy(), found in getSequences
 library(janitor)
+library(DT)
 
 whole_doc_startTime <- Sys.time()
 start_time <- Sys.time()
@@ -453,8 +454,20 @@ SiteVisitData <- list(
 ```{r qaqcTables, echo = FALSE, results='asis'}
 if (nrow(AllCombinedEvents$df_list$QAQCtables$tagsWithMoreThan1Release) > 0) {
   cat('<span style="color:red; font-size: 30px;"><strong>The following tags have multiple "Release" Events</strong></span><br><br>')
-  knitr::kable(AllCombinedEvents$df_list$QAQCtables$tagsWithMoreThan1Release)
+  DT::datatable(AllCombinedEvents$df_list$QAQCtables$tagsWithMoreThan1Release)
 }
+
+if (nrow(AllCombinedEvents$df_list$QAQCtables$detectionsBeforeReleaseEvent) > 0) {
+  cat('<span style="color:red; font-size: 30px;"><strong>Detections Before Official Release Event</strong></span><br><br>')
+  DT::datatable(AllCombinedEvents$df_list$QAQCtables$detectionsBeforeReleaseEvent)
+}
+
+if (nrow(AllCombinedEvents$df_list$QAQCtables$tagsWithMoreThan1Species) > 0) {
+  cat('<span style="color:red; font-size: 30px;"><strong>Tags with >1 Species Assigned</strong></span><br><br>')
+  DT::datatable(AllCombinedEvents$df_list$QAQCtables$tagsWithMoreThan1Species)
+}
+
+
 ```
 
 
