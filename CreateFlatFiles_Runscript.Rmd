@@ -464,17 +464,7 @@ if (nrow(DailyDetectionsStationsStates$spatialList$noState) > 0) {
   cat('<span style="color:red; font-size: 30px;"><strong>The following tags could not be assigned a state (aside from TGM) because their boundary was outside the states polygon: </strong></span><br><br>')
   DT::datatable(DailyDetectionsStationsStates$spatialList$noState)
 }
-# 
-# problemNAtagsMessage <- ifelse(nrow(DailyDetectionsStationsStates$spatialList$noUTMS) > 0, 
-#                                paste0("The following tags could not be assigned stations because of an NA entry for UTMs: ", unique(DailyDetectionsStationsStates$spatialList$noUTMS$TAG),
-#                                          "."), 
-#                                "")
 
-# problemNoStatetagsMessage <- ifelse(nrow(DailyDetectionsStationsStates$spatialList$noState) > 0,
-#                                     paste0("The following tags could not be assigned a state (aside from TGM) because their boundary was outside the states polygon: ", unique(DailyDetectionsStationsStates$spatialList$noState$TAG),
-#                                          "."), 
-#                                     ""
-#                                     )
 
 ```
 
