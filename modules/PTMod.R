@@ -601,8 +601,6 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
                    title = paste("Detection Distances and", input$variableSelect3), 
                    xaxis = list(title = "Date"),
                    yaxis = list(title = primaryYaxisName, side = "left", showgrid = FALSE)
-                   # yaxis2 = list(title = SecondaryYaxisName, side = "right", overlaying = "y", 
-                   #               showgrid = FALSE)
             )
         }
         ddEnvOverlayGraph
