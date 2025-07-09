@@ -179,11 +179,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   dataBeforeRelease <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
     group_by(TAG) %>%
     filter(Datetime < Datetime[Event %in% c("Release", "Recapture and Release")])
-  # tags <- unique(x$TAG)
-  # releaseDRtags <- Release %>%
-  #   filter(TagID %in% tags)
-  # x1 <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
-  #   filter(TAG == "230000226055")
+
   
   tagsWithMoreThan1Release <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
     filter(Event %in% c("Release", "Recapture and Release")) %>%
@@ -192,7 +188,6 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   
   tagsWithMoreThan1Species <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
     distinct(TAG, Species, .keep_all = T) %>% 
-    #add_row(TAG = "230000087879", Species = "RBT") %>%
     count(TAG) %>%
     filter(n >1)
   
