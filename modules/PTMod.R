@@ -183,7 +183,8 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
                              radioButtons(ns("YaxisSelect3"), 
                                           "Primary Y Axis Data",
                                           choices = c("Detection Distance Data", 
-                                                      "Environmental Data"),
+                                                      "Environmental Data", 
+                                                      "Both"),
                                           selected = "Detection Distance Data")
                    
                  )
@@ -543,12 +544,17 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
           primaryYaxisName = input$variableSelect3
           SecondaryYaxisName = AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable
           
-        } else{
+        } else if (input$YaxisSelect3 == "Environmental Data") {
           ddYaxis = "y2"
           envYaxis = "y1"
           primaryYaxisName = AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable
           SecondaryYaxisName = input$variableSelect3
+        } else{
+          ddYaxis = "y1"
+          envYaxis = "y1"
+          primaryYaxisName =  paste(AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable, "and", input$variableSelect3)
         }
+          
         
         if(!AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable %in% c("USGSDischarge", "USGSWatertemp")){
           line_color = ~Site
@@ -559,7 +565,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
                                  AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable == "USGSWatertemp" ~ "USGS Water Temp (F)")
         }
         
-        plot_ly() %>%
+        ddEnvOverlayGraph <- plot_ly() %>%
           add_trace(data = AllfilteredDetectionDistanceData()$WGFPSiteVisitsFieldData3, x = ~Date, y = ~.data[[input$variableSelect3]], 
                     color = ~Site, 
                     name = ~paste0(input$variableSelect3, ": ", Site), 
@@ -579,14 +585,25 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
                     colors = allColors,
                     yaxis = envYaxis,
                     mode = "lines"
-          ) %>%
+          ) 
+        if(input$YaxisSelect3 != "Both") {
+        ddEnvOverlayGraph <- ddEnvOverlayGraph %>%
           layout(legend = list(x = 1.1, y = 1),
-                 title = "Detection Distances and PT Data", 
+                 title = paste("Detection Distances and", input$variableSelect3), 
                  xaxis = list(title = "Date"),
                  yaxis = list(title = primaryYaxisName, side = "left", showgrid = FALSE), 
                  yaxis2 = list(title = SecondaryYaxisName, side = "right", overlaying = "y", 
                                showgrid = FALSE)
           )
+        } else {
+          ddEnvOverlayGraph <- ddEnvOverlayGraph %>%
+            layout(legend = list(x = 1.1, y = 1),
+                   title = paste("Detection Distances and", input$variableSelect3), 
+                   xaxis = list(title = "Date"),
+                   yaxis = list(title = primaryYaxisName, side = "left", showgrid = FALSE)
+            )
+        }
+        ddEnvOverlayGraph
       })
       
     }

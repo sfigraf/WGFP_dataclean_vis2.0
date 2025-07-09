@@ -115,7 +115,7 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
           rownames = FALSE,
           selection = "single",
           caption = "% of FISH detections on each antenna with the exact same timestamp.
-          Detections in raw data may differ by milliseconds, but milliseconds are not used in the app data.",
+          Detections in raw data may differ by milliseconds, but milliseconds are not used in the Stationary app data.",
           options = list(
             #statesave is restore table state on page reload
             stateSave = TRUE,

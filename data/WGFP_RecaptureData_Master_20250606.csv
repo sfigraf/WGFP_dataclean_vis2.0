@@ -576,7 +576,7 @@ Colorado River,Between CRCC and Hitching Post,5/7/2025,14:30:00,415028,4440342,R
 Colorado River,Between CRCC and Hitching Post,5/7/2025,14:30:00,415028,4440342,LOC,408,615,HA,230000087970,pass,32,Handheld,Recapture,adp,0,
 Colorado River,Between CRCC and Hitching Post,5/7/2025,14:30:00,415028,4440342,LOC,334,384,HA,230000294213,pass,32,Handheld,Recapture,adp,0,Lower Caudal
 Colorado River,Between CRCC and Hitching Post,5/7/2025,14:30:00,415028,4440342,LOC,374,504,HA,230000294281,pass,32,Handheld,Recapture,adp,0,Anal Clip
-Colorado River,Hitching Post,5/8/2025,10:00:00,414476,4440260,LOC,333,370,HA,230000226055,,32,Handheld,Release,adp,0,
+Colorado River,Hitching Post,5/8/2025,10:00:00,414476,4440260,LOC,333,370,HA,230000226055,,32,Handheld,Recapture,adp,0,
 Colorado River,Hitching Post,5/8/2025,10:00:00,414476,4440260,LOC,391,514,HA,230000226025,pass,32,Handheld,Recapture,adp,0,
 Colorado River,Chimney Rock Below Island,5/8/2025,10:45:00,413330,4440059,LOC,348,426,HA,230000294128,pass,32,Handheld,Recapture,adp,0,Lower Caudal
 Colorado River,Chimney Rock Below Island,5/8/2025,10:45:00,413330,4440059,RBT,372,503,HA,230000142887,pass,32,Handheld,Recapture,adp,0,
@@ -668,3 +668,8 @@ Colorado River,Sheriff Ranch Middle Field,5/8/2025,15:00:00,409595,4438221,RBT,3
 Colorado River,Sheriff Ranch Middle Field,5/8/2025,15:00:00,409595,4438221,RBT,296,262,HA,230000226275,pass,32,Handheld,Recapture,adp,0,
 Colorado River,Sheriff Ranch Middle Field,5/8/2025,15:00:00,409595,4438221,LOC,329,380,HA,230000226155,pass,32,Handheld,Recapture,adp,0,
 Colorado River,Sheriff Ranch Middle Field,5/8/2025,15:00:00,409595,4438221,LOC,364,422,HA,230000226277,pass,32,Handheld,Recapture,adp,0,
+Colorado River,Pool Above Red Barn Antenna,5/6/2021,12:00:00,412550,4439453,RBT,264,186,HA,230000272140,pass,32,Handheld,Recapture,adp,0,changed release date to 5/4 to avoid having detections before release date. Old release date = recapture date
+Colorado River,Chimney Rock Below Island,5/6/2021,11:15:00,413330,4440059,LOC,377,530,HA,230000272063,,32,Handheld,Recapture,adp,0,changed release date to 5/4 to avoid having detections before release date. Old release date = recapture date
+Colorado River,Chimney Rock Below Island,5/6/2021,11:15:00,413330,4440059,LOC,389,624,HA,230000272153,,32,Handheld,Recapture,adp,0,changed release date to 5/4 to avoid having detections before release date. Old release date = recapture date
+Colorado River,Pool Above Red Barn Antenna,5/6/2021,12:00:00,412550,4439453,LOC,352,410,HA,230000272273,,32,Handheld,Recapture,adp,0,changed release date to 5/4 to avoid having detections before release date. Old release date = recapture date
+Colorado River,Hitching Post,5/6/2021,9:45:00,414476,4440260,LOC,351,423,HA,230000142517,pass,32,Handheld,Recapture,adp,0,"tagged during mark run, then recaptured and released during recapture run. Changed release date to 5/4/2021 to avoid detections before release date. Old release date = recapture date"

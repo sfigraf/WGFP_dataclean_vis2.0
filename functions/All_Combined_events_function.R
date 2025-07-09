@@ -170,15 +170,38 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     distinct(TAG, Event, Date, first_last,  UTM_X, UTM_Y, .keep_all = TRUE) %>%
     arrange(Datetime) 
   
+  ####QAQC Stuff
   ###get growth rates for QAQC tab
   growthRates <- getGrowthRates(Release = Release, Recaptures = Recaptures)
+  
+  ###tags released after detections
+  
+  dataBeforeRelease <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
+    group_by(TAG) %>%
+    filter(Datetime < Datetime[Event %in% c("Release", "Recapture and Release")])
+
+  
+  tagsWithMoreThan1Release <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
+    filter(Event %in% c("Release", "Recapture and Release")) %>%
+    count(TAG) %>%
+    filter(n >1)
+  
+  tagsWithMoreThan1Species <- condensedAllEventsWithReleaseandEnvironmentalInfo %>%
+    distinct(TAG, Species, .keep_all = T) %>% 
+    count(TAG) %>%
+    filter(n >1)
+  
+  QAQCtables <- list("tagsWithMoreThan1Release" = tagsWithMoreThan1Release,
+                     "detectionsBeforeReleaseEvent" = dataBeforeRelease,
+                     "tagsWithMoreThan1Species" = tagsWithMoreThan1Species,
+                     "growthRates" = growthRates)
 
   df_list <- list("All_Detections" = cleanedAllDetections, 
                   "All_Events_most_relevant" = allEventsRelevantToStations,
                   #allEvents has release and recapture along with detections. All Detections just has detections
                   "All_Events" = condensedAllEventsWithReleaseandEnvironmentalInfo, 
                   "Recaps_detections" = recapturesAndDetections, 
-                  "growthRates" = growthRates)
+                  "QAQCtables" = QAQCtables)
   
   end_time <- Sys.time()
   endMessage <- paste("All_combined_events_function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes.")

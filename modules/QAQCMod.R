@@ -111,7 +111,7 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
       })
       
       output$growthRatesPlot <- renderPlotly({
-        combinedData_df_list$growthRates %>%
+        combinedData_df_list$QAQCtables$growthRates %>%
           ggplot(aes(x = `Length Growth Rate mm per Year`, y = `Weight Growth Rate g per Year`, color = Species, text = TagID)) +
           geom_point() + 
           theme_classic() +
@@ -120,7 +120,7 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
       })
       
       output$growthRatesSummarizedTable <- renderDT({
-        dataSummarized <- combinedData_df_list$growthRates %>%
+        dataSummarized <- combinedData_df_list$QAQCtables$growthRates %>%
           mutate(Species = str_trim(Species)) %>%
           dplyr::group_by(Species) %>%
           dplyr::summarise(`Median Length Growth Rate (g per year)` = round(median(`Length Growth Rate mm per Year`, na.rm = TRUE), 2), 
