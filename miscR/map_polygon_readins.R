@@ -13,7 +13,7 @@ antenna_sites <- st_transform(read_sf(file.path(layerLocation, "newAntennaSites.
 
 stream_centerline <- st_transform(read_sf(file.path(layerLocation, "Stream_Centerline_Post.shp")), latLongCRS)
 
-releasesites <- st_transform(read_sf(file.path(layerLocation, "ReleaseSites2021.shp")), latLongCRS)
+releasesites <- st_transform(read_sf(file.path(layerLocation, "ReleaseSites_2025_UTM_NoDates.shp")), latLongCRS)
 
 mobile_reaches <- st_transform(read_sf(file.path(layerLocation, "mobile_reaches.shp")), latLongCRS)
 
