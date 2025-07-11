@@ -259,7 +259,7 @@ movements_Server <- function(id, Movements_df, allColors) {
                             icon = release_icons,
                             clusterOptions = markerClusterOptions(),
                             label = releasesites$ReleaseSit, 
-                            popup = paste("Release Date1:", releasesites$ReleaseDat, "<br>","Release Date 2:",  releasesites$ReleaseD_1),
+                            #popup = paste("Release Date1:", releasesites$ReleaseDat, "<br>","Release Date 2:",  releasesites$ReleaseD_1),
                             group = "Release Sites") %>%
           ###minicharts
           addMinicharts(
@@ -354,7 +354,7 @@ movements_Server <- function(id, Movements_df, allColors) {
                             icon = release_icons,
                             clusterOptions = markerClusterOptions(),
                             label = releasesites$ReleaseSit, 
-                            popup = paste("Release Date1:", releasesites$ReleaseDat, "<br>","Release Date 2:",  releasesites$ReleaseD_1),
+                            #popup = paste("Release Date1:", releasesites$ReleaseDat, "<br>","Release Date 2:",  releasesites$ReleaseD_1),
                             group = "Release Sites") %>%
           addPolylines(data = simpleStations, 
                        label = simpleStations$ET_STATION,
