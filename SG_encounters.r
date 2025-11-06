@@ -3788,3 +3788,48 @@ ggplot(movementsLength, aes(x = length_bin, y = n, fill = movement_only)) +
 #   filter(ReleaseSite == "Kinney Creek", Event == "Release") %>%
 #   count(UTM_X, UTM_Y)
 # #411432	4438897
+
+####marker tag qaqc fish detection overlay
+plot <- filtered_movements_data() %>%
+  ggplot(aes(x = lubridate::hour(Datetime), fill = movement_only)) +
+  geom_histogram(binwidth = 1) +
+  theme_classic() +
+  labs(title = "Detections by Hour", 
+       x = "Hour of Day", 
+       y = "Count") +
+  scale_fill_manual(values = allColors)
+ggplotly(plot) 
+
+###getting marker data ready
+marker1 <- `MarkerTagData_2025-10-29` %>%
+  mutate(Event = paste0(Site_Code, "_MarkerTag")) %>%
+  rename(Date = Scan_Date, 
+         Time = Scan_Time) %>%
+  
+  select(Date, Time, Event, TAG)
+
+fishData1 <- CdandCSdata %>%
+  mutate(Event = paste0(Event, "_Fish Detection")) %>%
+  select(Date, Time, Event, TAG)
+allData <- rbind(marker1, fishData1)
+
+plot <- allData %>%
+  ggplot(aes(x = Date, y = Time, color = Event, text = paste(TAG))) +
+  geom_point() +
+  labs(title = "Marker Tag Detection Times") +
+  xlab("Date") +
+  ylab("Time") +
+  theme_classic() +
+  theme(
+    axis.text.y = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks = element_blank()) +
+  scale_color_brewer(palette="Dark2")
+
+ggplotly(plot)
+
+
+unknown_tags <- allData %>%
+  filter(!str_detect(TAG, "^0000000|^999"))
+x <- combinedData_df_list$All_Detections %>%
+  dplyr::filter(str_detect(TAG, "^0000000|^999"))

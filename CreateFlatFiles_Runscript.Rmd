@@ -34,15 +34,15 @@ for (i in list.files("./miscR/")) {
 # if column names change in any of these read-ins, might require some modification to code to get them to combine
 # also if you change read.csv to read_csv, it should read in quicker but column names will change
 # could be a later task
-Stationary <- readRDS("./data/WGFP_Stationary_Raw_20251002.rds")
+Stationary <- readRDS("./data/WGFP_Stationary_Raw_20251104.rds")
 
 Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character", 14), rep("numeric", 4), rep("character", 3)))
 
-Biomark <- readRDS("./data/WGFP_Biomark_Raw_20251007.rds")
+Biomark <- readRDS("./data/WGFP_Biomark_Raw_20251104.rds")
 
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
 
-Release <- read.csv("./data/WGFP_ReleaseData_Master_20251024.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",7), "numeric", "numeric",rep("character",9))) %>%
+Release <- read.csv("./data/WGFP_ReleaseData_Master_20251031.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",7), "numeric", "numeric",rep("character",9))) %>%
   janitor::remove_empty()
 Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20251020.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 7), rep("numeric", 2), rep("character", 8))) %>%
   janitor::remove_empty()
@@ -316,13 +316,6 @@ GhostTags <- GhostTags %>%
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
 AllCombinedEvents <- All_combined_events_function(Stationary = utmsStationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
 
-#separating to marker tag file and fish detections file
-
-#all marker tags here
-Cleaned_Marker_tags <- AllCombinedEvents$df_list$All_Detections %>%
-  dplyr::filter(str_detect(TAG, "^0000000|^999")) %>%
-  mutate(Scan_Date = ymd(Scan_Date))
-
 Cleaned_Stationary_FishdetectionsOnly <- utmsStationary %>%
   filter(grepl("^230|^226", TAG))
 
@@ -340,7 +333,9 @@ combined_events_stations <- PrepareforStatesMovementsandSummary(DailyDetectionsS
 # states
 
 # aplies enc_hist_summary wide function
-enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(AllCombinedEvents$df_list$Recaps_detections, cleanedRelease, combined_events_stations, encounterMARKStates$States_summarized, markerTags = unique(Cleaned_Marker_tags$TAG))
+enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(AllCombinedEvents$df_list$Recaps_detections, cleanedRelease, combined_events_stations, States_summarized = encounterMARKStates$States_summarized)
+  
+  
 unknown_tags <- enc_hist_wide_list$enc_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$enc_wide_list$encountersAndRelease_wide_summary
 
@@ -480,7 +475,7 @@ allFlatFiles <- list(
   "Enc_release_data" = Enc_release_data,
   "encounterMARKStates" = encounterMARKStates,
   "movements_list" = movements_list,
-  "Marker_tags" = Cleaned_Marker_tags,
+  #"Marker_tags" = Cleaned_Marker_tags,
   "unknown_tags" = unknown_tags, 
   "possibleAvianPredationDFs" = avianPredationList,
   "wgfpMetadata" = wgfpMetadata,

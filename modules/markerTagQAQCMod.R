@@ -1,13 +1,13 @@
 ##### Marker Tag Mod
 
-MarkerTagQAQC_UI <- function(id, Marker_Tag_data) {
+MarkerTagQAQC_UI <- function(id, All_Detections) {
   ns <- NS(id)
   #deciding which marker tag data to show
   if(str_detect(id, "Stationary")){
-    Marker_Tag_data <- Marker_Tag_data %>%
+    Marker_Tag_data <- All_Detections %>%
       dplyr::filter(str_detect(TAG, "^0000000"))
   } else{
-    Marker_Tag_data <- Marker_Tag_data %>%
+    Marker_Tag_data <- All_Detections %>%
       dplyr::filter(str_detect(TAG, "^999"))
   }
   
@@ -32,14 +32,13 @@ MarkerTagQAQC_UI <- function(id, Marker_Tag_data) {
                       `actions-box` = TRUE #this makes the "select/deselect all" option
                     )
         ), #end of picker 9 
-        sliderInput(ns("slider3"),
+        dateRangeInput(ns("markerDateRangeInput"),
                     "Date",
-                    min = min(Marker_Tag_data$Scan_Date - 1),
-                    max = max(Marker_Tag_data$Scan_Date + 1),  
-                    value = c(max(Marker_Tag_data$Scan_Date - 30), max(Marker_Tag_data$Scan_Date + 1 )),
-                    step = 1,
-                    timeFormat = "%d %b %y",
-                    #animate = animationOptions(interval = 500, loop = FALSE)
+                    start = max(Marker_Tag_data$Scan_Date - 30),
+                    end = max(Marker_Tag_data$Scan_Date + 1), 
+                    min = min(Marker_Tag_data$Scan_Date - 1)
+        ),
+        checkboxInput(ns("fishDetectionOverlay"), "Overlay Fish Detection Data"
         ),
         actionButton(ns("button8"), label = "Render Marker Tag Plot")
       ), #end of sidebar panel
@@ -57,32 +56,58 @@ MarkerTagQAQC_UI <- function(id, Marker_Tag_data) {
         )
       )#end of mainpanel
     )#end of sidebar layout
-  
   )
 }
 
-MarkerTagQAQC_Server <- function(id, Marker_Tag_data) {
+MarkerTagQAQC_Server <- function(id, All_Detections) {
   moduleServer(
     id,
     function(input, output, session) {
       
       plotAndTableMarkerTagDataList <- eventReactive(input$button8,ignoreNULL = FALSE,{
-        if(str_detect(id, "Stationary")){
-          Marker_Tag_data <- Marker_Tag_data %>%
-            dplyr::filter(str_detect(TAG, "^0000000"))
+        #first filtering by site code and date range (tag is a bit trickier when throwing in fish data)
+
+        allDetectionsFiltered <- All_Detections %>%
+          filter(Site_Code %in% c(input$picker8),
+                 Scan_Date >= input$markerDateRangeInput[1] & Scan_Date <= input$markerDateRangeInput[2]
+          )
+        if(input$fishDetectionOverlay){
+          if(str_detect(id, "Stationary")){
+            #if overlay is on and stationary selected, filter out biomark tags and make stationary marker tags ddisplay as "_marker tag
+            #and have fish display as "_fish detection"
+            allDetectionsFilteredForPlot <- allDetectionsFiltered %>%
+              mutate(Site_Code = case_when(str_detect(TAG, "^0000000") ~ paste0(Site_Code, "_MarkerTag"), 
+                                           TRUE ~ paste0(Site_Code, "_Fish Detection")
+              )
+              ) %>%
+              dplyr::filter(!str_detect(TAG, "^999"))
+            
+            
+          } else {
+            allDetectionsFilteredForPlot <- allDetectionsFiltered %>%
+              mutate(Site_Code = case_when(str_detect(TAG, "^999") ~ paste0(Site_Code, "_MarkerTag"), 
+                                           TRUE ~ paste0(Site_Code, "_Fish Detection")
+              )) %>%
+              dplyr::filter(!str_detect(TAG, "^0000000"))
+          }
+          #now, separate fish and marker tags based on selection in Tag Picker
+          fishOnly <- allDetectionsFilteredForPlot %>%
+            filter(str_detect(Site_Code, "_Fish Detection"))
+          
+          markerTagDataForMerging <- allDetectionsFiltered %>%
+            filter(TAG %in% c(input$picker9))
+          #bind rows back together so that fish tags will display if the overlay is on and specific marker tag is selected
+          
+          markerTagDataForPlot <- rbind(fishOnly, markerTagDataForMerging)
+          
         } else{
-          Marker_Tag_data <- Marker_Tag_data %>%
-            dplyr::filter(str_detect(TAG, "^999"))
+          #if the fish overlay is off, just filter by selected tag now
+          markerTagDataForPlot <- allDetectionsFiltered %>%
+            filter(TAG %in% c(input$picker9))
         }
         
-        markerTagDataFiltered <- Marker_Tag_data %>%
-          filter(Site_Code %in% c(input$picker8),
-                 TAG %in% c(input$picker9))
-        
-        markerTagDataForPlot <- markerTagDataFiltered %>%
-          filter(Scan_Date >= input$slider3[1] & Scan_Date <= input$slider3[2])
-        
-        summarizedMarkerTagDataForTable <- markerTagDataFiltered %>%
+        #this will include fishDetections (including unkown tags bc they haven't been fitlered out of this DF) but not a big deal
+        summarizedMarkerTagDataForTable <- markerTagDataForPlot %>%
           dplyr::count(Site_Code, TAG, name = "totalDetectionsSinceProjectInception")
         
         plotAndTableMarkerTagDataList <- list("markerTagDataForPlot" = markerTagDataForPlot, 
@@ -92,9 +117,9 @@ MarkerTagQAQC_Server <- function(id, Marker_Tag_data) {
       }) 
       
       # MarkerTag Plot Output ---------------------------------------------------
-      
+
       output$plot2 <- renderPlotly({
-        plotAndTableMarkerTagDataList()$markerTagDataForPlot %>%
+        markerPlot <- plotAndTableMarkerTagDataList()$markerTagDataForPlot %>%
           ggplot(aes(x = Scan_Date, y = Scan_Time, color = Site_Code, text = paste(TAG) )) +
           geom_point() +
           labs(title = "Marker Tag Detection Times") +
@@ -106,8 +131,6 @@ MarkerTagQAQC_Server <- function(id, Marker_Tag_data) {
             axis.text.x = element_blank(),
             axis.ticks = element_blank()) +
           scale_color_brewer(palette="Dark2")
-          
-        
       })
       downloadData_Server("downloadmarkerTagsPlotData", plotAndTableMarkerTagDataList()$markerTagDataForPlot, "MarkerTagData")
       
