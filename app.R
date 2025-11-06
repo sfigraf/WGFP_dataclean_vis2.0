@@ -20,11 +20,6 @@ library(leaflet.minicharts)
 library(shinyjs)
 library(shinyjqui)
 #library(mapview)
-#biomark test tags: 999000000007601, 999000000007602
-# to do: put qaqc stuff from combine files app in this file as well
-#continue with how-to
-# make mini charts on leaflet# 
-#allData <- combinedData_df_list$All_Detections
 
 # cntrl + shft + A to reformat chunks of code
 # rsconnect::showLogs(appName="WGFP_dataclean_vis",streaming=TRUE) will show logs when trying to load app browser
@@ -52,9 +47,6 @@ if(!exists("encounterMARKStates")){
 if(!exists("movements_list")){
   movements_list <- readRDS("data/flatFilesforApp/movements_list.rds")
 }
-# if(!exists("Marker_tags")){
-#   Marker_tags <- readRDS("data/flatFilesforApp/Marker_tags.rds")
-# }
 if(!exists("unknown_tags")){
   unknown_tags <- readRDS("data/flatFilesforApp/unknown_tags.rds")
 }
