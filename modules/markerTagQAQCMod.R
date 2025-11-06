@@ -32,14 +32,11 @@ MarkerTagQAQC_UI <- function(id, Marker_Tag_data) {
                       `actions-box` = TRUE #this makes the "select/deselect all" option
                     )
         ), #end of picker 9 
-        sliderInput(ns("slider3"),
+        dateRangeInput(ns("markerDateRangeInput"),
                     "Date",
-                    min = min(Marker_Tag_data$Scan_Date - 1),
-                    max = max(Marker_Tag_data$Scan_Date + 1),  
-                    value = c(max(Marker_Tag_data$Scan_Date - 30), max(Marker_Tag_data$Scan_Date + 1 )),
-                    step = 1,
-                    timeFormat = "%d %b %y",
-                    #animate = animationOptions(interval = 500, loop = FALSE)
+                    start = max(Marker_Tag_data$Scan_Date - 30),
+                    end = max(Marker_Tag_data$Scan_Date + 1), 
+                    min = min(Marker_Tag_data$Scan_Date - 1)
         ),
         actionButton(ns("button8"), label = "Render Marker Tag Plot")
       ), #end of sidebar panel
@@ -80,7 +77,7 @@ MarkerTagQAQC_Server <- function(id, Marker_Tag_data) {
                  TAG %in% c(input$picker9))
         
         markerTagDataForPlot <- markerTagDataFiltered %>%
-          filter(Scan_Date >= input$slider3[1] & Scan_Date <= input$slider3[2])
+          filter(Scan_Date >= input$markerDateRangeInput[1] & Scan_Date <= input$markerDateRangeInput[2])
         
         summarizedMarkerTagDataForTable <- markerTagDataFiltered %>%
           dplyr::count(Site_Code, TAG, name = "totalDetectionsSinceProjectInception")
