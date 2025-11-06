@@ -475,7 +475,6 @@ allFlatFiles <- list(
   "Enc_release_data" = Enc_release_data,
   "encounterMARKStates" = encounterMARKStates,
   "movements_list" = movements_list,
-  #"Marker_tags" = Cleaned_Marker_tags,
   "unknown_tags" = unknown_tags, 
   "possibleAvianPredationDFs" = avianPredationList,
   "wgfpMetadata" = wgfpMetadata,
