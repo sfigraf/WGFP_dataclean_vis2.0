@@ -281,24 +281,18 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
         # i guess reactive ({}) makes it so you can make multiple expressions within a reactive context whereas reactive() can only do 1
         all_events_data <- eventReactive(list(input$button3, input$keys), ignoreNULL = FALSE,{
           
-          # input <-list(
-          #   sliderDischarge = c(80, 200)
-          # )
-
-          
           All_Events <- combinedData_df_list$All_Events
           if(input$dischargeDataFilter){
-            print(input$sliderDischarge[1])
-            print(USGSDischarge <= input$sliderDischarge[2])
-            
+            validate(need(isTruthy(input$sliderDischarge), "Needs USGS filter slider to load before clicking 'Render Table'. Re-click 'Render Table' with slider present and wait 15 seconds."))
             All_Events <- All_Events %>%
               filter(
                 USGSDischarge >= input$sliderDischarge[1] & USGSDischarge <= input$sliderDischarge[2]
               )
-            allEventsQ <<- All_Events
           }
           
           if(input$PTFilters){
+            validate(need(isTruthy(input$sliderWaterPressure), "Needs Environmental filters to load before clicking 'Render Table'. Re-click 'Render Table' with slider present and wait 15 seconds."))
+            
             All_Events <- All_Events %>%
               filter(
                 Water_Pres_psi >= input$sliderWaterPressure[1] & Water_Pres_psi <= input$sliderWaterPressure[2],
