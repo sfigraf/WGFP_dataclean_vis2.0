@@ -73,22 +73,79 @@ MarkerTagQAQC_Server <- function(id, All_Detections) {
     function(input, output, session) {
       
       plotAndTableMarkerTagDataList <- eventReactive(input$button8,ignoreNULL = FALSE,{
-        if(str_detect(id, "Stationary")){
-          Marker_Tag_data <- All_Detections %>%
-            dplyr::filter(str_detect(TAG, "^0000000"))
+        
+        # if(input$fishDetectionOverlay){
+        #   #if the overlay is on and sationary is seelcted, change the site code to marker tag vs fish and remove biomark tags
+        #   if(str_detect(id, "Stationary")){
+        #     Marker_Tag_data <- All_Detections %>%
+        #       mutate(Site_Code = case_when(str_detect(TAG, "^0000000") ~ paste0(Site_Code, "_MarkerTag"), 
+        #              TRUE ~ paste0(Site_Code, "_Fish Detection")
+        #       )
+        #              ) %>%
+        #       dplyr::filter(!str_detect(TAG, "^999"))
+        #       
+        #   } else {
+        #     Marker_Tag_data <- All_Detections %>%
+        #       mutate(Site_Code = case_when(str_detect(TAG, "^999") ~ paste0(Site_Code, "_MarkerTag"), 
+        #                                  TRUE ~ paste0(Site_Code, "_Fish Detection")
+        #     )) %>%
+        #       dplyr::filter(!str_detect(TAG, "^0000000"))
+        #   }
+        # } else {
+        #   #if the overlay is off, just select stationary vs biomark tags
+        #   if(str_detect(id, "Stationary")){
+        #     Marker_Tag_data <- All_Detections %>%
+        #       dplyr::filter(str_detect(TAG, "^0000000"))
+        #   } else{
+        #     Marker_Tag_data <- All_Detections %>%
+        #       dplyr::filter(str_detect(TAG, "^999"))
+        #   }
+        # }
+        
+        # if(fishDetectionOverlay){
+        #   Marker_Tag_data <- All_Detections %>%
+        #     mutate(Site_Code = paste0(Site_Code, "_MarkerTag")) %>%
+        #     
+        #          
+        # }
+        
+        allDetectionsFiltered <- All_Detections %>%
+          filter(Site_Code %in% c(input$picker8),
+                 Scan_Date >= input$markerDateRangeInput[1] & Scan_Date <= input$markerDateRangeInput[2]
+          )
+        if(input$fishDetectionOverlay){
+          if(str_detect(id, "Stationary")){
+            allDetectionsFilteredForPlot <- allDetectionsFiltered %>%
+              mutate(Site_Code = case_when(str_detect(TAG, "^0000000") ~ paste0(Site_Code, "_MarkerTag"), 
+                                           TRUE ~ paste0(Site_Code, "_Fish Detection")
+              )
+              ) %>%
+              dplyr::filter(!str_detect(TAG, "^999"))
+            
+            
+          } else {
+            allDetectionsFilteredForPlot <- All_Detections %>%
+              mutate(Site_Code = case_when(str_detect(TAG, "^999") ~ paste0(Site_Code, "_MarkerTag"), 
+                                           TRUE ~ paste0(Site_Code, "_Fish Detection")
+              )) %>%
+              dplyr::filter(!str_detect(TAG, "^0000000"))
+          }
+          
+          fishOnly <- allDetectionsFilteredForPlot %>%
+            filter(str_detect(Site_Code, "_Fish Detection"))
+          
+          markerTagDataForMerging <- allDetectionsFiltered %>%
+            filter(TAG %in% c(input$picker9))
+          
+          markerTagDataForPlot <- rbind(fishOnly, markerTagDataForMerging)
+          
         } else{
-          Marker_Tag_data <- All_Detections %>%
-            dplyr::filter(str_detect(TAG, "^999"))
+          markerTagDataForPlot <- allDetectionsFiltered %>%
+            filter(TAG %in% c(input$picker9))
         }
         
-        markerTagDataFiltered <- Marker_Tag_data %>%
-          filter(Site_Code %in% c(input$picker8),
-                 TAG %in% c(input$picker9))
         
-        markerTagDataForPlot <- markerTagDataFiltered %>%
-          filter(Scan_Date >= input$markerDateRangeInput[1] & Scan_Date <= input$markerDateRangeInput[2])
-        
-        summarizedMarkerTagDataForTable <- markerTagDataFiltered %>%
+        summarizedMarkerTagDataForTable <- markerTagDataForPlot %>%
           dplyr::count(Site_Code, TAG, name = "totalDetectionsSinceProjectInception")
         
         plotAndTableMarkerTagDataList <- list("markerTagDataForPlot" = markerTagDataForPlot, 
@@ -99,8 +156,13 @@ MarkerTagQAQC_Server <- function(id, All_Detections) {
       
       # MarkerTag Plot Output ---------------------------------------------------
       
+      
+      # if(input$dischargeOverlay){
+      #   
+      # }
+      # 
       output$plot2 <- renderPlotly({
-        plotAndTableMarkerTagDataList()$markerTagDataForPlot %>%
+        markerPlot <- plotAndTableMarkerTagDataList()$markerTagDataForPlot %>%
           ggplot(aes(x = Scan_Date, y = Scan_Time, color = Site_Code, text = paste(TAG) )) +
           geom_point() +
           labs(title = "Marker Tag Detection Times") +
@@ -112,8 +174,6 @@ MarkerTagQAQC_Server <- function(id, All_Detections) {
             axis.text.x = element_blank(),
             axis.ticks = element_blank()) +
           scale_color_brewer(palette="Dark2")
-          
-        
       })
       downloadData_Server("downloadmarkerTagsPlotData", plotAndTableMarkerTagDataList()$markerTagDataForPlot, "MarkerTagData")
       
