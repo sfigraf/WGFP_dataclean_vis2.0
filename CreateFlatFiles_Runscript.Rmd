@@ -113,13 +113,21 @@ end_time = Sys.time()
 ```{r USGSData, include = TRUE, echo = FALSE}
 usgsTime <- Sys.time()
 #reading in USGS data with upt to date data
-windyGapDaily <- readNWISdv(siteNumbers = "09034250", #code for windy gap
-                       parameterCd = c("00060", "00010"), #this is parameter codes for discharge and celsius water temp; more can be added if needed. https://help.waterdata.usgs.gov/codes-and-parameters/parameters
-                       startDate = "2020-08-06", 
-                       endDate = Sys.Date())
-windyGapDaily <- renameNWISColumns(windyGapDaily) %>%
-  mutate(WtempF = (Wtemp * 9/5) + 32)
+windyGapDaily <- read_waterdata_daily(monitoring_location_id = "USGS-09034250", #code for windy gap
+                       parameter_code = c("00060", "00010"), #this is parameter codes for discharge and celsius water temp; more can be added if needed. https://help.waterdata.usgs.gov/codes-and-parameters/parameters
+                       time = c("2020-08-06", Sys.Date())
+)
+windyGapDaily <- windyGapDaily %>%
+  st_drop_geometry() %>%
+  pivot_wider(id_cols = time, names_from = parameter_code, values_from = value, values_fn = ~ mean(.x, na.rm = TRUE)) %>%
+  rename(tempC = `00010`,
+         Flow = `00060`, 
+         Date = time)
+
+windyGapDaily <- windyGapDaily %>%
+  mutate(WtempF = (tempC * 9/5) + 32)
 #sometimes this can fail if USGS is having issues on their end
+#maybe this function readNWISuv should be replaced with read_waterdata_latest_continuous but no error on that yet. monitor
 windyGap <- readNWISuv(siteNumbers = "09034250", #code for windy gap
                        parameterCd = c("00060", "00010"), #this is parameter code for discharge; more can be added if needed
                        startDate = "2020-08-06", #if you want to do times it is this format: "2014-10-10T00:00Z",
@@ -340,7 +348,7 @@ unknown_tags <- enc_hist_wide_list$enc_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$enc_wide_list$encountersAndRelease_wide_summary
 
 # applies get_movements_function
-Movements_list <- get_movements_function(combined_events_stations, dailyUSGSData = windyGapDaily, eventsWithPeriodsSelect = encounterMARKStates$eventsWithPeriodsSelectForMovementJoining, wgfpMetadata$TimePeriods)
+Movements_list <- get_movements_function(combined_events_stations, dailyUSGSData = WindyGapDaily, eventsWithPeriodsSelect = encounterMARKStates$eventsWithPeriodsSelectForMovementJoining, wgfpMetadata$TimePeriods)
 
 
 
@@ -416,7 +424,7 @@ PTData <- list(
 
 USGSData <- list(
   "USGS15Min" = windyGap, 
-  "USGSDaily" = windyGapDaily
+  "USGSDaily" = WindyGapDaily
 )
 
 SiteVisitData <- list(
