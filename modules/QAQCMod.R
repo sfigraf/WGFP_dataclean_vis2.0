@@ -1,14 +1,14 @@
-QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
+QAQC_UI <- function(id, combinedData_df_list) {
   ns <- NS(id)
   tagList(
     tabsetPanel(
       tabPanel("Marker Tags",
                tabsetPanel(
                  tabPanel("Stationary", 
-                          MarkerTagQAQC_UI(ns("StationaryMarkerTags"), Marker_Tag_data)
+                          MarkerTagQAQC_UI(ns("StationaryMarkerTags"), combinedData_df_list$All_Detections)
                ), 
                tabPanel("Biomark",
-                        MarkerTagQAQC_UI(ns("BiomarkMarkerTags"), Marker_Tag_data)
+                        MarkerTagQAQC_UI(ns("BiomarkMarkerTags"), combinedData_df_list$All_Detections)
                         ), 
                tabPanel("Downtime Periods",
                         br(),
@@ -62,15 +62,15 @@ QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
   )
 }
 
-QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_tags, ghostTagsWithMovementAfterGhostDate, avianPredationList,
+QAQC_Server <- function(id, Release_05, Recaptures_05, unknown_tags, ghostTagsWithMovementAfterGhostDate, avianPredationList,
                         combinedData_df_list, wgfpMetadata, metaDataVariableNames, WGFP_SiteVisits_FieldDatawithPTData, allColors) {
   moduleServer(
     id,
     function(input, output, session) {
       
       
-      MarkerTagQAQC_Server("StationaryMarkerTags", Marker_Tag_data)
-      MarkerTagQAQC_Server("BiomarkMarkerTags", Marker_Tag_data)
+      MarkerTagQAQC_Server("StationaryMarkerTags", combinedData_df_list$All_Detections)
+      MarkerTagQAQC_Server("BiomarkMarkerTags", combinedData_df_list$All_Detections)
       
       output$markerTagDowntimeTable <- renderDT({
         

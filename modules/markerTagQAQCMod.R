@@ -1,13 +1,20 @@
 ##### Marker Tag Mod
 
-MarkerTagQAQC_UI <- function(id, Marker_Tag_data) {
+MarkerTagQAQC_UI <- function(id, All_Detections) {
   ns <- NS(id)
+  
+  # Cleaned_Marker_tags <- allData %>%
+  #   dplyr::filter(str_detect(TAG, "^0000000|^999")) %>%
+  #   mutate(Scan_Date = ymd(Scan_Date))
+  # All_Detections <- All_Detections %>%
+  #   mutate(Scan_Date = ymd(Scan_Date))
+  
   #deciding which marker tag data to show
   if(str_detect(id, "Stationary")){
-    Marker_Tag_data <- Marker_Tag_data %>%
+    Marker_Tag_data <- All_Detections %>%
       dplyr::filter(str_detect(TAG, "^0000000"))
   } else{
-    Marker_Tag_data <- Marker_Tag_data %>%
+    Marker_Tag_data <- All_Detections %>%
       dplyr::filter(str_detect(TAG, "^999"))
   }
   
@@ -38,6 +45,8 @@ MarkerTagQAQC_UI <- function(id, Marker_Tag_data) {
                     end = max(Marker_Tag_data$Scan_Date + 1), 
                     min = min(Marker_Tag_data$Scan_Date - 1)
         ),
+        checkboxInput(ns("fishDetectionOverlay"), "Overlay Fish Detection Data"
+        ),
         actionButton(ns("button8"), label = "Render Marker Tag Plot")
       ), #end of sidebar panel
       mainPanel(
@@ -58,17 +67,17 @@ MarkerTagQAQC_UI <- function(id, Marker_Tag_data) {
   )
 }
 
-MarkerTagQAQC_Server <- function(id, Marker_Tag_data) {
+MarkerTagQAQC_Server <- function(id, All_Detections) {
   moduleServer(
     id,
     function(input, output, session) {
       
       plotAndTableMarkerTagDataList <- eventReactive(input$button8,ignoreNULL = FALSE,{
         if(str_detect(id, "Stationary")){
-          Marker_Tag_data <- Marker_Tag_data %>%
+          Marker_Tag_data <- All_Detections %>%
             dplyr::filter(str_detect(TAG, "^0000000"))
         } else{
-          Marker_Tag_data <- Marker_Tag_data %>%
+          Marker_Tag_data <- All_Detections %>%
             dplyr::filter(str_detect(TAG, "^999"))
         }
         

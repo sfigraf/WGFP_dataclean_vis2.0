@@ -319,9 +319,9 @@ AllCombinedEvents <- All_combined_events_function(Stationary = utmsStationary, M
 #separating to marker tag file and fish detections file
 
 #all marker tags here
-Cleaned_Marker_tags <- AllCombinedEvents$df_list$All_Detections %>%
-  dplyr::filter(str_detect(TAG, "^0000000|^999")) %>%
-  mutate(Scan_Date = ymd(Scan_Date))
+# Cleaned_Marker_tags <- AllCombinedEvents$df_list$All_Detections %>%
+#   dplyr::filter(str_detect(TAG, "^0000000|^999")) %>%
+#   mutate(Scan_Date = ymd(Scan_Date))
 
 Cleaned_Stationary_FishdetectionsOnly <- utmsStationary %>%
   filter(grepl("^230|^226", TAG))
@@ -340,7 +340,9 @@ combined_events_stations <- PrepareforStatesMovementsandSummary(DailyDetectionsS
 # states
 
 # aplies enc_hist_summary wide function
-enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(AllCombinedEvents$df_list$Recaps_detections, cleanedRelease, combined_events_stations, encounterMARKStates$States_summarized, markerTags = unique(Cleaned_Marker_tags$TAG))
+enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(AllCombinedEvents$df_list$Recaps_detections, cleanedRelease, combined_events_stations, States_summarized = encounterMARKStates$States_summarized)
+  
+  
 unknown_tags <- enc_hist_wide_list$enc_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$enc_wide_list$encountersAndRelease_wide_summary
 
@@ -480,7 +482,7 @@ allFlatFiles <- list(
   "Enc_release_data" = Enc_release_data,
   "encounterMARKStates" = encounterMARKStates,
   "movements_list" = movements_list,
-  "Marker_tags" = Cleaned_Marker_tags,
+  #"Marker_tags" = Cleaned_Marker_tags,
   "unknown_tags" = unknown_tags, 
   "possibleAvianPredationDFs" = avianPredationList,
   "wgfpMetadata" = wgfpMetadata,
