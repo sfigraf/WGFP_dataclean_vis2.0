@@ -316,13 +316,6 @@ GhostTags <- GhostTags %>%
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
 AllCombinedEvents <- All_combined_events_function(Stationary = utmsStationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
 
-#separating to marker tag file and fish detections file
-
-#all marker tags here
-# Cleaned_Marker_tags <- AllCombinedEvents$df_list$All_Detections %>%
-#   dplyr::filter(str_detect(TAG, "^0000000|^999")) %>%
-#   mutate(Scan_Date = ymd(Scan_Date))
-
 Cleaned_Stationary_FishdetectionsOnly <- utmsStationary %>%
   filter(grepl("^230|^226", TAG))
 

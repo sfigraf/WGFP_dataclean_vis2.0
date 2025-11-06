@@ -2,13 +2,6 @@
 
 MarkerTagQAQC_UI <- function(id, All_Detections) {
   ns <- NS(id)
-  
-  # Cleaned_Marker_tags <- allData %>%
-  #   dplyr::filter(str_detect(TAG, "^0000000|^999")) %>%
-  #   mutate(Scan_Date = ymd(Scan_Date))
-  # All_Detections <- All_Detections %>%
-  #   mutate(Scan_Date = ymd(Scan_Date))
-  
   #deciding which marker tag data to show
   if(str_detect(id, "Stationary")){
     Marker_Tag_data <- All_Detections %>%
@@ -63,7 +56,6 @@ MarkerTagQAQC_UI <- function(id, All_Detections) {
         )
       )#end of mainpanel
     )#end of sidebar layout
-  
   )
 }
 
@@ -73,48 +65,16 @@ MarkerTagQAQC_Server <- function(id, All_Detections) {
     function(input, output, session) {
       
       plotAndTableMarkerTagDataList <- eventReactive(input$button8,ignoreNULL = FALSE,{
-        
-        # if(input$fishDetectionOverlay){
-        #   #if the overlay is on and sationary is seelcted, change the site code to marker tag vs fish and remove biomark tags
-        #   if(str_detect(id, "Stationary")){
-        #     Marker_Tag_data <- All_Detections %>%
-        #       mutate(Site_Code = case_when(str_detect(TAG, "^0000000") ~ paste0(Site_Code, "_MarkerTag"), 
-        #              TRUE ~ paste0(Site_Code, "_Fish Detection")
-        #       )
-        #              ) %>%
-        #       dplyr::filter(!str_detect(TAG, "^999"))
-        #       
-        #   } else {
-        #     Marker_Tag_data <- All_Detections %>%
-        #       mutate(Site_Code = case_when(str_detect(TAG, "^999") ~ paste0(Site_Code, "_MarkerTag"), 
-        #                                  TRUE ~ paste0(Site_Code, "_Fish Detection")
-        #     )) %>%
-        #       dplyr::filter(!str_detect(TAG, "^0000000"))
-        #   }
-        # } else {
-        #   #if the overlay is off, just select stationary vs biomark tags
-        #   if(str_detect(id, "Stationary")){
-        #     Marker_Tag_data <- All_Detections %>%
-        #       dplyr::filter(str_detect(TAG, "^0000000"))
-        #   } else{
-        #     Marker_Tag_data <- All_Detections %>%
-        #       dplyr::filter(str_detect(TAG, "^999"))
-        #   }
-        # }
-        
-        # if(fishDetectionOverlay){
-        #   Marker_Tag_data <- All_Detections %>%
-        #     mutate(Site_Code = paste0(Site_Code, "_MarkerTag")) %>%
-        #     
-        #          
-        # }
-        
+        #first filtering by site code and date range (tag is a bit trickier when throwing in fish data)
+
         allDetectionsFiltered <- All_Detections %>%
           filter(Site_Code %in% c(input$picker8),
                  Scan_Date >= input$markerDateRangeInput[1] & Scan_Date <= input$markerDateRangeInput[2]
           )
         if(input$fishDetectionOverlay){
           if(str_detect(id, "Stationary")){
+            #if overlay is on and stationary selected, filter out biomark tags and make stationary marker tags ddisplay as "_marker tag
+            #and have fish display as "_fish detection"
             allDetectionsFilteredForPlot <- allDetectionsFiltered %>%
               mutate(Site_Code = case_when(str_detect(TAG, "^0000000") ~ paste0(Site_Code, "_MarkerTag"), 
                                            TRUE ~ paste0(Site_Code, "_Fish Detection")
@@ -124,27 +84,29 @@ MarkerTagQAQC_Server <- function(id, All_Detections) {
             
             
           } else {
-            allDetectionsFilteredForPlot <- All_Detections %>%
+            allDetectionsFilteredForPlot <- allDetectionsFiltered %>%
               mutate(Site_Code = case_when(str_detect(TAG, "^999") ~ paste0(Site_Code, "_MarkerTag"), 
                                            TRUE ~ paste0(Site_Code, "_Fish Detection")
               )) %>%
               dplyr::filter(!str_detect(TAG, "^0000000"))
           }
-          
+          #now, separate fish and marker tags based on selection in Tag Picker
           fishOnly <- allDetectionsFilteredForPlot %>%
             filter(str_detect(Site_Code, "_Fish Detection"))
           
           markerTagDataForMerging <- allDetectionsFiltered %>%
             filter(TAG %in% c(input$picker9))
+          #bind rows back together so that fish tags will display if the overlay is on and specific marker tag is selected
           
           markerTagDataForPlot <- rbind(fishOnly, markerTagDataForMerging)
           
         } else{
+          #if the fish overlay is off, just filter by selected tag now
           markerTagDataForPlot <- allDetectionsFiltered %>%
             filter(TAG %in% c(input$picker9))
         }
         
-        
+        #this will include fishDetections (including unkown tags bc they haven't been fitlered out of this DF) but not a big deal
         summarizedMarkerTagDataForTable <- markerTagDataForPlot %>%
           dplyr::count(Site_Code, TAG, name = "totalDetectionsSinceProjectInception")
         
@@ -155,12 +117,7 @@ MarkerTagQAQC_Server <- function(id, All_Detections) {
       }) 
       
       # MarkerTag Plot Output ---------------------------------------------------
-      
-      
-      # if(input$dischargeOverlay){
-      #   
-      # }
-      # 
+
       output$plot2 <- renderPlotly({
         markerPlot <- plotAndTableMarkerTagDataList()$markerTagDataForPlot %>%
           ggplot(aes(x = Scan_Date, y = Scan_Time, color = Site_Code, text = paste(TAG) )) +
