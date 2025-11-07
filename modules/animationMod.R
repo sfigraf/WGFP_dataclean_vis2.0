@@ -37,13 +37,14 @@ mod_animationUI <- function(id) {
                selectInput(ns("facetWrapOption"), "Facet Wrap", 
                            choices = c("None" = "None", 
                                        "Species" = "Species", 
-                                       "Release Site" = "ReleaseSite")),
+                                       "Release Site" = "ReleaseSite", 
+                                       "Tag (only use less than 10 tags)" = "TAG")),
                selectInput(ns("fps_Select"), 
                            "Frames Per Second",
                            choices = c(1,2,4,5,10,20), 
                            selected = 10), 
                actionButton(ns("renderAnimationButton"), "Render Animation"), 
-               h6("Notes: Need to click 'Render Map and Data' button to obtain data. Render progress shown in RStudio console."),
+               h6("Notes: Need to click 'Render' button in left sidebar to obtain data. Render progress shown in RStudio console."),
                h6("GIF will appear below and is automatically saved in project directory."), 
                h6("Aggregating the data by timeframe avoids having multiple points for the same fish plotted at a time.")
              )
@@ -94,6 +95,24 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
         } else{
           movementsGrouped <- movementsWithTimeForFrames
         }
+        #time frame options
+        if (input$TimeframeButtons == "weeks_since"){
+          movementsGrouped <- movementsGrouped %>%
+            complete(TAG, weeks_since = full_seq(min(weeks_since):max(weeks_since),1)) %>%
+            fill(Species, X, Y)
+
+        } else if (input$TimeframeButtons == "daySequence"){
+          dateRange <- range(movementsGrouped$daySequence, na.rm = TRUE)
+          movementsGrouped <- movementsGrouped %>%
+            complete(TAG, daySequence = seq.Date(
+              from = dateRange[1],# min(daySequence, na.rm = TRUE),
+              to   = dateRange[2],#max(daySequence, na.rm = TRUE),
+              by   = "day"
+            )) %>%
+            fill(Species, X, Y)
+
+        } 
+        
         Animation_function(movementsGrouped)
       })
       
@@ -121,14 +140,6 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
       })
       
       observe({
-        
-        # factorsOf100 <- 100 / (1:100)[100 %% (1:100) == 0]
-        # nearest <- factorsOf100[which.min(abs(factorsOf100 - input$fps_Slider))]
-        # if (input$fps_Slider != nearest) {
-        #   updateSliderInput(session, "fps_Slider", value = nearest)
-        # }
-        # updateSliderInput(session, "fps_Slider",
-        #                   value = factorsOf100[which.min(abs(factorsOf100 - input$fps_Slider))])
         
         #set basemaps default imagery to satellite and set up basemap with extent specified 
         basemaps::set_defaults(map_service = "esri", map_type = "world_imagery")
@@ -211,6 +222,10 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
                 
                 mapWithData <- mapWithData +
                   facet_wrap(~ReleaseSite)
+              } else if(input$facetWrapOption == "TAG") {
+                
+                mapWithData <- mapWithData +
+                  facet_wrap(~TAG)
               } 
               #display data in app
               mapWithData
