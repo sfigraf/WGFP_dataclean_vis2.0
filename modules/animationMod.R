@@ -99,17 +99,31 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
         if (input$TimeframeButtons == "weeks_since"){
           movementsGrouped <- movementsGrouped %>%
             complete(TAG, weeks_since = full_seq(min(weeks_since):max(weeks_since),1)) %>%
-            fill(Species, X, Y)
+            group_by(TAG) %>%
+            arrange(weeks_since) %>%
+            fill(Species, X, Y, .direction = "downup") %>%
+            ungroup()
 
         } else if (input$TimeframeButtons == "daySequence"){
+          print("day sequence")
           dateRange <- range(movementsGrouped$daySequence, na.rm = TRUE)
+          print(seq.Date(
+            from = dateRange[1],# min(daySequence, na.rm = TRUE),
+            to   = dateRange[2],#max(daySequence, na.rm = TRUE),
+            by   = "day"
+          ))
           movementsGrouped <- movementsGrouped %>%
             complete(TAG, daySequence = seq.Date(
               from = dateRange[1],# min(daySequence, na.rm = TRUE),
               to   = dateRange[2],#max(daySequence, na.rm = TRUE),
               by   = "day"
             )) %>%
-            fill(Species, X, Y)
+            group_by(TAG) %>%
+            arrange(daySequence) %>%
+            fill(Species, X, Y, .direction = "downup") %>%
+            ungroup()
+
+          #data <<- movementsGrouped
 
         } 
         
