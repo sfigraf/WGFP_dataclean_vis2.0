@@ -38,11 +38,10 @@ mod_animationUI <- function(id) {
                            choices = c("None" = "None", 
                                        "Species" = "Species", 
                                        "Release Site" = "ReleaseSite")),
-               sliderInput(ns("fps_Slider"), "Select frames per Second",
-                           min = .2,
-                           max = 15,
-                           value = 10,
-                           step = .2), 
+               selectInput(ns("fps_Select"), 
+                           "Frames Per Second",
+                           choices = c(1,2,4,5,10,20), 
+                           selected = 10), 
                actionButton(ns("renderAnimationButton"), "Render Animation"), 
                h6("Notes: Need to click 'Render Map and Data' button to obtain data. Render progress shown in RStudio console."),
                h6("GIF will appear below and is automatically saved in project directory."), 
@@ -122,6 +121,15 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
       })
       
       observe({
+        
+        # factorsOf100 <- 100 / (1:100)[100 %% (1:100) == 0]
+        # nearest <- factorsOf100[which.min(abs(factorsOf100 - input$fps_Slider))]
+        # if (input$fps_Slider != nearest) {
+        #   updateSliderInput(session, "fps_Slider", value = nearest)
+        # }
+        # updateSliderInput(session, "fps_Slider",
+        #                   value = factorsOf100[which.min(abs(factorsOf100 - input$fps_Slider))])
+        
         #set basemaps default imagery to satellite and set up basemap with extent specified 
         basemaps::set_defaults(map_service = "esri", map_type = "world_imagery")
         
@@ -210,7 +218,7 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
               anim_save("WindyGapFishMovements.gif", gganimate::animate(mapWithData, 
                                                                         nframes = animationDatalist()[[nframesUnit]] + endPauseValue, 
                                                                         end_pause = endPauseValue,
-                                                                        fps = input$fps_Slider, height = 1200, width = 1200)) 
+                                                                        fps = as.numeric(input$fps_Select), height = 1200, width = 1200)) 
             })
             
             list(src = "WindyGapFishMovements.gif", contentType = "image/gif")
