@@ -96,37 +96,31 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
           movementsGrouped <- movementsWithTimeForFrames
         }
         #time frame options
+        #aggregating and completing helps to create continuous animation to avoid erros, especially when gacet wrapping by tag
         if (input$TimeframeButtons == "weeks_since"){
           movementsGrouped <- movementsGrouped %>%
             complete(TAG, weeks_since = full_seq(min(weeks_since):max(weeks_since),1)) %>%
             group_by(TAG) %>%
             arrange(weeks_since) %>%
-            fill(Species, X, Y, .direction = "downup") %>%
+            fill(Species, ReleaseSite, X, Y, .direction = "downup") %>%
             ungroup()
 
         } else if (input$TimeframeButtons == "daySequence"){
-          print("day sequence")
+          
           dateRange <- range(movementsGrouped$daySequence, na.rm = TRUE)
-          print(seq.Date(
-            from = dateRange[1],# min(daySequence, na.rm = TRUE),
-            to   = dateRange[2],#max(daySequence, na.rm = TRUE),
-            by   = "day"
-          ))
+         
           movementsGrouped <- movementsGrouped %>%
             complete(TAG, daySequence = seq.Date(
-              from = dateRange[1],# min(daySequence, na.rm = TRUE),
-              to   = dateRange[2],#max(daySequence, na.rm = TRUE),
+              from = dateRange[1],
+              to   = dateRange[2],
               by   = "day"
             )) %>%
             group_by(TAG) %>%
             arrange(daySequence) %>%
-            fill(Species, X, Y, .direction = "downup") %>%
+            fill(Species, ReleaseSite, X, Y, .direction = "downup") %>%
             ungroup()
 
-          #data <<- movementsGrouped
-
-        } 
-        
+        } # don't think we need to do this for time periods, but if there are errors for negative length vector, it could be related to this
         Animation_function(movementsGrouped)
       })
       
@@ -182,7 +176,7 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
           
             #makes it so code executes on button push
             input$renderAnimationButton
-          #number of frames to pause at the end f the gif
+          #number of frames to pause at the end of the gif
             endPauseValue = 5
             #isolate makes it so it wont execute when all the inputs inside the isolate() are changed (title, fps, days/weeks)
             isolate({
@@ -196,7 +190,7 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
                   transition_time(weeks_since) +
                   ggtitle(
                     paste(input$anim_Title, '{frame_time}'),
-                    subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(animationDatalist()$mercatorSFMovements$Date)))
+                    subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(animationDatalist()$mercatorSFMovements$Date, na.rm = TRUE)))
                 
                 
               } else if (input$TimeframeButtons == "daySequence"){
@@ -207,7 +201,7 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
                   transition_time(daySequence) +
                   ggtitle(
                     paste(input$anim_Title, '{frame_time}'),
-                    subtitle = paste("Day {frame} of {nframes} past Initial Date of", min(animationDatalist()$mercatorSFMovements$Date)))
+                    subtitle = paste("Day {frame} of {nframes} past Initial Date of", min(animationDatalist()$mercatorSFMovements$Date, na.rm = TRUE)))
                 
                 
               } else if (input$TimeframeButtons == "TimePeriodDates"){

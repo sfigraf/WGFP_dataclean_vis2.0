@@ -13,6 +13,7 @@ Animation_function <- function(Movements_df){
   mercatorSFMovements <- st_transform(movementsWithTimeForFramesSF, crs = 3857)
   
   #these are the values used to get frame time
+  #na.rm fixed a negtive legnth vector error
   num_weeks <- max(movementsWithTimeForFramesSF$weeks_since, na.rm = TRUE) - min(movementsWithTimeForFramesSF$weeks_since, na.rm = TRUE) + 1
   num_hours <- max(movementsWithTimeForFramesSF$hours_since, na.rm = TRUE) - min(movementsWithTimeForFramesSF$hours_since, na.rm = TRUE) + 1
   num_days <- max(movementsWithTimeForFramesSF$days_since, na.rm = TRUE) - min(movementsWithTimeForFramesSF$days_since, na.rm = TRUE) + 1
