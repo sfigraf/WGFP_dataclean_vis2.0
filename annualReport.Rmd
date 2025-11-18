@@ -1,0 +1,158 @@
+---
+title: "Annual Report"
+author: "Sam Graf"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo = FALSE}
+library(tidyverse) 
+library(lubridate)
+library(DT)
+if(!exists("combinedData_df_list")){
+  combinedData_df_list <- readRDS("data/flatFilesforApp/combinedData_df_list.rds")
+}
+if(!exists("indiv_datasets_list")){
+  indiv_datasets_list <- readRDS("data/flatFilesforApp/indiv_datasets_list.rds")
+}
+if(!exists("Enc_release_data")){
+  Enc_release_data <- readRDS("data/flatFilesforApp/Enc_release_data.rds")
+}
+if(!exists("encounterMARKStates")){
+  encounterMARKStates <- readRDS("data/flatFilesforApp/encounterMARKStates.rds")
+}
+if(!exists("movements_list")){
+  movements_list <- readRDS("data/flatFilesforApp/movements_list.rds")
+}
+if(!exists("unknown_tags")){
+  unknown_tags <- readRDS("data/flatFilesforApp/unknown_tags.rds")
+}
+
+if(!exists("avianPredationList")){
+  avianPredationList <- readRDS("data/flatFilesforApp/possibleAvianPredationDFs.rds")
+}
+
+if(!exists("wgfpMetadata")){
+  wgfpMetadata <- readRDS("data/flatFilesforApp/wgfpMetadata.rds")
+}
+
+if(!exists("metaDataVariableNames")){
+  metaDataVariableNames <- readRDS("data/flatFilesforApp/metaDataVariableNames.rds")
+}
+
+if(!exists("PTData")){
+  PTData <- readRDS("data/flatFilesforApp/PTData.rds")
+}
+
+if(!exists("USGSData")){
+  USGSData <- readRDS("data/flatFilesforApp/USGSData.rds")
+}
+
+if(!exists("SiteVisitData")){
+  SiteVisitData <- readRDS("data/flatFilesforApp/SiteVisitData.rds")
+}
+
+rainbow_trout_colors <- c("#8B8000", "#008080", "#FF69B4", "#FF4500", "#6A5ACD","#32CD32", "#20B2AA",
+                          "#FF1C55", "#4682B4", "#556B2F", "#DC143C", "#B22222", "#7FFF00", "#8A2BE2", "#00CED1")
+#currently "Changed Rivers", "Downstream Movement" "Initial Release", "No Movement", "Upstream Movement" (5/17/24)
+#note: these are a little diffeerent than what we see in the map because the map/marker color optoins are very limited. 
+movementColorsValues <- c("purple", "#eb0e2b", "#FF8C00", "gray", "#22bd74") #, "#66FF00"
+# currently "BRK" "LOC" "MERG" "MTS" "RBT" "RXN" "TGM" (5/17/24)
+speciesColors <- c("#FFD700", "#654321", "#4F7942", "#FF7F50", "#1E90FF", "#008080", "#DAA520", "#D2691E", "#9A5ECD") 
+
+#maybe a better method for this, but pressure transducer site names are changed to the same names as Site Visit site names
+#and that variable is what we use to assign colors to sites   
+allSites <- metaDataVariableNames$allDetectionDistanceSiteNames
+movementColors <- setNames(movementColorsValues, sort(unique(movements_list$Movements_df$movement_only)))
+siteColors <- setNames(rainbow_trout_colors[0:length(allSites)], allSites)
+speciesColors <- setNames(speciesColors[0:length(unique(indiv_datasets_list$releasedata$Species))], sort(unique(indiv_datasets_list$releasedata$Species)))
+ 
+allColors <- c(movementColors, siteColors, speciesColors)
+
+```
+
+## Tagging Summary
+
+```{r, echo = FALSE, include=TRUE}
+ReleaseData <- indiv_datasets_list$releasedata %>%
+  mutate(Date = as.Date(Date))
+Recaptures <- indiv_datasets_list$recapdata %>%
+  mutate(Date = as.Date(Date))
+# number of fish tagged 
+ReleaseData %>%
+          ggplot(aes(x = Length, fill = Species) ) +
+          geom_histogram(binwidth = 20)+
+          theme_classic() +
+          labs(title = "Released Fish by Length", caption = "Binwidth = 20mm") +
+          scale_fill_manual(values = allColors) +
+          facet_wrap(~year(Date))
+  
+# table 
+ReleaseCounts <- ReleaseData %>%
+  count(Year = year(Date), ReleaseSite, Species, Event) 
+
+datatable(ReleaseCounts, 
+          caption = "Release Summaries",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  )
+# number recaptured, how many were TLNT (Recapped and Release)
+RecaptureCounts <- Recaptures %>%
+  count(Year = year(Date), RecaptureSite, Species) 
+
+datatable(RecaptureCounts, 
+          caption = "Recapture Summaries",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  ) #%>%
+  #formatPercentage(c("DS Percentage"), 2)
+#Length and Weight Range
+
+
+```
+## Movement Summary
+```{r}
+# how many swam through channel?
+
+#Annual Figure of Upstream vs downstream movements
+
+#movements by size/age class
+```
+
+## Antenna data
+```{r}
+# number of days the antennas were down
+
+# how many fish were seen on each antenna
+
+# number of detections by year by antenna; 
+
+# by type; total detections on stationary vs biomark vs mobile vs recaps
+
+#unique detectyions; are we getting tags with these other methods that we don't see on stationary or other types?
+```
+
+## Before and After
+```{r}
+#movements from HP to CF before construction of channel vs after channel
+#compare with movements from Red Barn to Hitching Post 
+```
+
+
+## Avian Predation
+```{r}
+# movement of fish vs avian predated/Known Merg
+```
+
