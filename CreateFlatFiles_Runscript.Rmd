@@ -62,7 +62,7 @@ GhostTags <- read_csv("./data/WGFP_GhostTags.csv",
 
 wgfpMetadata <- lapply(excel_sheets("./data/WGFP Metadata.xlsx"), function(x)
   if(x == "MarkerTagIssues"){
-    read_excel("./data/WGFP Metadata.xlsx", sheet = x, col_types = c("guess", "date", "date", "guess", "guess"))
+    read_excel("./data/WGFP Metadata.xlsx", sheet = x, col_types = c("guess", "date", "date", "guess", "guess", "guess", "guess"))
   } else{
     read_excel("./data/WGFP Metadata.xlsx", sheet = x, col_types = "text")
   }
@@ -348,7 +348,7 @@ unknown_tags <- enc_hist_wide_list$enc_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$enc_wide_list$encountersAndRelease_wide_summary
 
 # applies get_movements_function
-Movements_list <- get_movements_function(combined_events_stations, dailyUSGSData = WindyGapDaily, eventsWithPeriodsSelect = encounterMARKStates$eventsWithPeriodsSelectForMovementJoining, wgfpMetadata$TimePeriods)
+Movements_list <- get_movements_function(combined_events_stations, dailyUSGSData = windyGapDaily, eventsWithPeriodsSelect = encounterMARKStates$eventsWithPeriodsSelectForMovementJoining, wgfpMetadata$TimePeriods)
 
 
 
@@ -424,7 +424,7 @@ PTData <- list(
 
 USGSData <- list(
   "USGS15Min" = windyGap, 
-  "USGSDaily" = WindyGapDaily
+  "USGSDaily" = windyGapDaily
 )
 
 SiteVisitData <- list(

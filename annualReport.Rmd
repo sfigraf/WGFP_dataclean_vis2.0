@@ -71,6 +71,12 @@ speciesColors <- setNames(speciesColors[0:length(unique(indiv_datasets_list$rele
  
 allColors <- c(movementColors, siteColors, speciesColors)
 
+biomarkAntennas <- str_subset(wgfpMetadata$AntennaMetadata$SiteName, "Biomark")
+biomarkAntennasFrontends <- wgfpMetadata$AntennaMetadata[wgfpMetadata$AntennaMetadata$SiteName %in% biomarkAntennas, "FrontendSiteCode"]
+
+StationaryAntennas <- str_subset(wgfpMetadata$AntennaMetadata$SiteName, "Stationary")
+StationaryAntennasFrontends <- wgfpMetadata$AntennaMetadata[wgfpMetadata$AntennaMetadata$SiteName %in% StationaryAntennas, "FrontendSiteCode"]
+
 ```
 
 ## Tagging Summary
@@ -367,9 +373,29 @@ ggplotly(plot)
 ```
 
 ## Antenna data
-```{r}
-# number of days the antennas were down
+```{r, include=TRUE, echo=FALSE}
+# number of days the antennas were down across all antennas
+antennasDown <- wgfpMetadata$MarkerTagIssues %>%
+  filter(wholeAntennaDown_nofishDetections == "yes") %>%
+  mutate(timeDif = difftime(IssueEndDatetime, IssueStartDatetime, units = "days")) 
+##start with stationary antennas
+stationaryAntennasDown <- antennasDown %>%
+  #mutate(Site = trimws(Site)) %>%
+  filter(Site %in% StationaryAntennasFrontends$FrontendSiteCode) %>%
+  summarise(`Total Time Antennas were down` = sum(timeDif))
+#c("G1", "M1", "M2", "B5", biomarkAntennasFrontends$FrontendSiteCode)
+stationaryAntennaTimeGrouped <- combinedData_df_list$All_Detections %>%
+  #take out mobile and ghost backpack detections and dummy tag and biomark detections (we'll get them later)
+  filter(Site_Code %in% StationaryAntennasFrontends$FrontendSiteCode) %>%
+  group_by(Site_Code) %>%
+  summarise(`Total Duration` = difftime(max(Scan_DateTime), min(Scan_DateTime), units = "days")) %>%
+  ungroup()
+StationaryAntennaTimeTotal <- stationaryAntennaTimeGrouped %>%
+  summarise(`Total Duration` = sum(`Total Duration`))
 
+totalDowntimePercentage = round((as.numeric(stationaryAntennasDown$`Total Time Antennas were down`) / as.numeric(StationaryAntennaTimeTotal$`Total Duration`)) * 100, 2)
+
+stationaryAntennaTimeSummaryMessage <- paste0("Stationary Antennas were down for ", totalDowntimePercentage, "% of the total time across all Stationary Antennas. Inidividual Antennas were down for a total of ", round(stationaryAntennasDown$`Total Time Antennas were down`, 2), " days out of a total of ", round(StationaryAntennaTimeTotal$`Total Duration`, 2), " days of total time across all Stationary Antennas.")
 # how many fish were seen on each antenna
 
 # number of detections by year by antenna; 
@@ -378,7 +404,7 @@ ggplotly(plot)
 
 #unique detectyions; are we getting tags with these other methods that we don't see on stationary or other types?
 ```
-
+#### `r stationaryAntennaTimeSummaryMessage`
 ## Before and After
 ```{r}
 #movements from HP to CF before construction of channel vs after channel
