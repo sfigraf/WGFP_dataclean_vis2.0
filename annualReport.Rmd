@@ -9,6 +9,8 @@ output: html_document
 library(tidyverse) 
 library(lubridate)
 library(DT)
+library(plotly)
+options(dplyr.summarise.inform = FALSE)
 if(!exists("combinedData_df_list")){
   combinedData_df_list <- readRDS("data/flatFilesforApp/combinedData_df_list.rds")
 }
@@ -72,12 +74,32 @@ allColors <- c(movementColors, siteColors, speciesColors)
 ```
 
 ## Tagging Summary
+### All Data Excludes TGM
 
 ```{r, echo = FALSE, include=TRUE}
 ReleaseData <- indiv_datasets_list$releasedata %>%
-  mutate(Date = as.Date(Date))
+  mutate(Date = as.Date(Date)) %>%
+  filter(!Species %in% c("TGM"))
 Recaptures <- indiv_datasets_list$recapdata %>%
   mutate(Date = as.Date(Date))
+
+releaseRecaps <- Recaptures %>%
+  rename(ReleaseSite = RecaptureSite) %>%
+  bind_rows(ReleaseData) %>%
+  rename(Site = ReleaseSite) %>%
+  count(Event, Year = year(Date), Species)
+
+datatable(releaseRecaps, 
+          caption = "Release/Recapture Summaries, No TGM",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  )
 # number of fish tagged 
 ReleaseData %>%
           ggplot(aes(x = Length, fill = Species) ) +
@@ -86,7 +108,7 @@ ReleaseData %>%
           labs(title = "Released Fish by Length", caption = "Binwidth = 20mm") +
           scale_fill_manual(values = allColors) +
           facet_wrap(~year(Date))
-  
+# percentage fish released, how many were TLNT, vs recap vs straigght release, by species  
 # table 
 ReleaseCounts <- ReleaseData %>%
   count(Year = year(Date), ReleaseSite, Species, Event) 
@@ -119,16 +141,127 @@ datatable(RecaptureCounts,
   ) #%>%
   #formatPercentage(c("DS Percentage"), 2)
 #Length and Weight Range
+#range(ReleaseData$)
+LWRanges <- ReleaseData %>%
+  group_by(Year = year(Date), Species) %>%
+  summarise(`Minimum Length (mm)` = round(min(Length, na.rm = T), 2), 
+            `Maximum Length (mm)` = round(max(Length, na.rm = T), 2),
+            `Average Length (mm)` = round(mean(Length, na.rm = T), 2),
+            `Minimum Weight (g)` = round(min(Weight, na.rm = T), 2), 
+            `Maximum Weight (g)` = round(max(Weight, na.rm = T), 2),
+            `Average Weight (g)` = round(mean(Weight, na.rm = T), 2))
 
+datatable(LWRanges, 
+          caption = "Length and Weight Summaries",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  )
 
 ```
 ## Movement Summary
-```{r}
+### TGMS and mobile runs excluded
+```{r, include=TRUE, echo=FALSE}
+movementsData <- movements_list$Movements_df %>%
+  filter(!Species %in% c("TGM"), 
+         !det_type %in% c("Mobile Run")
+         )
 # how many swam through channel?
 
 #Annual Figure of Upstream vs downstream movements
+seasonal_movts <- movementsData %>%
+  filter(!movement_only %in% c("Initial Release")) %>%
+  group_by(Month = lubridate::month(Date), Day = day(Date), movement_only) %>%
+  summarise(total_events = n())
+
+plot <- seasonal_movts %>%
+            mutate(merged = (parse_date_time(paste(Month, Day), "md"))) %>%
+            ggplot(aes(x = merged, y = total_events, fill = movement_only)) +
+            geom_bar(stat = "identity", position = "dodge") +
+            theme_classic() +
+            labs(title = "Seasonal Daily Movements", x = "Day", y = "Counts",
+                 caption = "Currently No download option for this data.") +
+            scale_x_datetime(date_labels = "%b") +
+            scale_fill_manual(values = allColors)
+          
+ggplotly(plot)
+
+datatable(
+    seasonal_movts,
+    caption = "Releases and Mobile Runs not included", 
+    rownames = FALSE,
+    selection = "single",
+    filter = 'top',
+    options = list(
+      stateSave = TRUE,
+      pageLength = 10,
+      info = TRUE,
+      lengthMenu = list(c(10, 25, 50, 100, 200), c("10", "25", "50", "100", "200")),
+      dom = 'lfrtip'
+    )
+  )
+          
+          
 
 #movements by size/age class
+movementsLength <- movementsData %>%
+  mutate(length_bin = cut(
+    Release_Length,
+    breaks = c(0, 100, 200, 300, 400, 500, Inf),
+    labels = c("0-100", "100-200", "200-300", "300-400", "400-500", "500+"),
+    right = FALSE
+))
+
+movementsLengths <- movementsLength %>%
+  count(length_bin, movement_only) %>%
+  arrange(length_bin, movement_only) 
+
+movementsLengthsWide <- movementsLengths %>%
+  pivot_wider(names_from = movement_only, values_from = n) %>%
+  mutate(`DS Percentage` = `Downstream Movement`/(`Upstream Movement` + `Downstream Movement`))
+
+datatable(movementsLengthsWide, 
+          caption = "Movement Summary Table by Length Bins",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  ) %>%
+  formatPercentage(c("DS Percentage"), 2)
+
+plot <- ggplot(movementsLengths, aes(x = length_bin, y = n, fill = movement_only)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    x = "Length Bin (mm)",
+    y = "Count of Movements",
+    fill = "Movement Type",
+    title = "Distribution of Movement Types Across Length Bins"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(
+    values = c(
+      "Changed Rivers"        = "purple",
+      "Downstream Movement"   = "#eb0e2b",
+      "No Movement"           = "gray",
+      "Upstream Movement"     = "#22bd74"
+    )
+  ) +
+  #facet_wrap(~Species, ncol = 2) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+ggplotly(plot)
+
 ```
 
 ## Antenna data
