@@ -84,7 +84,7 @@ AllEncounters_UI <- function(id, combinedData_df_list) {
                                           br(),
                                           downloadData_UI(ns("downloadallevents1")), 
                        
-                       withSpinner(DT::dataTableOutput(ns("allevents1"))),
+                       withSpinner(DT::DTOutput(ns("allevents1"))),
                       ),
                       tabPanel("Plot",
                                br(),
@@ -94,7 +94,7 @@ AllEncounters_UI <- function(id, combinedData_df_list) {
                                    ),
                                box(title = "Raw Detection Frequencies by Event", 
                                    width = 10, 
-                                   withSpinner(DT::dataTableOutput(ns("alleventsfrequencies1")))
+                                   withSpinner(DT::DTOutput(ns("alleventsfrequencies1")))
                                    )
                                
                                ),
@@ -438,7 +438,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
         
         downloadData_Server("downloadallevents1", all_events_data(), "AllEventsData")
         
-        output$allevents1 <- renderDataTable({
+        output$allevents1 <- renderDT({
               datatable(all_events_data(),
                         rownames = FALSE,
                         extensions = c('Buttons'),
@@ -471,7 +471,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
 
             })
         
-        output$alleventsfrequencies1 <- renderDataTable({
+        output$alleventsfrequencies1 <- renderDT({
           frequenciesSummarized <- all_events_data() %>%
             filter(!TAG %in% c(230000999999)) %>%
             count(Event, name = "Raw Detections")

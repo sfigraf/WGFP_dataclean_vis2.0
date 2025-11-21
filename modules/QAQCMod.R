@@ -12,7 +12,7 @@ QAQC_UI <- function(id, combinedData_df_list) {
                         ), 
                tabPanel("Downtime Periods",
                         br(),
-                        dataTableOutput(ns("markerTagDowntimeTable"))
+                        DTOutput(ns("markerTagDowntimeTable"))
                )
               )
                
@@ -35,17 +35,17 @@ QAQC_UI <- function(id, combinedData_df_list) {
                  withSpinner(plotlyOutput(ns("growthRatesPlot")))
                ), 
                fluidRow(
-                 withSpinner(DT::dataTableOutput(ns("growthRatesSummarizedTable")))
+                 withSpinner(DT::DTOutput(ns("growthRatesSummarizedTable")))
                )
       ), #end of tabPanel
       tabPanel("Unknown Tags",
                br(),
-               withSpinner(DT::dataTableOutput(ns("unknowntags1")))
+               withSpinner(DT::DTOutput(ns("unknowntags1")))
       ),
       tabPanel("Ghost Tag Movements",
                br(),
                downloadData_UI(ns("downloadghostTags1")),
-               withSpinner(DT::dataTableOutput(ns("ghostTags1")))
+               withSpinner(DT::DTOutput(ns("ghostTags1")))
       ), 
       tabPanel("Avian Predation",
                br(),
@@ -56,7 +56,7 @@ QAQC_UI <- function(id, combinedData_df_list) {
       ), 
       tabPanel("Detection Distance/Water Level",
                br(),
-               withSpinner(DT::dataTableOutput(ns("DDWaterLevelTable")))
+               withSpinner(DT::DTOutput(ns("DDWaterLevelTable")))
       )
     )#end of tabset Panel 
   )
