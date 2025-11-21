@@ -85,7 +85,7 @@ Sequences_Server <- function(id, All_Events, antennaChoices, mobileCodes, AvianP
         )
       })
       
-      #if we drop a sitem remove the UI of that pickerINput, decrease counter number and change the label of "last antenna"
+      #if we drop a sitem remove the UI of that pickerInput, decrease counter number and change the label of "last antenna"
       observeEvent(input$dropAntennaButton, {
         if (counter() > 0) {
           removeUI(

@@ -165,14 +165,116 @@ datatable(LWRanges,
 
 ```
 ## Movement Summary
-### TGMS and mobile runs excluded
+
 ```{r, include=TRUE, echo=FALSE}
 movementsData <- movements_list$Movements_df %>%
   filter(!Species %in% c("TGM"), 
          !det_type %in% c("Mobile Run")
          )
 # how many swam through channel?
+#these are all based off states created in createMARKhistoriesFunction()
+Enc_release_data1 <- Enc_release_data %>%
+  mutate(`Length Bin` = cut(
+    Length,
+    breaks = c(0, 100, 200, 300, 400, 500, Inf),
+    labels = c("0-100", "100-200", "200-300", "300-400", "400-500", "500+"),
+    right = FALSE
+))
+#can use the wide summaries definition: basically how many fish were detected in state "D" (connectivity channel)
+# or we could use the sequences definition and make US and DS sequences of WG2/1/HP to CF with CRCC antennas in the middle
+#fish that have been detected in the channel (aka state D)
+#this includes fish that were shocked and released in the channel
 
+usedChannel <-  Enc_release_data1 %>%
+  filter(channelSummary == "Used Connectivity Channel") 
+#went below the dam through channel
+dsChannelUsage <- Enc_release_data1 %>%
+  filter(went_below_dam_throughChannel == TRUE)
+#upstream channel usage
+usChannelUsage <- Enc_release_data1 %>%
+  filter(went_above_dam_throughChannel == TRUE)
+
+#make these into tables by species and size
+usedChannelSummarizedTotal <- usedChannel %>%
+  summarise(`Total Fish Detected In Channel` = n())
+dsChannelUsageSummarizedTotal <- dsChannelUsage %>%
+  summarise(`Total Fish Swam Downstream Through Channel` = n())
+usChannelUsageSummarizedTotal <- usChannelUsage %>%
+  summarise(`Total Fish Swam Upstream Through Channel` = n())
+
+totalFishChannelTable <- bind_cols(list(usedChannelSummarizedTotal, dsChannelUsageSummarizedTotal, usChannelUsageSummarizedTotal))
+datatable(
+    totalFishChannelTable,
+    caption = "CRCC Usage, Total Fish", 
+    rownames = FALSE,
+    selection = "single",
+    options = list(
+      stateSave = TRUE,
+      pageLength = 10,
+      info = TRUE
+    )
+  )
+
+#by species 
+#make these into tables by species and size
+usedChannelSummarizedSpecies <- usedChannel %>%
+  group_by(Species) %>%
+  summarise(`Total Fish Detected In Channel` = n())
+dsChannelUsageSummarizedSpecies <- dsChannelUsage %>%
+  group_by(Species) %>%
+  summarise(`Total Fish Swam Downstream Through Channel` = n())
+usChannelUsageSummarizedSpecies <- usChannelUsage %>%
+  group_by(Species) %>%
+  summarise(`Total Fish Swam Upstream Through Channel` = n())
+
+#missing rows, so do a full_join instead of bindig cols
+
+speciesChannelTable <- usedChannelSummarizedSpecies %>%
+  full_join(dsChannelUsageSummarizedSpecies, by = "Species") %>%
+  full_join(usChannelUsageSummarizedSpecies, by = "Species")
+
+speciesChannelTable[is.na(speciesChannelTable)] <- 0
+
+datatable(
+    speciesChannelTable,
+    caption = "CRCC Usage by Species", 
+    rownames = FALSE,
+    selection = "single",
+    options = list(
+      stateSave = TRUE,
+      pageLength = 10,
+      info = TRUE
+    )
+  )
+#by length 
+usedChannelSummarizedLength <- usedChannel %>%
+  count(`Length Bin`, name = "Total Fish Detected In Channel") %>%
+  arrange(`Length Bin`)
+  
+dsChannelUsageSummarizedLength <- dsChannelUsage %>%
+  count(`Length Bin`, name = "Total Fish Swam Downstream Through Channel") %>%
+  arrange(`Length Bin`)
+usChannelUsageSummarizedLength <- usChannelUsage %>%
+  count(`Length Bin`, name = "Total Fish Swam Upstream Through Channel") %>%
+  arrange(`Length Bin`)
+
+lengthChannelTable <- usedChannelSummarizedLength %>%
+  full_join(dsChannelUsageSummarizedLength, by = "Length Bin") %>%
+  full_join(usChannelUsageSummarizedLength, by = "Length Bin")
+
+lengthChannelTable[is.na(lengthChannelTable)] <- 0
+
+datatable(
+    lengthChannelTable,
+    caption = "CRCC Usage by Length", 
+    rownames = FALSE,
+    selection = "single",
+    options = list(
+      stateSave = TRUE,
+      pageLength = 10,
+      info = TRUE
+    )
+  )
 #Annual Figure of Upstream vs downstream movements
 seasonal_movts <- movementsData %>%
   filter(!movement_only %in% c("Initial Release")) %>%
@@ -210,7 +312,7 @@ datatable(
 
 #movements by size/age class
 movementsLength <- movementsData %>%
-  mutate(length_bin = cut(
+  mutate(`Length Bin` = cut(
     Release_Length,
     breaks = c(0, 100, 200, 300, 400, 500, Inf),
     labels = c("0-100", "100-200", "200-300", "300-400", "400-500", "500+"),
@@ -218,8 +320,8 @@ movementsLength <- movementsData %>%
 ))
 
 movementsLengths <- movementsLength %>%
-  count(length_bin, movement_only) %>%
-  arrange(length_bin, movement_only) 
+  count(`Length Bin`, movement_only) %>%
+  arrange(`Length Bin`, movement_only) 
 
 movementsLengthsWide <- movementsLengths %>%
   pivot_wider(names_from = movement_only, values_from = n) %>%
@@ -238,7 +340,7 @@ datatable(movementsLengthsWide,
   ) %>%
   formatPercentage(c("DS Percentage"), 2)
 
-plot <- ggplot(movementsLengths, aes(x = length_bin, y = n, fill = movement_only)) +
+plot <- ggplot(movementsLengths, aes(x = `Length Bin`, y = n, fill = movement_only)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(
     x = "Length Bin (mm)",
