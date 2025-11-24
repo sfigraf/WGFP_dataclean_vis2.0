@@ -396,15 +396,32 @@ StationaryAntennaTimeTotal <- stationaryAntennaTimeGrouped %>%
 totalDowntimePercentage = round((as.numeric(stationaryAntennasDown$`Total Time Antennas were down`) / as.numeric(StationaryAntennaTimeTotal$`Total Duration`)) * 100, 2)
 
 stationaryAntennaTimeSummaryMessage <- paste0("Stationary Antennas were down for ", totalDowntimePercentage, "% of the total time across all Stationary Antennas. Inidividual Antennas were down for a total of ", round(stationaryAntennasDown$`Total Time Antennas were down`, 2), " days out of a total of ", round(StationaryAntennaTimeTotal$`Total Duration`, 2), " days of total time across all Stationary Antennas.")
+
+### biomark
+
+#total time biomark antennas were down
+biomarkAntennasDown <- antennasDown %>%
+  filter(Site %in% biomarkAntennasFrontends$FrontendSiteCode) %>%
+  summarise(`Total Time Antennas were down` = sum(timeDif))
+#total time they were up: sum of all deployment durations
+biomarkAntennaTimeTotal <- wgfpMetadata$DeploymentDurations %>%
+  filter(Type == "Biomark") %>%
+  summarise(`Total Duration` = sum(difftime(max(DeploymentEnd, na.rm = TRUE), min(DeploymentStart, na.rm = TRUE), units = "days")))
+
+totalBiomarkDowntimePercentage = round((as.numeric(biomarkAntennasDown$`Total Time Antennas were down`) / as.numeric(biomarkAntennaTimeTotal$`Total Duration`)) * 100, 2)
+
+biomarkAntennaTimeSummaryMessage <- paste0("Biomark Antennas were down for ", totalBiomarkDowntimePercentage, "% of the total time across all Biomark Antennas. Inidividual Antennas were down for a total of ", round(biomarkAntennasDown$`Total Time Antennas were down`, 2), " days out of a total of ", round(biomarkAntennaTimeTotal$`Total Duration`, 2), " days of total time across all Biomark Antennas.")
+
 # how many fish were seen on each antenna
 
 # number of detections by year by antenna; 
 
 # by type; total detections on stationary vs biomark vs mobile vs recaps
 
-#unique detectyions; are we getting tags with these other methods that we don't see on stationary or other types?
+#unique defections; are we getting tags with these other methods that we don't see on stationary or other types?
 ```
 #### `r stationaryAntennaTimeSummaryMessage`
+#### `r biomarkAntennaTimeSummaryMessage`
 ## Before and After
 ```{r}
 #movements from HP to CF before construction of channel vs after channel
