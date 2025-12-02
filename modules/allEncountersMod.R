@@ -460,6 +460,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
             # Enc Hist Plot Render ----------------------------------------------------
 
             output$plot5 <- renderPlotly({
+              
               plot <- all_events_data() %>%
                 ggplot(aes(x= Date, fill = Event,
                            text = paste('Date: ', as.character(Date), '\n')
