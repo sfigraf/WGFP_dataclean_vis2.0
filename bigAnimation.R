@@ -13,9 +13,8 @@ latLongCRS <- st_crs("+proj=longlat +datum=WGS84 +no_defs") #should be same as +
 fraserColoradoRiverConfluence <- as.numeric(wgfpMetadata$ImportantStationingVariables[wgfpMetadata$ImportantStationingVariables$Variable == "Fraser/Colorado River Confluence", "StationingLocation"])
 
 AllEvents <- combinedData_df_list$All_Events %>%
-  filter(Species != "TGM"
-    # TAG == 230000228275, 
-    #      Datetime > as.Date("2021-04-20")
+  filter(TAG == "230000294213", 
+         Date >= as.Date("2025-10-05") & Date <= as.Date("2025-10-08")
     ) %>%
   mutate(hours_since = as.numeric(floor(difftime(Datetime, min(Datetime), units = "hours"))), 
          hourSequence = as_datetime(as.character(round(Datetime, units = "hours"))), 
@@ -144,11 +143,11 @@ if(TimeFrame == "Hours") {
       subtitle = paste("Starting Date: ", min(webMercatorAllEvents$Date)))
 }
 
-map_with_data1 <- map_with_data1 +
-  #ease_aes('cubic-in-out') +
-  facet_wrap(~ReleaseSite)
+# map_with_data1 <- map_with_data1 +
+#   #ease_aes('cubic-in-out') +
+#   facet_wrap(~ReleaseSite)
 
 #animate(map_with_data1, nframes = num_days + endPauseValue, end_pause = endPauseValue, fps = 10)
 #map_with_data1
 endPauseValue = 30
-anim_save("AllDailyMovementsBySpecies.gif", animate(map_with_data1, nframes = frameUnit + endPauseValue, end_pause = endPauseValue, fps = 10, height = 1200, width =1200)) #, height = 1200, width =1200
+anim_save("OneTagHourlyMOves.gif", animate(map_with_data1, nframes = frameUnit + endPauseValue, end_pause = endPauseValue, fps = 5, height = 1200, width =1200)) #, height = 1200, width =1200

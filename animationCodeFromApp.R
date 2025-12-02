@@ -1,14 +1,24 @@
 #list of inputs
 aggregator <- "First Movement"
-TimeframeButtons <- "daySequence"
+TimeframeButtons <- "hours_since" #daySequence hours_since
 anim_Caption <- "one tag"
 endPauseValue = 5
 anim_Title <- "230000294213"
 facetWrapOption <- ""
-fps_Select <- 10
+fps_Select <- 10 #default is 10 as well
+latLongCRS <- st_crs("+proj=longlat +datum=WGS84 +no_defs") #should be same as +init=epsg:4326
+fraserColoradoRiverConfluence <- as.numeric(wgfpMetadata$ImportantStationingVariables[wgfpMetadata$ImportantStationingVariables$Variable == "Fraser/Colorado River Confluence", "StationingLocation"])
 
-movementsOneTag <- movements_list$Movements_df %>%
-  filter(TAG == "230000294213")
+if(TimeframeButtons == "hours_since"){
+  movementsOneTag <-  combinedData_df_list$All_Events %>% #movements_list$Movements_df
+    filter(TAG == "230000294213", 
+           Date >= as.Date("2025-10-05"))    
+} else{
+  movementsOneTag <- movements_list$Movements_df %>%
+    filter(TAG == "230000294213", 
+           Date >= as.Date("2025-10-05"))   
+}
+
 
 
 movementsWithTimeForFrames <- movementsOneTag %>%
@@ -30,23 +40,63 @@ movementsWithTimeForFrames <- movementsOneTag %>%
 
 if(aggregator == "First Movement"){
   
-  movementsGrouped <- movementsWithTimeForFrames %>%
+  movementsWithTimeForFrames1 <- movementsWithTimeForFrames %>%
     group_by(TAG, !!sym(TimeframeButtons)) %>%
     filter(Datetime == first(Datetime)) %>%
     ungroup()
   
 } else if(aggregator == "Last Movement"){
-  movementsGrouped <- movementsWithTimeForFrames %>%
+  movementsWithTimeForFrames1 <- movementsWithTimeForFrames %>%
     group_by(TAG, !!sym(TimeframeButtons)) %>%
     filter(Datetime == last(Datetime)) %>%
     ungroup()
 } else{
-  movementsGrouped <- movementsWithTimeForFrames
+  movementsWithTimeForFrames1 <- movementsWithTimeForFrames
 }
+
+if(TimeframeButtons == "hours_since"){
+  #get movements
+  LastEvent1 <- sf::st_as_sf(movementsWithTimeForFrames1, coords = c("UTM_X", "UTM_Y"), crs = 32613, remove = FALSE)
+  #condensedEventsSF <- sf::st_as_sf(condensedEventsFiltered, coords = c("UTM_X", "UTM_Y"), crs = 32613)
+  #convert to lat/long
+  EventsSFLatLong <- sf::st_transform(LastEvent1, latLongCRS)
+  #stattions needed to calculate movements and distance moved
+  stationsAndEvents <- sf::st_join(EventsSFLatLong, simpleStations, st_nearest_feature)
+  dailyMovementsTableAll <- stationsAndEvents %>%
+    #### removing dummy tag
+    #grouping by TAG and arranging by datetime makes sure that total distance moved is totalled and summed in order
+    group_by(TAG) %>%
+    arrange(Datetime) %>%
+    #dist_moved would be the place to fenagle new movements based on previous event...ie hitting wg biomark followed by connectivity channel = add 300 m
+    #trickier but doable for mobile runs
+    ### accounting for FRASER/UPPER COLROADO MOVEMENTS
+    #if previous station is above the confluence and current station is above the confluence and you changed rivers, 
+    #then take the previous station and subtract the confluence station to get distance travelled to the confluence (A), then subtract the new station minus confluence station to get distance travelled up the new river (B). Then add A + B to get total distance
+    # otherwise, just subtract current station from previous
+    mutate(dist_moved = case_when(lag(ET_STATION, order_by = Datetime) > fraserColoradoRiverConfluence & ET_STATION > fraserColoradoRiverConfluence & River != lag(River, order_by = Datetime) ~ (lag(ET_STATION, order_by = Datetime) - fraserColoradoRiverConfluence) + (ET_STATION - fraserColoradoRiverConfluence),
+                                  TRUE ~ ET_STATION - lag(ET_STATION, order_by = Datetime)
+    ),
+    sum_dist = (sum(abs(dist_moved), na.rm = TRUE)),
+    #learned that you need to specify units = "" not just provide the arguments
+    MPerSecondBetweenDetections = ifelse(dist_moved == 0, 0, 
+                                         dist_moved/(as.numeric(difftime(Datetime, lag(Datetime), units = "secs")))
+    ),
+    
+    movement_only = case_when(lag(ET_STATION, order_by = Datetime) > fraserColoradoRiverConfluence & ET_STATION > fraserColoradoRiverConfluence & River != lag(River, order_by = Datetime) ~ "Changed Rivers",
+                              Event %in% c("Release", "Recapture and Release")  ~ "Initial Release",
+                              dist_moved == 0 ~ "No Movement",
+                              dist_moved > 0 ~ "Upstream Movement",
+                              dist_moved < 0 ~ "Downstream Movement")
+    )
+  
+} else {
+  dailyMovementsTableAll <- movementsGrouped
+}
+
 #time frame options
 #aggregating and completing helps to create continuous animation to avoid erros, especially when gacet wrapping by tag
 if (TimeframeButtons == "weeks_since"){
-  movementsGrouped <- movementsGrouped %>%
+  movementsGrouped <- dailyMovementsTableAll %>%
     complete(TAG, weeks_since = full_seq(min(weeks_since):max(weeks_since),1)) %>%
     group_by(TAG) %>%
     arrange(weeks_since) %>%
@@ -55,9 +105,9 @@ if (TimeframeButtons == "weeks_since"){
   
 } else if (TimeframeButtons == "daySequence"){
   
-  dateRange <- range(movementsGrouped$daySequence, na.rm = TRUE)
+  dateRange <- range(dailyMovementsTableAll$daySequence, na.rm = TRUE)
   
-  movementsGrouped <- movementsGrouped %>%
+  movementsGrouped <- dailyMovementsTableAll %>%
     complete(TAG, daySequence = seq.Date(
       from = dateRange[1],
       to   = dateRange[2],
@@ -68,8 +118,38 @@ if (TimeframeButtons == "weeks_since"){
     fill(Species, ReleaseSite, X, Y, .direction = "downup") %>%
     ungroup()
   
-} # don't think we need to do this for time periods, but if there are errors for negative length vector, it could be related to this
-animationDatalist <- Animation_function(movementsGrouped)
+} else if(TimeframeButtons == "hours_since") {
+  #dateRange <- range(dailyMovementsTableAll$daySequence, na.rm = TRUE)
+  ###for some reason if it's a grouped df but only one tag, it's not interpolating how it should. that's the ungroup() call
+  # movementsGrouped <- dailyMovementsTableAll %>%
+  #   as.data.frame() %>%
+  #   complete(hours_since = full_seq(min(hours_since):max(hours_since),1)) %>%
+  #   group_by(TAG) %>%
+  #   arrange(hours_since) %>%
+  #   ungroup() %>%
+  #   rename(X = UTM_X,
+  #          Y = UTM_Y) %>%
+  #   fill(Species, ReleaseSite, X, Y, .direction = "downup") %>%
+  #   ungroup() 
+}
+
+if(TimeframeButtons == "hours_since") {
+  boundingBox <- st_as_sfc(st_bbox(c(xmin = -106.0771, xmax = -105.8938, ymax = 40.14896, ymin = 40.05358), crs = st_crs(4326)))
+  
+  #turn movements df into a sf object
+  movementsWithTimeForFramesSF <- sf::st_as_sf(movementsGrouped, coords = c("X", "Y"), crs = 4326, remove = FALSE)
+  #need to tranform to web mercator for ggplotting
+  mercatorSFMovements <- st_transform(movementsWithTimeForFramesSF, crs = 3857)
+  animationDatalist <- list(
+    "num_hours" = max(movementsWithTimeForFramesSF$hours_since, na.rm = TRUE) - min(movementsWithTimeForFramesSF$hours_since, na.rm = TRUE) + 1,
+    "mercatorSFMovements" = mercatorSFMovements, 
+    "boundingBox" = boundingBox
+  )
+  
+} else{
+  animationDatalist <- Animation_function(movementsGrouped)
+  
+}
 
 
 basemaps::set_defaults(map_service = "esri", map_type = "world_imagery")
@@ -131,6 +211,15 @@ if (TimeframeButtons == "weeks_since"){
       
       paste(anim_Title, '{closest_state}')
     )
+} else if(TimeframeButtons == "hours_since") {
+  nframesUnit <- "num_hours"
+  mapWithData <- mapWithData + 
+    transition_time(hours_since) +
+    enter_fade() +
+    exit_shrink() +
+    ggtitle(
+      paste(anim_Title, '{frame_time}'),
+      subtitle = paste("Hour {frame} of {nframes} past Initial Date of", min(animationDatalist$mercatorSFMovements$Date, na.rm = TRUE)))
 }
 ###Facet wrap options
 
@@ -152,6 +241,7 @@ if(facetWrapOption == "Species"){
 #mapWithData
 #save it automatically
 #anim_save("WindyGapFishMovements.gif", 
+#default nframes unit is 100
 gganimate::animate(mapWithData, 
                    nframes = animationDatalist[[nframesUnit]] + endPauseValue, 
                    end_pause = endPauseValue,
