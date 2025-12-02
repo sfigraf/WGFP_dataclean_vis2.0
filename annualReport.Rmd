@@ -520,10 +520,7 @@ x <- All_EventsData %>%
   filter(TAG == "230000087762") %>%
   arrange(Datetime)
 
-uniqueDetectionsMessage <- paste0("Stationary Antennas detected ", numberofStationaryUniqueTags, " fish that were not detected by mobile, biomark, or recapture methods.
-Biomark Antennas detected ", numberofBiomarkUniqueTags, " fish that were not detected by mobile, stationary, or recapture methods.  
-Mobile Antennas detected ", numberofMobileUniqueTags, " fish that were not detected by biomark, stationary, or recapture methods.  
-There were ", numberofRecappedUniqueTags, " fish recaptured that were not detected by biomark, stationary, or recapture methods."      
+uniqueDetectionsMessage <- paste0("Stationary Antennas detected ", numberofStationaryUniqueTags, " fish that were not detected by mobile, biomark, or recapture methods. Biomark Antennas detected ", numberofBiomarkUniqueTags, " fish that were not detected by mobile, stationary, or recapture methods. Mobile Antennas detected ", numberofMobileUniqueTags, " fish that were not detected by biomark, stationary, or recapture methods. There were ", numberofRecappedUniqueTags, " fish recaptured that were not detected by biomark, stationary, or recapture methods."      
                                   )
 
 ```
@@ -535,23 +532,25 @@ There were ", numberofRecappedUniqueTags, " fish recaptured that were not detect
 ## Before and After
 ```{r beforeAFter, echo=FALSE, results='hide',include=TRUE, warning=FALSE,message=FALSE,error=FALSE}
 #movements from HP to CF before construction of channel vs after channel
-#easy way is to run get sequences on a bunch of different options
-#trickier way with more up front loading but less later on is to use condensed states from createMarkHistories, see where a fish hit different states consecutively
+#based off  getSequences() whereas above the "used channel" stuff is based on states
 
+##BEFORE PERIOD HP TO CF AND VICE VERSA SEQUENCES
 #get sequences with Hp, wg antenas to CF before
 
 beforeStartDate <- min(ymd_hms(wgfpMetadata$DeploymentDurations$DeploymentStart), na.rm = T)
-beforeEndDate <- ymd_hms("2023-10-18 12:44:05") #first CRCC antenna online
+beforeEndDate <- ymd_hms("2023-10-18 12:44:05") #first CRCC antenna online, from metadata
 totalDaysBefore <- difftime(beforeEndDate, beforeStartDate, units = "days")
-#Date >= input$dateSlider[1] & Date <= input$dateSlider[2]
+#exclude avian predatation
 allEventsAvianExcluded <- combinedData_df_list$All_Events %>%
     dplyr::filter(!TAG %in% unique(indiv_datasets_list$avian_preddata$TagID))
 beforeDataAvianPredationFiltered <- allEventsAvianExcluded %>%
   dplyr::filter(Datetime >= beforeStartDate & Datetime <= beforeEndDate) 
 
 beforeHPCFSequences <- invisible(getSequences(beforeDataAvianPredationFiltered, c("HP", "WG1", "WG2"), "", c("CF"), c("M1", "M2")))
+beforeCFHPSequences <- invisible(getSequences(beforeDataAvianPredationFiltered, c("CF"), "", c("HP", "WG1", "WG2"), c("M1", "M2")))
 
-# #get sequences with Hp, wg antenas to CF after
+##AFTER PERIOD HP TO CF SEQUENCES
+
 #some fish' totla jhouinreys are not caputred, like 230000294213. Sequnce recorded hp to cs to cu to cf on 10/12/2025, but lingered up and down the channel 10/6/2025 so that sequnece not totally captured, which is ok honestly for this method
 # another way to change this woudl be to use States, as is done above in the "Used channel" kind of stuff
 #idea: make sequences but with states instead of antennas for app. both good optoins
@@ -559,6 +558,7 @@ afterDataAvianPredationFiltered <- allEventsAvianExcluded %>%
   dplyr::filter(Datetime > beforeEndDate) 
 
 totalDaysAfter <- difftime(max(afterDataAvianPredationFiltered$Date, na.rm = TRUE), min(afterDataAvianPredationFiltered$Date, na.rm = TRUE), units = "days")
+#UPSTREAM
 #hp to cf after channel construction, no predation
 afterHPCFSequencesThroughChannel1 <- invisible(getSequences(afterDataAvianPredationFiltered, c("HP", "WG1", "WG2"), "", c("CF"), c("M1", "M2")))
 #fish swam up the channel in whole entirety of study
@@ -566,22 +566,35 @@ middleAntennas <- list(c("CD", "CS"), c("CU"))
 afterHPCFSequencesThroughChannel <- invisible(getSequences(allEventsAvianExcluded, c("HP", "WG1", "WG2"), middleAntennas, c("CF"), c("M1", "M2")))
 #sequences through channel with any antenna in the middle
 afterHPCFSequencesThroughChannel2 <- invisible(getSequences(allEventsAvianExcluded, c("HP", "WG1", "WG2"), c("CD", "CS", "CU"), c("CF"), c("M1", "M2")))
-totalAfterSequences <- nrow(afterHPCFSequencesThroughChannel1) + nrow(afterHPCFSequencesThroughChannel) + nrow(afterHPCFSequencesThroughChannel2)
-totalAfterSequenceMessage <- paste0("There have been ", totalAfterSequences, " journeys from Hitching Post Antenna or Windy Gap Biomark Antenna to Confluence Antenna by non-Avian Predated fish AFTER Channel was built, over the course of ", round(totalDaysAfter, 2), " days. This equates to 1 journey every ", round(as.numeric(totalDaysAfter)/totalAfterSequences, 2), " days.")
+totalAfterUSSequences <- nrow(afterHPCFSequencesThroughChannel1) + nrow(afterHPCFSequencesThroughChannel) + nrow(afterHPCFSequencesThroughChannel2)
 
-totalBeforeSequenceMessage <- paste0("There were ", nrow(beforeHPCFSequences), " journeys from Hitching Post Antenna or Windy Gap Biomark Antenna below the dam to Confluence Antenna by non-Avian Predated fish BEFORE Channel was built, over the course of ", round(totalDaysBefore, 2), " days. This equates to 1 journey every ", round(as.numeric(totalDaysBefore)/nrow(beforeHPCFSequences), 2), " days.") 
+#DOWNSTREAM
+middleAntennasDS <- list(c("CU"), c("CD", "CS")) 
+afterHPCFSequencesDSThroughChannel <- invisible(getSequences(allEventsAvianExcluded, c("CF"), middleAntennasDS, c("HP", "WG1", "WG2"), c("M1", "M2")))
+afterHPCFSequencesDSThroughChannel1 <- invisible(getSequences(afterDataAvianPredationFiltered, c("CF"), "", c("HP", "WG1", "WG2"), c("M1", "M2")))
+afterHPCFSequencesDSThroughChannel2 <- invisible(getSequences(allEventsAvianExcluded, c("CF"), c("CD", "CS", "CU"), c("HP", "WG1", "WG2"), c("M1", "M2")))
+totalAfterDSSequences <- nrow(afterHPCFSequencesDSThroughChannel) + nrow(afterHPCFSequencesDSThroughChannel1) + nrow(afterHPCFSequencesDSThroughChannel2)
 
-#make percentages or avergaes: aka "there was one sequence every 3 days before, nowe theres one sequence every 2 days" coomapred to RB/HP sequences
+###MESSAGES
+totalBeforeSequenceMessage <- paste0("Before the Connectivity Channel was built, there were ", nrow(beforeHPCFSequences), " upstream journeys from Hitching Post Antenna or Windy Gap Biomark Antenna below the dam to Confluence Antenna by non-Avian Predated fish and ", nrow(beforeCFHPSequences), " downstream journeys from Confluence Antenna to Hitching Post Antenna or Windy Gap Biomark Antenna below the dam, over the course of ", round(totalDaysBefore, 2), " days. This equates to one upstream journey every ", round(as.numeric(totalDaysBefore)/nrow(beforeHPCFSequences), 2), " days and one downstream journey every ", round(as.numeric(totalDaysAfter)/nrow(beforeCFHPSequences), 2), " days.") 
 
-#compare with movements from Red Barn to Hitching Post 
+totalAfterSequenceMessage <- paste0("Since the Connectivity Channel was built, there have been ", totalAfterUSSequences, " upstream journeys from Hitching Post Antenna or Windy Gap Biomark Antenna to Confluence Antenna by non-Avian Predated fish AFTER Channel was built and ", totalAfterDSSequences, " downstream journeys from Confluence Antenna to Hitching Post Antenna or Windy Gap Biomark Antenna below the dam, over the course of ", round(totalDaysAfter, 2), " days. This equates to one upstream journey every ", round(as.numeric(totalDaysAfter)/totalAfterUSSequences, 2), " days and one downstream journey every ", round(as.numeric(totalDaysAfter)/totalAfterDSSequences, 2), " days on average.")
+###RB and HP Movements for COMPARISON
 #rb to hp before
-rbHPBefore <- invisible(getSequences(beforeDataAvianPredationFiltered, c("RB"), "", c("HP"), c("M1", "M2")))
+#US
+rbHPBeforeUS <- invisible(getSequences(beforeDataAvianPredationFiltered, c("RB"), "", c("HP"), c("M1", "M2")))
+#DS
+rbHPBeforeDS <- invisible(getSequences(beforeDataAvianPredationFiltered, c("HP"), "", c("RB"), c("M1", "M2")))
 
-rbHPAfter <- invisible(getSequences(afterDataAvianPredationFiltered, c("RB"), "", c("HP"), c("M1", "M2")))
+#After
+#US
+rbHPAfterUS <- invisible(getSequences(afterDataAvianPredationFiltered, c("RB"), "", c("HP"), c("M1", "M2")))
+#DS
+rbHPAfterDS <- invisible(getSequences(afterDataAvianPredationFiltered, c("HP"), "", c("RB"), c("M1", "M2")))
 
-beforeRBtoHPSequencesMessage <- paste0("There were ", nrow(rbHPBefore), " journeys from Red Barn Antenna to Hitching Post Antenna by non-Avian predated fish BEFORE Channel was built, over the course of ", round(totalDaysBefore, 2), " days. This equates to 1 journey every ", round(as.numeric(totalDaysBefore)/nrow(rbHPBefore), 2), " days.")
+beforeRBtoHPSequencesMessage <- paste0("In comparison, before the Connectivity Channel was built, there were ", nrow(rbHPBeforeUS), " upstream journeys from Red Barn Antenna to Hitching Post Antenna by non-Avian predated fish and ", nrow(rbHPBeforeDS), " downstream journeys from Hitching Post Antenna to Red Barn over the course of ", round(totalDaysBefore, 2), " days. This equates to one upstream journey every ", round(as.numeric(totalDaysBefore)/nrow(rbHPBeforeUS), 2), " days and one downstream journey every ", round(as.numeric(totalDaysBefore)/nrow(rbHPBeforeDS), 2), " days.")
 
-afterRBtoHPSequencesMessage <- paste0("There were ", nrow(rbHPAfter), " journeys from Red Barn Antenna to Hitching Post Antenna by non-Avian predated fish AFTER Channel was built, over the course of ", round(totalDaysAfter, 2), " days. This equates to 1 journey every ", round(as.numeric(totalDaysAfter)/nrow(rbHPAfter), 2), " days.")
+afterRBtoHPSequencesMessage <- paste0("Since the Connectivity Channel was built, there have been ", nrow(rbHPAfterUS), " upstream journeys from Red Barn Antenna to Hitching Post Antenna by non-Avian predated fish and ", nrow(rbHPAfterDS), " downstream journeys from Hitching Post Antenna to Red Barn over the course of ", round(totalDaysAfter, 2), " days. This equates to one  upstream journey every ", round(as.numeric(totalDaysAfter)/nrow(rbHPAfterUS), 2), " days and one  downstream journey every ", round(as.numeric(totalDaysBefore)/nrow(rbHPAfterDS), 2), " days on average.") 
 
 
 ```
