@@ -618,24 +618,70 @@ afterRBtoHPSequencesMessage <- paste0("Since the Connectivity Channel was built,
 
 ## Avian Predation
 Throughout the duration of the study, we have identified `r length(unique(indiv_datasets_list$avian_preddata$TagID))` fish that have been predated by birds. These tags are found a few different ways:
-* By identifying missing antennas in their encounter history, ie hitting an antenna different than the ones we'd expect them to hit
-* Identifying instances where a tag moved quickly, or disproportionately far throughout its encounter history or even just one move
+
+ *  By identifying missing antennas in their encounter history, ie hitting an antenna different than the ones we'd expect them to hit
+ *  Identifying instances where a tag moved quickly, or disproportionately far throughout its encounter history or even just one move
 
 
-```{r echo=FALSE, include=TRUE,warning=FALSE,message=FALSE}
+Below is the encounter history of a Merganser tagged in 2024. Activity is excessive between Red Barn and Hitching Post, and doesn't follow a logical pattern. The Merganser was detected on the Hitching POst antenna below the dam, then was detected on an antenna above the dam without hitting other antennas between, as showin in the animation below. By recognizing movements patterns of known birds, we can apply this pattern to finding tags predated by birds.  
+
+```{r mergDataTable, echo=FALSE, include=TRUE,warning=FALSE,message=FALSE}
+#function for formatting seconds
+computeTimeDiffAnnualReport <- function(secondsValue) {
+  if (is.na(secondsValue)) {
+    return("First Detection in Group") # Or "N/A", or "Missing Data"
+  }
+  diff_secs <- abs(as.numeric(secondsValue))
+  if (diff_secs < 60) {
+    return(paste(diff_secs, "seconds"))
+  } else if (diff_secs < 3600) {
+    return(paste(round(diff_secs / 60, 2), "minutes"))
+  } else if (diff_secs < 86400) {
+    return(paste(round(diff_secs / 3600, 2), "hours"))
+  } else {
+    return(paste(round(diff_secs / 86400, 2), "days"))
+  }
+}
+
+mergOnly <- combinedData_df_list$All_Events %>%
+  filter(TAG == "230000087407")
+
+mergOnly1 <- mergOnly %>%
+  arrange(Datetime) %>%
+    mutate(
+           `Time Since Previous Detection (For Sorting)` = difftime(lag(Datetime), Datetime, units = "secs"), 
+           `Time Since Previous Detection (User Friendly)` = mapply(computeTimeDiffAnnualReport, `Time Since Previous Detection (For Sorting)`), 
+           `Previous Event` = lag(Event)
+           ) %>%
+  select(TAG, Datetime,  Species, Event, `Previous Event`,  `Time Since Previous Detection (For Sorting)`, `Time Since Previous Detection (User Friendly)`)
+
+datatable(
+    mergOnly1,
+    caption = "Tagged Merganser Encounter History", 
+    rownames = FALSE,
+    selection = "single",
+    options = list(
+      stateSave = TRUE,
+      pageLength = 10,
+      info = TRUE
+    )
+  )
+
+
+```
+
+
+```{r mergAnimation, echo=FALSE, include=TRUE,warning=FALSE,message=FALSE}
 
 
 ############################### MERG
-
-
 TimeFrame <- "Hours"
 #TimeFrame <- "Days"
 latLongCRS <- st_crs("+proj=longlat +datum=WGS84 +no_defs") #should be same as +init=epsg:4326
 fraserColoradoRiverConfluence <- as.numeric(wgfpMetadata$ImportantStationingVariables[wgfpMetadata$ImportantStationingVariables$Variable == "Fraser/Colorado River Confluence", "StationingLocation"])
 
-AllEvents <- combinedData_df_list$All_Events %>%
-  filter(TAG == "230000087407", 
-         Date >= as.Date("2024-09-17") & Date <= as.Date("2024-09-21")
+AllEvents <- mergOnly %>%
+  filter(Date >= as.Date("2024-09-17") & Date <= as.Date("2024-09-21")
     ) %>%
   mutate(hours_since = as.numeric(floor(difftime(Datetime, min(Datetime), units = "hours"))), 
          hourSequence = as_datetime(as.character(round(Datetime, units = "hours"))), 
@@ -742,12 +788,56 @@ endPauseValue = 30
 animate(map_with_data1, nframes = frameUnit + endPauseValue, end_pause = endPauseValue, fps = 10) #, height = 1200, width =1200
 
 
+```
+
+In contrast, below is the encounter history of a 335 mm Brown Trout. Antennas hit follow a logical sequence and there is typically more movement in the fall, when you'd expect a brown trout to move for the spawn. The fish moves around a lot, but follows a logical sequence of antennas, as shown in the animation below for the selected time frame, when the fish moves upstream through the channel before moving back down and up, hitting all antennas along the way. 
+
+```{r troutDataTable, echo=FALSE, include=TRUE, warning=FALSE,message=FALSE}
+#function for formatting seconds
+computeTimeDiffAnnualReport <- function(secondsValue) {
+  if (is.na(secondsValue)) {
+    return("First Detection in Group") # Or "N/A", or "Missing Data"
+  }
+  diff_secs <- abs(as.numeric(secondsValue))
+  if (diff_secs < 60) {
+    return(paste(diff_secs, "seconds"))
+  } else if (diff_secs < 3600) {
+    return(paste(round(diff_secs / 60, 2), "minutes"))
+  } else if (diff_secs < 86400) {
+    return(paste(round(diff_secs / 3600, 2), "hours"))
+  } else {
+    return(paste(round(diff_secs / 86400, 2), "days"))
+  }
+}
+
+fishOnly <- combinedData_df_list$All_Events %>%
+  filter(TAG == "230000294213")
+
+fishOnly1 <- fishOnly %>%
+  arrange(Datetime) %>%
+    mutate(
+           `Time Since Previous Detection (For Sorting)` = difftime(lag(Datetime), Datetime, units = "secs"), 
+           `Time Since Previous Detection (User Friendly)` = mapply(computeTimeDiffAnnualReport, `Time Since Previous Detection (For Sorting)`), 
+           `Previous Event` = lag(Event)
+           ) %>%
+  select(TAG, Datetime,  Species, Event, `Previous Event`,  `Time Since Previous Detection (For Sorting)`, `Time Since Previous Detection (User Friendly)`)
+
+datatable(
+    fishOnly1,
+    caption = "Tagged Brown Trout Encounter History", 
+    rownames = FALSE,
+    selection = "single",
+    options = list(
+      stateSave = TRUE,
+      pageLength = 10,
+      info = TRUE
+    )
+  )
 
 
 ```
 
-
-```{r echo=FALSE, include=TRUE,warning=FALSE,message=FALSE}
+```{r troutAnimation, echo=FALSE, include=TRUE,warning=FALSE,message=FALSE}
 # movement of fish vs avian predated/Known Merg
 
 TimeFrame <- "Hours"
@@ -755,9 +845,9 @@ TimeFrame <- "Hours"
 latLongCRS <- st_crs("+proj=longlat +datum=WGS84 +no_defs") #should be same as +init=epsg:4326
 fraserColoradoRiverConfluence <- as.numeric(wgfpMetadata$ImportantStationingVariables[wgfpMetadata$ImportantStationingVariables$Variable == "Fraser/Colorado River Confluence", "StationingLocation"])
 
-AllEvents <- combinedData_df_list$All_Events %>%
-  filter(TAG == "230000294213", 
-         Date >= as.Date("2025-10-05") & Date <= as.Date("2025-10-08")
+
+AllEvents <- fishOnly %>%
+  filter(Date >= as.Date("2025-10-05") & Date <= as.Date("2025-10-08")
     ) %>%
   mutate(hours_since = as.numeric(floor(difftime(Datetime, min(Datetime), units = "hours"))), 
          hourSequence = as_datetime(as.character(round(Datetime, units = "hours"))), 
