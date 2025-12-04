@@ -6,6 +6,7 @@ library(leaflet)
 library(sf)
 library(readr)
 
+
 layerLocation <- file.path("./gis/")
 latLongCRS <- st_crs("+proj=longlat +datum=WGS84 +no_defs") #should be same as +init=epsg:4326
 
