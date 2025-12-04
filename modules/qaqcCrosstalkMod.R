@@ -20,7 +20,7 @@ qaqcCrosstalkMod_UI <- function(id, combinedData_df_list) {
                       "Summary Table",
                       box(
                         title = "Crosstalk Occurrence Percentage",
-                        withSpinner(DT::dataTableOutput(ns("crosstalkTable"))),
+                        withSpinner(DT::DTOutput(ns("crosstalkTable"))),
                         footer = "May take a few seconds to load"
                       )
                     )
@@ -56,7 +56,7 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
                       title = siteCode, 
                       box(
                         title = paste("Crosstalk Occurrences Between ", input$crosstalkDateSlider[1],  "and", input$crosstalkDateSlider[2]),
-                        withSpinner(dataTableOutput(ns(paste0("dataTable_", siteCode)))),
+                        withSpinner(DTOutput(ns(paste0("dataTable_", siteCode)))),
                         downloadData_UI(ns(paste0("downloaddataTable_", siteCode))),
                         footer = "May take a few seconds to load"
                       )
@@ -115,7 +115,7 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
           rownames = FALSE,
           selection = "single",
           caption = "% of FISH detections on each antenna with the exact same timestamp.
-          Detections in raw data may differ by milliseconds, but milliseconds are not used in the app data.",
+          Detections in raw data may differ by milliseconds, but milliseconds are not used in the Stationary app data.",
           options = list(
             #statesave is restore table state on page reload
             stateSave = TRUE,
@@ -139,7 +139,7 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
             localSiteCodeInstance <- siteCode
             downloadData_Server(paste0("downloaddataTable_", localSiteCodeInstance), crosstalkData()[["crosstalkIndividualList"]][[localSiteCodeInstance]], paste0("crosstalkOccurences_", localSiteCodeInstance))
             
-            output[[paste0("dataTable_", localSiteCodeInstance)]] <- renderDataTable({
+            output[[paste0("dataTable_", localSiteCodeInstance)]] <- renderDT({
               
               datatable(
                 crosstalkData()[["crosstalkIndividualList"]][[localSiteCodeInstance]], 

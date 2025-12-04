@@ -1,8 +1,8 @@
-# TimePeriods <- wgfpMetadata$TimePeriods 
+#TimePeriods <- wgfpMetadata$TimePeriods 
 # # 
 # # # ### this comes from runscript after spatial join detections stations function
-# DailyDetectionsStationsStates1 <- DailyDetectionsStationsStates$spatialList$stationData
-# #encounterDF <- createMARKEncounterHistories(DailyDetectionsStationsStates1, GhostTags, AvianPredation, TimePeriods)
+#DailyDetectionsStationsStates1 <- DailyDetectionsStationsStates$spatialList$stationStateData
+#encounterDF <- createMARKEncounterHistories(DailyDetectionsStationsStates1, GhostTags, AvianPredation, TimePeriods)
 
 library(janitor)
 createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTags, AvianPredation, TimePeriods){
@@ -307,7 +307,8 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
               "States_summarized" = summarizedStates,
               "possibleAvianPredation" = possibleAvianPredation,
               "endMessage" = paste(c(startMessage, endMessage), collapse = "<br>"), 
-              "timePeriodsMessage" = ifelse(nrow(dataWithoutPeriods) > 0, paste0("When assigning states for program MARK, some data don't have a time period assigned to them, date ranges ", as.Date(min(dataWithoutPeriods$Datetime)), " to ", as.Date(max(dataWithoutPeriods$Datetime)),". Add or adjust time periods in the csv."), "")
+              "timePeriodsMessage" = ifelse(nrow(dataWithoutPeriods) > 0, paste0("When assigning states for program MARK, some data don't have a time period assigned to them, date ranges ", as.Date(min(dataWithoutPeriods$Datetime)), " to ", as.Date(max(dataWithoutPeriods$Datetime)),". 
+                                                                                 Add or adjust time periods in the csv. Could also be from incorrect Time assignment in Release, Recap or other files. Needed format "), "")
               )
          )
 }

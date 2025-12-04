@@ -1,18 +1,18 @@
-QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
+QAQC_UI <- function(id, combinedData_df_list) {
   ns <- NS(id)
   tagList(
     tabsetPanel(
       tabPanel("Marker Tags",
                tabsetPanel(
                  tabPanel("Stationary", 
-                          MarkerTagQAQC_UI(ns("StationaryMarkerTags"), Marker_Tag_data)
+                          MarkerTagQAQC_UI(ns("StationaryMarkerTags"), combinedData_df_list$All_Detections)
                ), 
                tabPanel("Biomark",
-                        MarkerTagQAQC_UI(ns("BiomarkMarkerTags"), Marker_Tag_data)
+                        MarkerTagQAQC_UI(ns("BiomarkMarkerTags"), combinedData_df_list$All_Detections)
                         ), 
                tabPanel("Downtime Periods",
                         br(),
-                        dataTableOutput(ns("markerTagDowntimeTable"))
+                        DTOutput(ns("markerTagDowntimeTable"))
                )
               )
                
@@ -35,17 +35,17 @@ QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
                  withSpinner(plotlyOutput(ns("growthRatesPlot")))
                ), 
                fluidRow(
-                 withSpinner(DT::dataTableOutput(ns("growthRatesSummarizedTable")))
+                 withSpinner(DT::DTOutput(ns("growthRatesSummarizedTable")))
                )
       ), #end of tabPanel
       tabPanel("Unknown Tags",
                br(),
-               withSpinner(DT::dataTableOutput(ns("unknowntags1")))
+               withSpinner(DT::DTOutput(ns("unknowntags1")))
       ),
       tabPanel("Ghost Tag Movements",
                br(),
                downloadData_UI(ns("downloadghostTags1")),
-               withSpinner(DT::dataTableOutput(ns("ghostTags1")))
+               withSpinner(DT::DTOutput(ns("ghostTags1")))
       ), 
       tabPanel("Avian Predation",
                br(),
@@ -56,21 +56,21 @@ QAQC_UI <- function(id, Marker_Tag_data, combinedData_df_list) {
       ), 
       tabPanel("Detection Distance/Water Level",
                br(),
-               withSpinner(DT::dataTableOutput(ns("DDWaterLevelTable")))
+               withSpinner(DT::DTOutput(ns("DDWaterLevelTable")))
       )
     )#end of tabset Panel 
   )
 }
 
-QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_tags, ghostTagsWithMovementAfterGhostDate, avianPredationList,
+QAQC_Server <- function(id, Release_05, Recaptures_05, unknown_tags, ghostTagsWithMovementAfterGhostDate, avianPredationList,
                         combinedData_df_list, wgfpMetadata, metaDataVariableNames, WGFP_SiteVisits_FieldDatawithPTData, allColors) {
   moduleServer(
     id,
     function(input, output, session) {
       
       
-      MarkerTagQAQC_Server("StationaryMarkerTags", Marker_Tag_data)
-      MarkerTagQAQC_Server("BiomarkMarkerTags", Marker_Tag_data)
+      MarkerTagQAQC_Server("StationaryMarkerTags", combinedData_df_list$All_Detections)
+      MarkerTagQAQC_Server("BiomarkMarkerTags", combinedData_df_list$All_Detections)
       
       output$markerTagDowntimeTable <- renderDT({
         
@@ -111,7 +111,7 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
       })
       
       output$growthRatesPlot <- renderPlotly({
-        combinedData_df_list$growthRates %>%
+        combinedData_df_list$QAQCtables$growthRates %>%
           ggplot(aes(x = `Length Growth Rate mm per Year`, y = `Weight Growth Rate g per Year`, color = Species, text = TagID)) +
           geom_point() + 
           theme_classic() +
@@ -120,13 +120,16 @@ QAQC_Server <- function(id, Marker_Tag_data, Release_05, Recaptures_05, unknown_
       })
       
       output$growthRatesSummarizedTable <- renderDT({
-        dataSummarized <- combinedData_df_list$growthRates %>%
+        dataSummarized <- combinedData_df_list$QAQCtables$growthRates %>%
+          mutate(Species = str_trim(Species)) %>%
           dplyr::group_by(Species) %>%
           dplyr::summarise(`Median Length Growth Rate (g per year)` = round(median(`Length Growth Rate mm per Year`, na.rm = TRUE), 2), 
                            `Median Weight Growth Rate (mm per year)` = round(median(`Weight Growth Rate g per Year`, na.rm = TRUE), 2), 
                            `Mean Length Growth Rate (g per year)` = round(mean(`Length Growth Rate mm per Year`, na.rm = TRUE), 2), 
-                           `Mean Weight Growth Rate (mm per year)` = round(mean(`Weight Growth Rate g per Year`, na.rm = TRUE), 2)
+                           `Mean Weight Growth Rate (mm per year)` = round(mean(`Weight Growth Rate g per Year`, na.rm = TRUE), 2), 
+                           `Number of Observations` = n()
           )
+                           
         datatable(dataSummarized,
                   rownames = FALSE,
                   selection = "single",

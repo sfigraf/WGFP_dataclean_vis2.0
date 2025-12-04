@@ -88,7 +88,7 @@ EncounterHistoriesSummariesWide_UI <- function(id, Enc_release_data) {
                  mainPanel(                           br(),
                            downloadData_UI(ns("downloadenc_release1")), 
                            
-                           withSpinner(DT::dataTableOutput(ns("enc_release1"))),
+                           withSpinner(DT::DTOutput(ns("enc_release1"))),
                            )#end of mainpanel for enc_hist_wide
                ),#end of enc_hist_wide sidebar_layout
    
@@ -143,7 +143,7 @@ EncounterHistoriesSummariesWide_Server <- function(id, Enc_release_data) {
       
       downloadData_Server("downloadenc_release1", enc_hist_wide_filtered(), "EncounterHistoriesSummaryData")
       
-      output$enc_release1 <- renderDataTable({
+      output$enc_release1 <- renderDT({
         
         datatable(enc_hist_wide_filtered(),
         rownames = FALSE,

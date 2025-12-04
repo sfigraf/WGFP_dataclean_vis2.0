@@ -5,7 +5,7 @@ avianPredationMod_UI <- function(id) {
                     box(
                       title = "Frequency Table",
                       width = 12,
-                    withSpinner(DT::dataTableOutput(ns("tagsFrequencyTable")))
+                    withSpinner(DT::DTOutput(ns("tagsFrequencyTable")))
                     )
                     ), 
              column(9, 
@@ -16,14 +16,14 @@ avianPredationMod_UI <- function(id) {
                                         box(
                                           title = "Downstream Sequences",
                                           width = 12,
-                                        withSpinner(DT::dataTableOutput(ns("downstreamSequences")))
+                                        withSpinner(DT::DTOutput(ns("downstreamSequences")))
                                         )
                                         ), 
                                  column(6, 
                                         box(
                                           title = "Upstream Sequences",
                                           width = 12,
-                                        withSpinner(DT::dataTableOutput(ns("upstreamSequences"))) 
+                                        withSpinner(DT::DTOutput(ns("upstreamSequences"))) 
                                         )
                                )
                                )
@@ -32,7 +32,7 @@ avianPredationMod_UI <- function(id) {
                                box(
                                  title = "High Cumulative Movements",
                                  width = 12,
-                               withSpinner(DT::dataTableOutput(ns("largeMovementsWithoutChannel")))
+                               withSpinner(DT::DTOutput(ns("largeMovementsWithoutChannel")))
                                )
                                ), 
                       tabPanel("States", 
@@ -41,14 +41,14 @@ avianPredationMod_UI <- function(id) {
                                         box(
                                           title = "High Weekly Activity",
                                           width = 12,
-                                        withSpinner(DT::dataTableOutput(ns("statesWeeklyActiveFish")))
+                                        withSpinner(DT::DTOutput(ns("statesWeeklyActiveFish")))
                                         )
                                  ), 
                                  column(6, 
                                         box(
                                           title = "High Cumulative Activity",
                                           width = 12,
-                                        withSpinner(DT::dataTableOutput(ns("statesAllActiveFish"))) 
+                                        withSpinner(DT::DTOutput(ns("statesAllActiveFish"))) 
                                         )
                                  )
                                )
@@ -59,14 +59,14 @@ avianPredationMod_UI <- function(id) {
                                         box(
                                           title = "Large Movements",
                                           width = 12,
-                                          withSpinner(DT::dataTableOutput(ns("largeMovements")))
+                                          withSpinner(DT::DTOutput(ns("largeMovements")))
                                         )
                                  ), 
                                  column(6, 
                                         box(
                                           title = "Fast Movements",
                                           width = 12,
-                                          withSpinner(DT::dataTableOutput(ns("fastMovements"))) 
+                                          withSpinner(DT::DTOutput(ns("fastMovements"))) 
                                         )
                                  )
                                )
@@ -77,7 +77,7 @@ avianPredationMod_UI <- function(id) {
                                         box(
                                           title = "Predated Tag Movements",
                                           width = 12,
-                                          withSpinner(DT::dataTableOutput(ns("predTagMovements")))
+                                          withSpinner(DT::DTOutput(ns("predTagMovements")))
                                         )
                                  )
                                )

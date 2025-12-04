@@ -12,6 +12,7 @@ library(readxl)
 library(dataRetrieval) #this is the usgs package for getting up to date data
 library(shiny) # only used for isTruthy(), found in getSequences
 library(janitor)
+library(DT)
 
 whole_doc_startTime <- Sys.time()
 start_time <- Sys.time()
@@ -33,17 +34,17 @@ for (i in list.files("./miscR/")) {
 # if column names change in any of these read-ins, might require some modification to code to get them to combine
 # also if you change read.csv to read_csv, it should read in quicker but column names will change
 # could be a later task
-Stationary <- readRDS("./data/WGFP_Raw_20250401.rds")
+Stationary <- readRDS("./data/WGFP_Stationary_Raw_20251202.rds")
 
 Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character", 14), rep("numeric", 4), rep("character", 3)))
 
-Biomark <- readRDS("./data/Biomark_Raw_20250422.rds")
+Biomark <- readRDS("./data/WGFP_Biomark_Raw_20251104.rds")
 
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
 
-Release <- read.csv("./data/WGFP_ReleaseData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",7), "numeric", "numeric",rep("character",9))) %>%
+Release <- read.csv("./data/WGFP_ReleaseData_Master_20251203.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",7), "numeric", "numeric",rep("character",9))) %>%
   janitor::remove_empty()
-Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20241009.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 7), rep("numeric", 2), rep("character", 8))) %>%
+Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20251020.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 7), rep("numeric", 2), rep("character", 8))) %>%
   janitor::remove_empty()
 
 ###Avian predation
@@ -61,7 +62,10 @@ GhostTags <- read_csv("./data/WGFP_GhostTags.csv",
 
 wgfpMetadata <- lapply(excel_sheets("./data/WGFP Metadata.xlsx"), function(x)
   if(x == "MarkerTagIssues"){
-    read_excel("./data/WGFP Metadata.xlsx", sheet = x, col_types = c("guess", "date", "date", "guess", "guess"))
+    read_excel("./data/WGFP Metadata.xlsx", sheet = x, col_types = c("guess", "date", "date", "guess", "guess", "guess", "guess"))
+  } else if(x == "DeploymentDurations") {
+        read_excel("./data/WGFP Metadata.xlsx", sheet = x, col_types = c("guess", "guess", "guess", "date", "date"))
+
   } else{
     read_excel("./data/WGFP Metadata.xlsx", sheet = x, col_types = "text")
   }
@@ -112,13 +116,21 @@ end_time = Sys.time()
 ```{r USGSData, include = TRUE, echo = FALSE}
 usgsTime <- Sys.time()
 #reading in USGS data with upt to date data
-windyGapDaily <- readNWISdv(siteNumbers = "09034250", #code for windy gap
-                       parameterCd = c("00060", "00010"), #this is parameter codes for discharge and celsius water temp; more can be added if needed. https://help.waterdata.usgs.gov/codes-and-parameters/parameters
-                       startDate = "2020-08-06", 
-                       endDate = Sys.Date())
-windyGapDaily <- renameNWISColumns(windyGapDaily) %>%
-  mutate(WtempF = (Wtemp * 9/5) + 32)
+windyGapDaily <- read_waterdata_daily(monitoring_location_id = "USGS-09034250", #code for windy gap
+                       parameter_code = c("00060", "00010"), #this is parameter codes for discharge and celsius water temp; more can be added if needed. https://help.waterdata.usgs.gov/codes-and-parameters/parameters
+                       time = c("2020-08-06", Sys.Date())
+)
+windyGapDaily <- windyGapDaily %>%
+  st_drop_geometry() %>%
+  pivot_wider(id_cols = time, names_from = parameter_code, values_from = value, values_fn = ~ mean(.x, na.rm = TRUE)) %>%
+  rename(tempC = `00010`,
+         Flow = `00060`, 
+         Date = time)
+
+windyGapDaily <- windyGapDaily %>%
+  mutate(WtempF = (tempC * 9/5) + 32)
 #sometimes this can fail if USGS is having issues on their end
+#maybe this function readNWISuv should be replaced with read_waterdata_latest_continuous but no error on that yet. monitor
 windyGap <- readNWISuv(siteNumbers = "09034250", #code for windy gap
                        parameterCd = c("00060", "00010"), #this is parameter code for discharge; more can be added if needed
                        startDate = "2020-08-06", #if you want to do times it is this format: "2014-10-10T00:00Z",
@@ -315,13 +327,6 @@ GhostTags <- GhostTags %>%
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
 AllCombinedEvents <- All_combined_events_function(Stationary = utmsStationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
 
-#separating to marker tag file and fish detections file
-
-#all marker tags here
-Cleaned_Marker_tags <- AllCombinedEvents$df_list$All_Detections %>%
-  dplyr::filter(str_detect(TAG, "^0000000|^999")) %>%
-  mutate(Scan_Date = ymd(Scan_Date))
-
 Cleaned_Stationary_FishdetectionsOnly <- utmsStationary %>%
   filter(grepl("^230|^226", TAG))
 
@@ -330,28 +335,18 @@ Cleaned_Stationary_FishdetectionsOnly <- utmsStationary %>%
 #simpleStations and WGFP_States_2024 are from polygon_readins
 DailyDetectionsStationsStates <- spatial_join_stations_detections(condensedEvents = AllCombinedEvents$df_list$All_Events_most_relevant, simpleStations = simpleStations, WGFP_States_2024)
 
-
-problemNAtagsMessage <- ifelse(nrow(DailyDetectionsStationsStates$spatialList$noUTMS) > 0, 
-                               paste0("The following tags could not be assigned stations because of an NA entry for UTMs: ", unique(DailyDetectionsStationsStates$spatialList$noUTMS$TAG),
-                                         "."), 
-                               "")
-
-problemNoStatetagsMessage <- ifelse(nrow(DailyDetectionsStationsStates$spatialList$noState) > 0,
-                                    paste0("The following tags could not be assigned a state (aside from TGM) because their boundary was outside the states polygon: ", unique(DailyDetectionsStationsStates$spatialList$noState$TAG),
-                                         "."), 
-                                    ""
-                                    )
-
 encounterMARKStates <- createMARKEncounterHistories(DailyDetectionsStationsStates$spatialList$stationStateData, GhostTags, AvianPredation, wgfpMetadata$TimePeriods)
 
 #prepares joined stations and relevant Movements dataset for movements summaries and states
 #Not sure if I need this function to be this extensive with the new state regime
-combined_events_stations <- PrepareforMovementsandSummary(DailyDetectionsStationsStates$spatialList$stationStateData)  
+combined_events_stations <- PrepareforStatesMovementsandSummary(DailyDetectionsStationsStates$spatialList$stationStateData)  
 
 # states
 
 # aplies enc_hist_summary wide function
-enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(AllCombinedEvents$df_list$Recaps_detections, cleanedRelease, combined_events_stations, encounterMARKStates$States_summarized, markerTags = unique(Cleaned_Marker_tags$TAG))
+enc_hist_wide_list <- Ind_tag_enc_hist_wide_summary_function(AllCombinedEvents$df_list$Recaps_detections, cleanedRelease, combined_events_stations, States_summarized = encounterMARKStates$States_summarized)
+  
+  
 unknown_tags <- enc_hist_wide_list$enc_wide_list$Unknown_Tags
 enc_hist_wide_df <- enc_hist_wide_list$enc_wide_list$encountersAndRelease_wide_summary
 
@@ -450,9 +445,36 @@ SiteVisitData <- list(
 #### `r enc_hist_wide_list$endMessage`
 #### `r Movements_list$message`
 
+```{r qaqcTables, echo = FALSE, results='asis'}
+if (nrow(AllCombinedEvents$df_list$QAQCtables$tagsWithMoreThan1Release) > 0) {
+  cat('<span style="color:red; font-size: 30px;"><strong>The following tags have multiple "Release" Events</strong></span><br><br>')
+  DT::datatable(AllCombinedEvents$df_list$QAQCtables$tagsWithMoreThan1Release)
+}
 
-<span style="color:red; font-size: 30px;" >`r problemNAtagsMessage`</span>
-<span style="color:red; font-size: 30px;" >`r problemNoStatetagsMessage`</span>
+if (nrow(AllCombinedEvents$df_list$QAQCtables$detectionsBeforeReleaseEvent) > 0) {
+  cat('<span style="color:red; font-size: 30px;"><strong>Detections Before Official Release Event</strong></span><br><br>')
+  DT::datatable(AllCombinedEvents$df_list$QAQCtables$detectionsBeforeReleaseEvent)
+}
+
+if (nrow(AllCombinedEvents$df_list$QAQCtables$tagsWithMoreThan1Species) > 0) {
+  cat('<span style="color:red; font-size: 30px;"><strong>Tags with >1 Species Assigned</strong></span><br><br>')
+  DT::datatable(AllCombinedEvents$df_list$QAQCtables$tagsWithMoreThan1Species)
+}
+
+if (nrow(DailyDetectionsStationsStates$spatialList$noUTMS) > 0) {
+  cat('<span style="color:red; font-size: 30px;"><strong>The following tags could not be assigned stations because of an NA entry for UTMs:</strong></span><br><br>')
+  DT::datatable(DailyDetectionsStationsStates$spatialList$noUTMS)
+}
+
+if (nrow(DailyDetectionsStationsStates$spatialList$noState) > 0) {
+  cat('<span style="color:red; font-size: 30px;"><strong>The following tags could not be assigned a state (aside from TGM) because their boundary was outside the states polygon: </strong></span><br><br>')
+  DT::datatable(DailyDetectionsStationsStates$spatialList$noState)
+}
+
+
+```
+
+
 <span style="color:red; font-size: 30px;" >`r encounterMARKStates$timePeriodsMessage`</span>
 
 
@@ -464,7 +486,6 @@ allFlatFiles <- list(
   "Enc_release_data" = Enc_release_data,
   "encounterMARKStates" = encounterMARKStates,
   "movements_list" = movements_list,
-  "Marker_tags" = Cleaned_Marker_tags,
   "unknown_tags" = unknown_tags, 
   "possibleAvianPredationDFs" = avianPredationList,
   "wgfpMetadata" = wgfpMetadata,

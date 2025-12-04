@@ -5,7 +5,7 @@
 # combined_events_stations <- combined_events_stations #resulting df from combined_events and stations function
 # States_summarized <- states_data_list$States_summarized
 #recaps and all detreitons comes from WGFP ENC_hist_function, release data is a read_in csv, all_events_condensed with stations comes from combine_stations_events function
-Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, Release, combined_events_stations, States_summarized, markerTags){
+Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, Release, combined_events_stations, States_summarized){
   
   start_time <- Sys.time()
   startMessage <- "Running Ind_tag_enc_hist_wide_summary_function: Summarizes detection and movement data from each released Tag."
@@ -37,8 +37,8 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
   #gets tag list that wasn't in release file or markerTags
   unknown_tags <- encountersAndRelease %>%
     filter(is.na(ReleaseSite), 
-           !TAG %in% markerTags) %>%
-    select(TAG,where(is.numeric))
+           !str_detect(TAG, "^0000000|^999")) %>%
+    select(TAG, where(is.numeric))
   
   #gets rest of the number count columns to 0 from NA
   encountersAndRelease[is.na(encountersAndRelease)] = 0 

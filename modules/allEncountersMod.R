@@ -84,7 +84,7 @@ AllEncounters_UI <- function(id, combinedData_df_list) {
                                           br(),
                                           downloadData_UI(ns("downloadallevents1")), 
                        
-                       withSpinner(DT::dataTableOutput(ns("allevents1"))),
+                       withSpinner(DT::DTOutput(ns("allevents1"))),
                       ),
                       tabPanel("Plot",
                                br(),
@@ -94,7 +94,7 @@ AllEncounters_UI <- function(id, combinedData_df_list) {
                                    ),
                                box(title = "Raw Detection Frequencies by Event", 
                                    width = 10, 
-                                   withSpinner(DT::dataTableOutput(ns("alleventsfrequencies1")))
+                                   withSpinner(DT::DTOutput(ns("alleventsfrequencies1")))
                                    )
                                
                                ),
@@ -280,10 +280,10 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
         # enc_release_data wasn't registering bc i used reactive() instead of reactive ({}).
         # i guess reactive ({}) makes it so you can make multiple expressions within a reactive context whereas reactive() can only do 1
         all_events_data <- eventReactive(list(input$button3, input$keys), ignoreNULL = FALSE,{
-
           
           All_Events <- combinedData_df_list$All_Events
           if(input$dischargeDataFilter){
+            validate(need(isTruthy(input$sliderDischarge), "Needs USGS filter slider to load before clicking 'Render Table'. Re-click 'Render Table' with slider present and wait 15 seconds."))
             All_Events <- All_Events %>%
               filter(
                 USGSDischarge >= input$sliderDischarge[1] & USGSDischarge <= input$sliderDischarge[2]
@@ -291,6 +291,8 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
           }
           
           if(input$PTFilters){
+            validate(need(isTruthy(input$sliderWaterPressure), "Needs Environmental filters to load before clicking 'Render Table'. Re-click 'Render Table' with slider present and wait 15 seconds."))
+            
             All_Events <- All_Events %>%
               filter(
                 Water_Pres_psi >= input$sliderWaterPressure[1] & Water_Pres_psi <= input$sliderWaterPressure[2],
@@ -436,7 +438,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
         
         downloadData_Server("downloadallevents1", all_events_data(), "AllEventsData")
         
-        output$allevents1 <- renderDataTable({
+        output$allevents1 <- renderDT({
               datatable(all_events_data(),
                         rownames = FALSE,
                         extensions = c('Buttons'),
@@ -458,6 +460,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
             # Enc Hist Plot Render ----------------------------------------------------
 
             output$plot5 <- renderPlotly({
+              
               plot <- all_events_data() %>%
                 ggplot(aes(x= Date, fill = Event,
                            text = paste('Date: ', as.character(Date), '\n')
@@ -469,7 +472,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
 
             })
         
-        output$alleventsfrequencies1 <- renderDataTable({
+        output$alleventsfrequencies1 <- renderDT({
           frequenciesSummarized <- all_events_data() %>%
             filter(!TAG %in% c(230000999999)) %>%
             count(Event, name = "Raw Detections")

@@ -37,14 +37,14 @@ mod_animationUI <- function(id) {
                selectInput(ns("facetWrapOption"), "Facet Wrap", 
                            choices = c("None" = "None", 
                                        "Species" = "Species", 
-                                       "Release Site" = "ReleaseSite")),
-               sliderInput(ns("fps_Slider"), "Select frames per Second",
-                           min = .2,
-                           max = 15,
-                           value = 10,
-                           step = .2), 
+                                       "Release Site" = "ReleaseSite", 
+                                       "Tag (only use less than 10 tags)" = "TAG")),
+               selectInput(ns("fps_Select"), 
+                           "Frames Per Second",
+                           choices = c(1,2,4,5,10,20), 
+                           selected = 10), 
                actionButton(ns("renderAnimationButton"), "Render Animation"), 
-               h6("Notes: Need to click 'Render Map and Data' button to obtain data. Render progress shown in RStudio console."),
+               h6("Notes: Need to click 'Render' button in left sidebar to obtain data. Render progress shown in RStudio console."),
                h6("GIF will appear below and is automatically saved in project directory."), 
                h6("Aggregating the data by timeframe avoids having multiple points for the same fish plotted at a time.")
              )
@@ -95,6 +95,32 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
         } else{
           movementsGrouped <- movementsWithTimeForFrames
         }
+        #time frame options
+        #aggregating and completing helps to create continuous animation to avoid erros, especially when gacet wrapping by tag
+        if (input$TimeframeButtons == "weeks_since"){
+          movementsGrouped <- movementsGrouped %>%
+            complete(TAG, weeks_since = full_seq(min(weeks_since):max(weeks_since),1)) %>%
+            group_by(TAG) %>%
+            arrange(weeks_since) %>%
+            fill(Species, ReleaseSite, X, Y, .direction = "downup") %>%
+            ungroup()
+
+        } else if (input$TimeframeButtons == "daySequence"){
+          
+          dateRange <- range(movementsGrouped$daySequence, na.rm = TRUE)
+         
+          movementsGrouped <- movementsGrouped %>%
+            complete(TAG, daySequence = seq.Date(
+              from = dateRange[1],
+              to   = dateRange[2],
+              by   = "day"
+            )) %>%
+            group_by(TAG) %>%
+            arrange(daySequence) %>%
+            fill(Species, ReleaseSite, X, Y, .direction = "downup") %>%
+            ungroup()
+
+        } # don't think we need to do this for time periods, but if there are errors for negative length vector, it could be related to this
         Animation_function(movementsGrouped)
       })
       
@@ -122,6 +148,7 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
       })
       
       observe({
+        
         #set basemaps default imagery to satellite and set up basemap with extent specified 
         basemaps::set_defaults(map_service = "esri", map_type = "world_imagery")
         
@@ -149,7 +176,7 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
           
             #makes it so code executes on button push
             input$renderAnimationButton
-          #number of frames to pause at the end f the gif
+          #number of frames to pause at the end of the gif
             endPauseValue = 5
             #isolate makes it so it wont execute when all the inputs inside the isolate() are changed (title, fps, days/weeks)
             isolate({
@@ -163,7 +190,7 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
                   transition_time(weeks_since) +
                   ggtitle(
                     paste(input$anim_Title, '{frame_time}'),
-                    subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(animationDatalist()$mercatorSFMovements$Date)))
+                    subtitle = paste("Week {frame} of {nframes} past Initial Date of", min(animationDatalist()$mercatorSFMovements$Date, na.rm = TRUE)))
                 
                 
               } else if (input$TimeframeButtons == "daySequence"){
@@ -174,7 +201,7 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
                   transition_time(daySequence) +
                   ggtitle(
                     paste(input$anim_Title, '{frame_time}'),
-                    subtitle = paste("Day {frame} of {nframes} past Initial Date of", min(animationDatalist()$mercatorSFMovements$Date)))
+                    subtitle = paste("Day {frame} of {nframes} past Initial Date of", min(animationDatalist()$mercatorSFMovements$Date, na.rm = TRUE)))
                 
                 
               } else if (input$TimeframeButtons == "TimePeriodDates"){
@@ -203,6 +230,10 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
                 
                 mapWithData <- mapWithData +
                   facet_wrap(~ReleaseSite)
+              } else if(input$facetWrapOption == "TAG") {
+                
+                mapWithData <- mapWithData +
+                  facet_wrap(~TAG)
               } 
               #display data in app
               mapWithData
@@ -210,7 +241,7 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
               anim_save("WindyGapFishMovements.gif", gganimate::animate(mapWithData, 
                                                                         nframes = animationDatalist()[[nframesUnit]] + endPauseValue, 
                                                                         end_pause = endPauseValue,
-                                                                        fps = input$fps_Slider, height = 1200, width = 1200)) 
+                                                                        fps = as.numeric(input$fps_Select), height = 1200, width = 1200)) 
             })
             
             list(src = "WindyGapFishMovements.gif", contentType = "image/gif")

@@ -20,11 +20,6 @@ library(leaflet.minicharts)
 library(shinyjs)
 library(shinyjqui)
 #library(mapview)
-#biomark test tags: 999000000007601, 999000000007602
-# to do: put qaqc stuff from combine files app in this file as well
-#continue with how-to
-# make mini charts on leaflet# 
-
 
 # cntrl + shft + A to reformat chunks of code
 # rsconnect::showLogs(appName="WGFP_dataclean_vis",streaming=TRUE) will show logs when trying to load app browser
@@ -51,9 +46,6 @@ if(!exists("encounterMARKStates")){
 }
 if(!exists("movements_list")){
   movements_list <- readRDS("data/flatFilesforApp/movements_list.rds")
-}
-if(!exists("Marker_tags")){
-  Marker_tags <- readRDS("data/flatFilesforApp/Marker_tags.rds")
 }
 if(!exists("unknown_tags")){
   unknown_tags <- readRDS("data/flatFilesforApp/unknown_tags.rds")
@@ -201,7 +193,7 @@ ui <- fluidPage(
 
           tabPanel("QAQC",
                    value = "QAQCTab",
-                   QAQC_UI("QAQCTab1", Marker_tags, combinedData_df_list)
+                   QAQC_UI("QAQCTab1", combinedData_df_list)
                    ) # end of tabPanel
     ) #end of navbar page
 ) #end of fluidpage
@@ -226,7 +218,7 @@ server <- function(input, output, session) {
       
       PT_Server("PTtab1", PTData, movements_list$Movements_df, USGSData, SiteVisitData$WGFP_SiteVisits_FieldData, allColors)
    
-      QAQC_Server("QAQCTab1", Marker_tags, indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
+      QAQC_Server("QAQCTab1", indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
                   unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate, avianPredationList,
                   combinedData_df_list, wgfpMetadata, metaDataVariableNames, SiteVisitData$SiteVisitAndPTData, allColors)
     
