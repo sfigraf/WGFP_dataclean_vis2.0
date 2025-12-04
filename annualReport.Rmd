@@ -346,7 +346,7 @@ datatable(
     )
   )
 ```
-Upstream or downstream movements of fish are seen when a fish is detected or recaptured in a different area than before, even if a fish remained in the same state. By monitoring these movements over time, we can start to see patterns about when fish activity is highest. "No Movement" is defined when a fish hits the same antenna as before on a different day. The following graph and table show an overall increase in activity in the Spring and Fall, when spawning occurs in rainbow trout and brown trout and water temperatures change.  
+Upstream or downstream movements of fish occur when a fish is detected or recaptured in a different area than before, even if a fish remained in the same state. By monitoring these movements over time, we can start to see patterns about when fish activity is highest. "No Movement" is defined when a fish hits the same antenna as before on a different day. The following graph and table show an overall increase in activity in the Spring and Fall, when spawning occurs in rainbow trout and brown trout and water temperatures change.  
 ``` {r, include=TRUE, echo=FALSE}
 
 movementsData <- movements_list$Movements_df %>%
@@ -690,7 +690,7 @@ Below is the encounter history of a Merganser tagged in 2024. Activity is excess
 #function for formatting seconds
 computeTimeDiffAnnualReport <- function(secondsValue) {
   if (is.na(secondsValue)) {
-    return("First Detection in Group") # Or "N/A", or "Missing Data"
+    return("First Detection in History") # Or "N/A", or "Missing Data"
   }
   diff_secs <- abs(as.numeric(secondsValue))
   if (diff_secs < 60) {
@@ -854,22 +854,6 @@ animate(map_with_data1, nframes = frameUnit + endPauseValue, end_pause = endPaus
 In contrast, below is the encounter history of a 335 mm Brown Trout. Antennas hit follow a logical sequence for fish and there more time between detections at different antenna sites. In contrast to the merganser, the fish lingers on antennas as opposed to only a brief detection at antennas. The fish moves more in the fall, when you'd expect a brown trout to move for the spawn. The fish moves around a lot, but follows a logical sequence of antennas, as shown in the animation below for the selected time frame, when the fish moves upstream through the channel before moving back down and up, hitting all antennas along the way.  
 
 ```{r troutDataTable, echo=FALSE, include=TRUE, warning=FALSE,message=FALSE}
-#function for formatting seconds
-computeTimeDiffAnnualReport <- function(secondsValue) {
-  if (is.na(secondsValue)) {
-    return("First Detection in Group") # Or "N/A", or "Missing Data"
-  }
-  diff_secs <- abs(as.numeric(secondsValue))
-  if (diff_secs < 60) {
-    return(paste(diff_secs, "seconds"))
-  } else if (diff_secs < 3600) {
-    return(paste(round(diff_secs / 60, 2), "minutes"))
-  } else if (diff_secs < 86400) {
-    return(paste(round(diff_secs / 3600, 2), "hours"))
-  } else {
-    return(paste(round(diff_secs / 86400, 2), "days"))
-  }
-}
 
 fishOnly <- combinedData_df_list$All_Events %>%
   filter(TAG == "230000294213")
