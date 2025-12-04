@@ -45,13 +45,13 @@ MarkerTagQAQC_UI <- function(id, All_Detections) {
       mainPanel(
         br(),
         withSpinner(plotlyOutput(ns("plot2"))),
-          withSpinner(DT::dataTableOutput(ns("markerTagsPlotData"))),
+          withSpinner(DT::DTOutput(ns("markerTagsPlotData"))),
         downloadData_UI(ns("downloadmarkerTagsPlotData")),
         br(),
         shinydashboard::box(
           title = "Summarized Marker tag Data for Selected Tags and Sites",
           width = "600px",
-          withSpinner(DT::dataTableOutput(ns("summarizedMarkerTagData"))), 
+          withSpinner(DT::DTOutput(ns("summarizedMarkerTagData"))), 
           downloadData_UI(ns("downloadsummarizedMarkerTagData")),
         )
       )#end of mainpanel

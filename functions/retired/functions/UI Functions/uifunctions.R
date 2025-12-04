@@ -14,7 +14,7 @@ Ind_data_ui_tab <- function(tabid, tableid, dateid, buttonid, downloadid, end_da
                hr(),
                downloadButton(outputId = downloadid, label = "Save this data as CSV"),
                hr(),
-               withSpinner(DT::dataTableOutput(tableid))
+               withSpinner(DT::DTOutput(tableid))
              ) #end of mainPanel
                          ) #end of sidebar layout
            ) #end of tabPanel

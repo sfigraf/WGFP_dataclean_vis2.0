@@ -4,7 +4,7 @@ States_UI <- function(id) {
     br(), 
     downloadData_UI(ns("downloadStatesMARKData")),
     br(), 
-    withSpinner(DT::dataTableOutput(ns("statesMARKData")))
+    withSpinner(DT::DTOutput(ns("statesMARKData")))
   )
 }
 
