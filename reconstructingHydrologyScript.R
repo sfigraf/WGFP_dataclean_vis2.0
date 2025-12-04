@@ -93,4 +93,6 @@ allDataDaily <- windyGapDaily %>%
 allDataDaily1 <- allDataDaily %>%
   mutate(AssumedFraserFlow = `CR Below WG Flow` - (`CR Near Lake Granby Flow` + `WC Below Res Flow`), 
          difference = `FR Above Con` -  AssumedFraserFlow)
+
+write_csv(allDataDaily1, "constructedHydrology.csv")
 summary(allDataDaily1$difference)

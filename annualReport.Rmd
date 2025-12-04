@@ -101,6 +101,9 @@ mobileCodes <- wgfpMetadata$AntennaMetadata[wgfpMetadata$AntennaMetadata$SiteNam
 ## Tagging Summary
 ### All Data Excludes TGM
 
+Throughout the study, there have been a total of `r nrow(indiv_datasets_list$releasedata)` fish tagged with PIT tags. Of these fish, `r nrow(filter(indiv_datasets_list$releasedata, !Species %in% c("TGM", "MERG")))` were trout or sculpin tagged within the study area. `r nrow(filter(indiv_datasets_list$releasedata, Species %in% c("TGM")))` fish were Tiger Muskies tagged and released in Shadow Mountain Reservoir, and `r nrow(filter(indiv_datasets_list$releasedata, Species %in% c("MERG")))` tags were mergansers tagged as part of an avian predation study. There have been `r nrow(indiv_datasets_list$recapdata)` instances of fish recapture throughout the study period. The table below breaks down release and recapture data by year and species on tags other than Tiger Muskies. 
+
+
 ```{r, echo = FALSE, include=TRUE, warning=FALSE,message=FALSE,error=FALSE}
 ReleaseData <- indiv_datasets_list$releasedata %>%
   mutate(Date = as.Date(Date)) %>%
@@ -125,21 +128,60 @@ datatable(releaseRecaps,
 ),
   rownames = FALSE
   )
+
+```
+
+The following interactive plot shows the length distribution of tagged fish (besides Tiger Muskies) by year, length and species. The proceeding table shows summary statistics of released species' lengths and weights by year. 
+
+```{r fish Tagged by length, echo = FALSE, include=TRUE, warning=FALSE,message=FALSE,error=FALSE }
 # number of fish tagged 
-ReleaseData %>%
-          ggplot(aes(x = Length, fill = Species) ) +
-          geom_histogram(binwidth = 20)+
-          theme_classic() +
-          labs(title = "Released Fish by Length", caption = "Binwidth = 20mm") +
-          scale_fill_manual(values = allColors) +
-          facet_wrap(~year(Date))
+plot <- ReleaseData %>%
+  rename(`Length (mm)` = Length) %>%
+  ggplot(aes(x = `Length (mm)`, fill = Species) ) +
+  geom_histogram(binwidth = 20)+
+  theme_classic() +
+  labs(title = "Released Fish by Length (mm)", caption = "Binwidth = 20mm") +
+  scale_fill_manual(values = allColors) +
+  facet_wrap(~year(Date))
+ggplotly(plot)
+
+#Length and Weight Range
+#range(ReleaseData$)
+LWRanges <- ReleaseData %>%
+  filter(!is.na(Species)) %>%
+  group_by(Year = year(Date), Species) %>%
+  summarise(`Minimum Length (mm)` = round(min(Length, na.rm = T), 2), 
+            `Maximum Length (mm)` = round(max(Length, na.rm = T), 2),
+            `Average Length (mm)` = round(mean(Length, na.rm = T), 2),
+            `SD Length (mm)` = round(sd(Length, na.rm = T), 2),
+            `Minimum Weight (g)` = round(min(Weight, na.rm = T), 2), 
+            `Maximum Weight (g)` = round(max(Weight, na.rm = T), 2),
+            `Average Weight (g)` = round(mean(Weight, na.rm = T), 2), 
+            `SD Weight (g)` = round(sd(Weight, na.rm = T), 2))
+
+datatable(LWRanges, 
+          caption = "Length and Weight Summaries",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  )
+```
+There have been a total of `r length(unique(indiv_datasets_list$releasedata$ReleaseSite))` sites where tagged fish have been released and `r length(unique(indiv_datasets_list$recapdata$RecaptureSite))` sites where fish have been recaptured over the course of the study. The following tables show yearly counts of released and recaptured fish by site and species. 
+
+``` {r, echo = FALSE, include=TRUE, warning=FALSE,message=FALSE,error=FALSE }
+
 # percentage fish released, how many were TLNT, vs recap vs straigght release, by species  
 # table 
 ReleaseCounts <- ReleaseData %>%
   count(Year = year(Date), ReleaseSite, Species, Event) 
 
 datatable(ReleaseCounts, 
-          caption = "Release Summaries",
+          caption = "Release Summaries by Site",
   options = list(
     pageLength = 10,
     autoWidth = TRUE
@@ -154,7 +196,7 @@ RecaptureCounts <- Recaptures %>%
   count(Year = year(Date), RecaptureSite, Species) 
 
 datatable(RecaptureCounts, 
-          caption = "Recapture Summaries",
+          caption = "Recapture Summaries by Site",
   options = list(
     pageLength = 10,
     autoWidth = TRUE
@@ -165,37 +207,37 @@ datatable(RecaptureCounts,
   rownames = FALSE
   ) #%>%
   #formatPercentage(c("DS Percentage"), 2)
-#Length and Weight Range
-#range(ReleaseData$)
-LWRanges <- ReleaseData %>%
-  group_by(Year = year(Date), Species) %>%
-  summarise(`Minimum Length (mm)` = round(min(Length, na.rm = T), 2), 
-            `Maximum Length (mm)` = round(max(Length, na.rm = T), 2),
-            `Average Length (mm)` = round(mean(Length, na.rm = T), 2),
-            `Minimum Weight (g)` = round(min(Weight, na.rm = T), 2), 
-            `Maximum Weight (g)` = round(max(Weight, na.rm = T), 2),
-            `Average Weight (g)` = round(mean(Weight, na.rm = T), 2))
 
-datatable(LWRanges, 
-          caption = "Length and Weight Summaries",
-  options = list(
-    pageLength = 10,
-    autoWidth = TRUE
-  ),
-  filter = list(
-  position = 'top', clear = FALSE
-),
-  rownames = FALSE
-  )
 
 ```
 ## Movement Summary
 
+Fish detected by antennas, released, or recaptured are assigned a one letter "State", defined as a specific section of the river outlined in the map below. 
+The following tables summarize activity in the Connectivity Channel (CRCC) as defined by movement between the "States" upstream of the channel, downstream of the channel, and within the channel throughout a fish's encounter history. Antenna locations can be toggled with the layer control. 
+
 ```{r, include=TRUE, echo=FALSE}
-movementsData <- movements_list$Movements_df %>%
-  filter(!Species %in% c("TGM"), 
-         !det_type %in% c("Mobile Run")
-         )
+
+leaflet() %>% #Warning: Error in UseMethod: no applicable method for 'metaData' applied to an object of class "NULL"  solved becuase leaflet() needs an arg leaflet(x)
+  addProviderTiles(providers$Esri.WorldImagery,
+                   options = providerTileOptions(maxZoom = 19.5), 
+                   group = "Satellite"
+  ) %>%
+  addPolygons(data = WGFP_States_2024,
+                      label = WGFP_States_2024$State, 
+                      color = "#702963", 
+                      group = "States") %>%
+  addAwesomeMarkers(data = antenna_sites,
+                            icon = Station_icons,
+                            clusterOptions = markerClusterOptions(),
+                            label = paste(antenna_sites$SiteLabel),
+                            popup = paste(antenna_sites$SiteName),
+                            group = "Antennas") %>%
+  addLayersControl(overlayGroups = c("Antennas", "States"), 
+                   baseGroups = c("Satellite")
+  ) %>%
+  hideGroup(c("Antennas")) %>%
+  addMeasure(primaryLengthUnit = "meters")
+
 # how many swam through channel?
 #these are all based off states created in createMARKhistoriesFunction()
 Enc_release_data1 <- Enc_release_data %>%
@@ -213,15 +255,18 @@ Enc_release_data1 <- Enc_release_data %>%
 usedChannel <-  Enc_release_data1 %>%
   filter(channelSummary == "Used Connectivity Channel") 
 #went below the dam through channel
+#staes: "EDC|EDB|EDA|FDC|FDB|FDA|HDC|HDB|HDA"),
+
 dsChannelUsage <- Enc_release_data1 %>%
   filter(went_below_dam_throughChannel == TRUE)
 #upstream channel usage
+#states: "CDE|BDE|ADE|CDF|BDF|ADF|CDH|BDH|DAH"
 usChannelUsage <- Enc_release_data1 %>%
   filter(went_above_dam_throughChannel == TRUE)
 
 #make these into tables by species and size
 usedChannelSummarizedTotal <- usedChannel %>%
-  summarise(`Total Fish Detected In Channel` = n())
+  summarise(`Total Fish Detected In Channel (Including Release)` = n())
 dsChannelUsageSummarizedTotal <- dsChannelUsage %>%
   summarise(`Total Fish Swam Downstream Through Channel` = n())
 usChannelUsageSummarizedTotal <- usChannelUsage %>%
@@ -300,6 +345,14 @@ datatable(
       info = TRUE
     )
   )
+```
+Upstream or downstream movements of fish are seen when a fish is detected or recaptured in a different area than before, even if a fish remained in the same state. By monitoring these movements over time, we can start to see patterns about when fish activity is highest. "No Movement" is defined when a fish hits the same antenna as before on a different day. The following graph and table show an overall increase in activity in the Spring and Fall, when spawning occurs in rainbow trout and brown trout and water temperatures change.  
+``` {r, include=TRUE, echo=FALSE}
+
+movementsData <- movements_list$Movements_df %>%
+  filter(!Species %in% c("TGM"), 
+         !det_type %in% c("Mobile Run")
+         )
 #Annual Figure of Upstream vs downstream movements
 seasonal_movts <- movementsData %>%
   filter(!movement_only %in% c("Initial Release")) %>%
@@ -333,11 +386,14 @@ datatable(
     )
   )
           
-          
+```
 
+The following graph and table shows total movements by fish size. 
+```{r, include=TRUE, echo=FALSE}
+###nomralize by release counts???
 #movements by size/age class
 movementsLength <- movementsData %>%
-  mutate(`Length Bin` = cut(
+  mutate(`Length Bin (mm)` = cut(
     Release_Length,
     breaks = c(0, 100, 200, 300, 400, 500, Inf),
     labels = c("0-100", "100-200", "200-300", "300-400", "400-500", "500+"),
@@ -345,27 +401,10 @@ movementsLength <- movementsData %>%
 ))
 
 movementsLengths <- movementsLength %>%
-  count(`Length Bin`, movement_only) %>%
-  arrange(`Length Bin`, movement_only) 
+  count(`Length Bin (mm)`, movement_only) %>%
+  arrange(`Length Bin (mm)`, movement_only) 
 
-movementsLengthsWide <- movementsLengths %>%
-  pivot_wider(names_from = movement_only, values_from = n) %>%
-  mutate(`DS Percentage` = `Downstream Movement`/(`Upstream Movement` + `Downstream Movement`))
-
-datatable(movementsLengthsWide, 
-          caption = "Movement Summary Table by Length Bins",
-  options = list(
-    pageLength = 10,
-    autoWidth = TRUE
-  ),
-  filter = list(
-  position = 'top', clear = FALSE
-),
-  rownames = FALSE
-  ) %>%
-  formatPercentage(c("DS Percentage"), 2)
-
-plot <- ggplot(movementsLengths, aes(x = `Length Bin`, y = n, fill = movement_only)) +
+plot <- ggplot(movementsLengths, aes(x = `Length Bin (mm)`, y = n, fill = movement_only)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(
     x = "Length Bin (mm)",
@@ -389,9 +428,28 @@ plot <- ggplot(movementsLengths, aes(x = `Length Bin`, y = n, fill = movement_on
 
 ggplotly(plot)
 
+movementsLengthsWide <- movementsLengths %>%
+  pivot_wider(names_from = movement_only, values_from = n) %>%
+  mutate(`DS Percentage` = `Downstream Movement`/(`Upstream Movement` + `Downstream Movement`))
+
+datatable(movementsLengthsWide, 
+          caption = "Movement Summary Table by Length Bins (mm)",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  ) %>%
+  formatPercentage(c("DS Percentage"), 2)
+
 ```
 
 ## Antenna data
+
+When a tagged fish swims across an antenna, it registers a detection on that antenna. When the fish remains on an antenna, it registers detections until the fish swims out of the detection field. The following graph and table show the raw amount of detections per antenna across the entirety of the study. 
 ```{r, include=TRUE, echo=FALSE}
 # number of days the antennas were down across all antennas
 antennasDown <- wgfpMetadata$MarkerTagIssues %>%
@@ -414,7 +472,7 @@ StationaryAntennaTimeTotal <- stationaryAntennaTimeGrouped %>%
 
 totalDowntimePercentage = round((as.numeric(stationaryAntennasDown$`Total Time Antennas were down`) / as.numeric(StationaryAntennaTimeTotal$`Total Duration`)) * 100, 2)
 
-stationaryAntennaTimeSummaryMessage <- paste0("Stationary Antennas were down for ", totalDowntimePercentage, "% of the total time across all Stationary Antennas. Inidividual Antennas were down for a total of ", round(stationaryAntennasDown$`Total Time Antennas were down`, 2), " days out of a total of ", round(StationaryAntennaTimeTotal$`Total Duration`, 2), " days of total time across all Stationary Antennas.")
+stationaryAntennaTimeSummaryMessage <- paste0("Stationary Antennas were down for ", totalDowntimePercentage, "% of the total time across all Stationary Antennas. All individual Stationary antennas were down for a total of ", round(stationaryAntennasDown$`Total Time Antennas were down`, 2), " days out of a total of ", round(StationaryAntennaTimeTotal$`Total Duration`, 2), " days of total time across all Stationary antennas.")
 
 ### biomark
 
@@ -429,7 +487,7 @@ biomarkAntennaTimeTotal <- wgfpMetadata$DeploymentDurations %>%
 
 totalBiomarkDowntimePercentage = round((as.numeric(biomarkAntennasDown$`Total Time Antennas were down`) / as.numeric(biomarkAntennaTimeTotal$`Total Duration`)) * 100, 2)
 
-biomarkAntennaTimeSummaryMessage <- paste0("Biomark Antennas were down for ", totalBiomarkDowntimePercentage, "% of the total time across all Biomark Antennas. Inidividual Antennas were down for a total of ", round(biomarkAntennasDown$`Total Time Antennas were down`, 2), " days out of a total of ", round(biomarkAntennaTimeTotal$`Total Duration`, 2), " days of total time across all Biomark Antennas.")
+biomarkAntennaTimeSummaryMessage <- paste0("Biomark antennas were down for ", totalBiomarkDowntimePercentage, "% of the total time across all Biomark antennas. All individual Biomark antennas were down for a total of ", round(biomarkAntennasDown$`Total Time Antennas were down`, 2), " days out of a total of ", round(biomarkAntennaTimeTotal$`Total Duration`, 2), " days of total time across all Biomark Antennas.")
 
 # how many fish were seen on each antenna
 
@@ -527,20 +585,21 @@ dataToDif <- c(stationaryTags$TAG, biomarkTags$TAG, mobileTags$TAG)
 onlyRecappedUnique <- base::setdiff(recappedTags$TAG, dataToDif)
 numberofRecappedUniqueTags <- length(onlyRecappedUnique)
 
-x <- All_EventsData %>%
-  filter(TAG == "230000087762") %>%
-  arrange(Datetime)
+# x <- All_EventsData %>%
+#   filter(TAG == "230000087762") %>%
+#   arrange(Datetime)
 
-uniqueDetectionsMessage <- paste0("Stationary Antennas detected ", numberofStationaryUniqueTags, " fish that were not detected by mobile, biomark, or recapture methods. Biomark Antennas detected ", numberofBiomarkUniqueTags, " fish that were not detected by mobile, stationary, or recapture methods. Mobile Antennas detected ", numberofMobileUniqueTags, " fish that were not detected by biomark, stationary, or recapture methods. There were ", numberofRecappedUniqueTags, " fish recaptured that were not detected by biomark, stationary, or recapture methods."      
+uniqueDetectionsMessage <- paste0("Stationary antennas detected ", numberofStationaryUniqueTags, " fish that were not detected by mobile, biomark, or recapture methods. Biomark antennas detected ", numberofBiomarkUniqueTags, " fish that were not detected by mobile, stationary, or recapture methods. Mobile antennas detected ", numberofMobileUniqueTags, " fish that were not detected by biomark, stationary, or recapture methods. There were ", numberofRecappedUniqueTags, " fish recaptured that were not detected by biomark, stationary, or recapture methods."      
                                   )
 
 ```
+Sometimes these antennas lose power for a certain period of time. 
 `r stationaryAntennaTimeSummaryMessage`
 `r biomarkAntennaTimeSummaryMessage`
 
 `r uniqueDetectionsMessage`
 
-## Before and After
+## Before and After CRCC Construction
 ```{r beforeAFter, echo=FALSE, results='hide',include=TRUE, warning=FALSE,message=FALSE,error=FALSE}
 #movements from HP to CF before construction of channel vs after channel
 #based off  getSequences() whereas above the "used channel" stuff is based on states
@@ -563,6 +622,7 @@ beforeCFHPSequences <- invisible(getSequences(beforeDataAvianPredationFiltered, 
 ##AFTER PERIOD HP TO CF SEQUENCES
 
 #some fish' totla jhouinreys are not caputred, like 230000294213. Sequnce recorded hp to cs to cu to cf on 10/12/2025, but lingered up and down the channel 10/6/2025 so that sequnece not totally captured, which is ok honestly for this method
+#additionally, mobile data and recaps are not used for this method which is why these numbers vary between the "CRCC Usage" table in the section above
 # another way to change this woudl be to use States, as is done above in the "Used channel" kind of stuff
 #idea: make sequences but with states instead of antennas for app. both good optoins
 afterDataAvianPredationFiltered <- allEventsAvianExcluded %>%
@@ -587,7 +647,7 @@ afterHPCFSequencesDSThroughChannel2 <- invisible(getSequences(allEventsAvianExcl
 totalAfterDSSequences <- nrow(afterHPCFSequencesDSThroughChannel) + nrow(afterHPCFSequencesDSThroughChannel1) + nrow(afterHPCFSequencesDSThroughChannel2)
 
 ###MESSAGES
-totalBeforeSequenceMessage <- paste0("Before the Connectivity Channel was built, there were ", nrow(beforeHPCFSequences), " upstream journeys from Hitching Post Antenna or Windy Gap Biomark Antenna below the dam to Confluence Antenna by non-Avian Predated fish and ", nrow(beforeCFHPSequences), " downstream journeys from Confluence Antenna to Hitching Post Antenna or Windy Gap Biomark Antenna below the dam, over the course of ", round(totalDaysBefore, 2), " days. This equates to one upstream journey every ", round(as.numeric(totalDaysBefore)/nrow(beforeHPCFSequences), 2), " days and one downstream journey every ", round(as.numeric(totalDaysAfter)/nrow(beforeCFHPSequences), 2), " days.") 
+totalBeforeSequenceMessage <- paste0("Before the Connectivity Channel was built, there were ", nrow(beforeHPCFSequences), " upstream journeys from Hitching Post Antenna or Windy Gap Biomark Antenna (both located downstream of Windy Gap dam) to Confluence Antenna (located upstream of Windy Gap dam) by non-Avian Predated fish and ", nrow(beforeCFHPSequences), " downstream journeys from Confluence Antenna to Hitching Post Antenna or Windy Gap Biomark Antenna, over the course of ", round(totalDaysBefore, 2), " days. This equates to one upstream journey every ", round(as.numeric(totalDaysBefore)/nrow(beforeHPCFSequences), 2), " days and one downstream journey every ", round(as.numeric(totalDaysAfter)/nrow(beforeCFHPSequences), 2), " days.") 
 
 totalAfterSequenceMessage <- paste0("Since the Connectivity Channel was built, there have been ", totalAfterUSSequences, " upstream journeys from Hitching Post Antenna or Windy Gap Biomark Antenna to Confluence Antenna by non-Avian Predated fish AFTER Channel was built and ", totalAfterDSSequences, " downstream journeys from Confluence Antenna to Hitching Post Antenna or Windy Gap Biomark Antenna below the dam, over the course of ", round(totalDaysAfter, 2), " days. This equates to one upstream journey every ", round(as.numeric(totalDaysAfter)/totalAfterUSSequences, 2), " days and one downstream journey every ", round(as.numeric(totalDaysAfter)/totalAfterDSSequences, 2), " days on average.")
 ###RB and HP Movements for COMPARISON
@@ -621,9 +681,10 @@ Throughout the duration of the study, we have identified `r length(unique(indiv_
 
  *  By identifying missing antennas in their encounter history, ie hitting an antenna different than the ones we'd expect them to hit
  *  Identifying instances where a tag moved quickly, or disproportionately far throughout its encounter history or even just one move
+ * Tagging actual birds known to predate fish (in this case, Mergansers) and comparing their encounter histories to suspected predated tags. 
 
 
-Below is the encounter history of a Merganser tagged in 2024. Activity is excessive between Red Barn and Hitching Post, and doesn't follow a logical pattern. The Merganser was detected on the Hitching POst antenna below the dam, then was detected on an antenna above the dam without hitting other antennas between, as showin in the animation below. By recognizing movements patterns of known birds, we can apply this pattern to finding tags predated by birds.  
+Below is the encounter history of a Merganser tagged in 2024. Activity is excessive between Red Barn and Hitching Post and later do not follow a typical fish sequence when travelling upstream. The Merganser was detected on the Hitching Post antenna below the dam, then was detected on an antenna above the dam without hitting other antennas between, as shown in the animation below. The Merganser also is typically detected briefly on an antenna before travelling off of it. By recognizing movements patterns of known birds, we can apply this pattern to finding tags predated by birds.  
 
 ```{r mergDataTable, echo=FALSE, include=TRUE,warning=FALSE,message=FALSE}
 #function for formatting seconds
@@ -752,7 +813,7 @@ num_days <- max(webMercatorAllEvents$days_since) - min(webMercatorAllEvents$days
 
 basemaps::set_defaults(map_service = "esri", map_type = "world_imagery")
 map_with_data <- ggplot() +
-  basemap_gglayer(coords1) +
+  basemap_gglayer(coords1, verbose = FALSE) +
   scale_fill_identity() +
   coord_sf() +
   theme_classic() +
@@ -790,7 +851,7 @@ animate(map_with_data1, nframes = frameUnit + endPauseValue, end_pause = endPaus
 
 ```
 
-In contrast, below is the encounter history of a 335 mm Brown Trout. Antennas hit follow a logical sequence and there is typically more movement in the fall, when you'd expect a brown trout to move for the spawn. The fish moves around a lot, but follows a logical sequence of antennas, as shown in the animation below for the selected time frame, when the fish moves upstream through the channel before moving back down and up, hitting all antennas along the way. 
+In contrast, below is the encounter history of a 335 mm Brown Trout. Antennas hit follow a logical sequence for fish and there more time between detections at different antenna sites. In contrast to the merganser, the fish lingers on antennas as opposed to only a brief detection at antennas. The fish moves more in the fall, when you'd expect a brown trout to move for the spawn. The fish moves around a lot, but follows a logical sequence of antennas, as shown in the animation below for the selected time frame, when the fish moves upstream through the channel before moving back down and up, hitting all antennas along the way.  
 
 ```{r troutDataTable, echo=FALSE, include=TRUE, warning=FALSE,message=FALSE}
 #function for formatting seconds
@@ -918,7 +979,7 @@ num_days <- max(webMercatorAllEvents$days_since) - min(webMercatorAllEvents$days
 
 basemaps::set_defaults(map_service = "esri", map_type = "world_imagery")
 map_with_data <- ggplot() +
-  basemap_gglayer(coords1) +
+  basemap_gglayer(coords1, verbose = FALSE) +
   scale_fill_identity() +
   coord_sf() +
   theme_classic() +
