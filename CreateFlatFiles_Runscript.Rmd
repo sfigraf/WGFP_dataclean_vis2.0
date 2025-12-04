@@ -42,7 +42,7 @@ Biomark <- readRDS("./data/WGFP_Biomark_Raw_20251104.rds")
 
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
 
-Release <- read.csv("./data/WGFP_ReleaseData_Master_20251031.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",7), "numeric", "numeric",rep("character",9))) %>%
+Release <- read.csv("./data/WGFP_ReleaseData_Master_20251203.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",7), "numeric", "numeric",rep("character",9))) %>%
   janitor::remove_empty()
 Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20251020.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 7), rep("numeric", 2), rep("character", 8))) %>%
   janitor::remove_empty()
