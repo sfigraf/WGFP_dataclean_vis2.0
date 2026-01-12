@@ -69,22 +69,16 @@ RS_Num,River,ReleaseSite,ReleaseDate,Species,Length,Weight,TagID,TagSize,Event,P
 22,Colorado River Connectivity Channel,CRCC Above US Split Flow,5/5/2025,LOC,195,62,230000294287,32,Predation,5/9/2025,416572,4439476,NA
 24,Colorado River Connectivity Channel,CRCC Above CD Antenna,5/5/2025,LOC,217,105,230000087923,32,Predation,5/7/2025,415803,4439872,NA
 8,Colorado River,Chimney Rock Above Island,5/6/2025,LOC,423,690,230000294172,32,Predation,10/21/2025,413880,4440093,NA
-16,Colorado River,Dark Timber Above Railroad,5/4/2021,LOC,246,155,230000272693,32,Predation,4/12/2023,410945,4438654,NA
 8,Colorado River,Chimney Rock Above Island,5/6/2025,LOC,346,490,230000294161,32,Predation,10/19/2025,413880,4440093,NA
 23,Colorado River Connectivity Channel,CRCC Lower CRCC Below Dam,5/5/2025,LOC,358,633,230000087787,32,Predation,8/2/2025,416212,4439774,NA
-20,Colorado River Connectivity Channel,CRCC Downstream Confluence,10/2/2024,LOC,405,537,230000087886,32,Predation,11/3/2025,415856,4440178,NA
-20,Colorado River Connectivity Channel,CRCC Downstream Confluence,9/30/2025,RBT,218,109,230000226136,32,Predation,5/14/2025,415856,4440178,NA
 4,Colorado River,Lower River Run,10/1/2025,LOC,227,110,230000226583,32,Predation,10/20/2025,418207,4439939,NA
-20,Colorado River Connectivity Channel,CRCC Downstream Confluence,9/30/2025,RBT,218,109,230000226701,32,Predation,10/21/2025,415856,4440178,NA
 1,Fraser River,Kaibab Park,9/4/2024,LOC,177,58,230000087678,32,Predation,4/7/2025,420626,4437179,NA
 2,Fraser River,Fraser River Ranch,9/5/2023,LOC,186,73,230000143785,32,Predation,11/1/2023,417229,4438617,NA
 3,Colorado River,Upper River Run,10/3/2023,LOC,170,50,230000144280,32,Predation,4/6/2025,418781,4440027,NA
-3,Colorado River,Upper River Run,10/5/2021,LOC,404,687,230000224245,32,Predation,11/2/2025,418781,4440027,NA
 2,Fraser River,Fraser River Ranch,9/2/2025,LOC,268,182,230000226081,32,Predation,10/20/2025,417229,4438617,NA
 21,Colorado River Connectivity Channel,CRCC Above CU Antenna,5/7/2025,RBT,273,203,230000226164,32,Predation,5/16/2025,416756,4439475,NA
 3,Colorado River,Upper River Run,10/1/2024,LOC,432,794,230000087882,32,Predation,10/28/2024,418781,4440027,NA
 4,Colorado River,Lower River Run,10/4/2022,LOC,167,46,230000143099,32,Predation,5/30/2025,418207,4439939,NA
-6,Colorado River,Windy Gap Dam,10/6/2021,LOC,241,112,230000224042,32,Predation,10/7/2022,416101,4440146,NA
 9,Colorado River,Chimney Rock Below Island,5/8/2025,RBT,248,162,230000226063,32,Predation,5/23/2025,413330,4440059,NA
 4,Colorado River,Lower River Run,10/1/2024,LOC,271,180,230000087581,32,Predation,11/6/2024,418207,4439939,NA
 4,Colorado River,Lower River Run,10/1/2024,LOC,172,44,230000087768,32,Predation,3/18/2025,418207,4439939,NA
