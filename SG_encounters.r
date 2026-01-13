@@ -3833,6 +3833,16 @@ unknown_tags <- allData %>%
   filter(!str_detect(TAG, "^0000000|^999"))
 x <- combinedData_df_list$All_Detections %>%
   dplyr::filter(str_detect(TAG, "^0000000|^999"))
+#####
+WGFP_AvianPredation <- read_csv("data/WGFP_AvianPredation.csv", 
+                                col_types = cols(Comments = col_character()))
+Potential_Avian_Predated_tags <- read_csv("data/Potential Avian Predated tags.csv")
+pTagsYes <- Potential_Avian_Predated_tags %>%
+  filter(Opinion %in% c("yes", "Yes"))
+
+difsTags <- anti_join(WGFP_AvianPredation, pTagsYes, by = c("TagID" = "TAG"))
+difsOppTags <- anti_join(pTagsYes, WGFP_AvianPredation, by = c("TAG" = "TagID" ))
+
 
 ######
 easyViewingTime <- function(time) {
@@ -3876,7 +3886,7 @@ summarizedDs <- dsseqsNoMerg %>%
 #     y = "Frequency"
 #   ) +
 #   scale_x_continuous(breaks = seq(0, max(as.numeric(df$time_diff)), by = 5))) +
-# 
+# need to vectorize this to get it to work with after_stat etc
 easyViewingTime_vec <- Vectorize(easyViewingTime)
 plot <- dsseqsNoMerg %>%
   #mutate()
@@ -3898,4 +3908,7 @@ plot <- dsseqsNoMerg %>%
   theme_classic()
 ggplotly(plot, tooltip = "text")
 
+x <- difsTags[1:12, ]
+dfisOpposite <- anti_join()
+write.csv(x, "tagsToAdd.csv")
 
