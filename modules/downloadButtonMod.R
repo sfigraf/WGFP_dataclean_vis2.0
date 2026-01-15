@@ -54,7 +54,7 @@ downloadData_Server <- function(id, data, fileName = "WGFPdataDownload") {
         },
         content = function(file) {
           on.exit(removeModal())
-          write_csv(data, file, progress = TRUE)
+          write_csv(data(), file, progress = TRUE)
           
         }
       )
@@ -66,7 +66,7 @@ downloadData_Server <- function(id, data, fileName = "WGFPdataDownload") {
         },
         content = function(file) {
           on.exit(removeModal())
-            saveRDS(data, file = file)
+            saveRDS(data(), file = file)
         }
       )
       
