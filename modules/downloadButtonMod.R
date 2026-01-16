@@ -12,10 +12,9 @@ downloadData_Server <- function(id, data, fileName = "WGFPdataDownload") {
     function(input, output, session) {
       ns <- session$ns
       
-      
-      
       observeEvent(input$downloadActionButton, {
         print("button pressed")
+        #print(is.reactive(data))
         showModal(modalDialog(
           fluidRow(
             column(
@@ -48,7 +47,7 @@ downloadData_Server <- function(id, data, fileName = "WGFPdataDownload") {
           size = "s"
           
         ))
-      })
+      }, ignoreInit = TRUE)
       
       output$downloadCSV <- downloadHandler(
         filename = function() {
