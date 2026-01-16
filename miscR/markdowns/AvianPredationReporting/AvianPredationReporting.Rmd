@@ -236,7 +236,7 @@ summarizedDS <- HPRBSequencesPredated %>%
     values_to = "value"
   )
 
-datatable(summarizedUS, 
+datatable(summarizedDS, 
           caption = "Downstream RB to HP Sequences Summarized",
   options = list(
     pageLength = 10,
