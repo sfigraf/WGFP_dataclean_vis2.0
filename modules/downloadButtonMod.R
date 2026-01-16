@@ -13,8 +13,6 @@ downloadData_Server <- function(id, data, fileName = "WGFPdataDownload") {
       ns <- session$ns
       
       observeEvent(input$downloadActionButton, {
-        print("button pressed")
-        #print(is.reactive(data))
         showModal(modalDialog(
           fluidRow(
             column(
