@@ -436,7 +436,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
           return(all_events_filtered)
         }) #end of ENC data list eventReactive
         
-        downloadData_Server("downloadallevents1", all_events_data(), "AllEventsData")
+        downloadData_Server("downloadallevents1", all_events_data, "AllEventsData")
         
         output$allevents1 <- renderDT({
               datatable(all_events_data(),

@@ -1,0 +1,271 @@
+---
+title: "Avian Predation Reporting"
+author: "Sam Graf"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse) 
+library(lubridate)
+library(DT)
+library(plotly)
+library(shiny)
+
+if(!exists("indiv_datasets_list")){
+  indiv_datasets_list <- readRDS("../../../data/flatFilesforApp/indiv_datasets_list.rds")
+}
+if(!exists("avianPredationList")){
+  avianPredationList <- readRDS("../../../data/flatFilesforApp/possibleAvianPredationDFs.rds")
+}
+if(!exists("combinedData_df_list")){
+  combinedData_df_list <- readRDS("../../../data/flatFilesforApp/combinedData_df_list.rds")
+}
+neededFunctions <- c("getSequences.R")
+
+for (i in neededFunctions) {
+  source(paste0("../../../functions/",i))
+}
+
+#bring in data
+```
+### Downstream from Hitching Post to Red Barn
+```{r wrangling, echo = FALSE, include=TRUE, warning=FALSE,message=FALSE,error=FALSE}
+allEventsAvianExcluded <- combinedData_df_list$All_Events %>%
+    dplyr::filter(!TAG %in% unique(indiv_datasets_list$avian_preddata$TagID), 
+                  !Species %in% c("MERG")) 
+
+HPRBSequences <- invisible(getSequences(allEventsAvianExcluded, c("HP"), "", c("RB"), c("M1", "M2")))
+RBHPSequences <- invisible(getSequences(allEventsAvianExcluded, c("RB"), "", c("HP"), c("M1", "M2")))
+
+easyViewingTime <- function(time) {
+  diff_secs <- abs(as.numeric(time))
+  
+  if (diff_secs < 60) {
+    return(paste(diff_secs, "seconds"))
+  } else if (diff_secs < 3600) {
+    return(paste(round(diff_secs / 60, 2), "minutes"))
+  } else if (diff_secs < 86400) {
+    return(paste(round(diff_secs / 3600, 2), "hours"))
+  } else {
+    return(paste(round(diff_secs / 86400, 2), "days"))
+  }
+}
+
+easyViewingTime_vec <- Vectorize(easyViewingTime)
+# usseqsNoMerg <- upstreamSeqs %>%
+#   filter(!Species %in% c("MERG"))
+# 
+# dsseqsNoMerg <- downstreamSeqs %>%
+#   filter(!Species %in% c("MERG"))
+
+summarizedDs <- HPRBSequences %>%
+  ungroup() %>%
+  summarize(meanJourneyLength = easyViewingTime(mean(`Time Between First/Last Detections (For Sorting)`)), 
+            medianJourneyLength = easyViewingTime(median(`Time Between First/Last Detections (For Sorting)`)), 
+            sdDevJourneyLength = easyViewingTime(sd(`Time Between First/Last Detections (For Sorting)`)), 
+            minJourneyLength = easyViewingTime(max(`Time Between First/Last Detections (For Sorting)`)), 
+            maxJourneyLength = easyViewingTime(min(`Time Between First/Last Detections (For Sorting)`))) %>%
+  mutate(SequenceDIrection = "downstreamHPtoRB") %>%
+  pivot_longer(
+    cols = -SequenceDIrection,
+    names_to = c("downstreamHPtoRB"),
+    #names_pattern = "(mean|min|max|median|sd)(.*)",
+    values_to = "value"
+  )
+
+datatable(summarizedDs, 
+          caption = "Dwonstream HP to RB Sequences Summarized",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  )
+
+
+plot <- HPRBSequences %>%
+  #mutate()
+  ggplot(aes(x = abs(as.numeric(`Time Between First/Last Detections (For Sorting)`)),
+             text = paste0("Range: ", easyViewingTime_vec(round(after_stat(xmin), 2)), " to ", 
+                           easyViewingTime_vec(round(after_stat(xmax), 1)), #" seconds",
+                    "<br>Count: ", after_stat(count))
+             #text = `Time Between First/Last Detections (User Friendly)`
+             )
+         ) +
+  geom_histogram(bins = 50, color = "steelblue", fill = "steelblue") +
+  scale_x_log10(labels = scales::label_log()) +
+  labs(
+    title = "Log Duration Distribution of Downstream Journeys From HP to RB",
+    x = "Log Time Difference (seconds)",
+    y = "Frequency", 
+    caption = "Avian Predated Tags Excluded"
+  ) +
+  theme_classic()
+ggplotly(plot, tooltip = "text")
+```
+
+### Upstream from Red Barn To Hitching Post
+```{r upstream, echo = FALSE, include=TRUE, warning=FALSE,message=FALSE,error=FALSE}
+####UPSTREAM SEQUENCES
+summarizedUS <- RBHPSequences %>%
+  ungroup() %>%
+  summarize(meanJourneyLength = easyViewingTime(mean(`Time Between First/Last Detections (For Sorting)`)), 
+            medianJourneyLength = easyViewingTime(median(`Time Between First/Last Detections (For Sorting)`)), 
+            sdDevJourneyLength = easyViewingTime(sd(`Time Between First/Last Detections (For Sorting)`)), 
+            minJourneyLength = easyViewingTime(max(`Time Between First/Last Detections (For Sorting)`)), 
+            maxJourneyLength = easyViewingTime(min(`Time Between First/Last Detections (For Sorting)`))) %>%
+  mutate(SequenceDIrection = "Upstream RB to HP") %>%
+  pivot_longer(
+    cols = -SequenceDIrection,
+    names_to = c("Upstream RB to HP"),
+    #names_pattern = "(mean|min|max|median|sd)(.*)",
+    values_to = "value"
+  )
+
+datatable(summarizedUS, 
+          caption = "Upstream RB to HP Sequences Summarized",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  )
+
+plot <- RBHPSequences %>%
+  #mutate()
+  ggplot(aes(x = abs(as.numeric(`Time Between First/Last Detections (For Sorting)`)),
+             text = paste0("Range: ", easyViewingTime_vec(round(after_stat(xmin), 2)), " to ", 
+                           easyViewingTime_vec(round(after_stat(xmax), 1)), #" seconds",
+                    "<br>Count: ", after_stat(count))
+             #text = `Time Between First/Last Detections (User Friendly)`
+             )
+         ) +
+  geom_histogram(bins = 50, color = "steelblue", fill = "steelblue") +
+  scale_x_log10(labels = scales::label_log()) +
+  labs(
+    title = "Log Duration Distribution of Upstream Journeys From RB to HP",
+    x = "Log Time Difference (seconds)",
+    y = "Frequency", 
+    caption = "Avian Predated Tags Excluded"
+  ) +
+  theme_classic()
+ggplotly(plot, tooltip = "text")
+```
+
+### Predated Fish: Upstream from Red Barn To Hitching Post
+```{r upstreamPredated, echo = FALSE, include=TRUE, warning=FALSE,message=FALSE,error=FALSE}
+####UPSTREAM SEQUENCES
+allEventsAvianOnly<- combinedData_df_list$All_Events %>%
+    dplyr::filter(TAG %in% unique(indiv_datasets_list$avian_preddata$TagID)) 
+
+HPRBSequencesPredated <- invisible(getSequences(allEventsAvianOnly, c("HP"), "", c("RB"), c("M1", "M2")))
+RBHPSequencesPredated <- invisible(getSequences(allEventsAvianOnly, c("RB"), "", c("HP"), c("M1", "M2")))
+
+#RBHPSequencesPredated
+summarizedUS <- RBHPSequencesPredated %>%
+  ungroup() %>%
+  summarize(meanJourneyLength = easyViewingTime(mean(`Time Between First/Last Detections (For Sorting)`)), 
+            medianJourneyLength = easyViewingTime(median(`Time Between First/Last Detections (For Sorting)`)), 
+            sdDevJourneyLength = easyViewingTime(sd(`Time Between First/Last Detections (For Sorting)`)), 
+            minJourneyLength = easyViewingTime(max(`Time Between First/Last Detections (For Sorting)`)), 
+            maxJourneyLength = easyViewingTime(min(`Time Between First/Last Detections (For Sorting)`))) %>%
+  mutate(SequenceDIrection = "Upstream RB to HP") %>%
+  pivot_longer(
+    cols = -SequenceDIrection,
+    names_to = c("Upstream RB to HP"),
+    #names_pattern = "(mean|min|max|median|sd)(.*)",
+    values_to = "value"
+  )
+
+datatable(summarizedUS, 
+          caption = "Upstream RB to HP Sequences Summarized",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  )
+
+plot <- RBHPSequencesPredated %>%
+  #mutate()
+  ggplot(aes(x = abs(as.numeric(`Time Between First/Last Detections (For Sorting)`)),
+             text = paste0("Range: ", easyViewingTime_vec(round(after_stat(xmin), 2)), " to ", 
+                           easyViewingTime_vec(round(after_stat(xmax), 1)), #" seconds",
+                    "<br>Count: ", after_stat(count))
+             #text = `Time Between First/Last Detections (User Friendly)`
+             )
+         ) +
+  geom_histogram(bins = 50, color = "steelblue", fill = "steelblue") +
+  scale_x_log10(labels = scales::label_log()) +
+  labs(
+    title = "Log Duration Distribution of Upstream Journeys From RB to HP by Predated Fish",
+    x = "Log Time Difference (seconds)",
+    y = "Frequency", 
+    caption = "Avian Predated Tags Only"
+  ) +
+  theme_classic()
+ggplotly(plot, tooltip = "text")
+```
+
+### Predated Fish: Downstream from Hitching Post To Red Barn
+
+```{r downstreamPredated, echo = FALSE, include=TRUE, warning=FALSE,message=FALSE,error=FALSE}
+
+summarizedDS <- HPRBSequencesPredated %>%
+  ungroup() %>%
+  summarize(meanJourneyLength = easyViewingTime(mean(`Time Between First/Last Detections (For Sorting)`)), 
+            medianJourneyLength = easyViewingTime(median(`Time Between First/Last Detections (For Sorting)`)), 
+            sdDevJourneyLength = easyViewingTime(sd(`Time Between First/Last Detections (For Sorting)`)), 
+            minJourneyLength = easyViewingTime(max(`Time Between First/Last Detections (For Sorting)`)), 
+            maxJourneyLength = easyViewingTime(min(`Time Between First/Last Detections (For Sorting)`))) %>%
+  mutate(SequenceDIrection = "Downstream RB to HP") %>%
+  pivot_longer(
+    cols = -SequenceDIrection,
+    names_to = c("Downstream RB to HP"),
+    #names_pattern = "(mean|min|max|median|sd)(.*)",
+    values_to = "value"
+  )
+
+datatable(summarizedDS, 
+          caption = "Downstream RB to HP Sequences Summarized",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  )
+
+plot <- HPRBSequencesPredated %>%
+  #mutate()
+  ggplot(aes(x = abs(as.numeric(`Time Between First/Last Detections (For Sorting)`)),
+             text = paste0("Range: ", easyViewingTime_vec(round(after_stat(xmin), 2)), " to ", 
+                           easyViewingTime_vec(round(after_stat(xmax), 1)), #" seconds",
+                    "<br>Count: ", after_stat(count))
+             #text = `Time Between First/Last Detections (User Friendly)`
+             )
+         ) +
+  geom_histogram(bins = 50, color = "steelblue", fill = "steelblue") +
+  scale_x_log10(labels = scales::label_log()) +
+  labs(
+    title = "Log Duration Distribution of Downstream Journeys From HP to RB by Predated Fish",
+    x = "Log Time Difference (seconds)",
+    y = "Frequency", 
+    caption = "Avian Predated Tags Only"
+  ) +
+  theme_classic()
+ggplotly(plot, tooltip = "text")
+```
+

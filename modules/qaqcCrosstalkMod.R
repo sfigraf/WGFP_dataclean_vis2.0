@@ -137,7 +137,12 @@ qaqcCrosstalkMod_Server <- function(id, combinedData_df_list, metaDataVariableNa
           local({
             #in order to get the for-loop to run, have to create a local instance of "i" everytime
             localSiteCodeInstance <- siteCode
-            downloadData_Server(paste0("downloaddataTable_", localSiteCodeInstance), crosstalkData()[["crosstalkIndividualList"]][[localSiteCodeInstance]], paste0("crosstalkOccurences_", localSiteCodeInstance))
+            reactiveDatExpressionToPass <- reactive({
+              crosstalkData()[["crosstalkIndividualList"]][[localSiteCodeInstance]]
+            })
+            downloadData_Server(paste0("downloaddataTable_", localSiteCodeInstance), 
+                                reactiveDatExpressionToPass, 
+                                paste0("crosstalkOccurences_", localSiteCodeInstance))
             
             output[[paste0("dataTable_", localSiteCodeInstance)]] <- renderDT({
               

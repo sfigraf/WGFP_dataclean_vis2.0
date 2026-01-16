@@ -8,8 +8,10 @@ movementsFiltered_UI <- function(id, Movements_df) {
                 selected = unique(Movements_df$movement_only),
                 multiple = TRUE,
                 options = list(
-                  `actions-box` = TRUE #this makes the "select/deselect all" option
-                )
+                  `actions-box` = TRUE, #this makes the "select/deselect all" option
+                  container = "body"
+                  ) 
+                
     ), #end of picker 6 input
     
     pickerInput(ns("picker7"),
@@ -18,16 +20,18 @@ movementsFiltered_UI <- function(id, Movements_df) {
                 selected = unique(Movements_df$det_type),
                 multiple = TRUE,
                 options = list(
-                  `actions-box` = TRUE #this makes the "select/deselect all" option
+                  `actions-box` = TRUE, 
+                  container = "body"
                 )
-    ), #end of picker 7 
+              ), #end of picker 7 
     pickerInput(ns("picker10"),
                 label = "Select Species Type",
                 choices = sort(unique(Movements_df$Species)),
                 selected = unique(Movements_df$Species),
                 multiple = TRUE,
                 options = list(
-                  `actions-box` = TRUE #this makes the "select/deselect all" option
+                  `actions-box` = TRUE, 
+                  container = "body"
                 )
     ), #end of picker 10 
     

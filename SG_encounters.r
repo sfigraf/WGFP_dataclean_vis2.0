@@ -3833,3 +3833,82 @@ unknown_tags <- allData %>%
   filter(!str_detect(TAG, "^0000000|^999"))
 x <- combinedData_df_list$All_Detections %>%
   dplyr::filter(str_detect(TAG, "^0000000|^999"))
+#####
+WGFP_AvianPredation <- read_csv("data/WGFP_AvianPredation.csv", 
+                                col_types = cols(Comments = col_character()))
+Potential_Avian_Predated_tags <- read_csv("data/Potential Avian Predated tags.csv")
+pTagsYes <- Potential_Avian_Predated_tags %>%
+  filter(Opinion %in% c("yes", "Yes"))
+
+difsTags <- anti_join(WGFP_AvianPredation, pTagsYes, by = c("TagID" = "TAG"))
+difsOppTags <- anti_join(pTagsYes, WGFP_AvianPredation, by = c("TAG" = "TagID" ))
+
+
+######
+easyViewingTime <- function(time) {
+  diff_secs <- abs(as.numeric(time))
+  
+  if (diff_secs < 60) {
+    return(paste(diff_secs, "seconds"))
+  } else if (diff_secs < 3600) {
+    return(paste(round(diff_secs / 60, 2), "minutes"))
+  } else if (diff_secs < 86400) {
+    return(paste(round(diff_secs / 3600, 2), "hours"))
+  } else {
+    return(paste(round(diff_secs / 86400, 2), "days"))
+  }
+}
+usseqsNoMerg <- upstreamSeqs %>%
+  filter(!Species %in% c("MERG"))
+
+dsseqsNoMerg <- downstreamSeqs %>%
+  filter(!Species %in% c("MERG"))
+
+summarizedDs <- dsseqsNoMerg %>%
+  ungroup() %>%
+  summarize(meanJourneyLength = easyViewingTime(mean(`Time Between First/Last Detections (For Sorting)`)), 
+            medianJourneyLength = easyViewingTime(median(`Time Between First/Last Detections (For Sorting)`)), 
+            sdDevJourneyLength = easyViewingTime(sd(`Time Between First/Last Detections (For Sorting)`)), 
+            minJourneyLength = easyViewingTime(max(`Time Between First/Last Detections (For Sorting)`)), 
+            maxJourneyLength = easyViewingTime(min(`Time Between First/Last Detections (For Sorting)`))) %>%
+  mutate(SequenceDIrection = "downstreamHPtoRB") %>%
+  pivot_longer(
+    cols = -SequenceDIrection,
+    names_to = c("downstreamHPtoRB"),
+    #names_pattern = "(mean|min|max|median|sd)(.*)",
+    values_to = "value"
+  )
+# ggplot(df, aes(x = as.numeric(time_diff, units = "mins"))) +
+#   geom_histogram(binwidth = 5, fill = "steelblue", color = "white", boundary = 0) +
+#   labs(
+#     title = "Distribution of Time Intervals",
+#     x = "Time Difference (Minutes)",
+#     y = "Frequency"
+#   ) +
+#   scale_x_continuous(breaks = seq(0, max(as.numeric(df$time_diff)), by = 5))) +
+# need to vectorize this to get it to work with after_stat etc
+easyViewingTime_vec <- Vectorize(easyViewingTime)
+plot <- dsseqsNoMerg %>%
+  #mutate()
+  ggplot(aes(x = abs(as.numeric(`Time Between First/Last Detections (For Sorting)`)),
+             text = paste0("Range: ", easyViewingTime_vec(round(after_stat(xmin), 2)), " to ", 
+                           easyViewingTime_vec(round(after_stat(xmax), 1)), #" seconds",
+                    "<br>Count: ", after_stat(count))
+             #text = `Time Between First/Last Detections (User Friendly)`
+             )
+         ) +
+  geom_histogram(bins = 50, color = "steelblue", fill = "steelblue") +
+  scale_x_log10(labels = scales::label_log()) +
+  labs(
+    title = "Duration Distribution of Downstream Journeys From HP to RB",
+    x = "Log Time Difference (seconds)",
+    y = "Frequency", 
+    caption = "Avian Predated Tags Excluded"
+  ) +
+  theme_classic()
+ggplotly(plot, tooltip = "text")
+
+x <- difsTags[1:12, ]
+dfisOpposite <- anti_join()
+write.csv(x, "tagsToAdd.csv")
+

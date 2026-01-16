@@ -174,7 +174,7 @@ movements_Server <- function(id, Movements_df, allColors) {
         )
       })
       
-      downloadData_Server("downloadmovements1", filtered_movements_data(), "MovementsData")
+      downloadData_Server("downloadmovements1", filtered_movements_data, "MovementsData")
       
       output$movements1 <- renderDT({
         
@@ -422,12 +422,14 @@ movements_Server <- function(id, Movements_df, allColors) {
           
         })
         #not sure if we want to do by species but we could 
-        if(nrow(filtered_movements_data() >0)){
-          movementByDayDataForTable <- filtered_movements_data() %>%
-            count(Date, name = "Number of Movements")
-        } else{
-          movementByDayDataForTable <- data.frame("Date" = character())
-        }
+        movementByDayDataForTable <- reactive({
+          if(nrow(filtered_movements_data() >0)){
+            filtered_movements_data() %>%
+              count(Date, name = "Number of Movements")
+          } else{
+            data.frame("Date" = character())
+          }
+        })
         
         
         
@@ -435,7 +437,8 @@ movements_Server <- function(id, Movements_df, allColors) {
           
           
           datatable(
-            movementByDayDataForTable,
+            #call this table at the moment in time with ()
+            movementByDayDataForTable(),
             rownames = FALSE,
             selection = "single",
             filter = 'top',
@@ -453,7 +456,7 @@ movements_Server <- function(id, Movements_df, allColors) {
           )
           
         })
-        
+        #want to pass the reactive epxression here, not the object at theat porecise time (). evaluate expression inside this module
         downloadData_Server("downloadmovementByDayTable", movementByDayDataForTable, "MovementByDayCounts")
         
         
@@ -492,7 +495,7 @@ movements_Server <- function(id, Movements_df, allColors) {
           
         })
         
-        downloadData_Server("downloadplot6", seasonal_movts(), "SeasonalMovementsData")
+        downloadData_Server("downloadplot6", seasonal_movts, "SeasonalMovementsData")
         
         # Total movements
         output$plot7 <- renderPlotly({
