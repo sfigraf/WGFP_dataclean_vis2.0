@@ -148,7 +148,7 @@ Sequences_Server <- function(id, All_Events, antennaChoices, mobileCodes, AvianP
       })
       
       #be able to download resultant data
-      downloadData_Server("downloadsequenceData", sequencesData(), paste0("Sequences", paste(input$antennas1, collapse = "_"), "To", input[[paste0("antennas3_", counter())]]))
+      downloadData_Server("downloadsequenceData", sequencesData, reactive({ paste0("Sequences", paste(input$antennas1, collapse = "_"), "To", input[[paste0("antennas3_", counter())]]) }) )
       
       #make table with reactive title abse don inputs
       output$sequencestableUI <- renderUI({
