@@ -141,7 +141,7 @@ EncounterHistoriesSummariesWide_Server <- function(id, Enc_release_data) {
             return(Enc_release_data_filtered)
           }) #end ns(of ENC data list eventReactive
       
-      downloadData_Server("downloadenc_release1", enc_hist_wide_filtered(), "EncounterHistoriesSummaryData")
+      downloadData_Server("downloadenc_release1", enc_hist_wide_filtered, "EncounterHistoriesSummaryData")
       
       output$enc_release1 <- renderDT({
         
