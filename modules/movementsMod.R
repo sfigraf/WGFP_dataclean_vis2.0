@@ -174,7 +174,7 @@ movements_Server <- function(id, Movements_df, allColors) {
         )
       })
       
-      downloadData_Server("downloadmovements1", filtered_movements_data(), "MovementsData")
+      downloadData_Server("downloadmovements1", filtered_movements_data, "MovementsData")
       
       output$movements1 <- renderDT({
         
@@ -492,7 +492,7 @@ movements_Server <- function(id, Movements_df, allColors) {
           
         })
         
-        downloadData_Server("downloadplot6", seasonal_movts(), "SeasonalMovementsData")
+        downloadData_Server("downloadplot6", seasonal_movts, "SeasonalMovementsData")
         
         # Total movements
         output$plot7 <- renderPlotly({

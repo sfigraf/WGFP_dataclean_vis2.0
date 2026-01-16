@@ -132,8 +132,9 @@ MarkerTagQAQC_Server <- function(id, All_Detections) {
             axis.ticks = element_blank()) +
           scale_color_brewer(palette="Dark2")
       })
-      downloadData_Server("downloadmarkerTagsPlotData", plotAndTableMarkerTagDataList()$markerTagDataForPlot, "MarkerTagData")
-      
+      #once i made this a reactive object, it is only evaluated when called so when i had a print(plotAndTableMarkerTagDataList()$markerTagDataForPlot) below this, 
+      #it waws trying to re-run the module every time and the download modal would appear
+      downloadData_Server("downloadmarkerTagsPlotData", reactive({plotAndTableMarkerTagDataList()$markerTagDataForPlot}), "MarkerTagData")
       
       output$markerTagsPlotData <- renderDT({
         
@@ -155,7 +156,7 @@ MarkerTagQAQC_Server <- function(id, All_Detections) {
           )
         )
       })
-      downloadData_Server("downloadsummarizedMarkerTagData", plotAndTableMarkerTagDataList()$summarizedMarkerTagDataForTable, "SummarizedMarkerTagData")
+      downloadData_Server("downloadsummarizedMarkerTagData", reactive({plotAndTableMarkerTagDataList()$summarizedMarkerTagDataForTable}), "SummarizedMarkerTagData")
       
       output$summarizedMarkerTagData <- renderDT({
         
