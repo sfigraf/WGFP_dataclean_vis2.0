@@ -3911,4 +3911,32 @@ ggplotly(plot, tooltip = "text")
 x <- difsTags[1:12, ]
 dfisOpposite <- anti_join()
 write.csv(x, "tagsToAdd.csv")
+#ghost tags/mobile qaqc
+mobileTagsTo_CHeckOUt <- read_excel("mobileTagsTo CHeckOUt.xlsx")
 
+ghosttags <- indiv_datasets_list$ghostdata
+
+notGhost <- mobileTagsTo_CHeckOUt %>%
+  mutate(TagID = as.character(TagID)) %>%
+  anti_join(ghosttags, by = "TagID")
+
+write.csv(notGhost, "nonGhostTagstoChecl.csv")
+
+##mobile discrepancies in the counting data for annual report
+mobile <- indiv_datasets_list$mobiledata
+x <- mobile %>%
+  distinct(TagID, .keep_all = TRUE) 
+difs <- anti_join(x, mobileTags, by = c("TagID" = "TAG"))
+length(unique(mobile$TagID))
+
+x1 <- combinedData_df_list$All_Events %>%
+  filter(TAG == "230000228701")
+
+mobileALlEvents <- All_EventsData %>%
+  filter(Event %in% c(mobileCodes$FrontendSiteCode, "G1"))
+mobileDifs <- anti_join(mobileALlEvents, mobile, by = c("TAG" = "TagID", "Event" = "Ant"))
+mobileDifs <- anti_join(mobile, mobileALlEvents, by = c("TagID" = "TAG")) #, "Ant" = "Event"
+
+mobileDifs2 <- mobile %>%
+  distinct(TagID, Ant, Date, Time, .keep_all = TRUE)
+mobileDifs <- anti_join(mobile, mobileDifs2)

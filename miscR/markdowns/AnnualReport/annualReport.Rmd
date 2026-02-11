@@ -474,7 +474,7 @@ datatable(movementsLengthsWide,
 
 ## Antenna data
 
-When a tagged fish swims across an antenna, it registers a detection on that antenna. When the fish remains on an antenna, it registers detections until the fish swims out of the detection field. The following graph and table show the raw amount of detections per antenna across the entirety of the study. 
+When a tagged fish swims across an antenna, it registers a detection on that antenna. When the fish remains on an antenna, it registers detections until the fish swims out of the detection field. Combined with realease and recapture data, there are `r nrow(combinedData_df_list$All_Detections)` rows of detection data to manage including marker tags and unknown tags. Of those, `r nrow(combinedData_df_list$All_Events)` are from known released fish. The following graph and table show the raw amount of detections per antenna across the entirety of the study. 
 ```{r, include=TRUE, echo=FALSE}
 # number of days the antennas were down across all antennas
 antennasDown <- wgfpMetadata$MarkerTagIssues %>%
@@ -535,7 +535,7 @@ ggplotly(p = plot)
 frequenciesSummarized <- All_EventsData %>%
             filter(#antennas only
                    Event %in% c(biomarkAntennasFrontends$FrontendSiteCode, StationaryAntennasFrontends$FrontendSiteCode)) %>%
-            count(Event, Year = year(Date), name = "Raw Detections") %>%
+            count(Event, Year = year(Date), name = "Raw Detections (Released Fish Only)") %>%
   arrange(desc(Year)) %>%
   left_join(wgfpMetadata$AntennaMetadata[, c("FrontendSiteCode", "AntennaSite")], by = c("Event" = "FrontendSiteCode")) %>%
   relocate(AntennaSite, .before = Event)
@@ -558,13 +558,30 @@ datatable(frequenciesSummarized,
 frequenciesSummarizedType <- All_EventsData %>%
   mutate(detType = case_when(Event %in% StationaryAntennasFrontends$FrontendSiteCode ~ "Stationary", 
                                  Event %in% biomarkAntennasFrontends$FrontendSiteCode ~ "Biomark",
-                                 Event %in% mobileCodes$FrontendSiteCode ~ "Mobile",
+                             #want to inlcude ghostbuster in our mobiel analysis
+                                 Event %in% c(mobileCodes$FrontendSiteCode, "G1") ~ "Mobile",
                              TRUE ~ Event
                                  ))
 
 frequenciesSummarizedType1 <- frequenciesSummarizedType %>%
-  count(`Event Type` = detType, Year = year(Date), name = "Raw Detections") %>%
+  count(`Event Type` = detType, Year = year(Date), name = "Raw Detections (Released Fish Only)") %>%
   arrange(desc(Year)) 
+#made 
+frequenciesSummarizedTypeOverall <- frequenciesSummarizedType %>%
+  count(`Event Type` = detType, name = "Raw Detections (Released Fish Only)")
+
+datatable(frequenciesSummarizedTypeOverall,
+          rownames = FALSE,
+          caption = c("Raw Number of Fish Detections by Detection Type"),
+          extensions = c('Buttons'),
+          #for slider filter instead of text input
+          filter = 'top',
+          options = list(
+            pageLength = 10, info = TRUE, lengthMenu = list(c(10,25), c("10", "25")),
+            dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again #errorin list: arg 5 is empty because I had a comma after the dom argument so it thought there was gonna be another argument input
+            language = list(emptyTable = "Enter inputs and press Render Table")
+          ) #end of options list
+)
 
 datatable(frequenciesSummarizedType1,
           rownames = FALSE,
@@ -645,10 +662,18 @@ uniquedetectionsTable[uniquedetectionsTable[["detType"]] == "Stationary", "Uniqu
 uniquedetectionsTable[uniquedetectionsTable[["detType"]] == "Biomark", "Unique Tags"] <- numberofBiomarkUniqueTags
 uniquedetectionsTable[uniquedetectionsTable[["detType"]] == "Mobile", "Unique Tags"] <- numberofMobileUniqueTags
 uniquedetectionsTable[uniquedetectionsTable[["detType"]] == "Recapture", "Unique Tags"] <- numberofRecappedUniqueTags
-uniquedetectionsTable <- uniquedetectionsTable %>%
-  rename(Method = detType)
 
-uniqueTable <- datatable(uniquedetectionsTable,
+uniquedetectionsTableTotalDetects <- uniquedetectionsTable %>%
+  left_join(frequenciesSummarizedTypeOverall, by = c("detType" = "Event Type"))
+
+uniquedetectionsTableReformatted <- uniquedetectionsTableTotalDetects %>%
+  mutate(`% Tags Detected` = `Released Tags Detected`/nrow(ReleaseData)) %>%
+  rename(Method = detType, 
+         `Total Overall Detections (Released Fish Only)` = `Raw Detections (Released Fish Only)`) %>%
+  dplyr::relocate(`% Tags Detected`, .after = `Released Tags Detected`) %>%
+  dplyr::relocate(`Total Overall Detections (Released Fish Only)`, .after = `Method`) 
+
+uniqueTable <- datatable(uniquedetectionsTableReformatted,
           rownames = FALSE,
           caption = c("Detections by Method"),
           #extensions = c('Buttons'),
@@ -659,7 +684,8 @@ uniqueTable <- datatable(uniquedetectionsTable,
           #   dom = 'Blfrtip', #had to add 'lowercase L' letter to display the page length again #errorin list: arg 5 is empty because I had a comma after the dom argument so it thought there was gonna be another argument input
           #   language = list(emptyTable = "Enter inputs and press Render Table")
           # )
-)
+) %>%
+  formatPercentage("% Tags Detected", 2)
 
 # x <- All_EventsData %>%
 #   filter(TAG == "230000087762") %>%
