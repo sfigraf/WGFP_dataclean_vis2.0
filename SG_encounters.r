@@ -3940,3 +3940,11 @@ mobileDifs <- anti_join(mobile, mobileALlEvents, by = c("TagID" = "TAG")) #, "An
 mobileDifs2 <- mobile %>%
   distinct(TagID, Ant, Date, Time, .keep_all = TRUE)
 mobileDifs <- anti_join(mobile, mobileDifs2)
+##logins
+# Credentials - load from database
+load_credentials <- function() {
+  con <- dbConnect(SQLite(), db_path)
+  creds <- dbGetQuery(con, "SELECT username as user, password, is_admin FROM user_credentials")
+  dbDisconnect(con)
+  return(creds)
+}
