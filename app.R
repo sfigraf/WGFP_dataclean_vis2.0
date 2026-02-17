@@ -24,6 +24,8 @@ library(odbc) #for making and storing passwords for logiuns
 library(RSQLite)
 #library(mapview)
 
+enableBookmarking(store = "server")
+
 # cntrl + shft + A to reformat chunks of code
 # rsconnect::showLogs(appName="WGFP_dataclean_vis",streaming=TRUE) will show logs when trying to load app browser
 # had "application failed to start" error and fixed both times with above command. both times because packages in local environment (tidyverse and lubridate) weren't called with library() command 
@@ -128,13 +130,34 @@ speciesColors <- setNames(speciesColors[0:length(unique(indiv_datasets_list$rele
  
 allColors <- c(movementColors, siteColors, speciesColors)
 
-# Define UI for application that draws a histogram
+nav_btn <- actionButton(
+  inputId = "save_state", 
+  label = "Save State", 
+  icon = icon("save"),
+  style = "margin-left: 20px; vertical-align: middle;"
+)
+uiElements <- fluidPage(
 
-ui <- fluidPage(
-
-  navbarPage(title = "WGFP Data Exploration",
+  navbarPage(title = div("WGFP Data Exploration", nav_btn),
              id = "tabs", 
              theme = shinytheme("sandstone"), #end of navbar page arguments; what follow is all inside it
+             header = tags$head(
+               tags$script(HTML("
+      $(document).ready(function() {
+        var btn = $('#bookmark_wrapper').detach();
+        $('.navbar-nav').last().after(btn);
+      });
+    ")),
+               tags$style(HTML("
+      #bookmark_wrapper { 
+        float: right; 
+        padding: 8px 15px; 
+      }
+      .btn-bookmark { background-color: #337ab7; color: white; }
+    "))
+             ),
+             
+             
              
              tabPanel("About/How to Use",
                       includeHTML(paste0("www/", "WGFP_dataclean_vis_about.html"))
@@ -202,14 +225,23 @@ ui <- fluidPage(
                    ),  
           tabPanel("Account",
                    value = "accountTab",
-                   accountManagement_UI("accountManagementTab")
+                   accountManagement_UI("accountManagementTab"), 
+                   tags$div(id = "bookmark_wrapper", bookmarkButton(id = "save_state"))
           )
+          # tabPanel("saveData", 
+          #          textInput("data_input", "Enter Data:", ""),
+          #          
+          # )
 
 ) #end of navbar page
 ) #end of fluidpage
 
 # Wrap with authentication
-ui <- secure_app(ui, choose_language = FALSE)
+#ui <- secure_app(ui, choose_language = FALSE, keep_token = TRUE)
+ui <- secure_app(function(request) {
+  uiElements
+  }, choose_language = FALSE, keep_token = TRUE,
+  query_navbar = TRUE)
 
 
 # Define server logic
@@ -228,6 +260,47 @@ server <- function(input, output, session) {
     }
     return(NULL)
   })
+  
+  #bookmarking
+  
+  # onRestore(function(state) {
+  #   message("Attempting to restore state: ", state$id)
+  # })
+  
+  # onBookmarked(function(url) {
+  #   updateQueryString(url)
+  # })
+  
+  observeEvent(input$save_state, {
+    session$doBookmark()
+  })
+  
+  onBookmarked(function(url) {
+    updateQueryString(url)
+    
+    showModal(modalDialog(
+      title = "State Saved",
+      "Your application state has been saved. You can return to this state using the link below:",
+      tags$br(), tags$br(),
+      tags$code(url), # Displays the URL
+      footer = modalButton("Close")
+    ))
+  })
+  
+  onRestore(function(state) {
+    showNotification(paste("Restoring:", state$id))
+  })
+  
+  
+  
+  # observe({
+  #   
+  #   req(current_user())
+  #   
+  #   reactiveValuesToList(input)
+  #   session$doBookmark()
+  # })
+  # onBookmarked(updateQueryString)
   
   observe({
     #need user to continue with rest of the app
@@ -257,5 +330,6 @@ server <- function(input, output, session) {
   })
   
 }
+#before shinyapp call
 
 shinyApp(ui = ui, server = server)
