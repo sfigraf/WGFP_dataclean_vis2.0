@@ -121,6 +121,13 @@ init_credentials <- function() {
     dbExecute(con, "INSERT OR IGNORE INTO user_credentials (username, password, is_admin) VALUES ('admin', 'admin123', 1)")
     dbExecute(con, "INSERT OR IGNORE INTO user_credentials (username, password, is_admin) VALUES ('demo_bio', 'bio123', 0)")
     dbExecute(con, "INSERT OR IGNORE INTO user_credentials (username, password, is_admin) VALUES ('test_user', 'test123', 0)")
+    
+    # real users
+    dbExecute(con, "INSERT OR IGNORE INTO user_credentials (username, password, is_admin) VALUES ('graffs', 'test123', 1)")
+    dbExecute(con, "INSERT OR IGNORE INTO user_credentials (username, password, is_admin) VALUES ('ericher', 'traviskelce', 0)")
+    dbExecute(con, "INSERT OR IGNORE INTO user_credentials (username, password, is_admin) VALUES ('efetherman', 'berdnerd', 0)")
+    dbExecute(con, "INSERT OR IGNORE INTO user_credentials (username, password, is_admin) VALUES ('mkondratieff', 'mergmaster', 0)")
+    
     cat("✅ Initialized default credentials:\n")
     cat("   Admin user: admin / admin123\n")
     cat("   Demo user: demo_bio / bio123\n")
@@ -194,7 +201,7 @@ if(!exists("SiteVisitData")){
  
 # #functions
 neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R", "getSequences.R", "renderDTFunction.R", 
-                     "Wrangleminicharts_function.R")
+                     "Wrangleminicharts_function.R", "updatePassword.R")
 
 for (i in neededFunctions) {
   source(paste0("./functions/",i))
@@ -308,8 +315,13 @@ ui <- fluidPage(
           tabPanel("QAQC",
                    value = "QAQCTab",
                    QAQC_UI("QAQCTab1", combinedData_df_list)
-                   ) # end of tabPanel
-    ) #end of navbar page
+                   ),  
+          tabPanel("Account",
+                   value = "accountTab",
+                   accountManagement_UI("accountManagementTab")
+          )
+
+) #end of navbar page
 ) #end of fluidpage
 
 # Wrap with authentication
@@ -355,6 +367,8 @@ server <- function(input, output, session) {
       QAQC_Server("QAQCTab1", indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
                   unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate, avianPredationList,
                   combinedData_df_list, wgfpMetadata, metaDataVariableNames, SiteVisitData$SiteVisitAndPTData, allColors)
+      
+      accountManagement_Server("accountManagementTab", user = user, db_path = db_path)
     
   })
   
