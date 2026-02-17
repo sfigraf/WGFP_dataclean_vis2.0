@@ -142,24 +142,23 @@ uiElements <- fluidPage(
              id = "tabs", 
              theme = shinytheme("sandstone"), #end of navbar page arguments; what follow is all inside it
              header = tags$head(
+               # This script prevents the browser from stripping the query string 
+               # if shinymanager tries to clean the URL too early.
                tags$script(HTML("
-      $(document).ready(function() {
-        var btn = $('#bookmark_wrapper').detach();
-        $('.navbar-nav').last().after(btn);
+      $(document).on('shiny:connected', function(event) {
+        var url = new URL(window.location.href);
+        if (url.searchParams.has('_state_id_')) {
+          console.log('Bookmark ID detected: ' + url.searchParams.get('_state_id_'));
+        }
       });
-    ")),
-               tags$style(HTML("
-      #bookmark_wrapper { 
-        float: right; 
-        padding: 8px 15px; 
-      }
-      .btn-bookmark { background-color: #337ab7; color: white; }
     "))
              ),
+    
              
              
              
              tabPanel("About/How to Use",
+                      id = "about",
                       includeHTML(paste0("www/", "WGFP_dataclean_vis_about.html"))
                       ), #end fo how to use TabPanel
 
@@ -167,6 +166,7 @@ uiElements <- fluidPage(
 
              
              tabPanel("Individual Datasets",
+                      id = "indDatasets", 
                       value = "IndividualDatasetsTab",
                       IndividualDatasets_UI("IndividualDatasetsTab1", combinedData_df_list, indiv_datasets_list$releasedata)
                     ),#end of Individual data tab panel
@@ -174,9 +174,12 @@ uiElements <- fluidPage(
 # Encounter Histories UI --------------------------------------------------
 
              tabPanel("Encounter Histories",
+                      id = "enHists", 
                       value = "EncounterHistories",
                       tabsetPanel(
                         tabPanel("Encounter Histories Summaries Wide",
+                                 id = "encSUmmsWide",
+                                 value = "encSUmmsWide",
                                  EncounterHistoriesSummariesWide_UI("EncounterHistoriesSummariesWideTab1", Enc_release_data)),
                         
                         tabPanel("All Encounter Histories",
@@ -225,8 +228,8 @@ uiElements <- fluidPage(
                    ),  
           tabPanel("Account",
                    value = "accountTab",
-                   accountManagement_UI("accountManagementTab"), 
-                   tags$div(id = "bookmark_wrapper", bookmarkButton(id = "save_state"))
+                   accountManagement_UI("accountManagementTab")#, 
+                   #tags$div(id = "bookmark_wrapper", bookmarkButton(id = "save_state"))
           )
           # tabPanel("saveData", 
           #          textInput("data_input", "Enter Data:", ""),
@@ -287,9 +290,7 @@ server <- function(input, output, session) {
     ))
   })
   
-  onRestore(function(state) {
-    showNotification(paste("Restoring:", state$id))
-  })
+  
   
   
   
@@ -327,6 +328,13 @@ server <- function(input, output, session) {
       
       accountManagement_Server("accountManagementTab", user = user, db_path = db_path)
     
+  })
+  
+  onRestore(function(state) {
+    delay(500, {
+      showNotification(paste("Restoring:", state$id))
+      
+    })
   })
   
 }
