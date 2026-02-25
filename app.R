@@ -130,33 +130,20 @@ speciesColors <- setNames(speciesColors[0:length(unique(indiv_datasets_list$rele
  
 allColors <- c(movementColors, siteColors, speciesColors)
 
-nav_btn <- actionButton(
-  inputId = "save_state", 
-  label = "Save State", 
+saveStateButton <- actionButton(
+  inputId = "saveState", 
+  label = "Save App State", 
   icon = icon("save"),
   style = "margin-left: 20px; vertical-align: middle;"
 )
 ui <- function(request) {
   fluidPage(
     
-    navbarPage(title = div("WGFP Data Exploration", nav_btn), #bookmarkButton()
+    navbarPage(title = div(
+      style = "display: flex; align-items: center; height: 100%;",
+      "WGFP Data Exploration", saveStateButton), #bookmarkButton()
                id = "tabs", 
                theme = shinytheme("sandstone"), #end of navbar page arguments; what follow is all inside it
-               #          header = tags$head(
-               #            # This script prevents the browser from stripping the query string 
-               #            # if shinymanager tries to clean the URL too early.
-               #            tags$script(HTML("
-               #   $(document).on('shiny:connected', function(event) {
-               #     var url = new URL(window.location.href);
-               #     if (url.searchParams.has('_state_id_')) {
-               #       console.log('Bookmark ID detected: ' + url.searchParams.get('_state_id_'));
-               #     }
-               #   });
-               # "))
-               #          ),
-               
-               
-               
                
                tabPanel("About/How to Use",
                         id = "about",
@@ -230,12 +217,8 @@ ui <- function(request) {
                tabPanel("Account",
                         value = "accountTab",
                         accountManagement_UI("accountManagementTab")#, 
-                        #tags$div(id = "bookmark_wrapper", bookmarkButton(id = "save_state"))
+                        #tags$div(id = "bookmark_wrapper", bookmarkButton(id = "saveState"))
                )
-               # tabPanel("saveData", 
-               #          textInput("data_input", "Enter Data:", ""),
-               #          
-               # )
                
     ) #end of navbar page
   ) #end of fluidpage
@@ -243,15 +226,6 @@ ui <- function(request) {
 
 # Wrap with authentication
 ui <- secure_app(ui, choose_language = FALSE, keep_token = TRUE)
-
-# ui <- secure_app(function(request) {
-#   uiElements
-#   }, choose_language = FALSE, keep_token = TRUE,
-#   query_navbar = TRUE)
-# ui <- function(request) {
-#   uiElements
-# }
-
 
 # Define server logic
 # Warning: Error in validate_session_object: object 'session' not found solved by adding session to the part up here
@@ -269,24 +243,14 @@ server <- function(input, output, session) {
     }
     return(NULL)
   })
-  
-  #bookmarking
-  
-  # onRestore(function(state) {
-  #   message("Attempting to restore state: ", state$id)
-  # })
-  
-  # onBookmarked(function(url) {
-  #   updateQueryString(url)
-  # })
-  
-  observeEvent(input$save_state, {
+
+  observeEvent(input$saveState, {
     session$doBookmark()
   })
   
   onBookmarked(function(url) {
-    updateQueryString(url)
     
+    updateQueryString(url)
     showModal(modalDialog(
       title = "State Saved",
       "Your application state has been saved. You can return to this state using the link below:",
@@ -295,15 +259,6 @@ server <- function(input, output, session) {
       footer = modalButton("Close")
     ))
   })
-  
-  # observe({
-  #   
-  #   req(current_user())
-  #   
-  #   reactiveValuesToList(input)
-  #   session$doBookmark()
-  # })
-  # onBookmarked(updateQueryString)
   
   observe({
     #need user to continue with rest of the app
@@ -334,18 +289,9 @@ server <- function(input, output, session) {
   
   # Manual Restore Logic
   onRestore(function(state) {
-    # This logic forces the navbar to the correct tab
-    if (!is.null(state$input$tabs)) {
-      updateNavbarPage(session, "tabs", selected = state$input$tabs)
-    }
-    #print(state$input$`EncounterHistoriesSummariesWideTab1-channelSummaryPicker`)
-    
-    # If you have renderUI inputs, you often have to 
-    # manually re-apply their values here using state$input
     showNotification("Restoring module states...", type = "message")
   })
   
 }
-#before shinyapp call
 
 shinyApp(ui = ui, server = server)
