@@ -242,7 +242,8 @@ ui <- function(request) {
 }
 
 # Wrap with authentication
-#ui <- secure_app(ui, choose_language = FALSE, keep_token = TRUE)
+ui <- secure_app(ui, choose_language = FALSE, keep_token = TRUE)
+
 # ui <- secure_app(function(request) {
 #   uiElements
 #   }, choose_language = FALSE, keep_token = TRUE,
@@ -257,17 +258,17 @@ ui <- function(request) {
 server <- function(input, output, session) {
   
   # Authentication - load credentials dynamically
-  # res_auth <- secure_server(
-  #   check_credentials = check_credentials(load_credentials())
-  # )
+  res_auth <- secure_server(
+    check_credentials = check_credentials(load_credentials())
+  )
   # 
   # # Get current user
-  # current_user <- reactive({
-  #   if (!is.null(res_auth$user)) {
-  #     return(res_auth$user)
-  #   }
-  #   return(NULL)
-  # })
+  current_user <- reactive({
+    if (!is.null(res_auth$user)) {
+      return(res_auth$user)
+    }
+    return(NULL)
+  })
   
   #bookmarking
   
@@ -306,8 +307,8 @@ server <- function(input, output, session) {
   
   observe({
     #need user to continue with rest of the app
-    # user <- current_user()
-    # req(user)
+    user <- current_user()
+    req(user)
     
       movements_Server("MovementsTab1", movements_list$Movements_df, allColors)
     
@@ -337,7 +338,7 @@ server <- function(input, output, session) {
     if (!is.null(state$input$tabs)) {
       updateNavbarPage(session, "tabs", selected = state$input$tabs)
     }
-    print(state$input$`EncounterHistoriesSummariesWideTab1-channelSummaryPicker`)
+    #print(state$input$`EncounterHistoriesSummariesWideTab1-channelSummaryPicker`)
     
     # If you have renderUI inputs, you often have to 
     # manually re-apply their values here using state$input
