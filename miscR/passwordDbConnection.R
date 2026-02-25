@@ -44,40 +44,7 @@ init_database <- function() {
       last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   ")
-  
-  # Create mock data table
-  dbExecute(con, "
-    CREATE TABLE IF NOT EXISTS animal_events_normalized (
-      tracker_animal_id TEXT,
-      project_name TEXT,
-      animal_id_local TEXT,
-      serial_number INTEGER,
-      capture_date DATE,
-      mark_vendor TEXT,
-      mark_type TEXT,
-      sex TEXT,
-      age_class TEXT,
-      animal_still_monitored BOOLEAN,
-      mort_date DATE,
-      censor_date DATE,
-      comments TEXT,
-      upsert_timestamp TIMESTAMP,
-      capt_last_updated_timestamp TIMESTAMP,
-      mort_last_updated_timestamp TIMESTAMP,
-      censor_last_updated_timestamp TIMESTAMP
-    )
-  ")
-  
-  # Check if mock data already exists
-  # existing_data <- dbGetQuery(con, "SELECT COUNT(*) as count FROM animal_events_normalized")
-  # 
-  # if (existing_data$count == 0) {
-  #   # Insert mock data
-  #   mock_data <- create_mock_data()
-  #   dbWriteTable(con, "animal_events_normalized", mock_data, append = TRUE)
-  #   cat("📊 Created mock data with", nrow(mock_data), "records\n")
-  # }
-  
+
   dbDisconnect(con)
 }
 init_credentials <- function() {
