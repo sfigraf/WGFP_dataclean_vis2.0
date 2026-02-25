@@ -138,21 +138,21 @@ nav_btn <- actionButton(
 )
 uiElements <- fluidPage(
 
-  navbarPage(title = div("WGFP Data Exploration", nav_btn),
+  navbarPage(title = div("WGFP Data Exploration", nav_btn), #bookmarkButton()
              id = "tabs", 
              theme = shinytheme("sandstone"), #end of navbar page arguments; what follow is all inside it
-             header = tags$head(
-               # This script prevents the browser from stripping the query string 
-               # if shinymanager tries to clean the URL too early.
-               tags$script(HTML("
-      $(document).on('shiny:connected', function(event) {
-        var url = new URL(window.location.href);
-        if (url.searchParams.has('_state_id_')) {
-          console.log('Bookmark ID detected: ' + url.searchParams.get('_state_id_'));
-        }
-      });
-    "))
-             ),
+    #          header = tags$head(
+    #            # This script prevents the browser from stripping the query string 
+    #            # if shinymanager tries to clean the URL too early.
+    #            tags$script(HTML("
+    #   $(document).on('shiny:connected', function(event) {
+    #     var url = new URL(window.location.href);
+    #     if (url.searchParams.has('_state_id_')) {
+    #       console.log('Bookmark ID detected: ' + url.searchParams.get('_state_id_'));
+    #     }
+    #   });
+    # "))
+    #          ),
     
              
              
@@ -176,7 +176,7 @@ uiElements <- fluidPage(
              tabPanel("Encounter Histories",
                       id = "enHists", 
                       value = "EncounterHistories",
-                      tabsetPanel(
+                      tabsetPanel(id = "encounterHistoriesTabset",
                         tabPanel("Encounter Histories Summaries Wide",
                                  id = "encSUmmsWide",
                                  value = "encSUmmsWide",
@@ -241,10 +241,13 @@ uiElements <- fluidPage(
 
 # Wrap with authentication
 #ui <- secure_app(ui, choose_language = FALSE, keep_token = TRUE)
-ui <- secure_app(function(request) {
+# ui <- secure_app(function(request) {
+#   uiElements
+#   }, choose_language = FALSE, keep_token = TRUE,
+#   query_navbar = TRUE)
+ui <- function(request) {
   uiElements
-  }, choose_language = FALSE, keep_token = TRUE,
-  query_navbar = TRUE)
+}
 
 
 # Define server logic
@@ -252,17 +255,17 @@ ui <- secure_app(function(request) {
 server <- function(input, output, session) {
   
   # Authentication - load credentials dynamically
-  res_auth <- secure_server(
-    check_credentials = check_credentials(load_credentials())
-  )
-  
-  # Get current user
-  current_user <- reactive({
-    if (!is.null(res_auth$user)) {
-      return(res_auth$user)
-    }
-    return(NULL)
-  })
+  # res_auth <- secure_server(
+  #   check_credentials = check_credentials(load_credentials())
+  # )
+  # 
+  # # Get current user
+  # current_user <- reactive({
+  #   if (!is.null(res_auth$user)) {
+  #     return(res_auth$user)
+  #   }
+  #   return(NULL)
+  # })
   
   #bookmarking
   
@@ -290,10 +293,6 @@ server <- function(input, output, session) {
     ))
   })
   
-  
-  
-  
-  
   # observe({
   #   
   #   req(current_user())
@@ -305,8 +304,8 @@ server <- function(input, output, session) {
   
   observe({
     #need user to continue with rest of the app
-    user <- current_user()
-    req(user)
+    # user <- current_user()
+    # req(user)
     
       movements_Server("MovementsTab1", movements_list$Movements_df, allColors)
     
@@ -330,11 +329,17 @@ server <- function(input, output, session) {
     
   })
   
+  # Manual Restore Logic
   onRestore(function(state) {
-    delay(500, {
-      showNotification(paste("Restoring:", state$id))
-      
-    })
+    # This logic forces the navbar to the correct tab
+    if (!is.null(state$input$tabs)) {
+      updateNavbarPage(session, "tabs", selected = state$input$tabs)
+    }
+    print(state$input$`EncounterHistoriesSummariesWideTab1-channelSummaryPicker`)
+    
+    # If you have renderUI inputs, you often have to 
+    # manually re-apply their values here using state$input
+    showNotification("Restoring module states...", type = "message")
   })
   
 }
