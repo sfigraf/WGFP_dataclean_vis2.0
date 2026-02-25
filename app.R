@@ -19,7 +19,12 @@ library(basemaps)
 library(leaflet.minicharts)
 library(shinyjs)
 library(shinyjqui)
+library(shinymanager) #for password authentcation
+library(odbc) #for making and storing passwords for logiuns
+library(RSQLite)
 #library(mapview)
+
+enableBookmarking(store = "server")
 
 # cntrl + shft + A to reformat chunks of code
 # rsconnect::showLogs(appName="WGFP_dataclean_vis",streaming=TRUE) will show logs when trying to load app browser
@@ -27,6 +32,8 @@ library(shinyjqui)
 
 #suppresses grouping messages ie `summarise()` has grouped output by 'Datetime'. You can override using the `.groups` argument.
 options(dplyr.summarise.inform = FALSE)
+###
+
 
 # Data Read Ins -----------------------------------------------------------
  
@@ -80,7 +87,7 @@ if(!exists("SiteVisitData")){
  
 # #functions
 neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R", "getSequences.R", "renderDTFunction.R", 
-                     "Wrangleminicharts_function.R")
+                     "Wrangleminicharts_function.R", "updatePassword.R")
 
 for (i in neededFunctions) {
   source(paste0("./functions/",i))
@@ -123,86 +130,140 @@ speciesColors <- setNames(speciesColors[0:length(unique(indiv_datasets_list$rele
  
 allColors <- c(movementColors, siteColors, speciesColors)
 
-# Define UI for application that draws a histogram
-
-ui <- fluidPage(
-  
-  navbarPage(title = "WGFP Data Exploration",
-             id = "tabs", 
-             theme = shinytheme("sandstone"), #end of navbar page arguments; what follow is all inside it
-             
-             tabPanel("About/How to Use",
-                      includeHTML(paste0("www/", "WGFP_dataclean_vis_about.html"))
-                      ), #end fo how to use TabPanel
-
-# Individual Datasets UI ---------------------------------------------------
-
-             
-             tabPanel("Individual Datasets",
-                      value = "IndividualDatasetsTab",
-                      IndividualDatasets_UI("IndividualDatasetsTab1", combinedData_df_list, indiv_datasets_list$releasedata)
-                    ),#end of Individual data tab panel
-             
-# Encounter Histories UI --------------------------------------------------
-
-             tabPanel("Encounter Histories",
-                      value = "EncounterHistories",
-                      tabsetPanel(
-                        tabPanel("Encounter Histories Summaries Wide",
-                                 EncounterHistoriesSummariesWide_UI("EncounterHistoriesSummariesWideTab1", Enc_release_data)),
-                        
-                        tabPanel("All Encounter Histories",
-                                 AllEncounters_UI("AllEncountersTab1", combinedData_df_list)), 
-                        tabPanel("Sequences",
-                                 value = "SequencesTab",
-                                 Sequences_UI("SequencesTab1", metaDataVariableNames$AntennaSiteShortHandCodes)
+saveStateButton <- actionButton(
+  inputId = "saveState", 
+  label = "Save App State", 
+  icon = icon("save"),
+  style = "margin-left: 20px; vertical-align: middle;"
+)
+ui <- function(request) {
+  fluidPage(
+    
+    navbarPage(title = div(
+      style = "display: flex; align-items: center; height: 100%;",
+      "WGFP Data Exploration", saveStateButton), #bookmarkButton()
+               id = "tabs", 
+               theme = shinytheme("sandstone"), #end of navbar page arguments; what follow is all inside it
+               
+               tabPanel("About/How to Use",
+                        id = "about",
+                        includeHTML(paste0("www/", "WGFP_dataclean_vis_about.html"))
+               ), #end fo how to use TabPanel
+               
+               # Individual Datasets UI ---------------------------------------------------
+               
+               
+               tabPanel("Individual Datasets",
+                        id = "indDatasets", 
+                        value = "IndividualDatasetsTab",
+                        IndividualDatasets_UI("IndividualDatasetsTab1", combinedData_df_list, indiv_datasets_list$releasedata)
+               ),#end of Individual data tab panel
+               
+               # Encounter Histories UI --------------------------------------------------
+               
+               tabPanel("Encounter Histories",
+                        id = "enHists", 
+                        value = "EncounterHistories",
+                        tabsetPanel(id = "encounterHistoriesTabset",
+                                    tabPanel("Encounter Histories Summaries Wide",
+                                             id = "encSUmmsWide",
+                                             value = "encSUmmsWide",
+                                             EncounterHistoriesSummariesWide_UI("EncounterHistoriesSummariesWideTab1", Enc_release_data)),
+                                    
+                                    tabPanel("All Encounter Histories",
+                                             AllEncounters_UI("AllEncountersTab1", combinedData_df_list)), 
+                                    tabPanel("Sequences",
+                                             value = "SequencesTab",
+                                             Sequences_UI("SequencesTab1", metaDataVariableNames$AntennaSiteShortHandCodes)
+                                    )
                         )
-                      )
-                      ), #end of Encounter Histories Tab
-
-
-# States UI -----------------------------------------------------
-
-            tabPanel("MARK States",
-                     value = "StatesTab",
-                     States_UI("StatesTab1")
-                    ),#end of States ui Tab
-
-# Movements and Map UI Tab --------------------------------------------------------------
-
-### note on map: if detectoins are close together, they'll be grouped and you can't do more resolution. But they can still be upstream/downstream movements if they're >= 10 m difference in station
-#the filtering also automatically takes out NA values on movement with picker6; but all the NA movement onlys should be from fish where we have no release info for,
-#and also from fish that have detections before their official "release" back in May
-#if marker_color or icon_color is NA, it wont get mapped or displayed in data
-#picker wasn't working becuase I had 2 different pickers named the same
-            tabPanel("Daily Movements Map, Plot, and Data",
-                     value = "MovementsTab",
-                     movements_UI("MovementsTab1", movements_list$Movements_df)
-            ),
-
-
-# PT Data -----------------------------------------------------------------
-
-          tabPanel("Pressure Transducer, USGS, and Detection Distance",
-                   value = "PTtab",
-                   PT_UI("PTtab1", PTData, movements_list$Movements_df, SiteVisitData$WGFP_SiteVisits_FieldData)
-          ),
-            
-
-# QAQC UI tab -------------------------------------------------------------
-
-          tabPanel("QAQC",
-                   value = "QAQCTab",
-                   QAQC_UI("QAQCTab1", combinedData_df_list)
-                   ) # end of tabPanel
+               ), #end of Encounter Histories Tab
+               
+               
+               # States UI -----------------------------------------------------
+               
+               tabPanel("MARK States",
+                        value = "StatesTab",
+                        States_UI("StatesTab1")
+               ),#end of States ui Tab
+               
+               # Movements and Map UI Tab --------------------------------------------------------------
+               
+               ### note on map: if detectoins are close together, they'll be grouped and you can't do more resolution. But they can still be upstream/downstream movements if they're >= 10 m difference in station
+               #the filtering also automatically takes out NA values on movement with picker6; but all the NA movement onlys should be from fish where we have no release info for,
+               #and also from fish that have detections before their official "release" back in May
+               #if marker_color or icon_color is NA, it wont get mapped or displayed in data
+               #picker wasn't working becuase I had 2 different pickers named the same
+               tabPanel("Daily Movements Map, Plot, and Data",
+                        value = "MovementsTab",
+                        movements_UI("MovementsTab1", movements_list$Movements_df)
+               ),
+               
+               
+               # PT Data -----------------------------------------------------------------
+               
+               tabPanel("Pressure Transducer, USGS, and Detection Distance",
+                        value = "PTtab",
+                        PT_UI("PTtab1", PTData, movements_list$Movements_df, SiteVisitData$WGFP_SiteVisits_FieldData)
+               ),
+               
+               
+               # QAQC UI tab -------------------------------------------------------------
+               
+               tabPanel("QAQC",
+                        value = "QAQCTab",
+                        QAQC_UI("QAQCTab1", combinedData_df_list)
+               ),  
+               tabPanel("Account",
+                        value = "accountTab",
+                        accountManagement_UI("accountManagementTab")#, 
+                        #tags$div(id = "bookmark_wrapper", bookmarkButton(id = "saveState"))
+               )
+               
     ) #end of navbar page
-) #end of fluidpage
+  ) #end of fluidpage
+}
+
+# Wrap with authentication
+ui <- secure_app(ui, choose_language = FALSE, keep_token = TRUE)
 
 # Define server logic
 # Warning: Error in validate_session_object: object 'session' not found solved by adding session to the part up here
 server <- function(input, output, session) {
   
+  # Authentication - load credentials dynamically
+  res_auth <- secure_server(
+    check_credentials = check_credentials(load_credentials())
+  )
+  # 
+  # # Get current user
+  current_user <- reactive({
+    if (!is.null(res_auth$user)) {
+      return(res_auth$user)
+    }
+    return(NULL)
+  })
+
+  observeEvent(input$saveState, {
+    session$doBookmark()
+  })
+  
+  onBookmarked(function(url) {
+    
+    updateQueryString(url)
+    showModal(modalDialog(
+      title = "State Saved",
+      "Your application state has been saved. You can return to this state using the link below:",
+      tags$br(), tags$br(),
+      tags$code(url), # Displays the URL
+      footer = modalButton("Close")
+    ))
+  })
+  
   observe({
+    #need user to continue with rest of the app
+    user <- current_user()
+    req(user)
     
       movements_Server("MovementsTab1", movements_list$Movements_df, allColors)
     
@@ -221,7 +282,14 @@ server <- function(input, output, session) {
       QAQC_Server("QAQCTab1", indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
                   unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate, avianPredationList,
                   combinedData_df_list, wgfpMetadata, metaDataVariableNames, SiteVisitData$SiteVisitAndPTData, allColors)
+      
+      accountManagement_Server("accountManagementTab", user = user, db_path = db_path)
     
+  })
+  
+  # Manual Restore Logic
+  onRestore(function(state) {
+    showNotification("Restoring module states...", type = "message")
   })
   
 }
