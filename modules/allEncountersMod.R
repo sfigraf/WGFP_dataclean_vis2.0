@@ -307,12 +307,12 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
             
           
           # if the Tag filter is used or not
-          if(input$textinput1 !=''){
+          if(trimws(input$textinput1) !=''){
             #all events
             all_events_filtered <- All_Events  %>%
               filter(
                 
-                TAG %in% c(input$textinput1),
+                TAG %in% c(trimws(input$textinput1)),
                 Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
                 lubridate::hour(Datetime) >= input$slider1[1] & lubridate::hour(Datetime) <= input$slider1[2],
                 Event %in% input$picker1,
@@ -349,12 +349,12 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
           ### Filtering for TAG, SIte Code, and Day
 
           #if there is a tag input along with the first box checked
-          if (input$checkbox1 == TRUE & input$checkbox2 == FALSE & input$textinput1 !='') {
+          if (input$checkbox1 == TRUE & input$checkbox2 == FALSE & trimws(input$textinput1) !='') {
 
             all_events_filtered <- All_Events %>%
 
               filter(
-                TAG == input$textinput1,
+                TAG == trimws(input$textinput1),
                 Date >= input$drangeinput2[1] & Date <= input$drangeinput2[2],
                 lubridate::hour(Datetime) >= input$slider1[1] & lubridate::hour(Datetime) <= input$slider1[2],
 
@@ -380,7 +380,7 @@ AllEncounters_Server <- function(id, combinedData_df_list) {
 
           }
           #if there isn't a tag input along with first box checked
-          if (input$checkbox1 == TRUE & input$checkbox2 == FALSE & input$textinput1 =='') {
+          if (input$checkbox1 == TRUE & input$checkbox2 == FALSE & trimws(input$textinput1) =='') {
 
             all_events_filtered <- All_Events %>%
 
