@@ -54,11 +54,14 @@ avianPredationListFunction <- function(All_Events = AllCombinedEvents$df_list$Al
     originalColumns <- names(.x)
     outputDatWithCheckedTags <- left_join(.x, checkedTags, by = "TAG")
     outputDatWithRowColor <- outputDatWithCheckedTags %>%
-      dplyr::filter(!TAG %in% taggedBirds) %>%
-      mutate(rowColor = case_when(Opinion %in% c("Yes", "yes") ~ "red", 
-                                  Opinion %in% c("No", "no") ~ "green", 
-                                  !is.na(Opinion) ~ "yellow", 
-                                  is.na(Opinion) ~ "none"
+      #dplyr::filter(!TAG %in% taggedBirds) %>%
+      mutate(rowColor = case_when(
+        TAG %in% taggedBirds ~ 'purple',
+        Opinion %in% c("Yes", "yes") ~ "red", 
+        Opinion %in% c("No", "no") ~ "green", 
+        !is.na(Opinion) ~ "yellow", 
+        is.na(Opinion) ~ "none"
+        
       )) %>%
       select(c(all_of(originalColumns), rowColor))
     return(outputDatWithRowColor)
