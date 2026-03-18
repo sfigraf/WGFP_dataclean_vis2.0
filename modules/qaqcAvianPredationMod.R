@@ -98,7 +98,7 @@ avianPredationMod_Server <- function(id, avianPredationList) {
       
       renderDTFunction(output, "tagsFrequencyTable", avianPredationList$tagCountsNoPredation, 
                        c("The amount of times a tag has shown up in the selected potential avian predation DFs to the right. 
-                         Shading: Green are tags previously checked and deemed not predated, yellows are maybes, red are predated tags that just haven't been 
+                         Shading: Purple are Mergansers, green are tags previously checked and deemed not predated, yellows are maybes, red are predated tags that just haven't been 
                          added to the master list yet. No color are tags that haven't been checked. After checking a tag, record findings in 'Potential Avian predated Tags.csv'"))
       
       renderDTFunction(output, "downstreamSequences", avianPredationList$movingDownstream, 
