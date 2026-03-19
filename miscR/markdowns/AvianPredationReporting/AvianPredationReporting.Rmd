@@ -268,4 +268,53 @@ plot <- HPRBSequencesPredated %>%
   theme_classic()
 ggplotly(plot, tooltip = "text")
 ```
+## Evacuation Rate
+```{r evacuation Rate, echo = FALSE, include=TRUE, warning=FALSE,message=FALSE,error=FALSE}
+#activity after predation date
+allEventsAvianOnlyWithpredatoinDate <- allEventsAvianOnly %>%
+  left_join(indiv_datasets_list$avian_preddata[,c("TagID", "PredationDate")], by = c("TAG" = "TagID")) %>%
+  left_join(indiv_datasets_list$ghostdata[,c("TagID", "GhostDate")], by = c("TAG" = "TagID")) %>%
+  # if the tag has a ghost date and a pred date, take only data before the ghost date. if it has no ghsot date just do pred Date
+  filter(Date >= PredationDate & (is.na(GhostDate) | Date < GhostDate)) %>%
+  #distinct(TAG)
+  group_by(TAG) %>%
+  arrange(Datetime) %>%
+  summarize(`Time Between Predation Date and Last Detection` = difftime(last(Date), first(Date), units = "days"))
+  
+evacuationRatesSummarized <- allEventsAvianOnlyWithpredatoinDate %>%
+  ungroup() %>%
+  summarize(
+    meanTimeBetweenPredationandEvacuation = round(mean(`Time Between Predation Date and Last Detection`), 2), 
+            medianTimeBetweenPredationandEvacuation = round(median(`Time Between Predation Date and Last Detection`), 2), 
+            sdDevTimeBetweenPredationandEvacuation = as.difftime(round(sd(`Time Between Predation Date and Last Detection`), 2), units = 'days'), 
+            minTimeBetweenPredationandEvacuation = round(max(`Time Between Predation Date and Last Detection`), 2), 
+            maxTimeBetweenPredationandEvacuation = round(min(`Time Between Predation Date and Last Detection`), 2))
+
+evacuationRatesSummarizedLong <- evacuationRatesSummarized %>%
+  mutate(evacStats = "Evacuation Rate Stats") %>%
+  pivot_longer(
+    cols = -evacStats,
+    names_to = c("Evacuation Rate Stats"),
+    #names_pattern = "(mean|min|max|median|sd)(.*)",
+    values_to = "value"
+  ) %>%
+  select(-evacStats)
+
+datatable(evacuationRatesSummarizedLong, 
+          caption = "Time Between Predation Date and Last Detection: Summarized",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE
+  ),
+  filter = list(
+  position = 'top', clear = FALSE
+),
+  rownames = FALSE
+  )
+
+    #`Average  = mean(`Time Between Predation Date and Last Detection`))
+
+#tagsToCheck <- anti_join(indiv_datasets_list$avian_preddata, allEventsAvianOnlyWithpredatoinDate, by = c("TagID" = "TAG"))
+
+```
 
