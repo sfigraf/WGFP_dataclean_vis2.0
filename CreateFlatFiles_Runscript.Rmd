@@ -359,7 +359,7 @@ Movements_list <- get_movements_function(combined_events_stations, dailyUSGSData
 # ### Avian Predation: grouping together different methods of finding avian predated fish
 avianPredationList <- avianPredationListFunction(All_Events = AllCombinedEvents$df_list$All_Events, 
                                        AvianPredation = AvianPredation, 
-                                       enc_hist_wide_listPossibleAvianPredation = enc_hist_wide_list$enc_wide_list$possibleAvianPredation, 
+                                       enc_hist_wide_listPossibleAvianPredation = enc_hist_wide_list$enc_wide_list$predationList, #predationList
                                        encounterMARKStates = encounterMARKStates, 
                                        Movements_list = Movements_list, ghostdata = GhostTags, 
                                        checkedTags = checkedTags)

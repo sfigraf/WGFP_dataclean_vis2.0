@@ -317,4 +317,4 @@ datatable(evacuationRatesSummarizedLong,
 #tagsToCheck <- anti_join(indiv_datasets_list$avian_preddata, allEventsAvianOnlyWithpredatoinDate, by = c("TagID" = "TAG"))
 
 ```
-
+### Seasonality
