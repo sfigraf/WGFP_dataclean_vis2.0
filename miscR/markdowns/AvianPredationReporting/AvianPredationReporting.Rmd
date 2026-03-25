@@ -165,11 +165,11 @@ plot <- RBHPSequences %>%
 ggplotly(plot, tooltip = "text")
 ```
 
-### Predated Fish: Upstream from Red Barn To Hitching Post
+### Predated Fish and MERG Tags: Upstream from Red Barn To Hitching Post
 ```{r upstreamPredated, echo = FALSE, include=TRUE, warning=FALSE,message=FALSE,error=FALSE}
 ####UPSTREAM SEQUENCES
 allEventsAvianOnly<- combinedData_df_list$All_Events %>%
-    dplyr::filter(TAG %in% unique(indiv_datasets_list$avian_preddata$TagID)) 
+    dplyr::filter(TAG %in% unique(indiv_datasets_list$avian_preddata$TagID) | Species %in% c("MERG")) 
 
 HPRBSequencesPredated <- invisible(getSequences(allEventsAvianOnly, c("HP"), "", c("RB"), c("M1", "M2")))
 RBHPSequencesPredated <- invisible(getSequences(allEventsAvianOnly, c("RB"), "", c("HP"), c("M1", "M2")))
@@ -191,7 +191,7 @@ summarizedUS <- RBHPSequencesPredated %>%
   )
 
 datatable(summarizedUS, 
-          caption = paste0("Upstream RB to HP Sequences Summarized (", nrow(RBHPSequencesPredated), " journeys): Avian-Predated Tags"),
+          caption = paste0("Upstream RB to HP Sequences Summarized (", nrow(RBHPSequencesPredated), " journeys): Avian-Predated and MERG Tags"),
   options = list(
     pageLength = 10,
     autoWidth = TRUE
@@ -214,7 +214,7 @@ plot <- RBHPSequencesPredated %>%
   geom_histogram(bins = 50, color = "steelblue", fill = "steelblue") +
   scale_x_log10(labels = scales::label_log()) +
   labs(
-    title = "Log Duration Distribution of Upstream Journeys From RB to HP: Predated Tags",
+    title = "Log Duration Distribution of Upstream Journeys From RB to HP: Predated Tags + MERG",
     x = "Log Time Difference (seconds)",
     y = "Frequency", 
     caption = "Avian Predated Tags Only"
@@ -223,7 +223,7 @@ plot <- RBHPSequencesPredated %>%
 ggplotly(plot, tooltip = "text")
 ```
 
-### Predated Fish: Downstream from Hitching Post To Red Barn
+### Predated Fish and MERG Tags: Downstream from Hitching Post To Red Barn
 
 ```{r downstreamPredated, echo = FALSE, include=TRUE, warning=FALSE,message=FALSE,error=FALSE}
 
@@ -243,7 +243,7 @@ summarizedDS <- HPRBSequencesPredated %>%
   )
 
 datatable(summarizedDS, 
-          caption = paste0("Downstream RB to HP Sequences Summarized (", nrow(HPRBSequencesPredated), " journeys): Avian-Predated Tags"),
+          caption = paste0("Downstream RB to HP Sequences Summarized (", nrow(HPRBSequencesPredated), " journeys): Avian-Predated and MERG Tags"),
   options = list(
     pageLength = 10,
     autoWidth = TRUE
@@ -266,7 +266,7 @@ plot <- HPRBSequencesPredated %>%
   geom_histogram(bins = 50, color = "steelblue", fill = "steelblue") +
   scale_x_log10(labels = scales::label_log()) +
   labs(
-    title = "Log Duration Distribution of Downstream Journeys From HP to RB: Predated Tags",
+    title = "Log Duration Distribution of Downstream Journeys From HP to RB: Predated Tags + MERG",
     x = "Log Time Difference (seconds)",
     y = "Frequency", 
     caption = "Avian Predated Tags Only"
@@ -278,6 +278,7 @@ ggplotly(plot, tooltip = "text")
 ```{r evacuation Rate, echo = FALSE, include=TRUE, warning=FALSE,message=FALSE,error=FALSE}
 #gets all activity after predation date and ebfore ghost date (if applicable)
 allEventsAvianOnlyWithpredatoinDate <- allEventsAvianOnly %>%
+  filter(!Species %in% c("MERG")) %>%
   left_join(indiv_datasets_list$avian_preddata[,c("TagID", "PredationDate")], by = c("TAG" = "TagID")) %>%
   left_join(indiv_datasets_list$ghostdata[,c("TagID", "GhostDate")], by = c("TAG" = "TagID")) %>%
   # if the tag has a ghost date and a pred date, take only data before the ghost date. if it has no ghsot date just do pred Date
@@ -325,7 +326,7 @@ datatable(evacuationRatesSummarizedLong,
 #tagsToCheck <- anti_join(indiv_datasets_list$avian_preddata, allEventsAvianOnlyWithpredatoinDateSummazirsed, by = c("TagID" = "TAG"))
 
 ```
-### Seasonality
+### Seasonality: Predated Tags (NO Tagged MERGs)
 
 ```{r seasonality, echo = FALSE, include=TRUE, warning=FALSE,message=FALSE,error=FALSE, fig.cap=paste0("All tags in predated file post-predation date (n = ", nrow(indiv_datasets_list$avian_preddata), "). Mobile Runs and Release data excluded")}
 #create seasonlity graph with known mergansers and avian predation file
@@ -334,7 +335,8 @@ datatable(evacuationRatesSummarizedLong,
 ###Movements
 
 predationMovementsDataPostPredationDate <- movements_list$Movements_df %>%
-  dplyr::filter(TAG %in% unique(indiv_datasets_list$avian_preddata$TagID), 
+  dplyr::filter(TAG %in% unique(indiv_datasets_list$avian_preddata$TagID),
+                #Species %in% c("MERG"), 
                 !det_type %in% c("Mobile Run")
   ) %>%
   left_join(indiv_datasets_list$avian_preddata[,c("TagID", "PredationDate")], by = c("TAG" = "TagID")) %>%
