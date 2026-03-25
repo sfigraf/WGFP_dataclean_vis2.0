@@ -167,8 +167,19 @@ Ind_tag_enc_hist_wide_summary_function <- function(allDetectionsAndRecaptures, R
     arrange(desc(sum_dist))
   
   
+  #sculpinFlaggedMovements
+  sculpinFlaggedMovements <- encountersAndRelease6 %>%
+    filter(Species == "MTS", 
+           sum_dist >= 500) %>%
+    arrange(desc(sum_dist)) %>%
+    relocate(sum_dist, .after = TAG)
+  
+  predationList <- list("possibleAvianPredation" = possibleAvianPredation, 
+                        "sculpinFlaggedMovements" = sculpinFlaggedMovements)
+  
+  #possibleAvianPredation
   enc_wide_list <- list(
-    "encountersAndRelease_wide_summary" = encountersAndRelease6, "Unknown_Tags" = unknown_tags, "possibleAvianPredation" = possibleAvianPredation
+    "encountersAndRelease_wide_summary" = encountersAndRelease6, "Unknown_Tags" = unknown_tags, "predationList" = predationList
   )
 
   

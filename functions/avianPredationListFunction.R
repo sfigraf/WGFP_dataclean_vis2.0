@@ -1,5 +1,6 @@
 avianPredationListFunction <- function(All_Events = AllCombinedEvents$df_list$All_Events, 
-                                       AvianPredation = AvianPredation, enc_hist_wide_listPossibleAvianPredation = enc_hist_wide_list$enc_wide_list$possibleAvianPredation, 
+                                       AvianPredation = AvianPredation, 
+                                       enc_hist_wide_listPossibleAvianPredation = enc_hist_wide_list$enc_wide_list$predationList, 
                                        encounterMARKStates = encounterMARKStates, 
                                        Movements_list = Movements_list, ghostdata = GhostTags, 
                                        checkedTags = checkedTags) {
@@ -17,7 +18,8 @@ avianPredationListFunction <- function(All_Events = AllCombinedEvents$df_list$Al
   avianPredationList <- list(
     "movingDownstream" = movingDownstream, 
     "movingUpstream" = movingUpstream, 
-    "largeMovementsWithoutChannel" = enc_hist_wide_listPossibleAvianPredation, 
+    "largeMovementsWithoutChannel" = enc_hist_wide_listPossibleAvianPredation$possibleAvianPredation, 
+    "flaggedSculpin" = enc_hist_wide_listPossibleAvianPredation$sculpinFlaggedMovements, 
     "statesWeeklyActiveFish" = encounterMARKStates$possibleAvianPredation$weeklyActiveFish, 
     "statesAllActiveFish" = encounterMARKStates$possibleAvianPredation$overAllActiveFishNotinWeeklyDF, 
     "fastMovements" = Movements_list$avianPredationDFS$fastMovements,
@@ -42,7 +44,7 @@ avianPredationListFunction <- function(All_Events = AllCombinedEvents$df_list$Al
   
   checkedTags$TAG <- as.character(checkedTags$TAG)
   
-  ##filter out MERG tags
+  ##see MERG tags, turn them purple
   #get tag data first bc no species field in avian predation dfs
   taggedBirdEventsOnly = AllCombinedEvents$df_list$All_Events %>%
     #add more bird species if that arises
@@ -54,11 +56,14 @@ avianPredationListFunction <- function(All_Events = AllCombinedEvents$df_list$Al
     originalColumns <- names(.x)
     outputDatWithCheckedTags <- left_join(.x, checkedTags, by = "TAG")
     outputDatWithRowColor <- outputDatWithCheckedTags %>%
-      dplyr::filter(!TAG %in% taggedBirds) %>%
-      mutate(rowColor = case_when(Opinion %in% c("Yes", "yes") ~ "red", 
-                                  Opinion %in% c("No", "no") ~ "green", 
-                                  !is.na(Opinion) ~ "yellow", 
-                                  is.na(Opinion) ~ "none"
+      #dplyr::filter(!TAG %in% taggedBirds) %>%
+      mutate(rowColor = case_when(
+        TAG %in% taggedBirds ~ 'purple',
+        Opinion %in% c("Yes", "yes") ~ "red", 
+        Opinion %in% c("No", "no") ~ "green", 
+        !is.na(Opinion) ~ "yellow", 
+        is.na(Opinion) ~ "none"
+        
       )) %>%
       select(c(all_of(originalColumns), rowColor))
     return(outputDatWithRowColor)

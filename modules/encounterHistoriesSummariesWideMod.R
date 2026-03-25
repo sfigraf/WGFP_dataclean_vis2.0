@@ -106,11 +106,11 @@ EncounterHistoriesSummariesWide_Server <- function(id, Enc_release_data) {
 
 
             # if the Tag filter is used or not
-            if(input$textinput4 !=''){
+            if(trimws(input$textinput4) !=''){
 
               Enc_release_data_filtered <- Enc_release_data %>%
                 filter(
-                  TAG %in% c(input$textinput4),
+                  TAG %in% c(trimws(input$textinput4)),
                   Species %in% input$picker11,
                   ReleaseSite %in% input$picker12,
                   Length >= input$slider4[1] & Length <= input$slider4[2],

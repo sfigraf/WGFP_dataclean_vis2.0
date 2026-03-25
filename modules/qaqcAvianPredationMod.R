@@ -29,12 +29,25 @@ avianPredationMod_UI <- function(id) {
                                )
                                ),
                       tabPanel("Encounter Summaries Wide", 
-                               box(
-                                 title = "High Cumulative Movements",
-                                 width = 12,
-                               withSpinner(DT::DTOutput(ns("largeMovementsWithoutChannel")))
+                               
+                               fluidRow(
+                                 column(6, 
+                                        box(
+                                          title = "High Cumulative Movements: All Fish",
+                                          width = 12,
+                                          withSpinner(DT::DTOutput(ns("largeMovementsWithoutChannel")))
+                                        )
+                                 ), 
+                                 column(6, 
+                                        box(
+                                          title = "High Cumulative Sculpin Movements",
+                                          width = 12,
+                                          withSpinner(DT::DTOutput(ns("sculpinMovements"))) 
+                                        )
+                                 )
                                )
-                               ), 
+                               
+                      ), 
                       tabPanel("States", 
                                fluidRow(
                                  column(6, 
@@ -98,21 +111,24 @@ avianPredationMod_Server <- function(id, avianPredationList) {
       
       renderDTFunction(output, "tagsFrequencyTable", avianPredationList$tagCountsNoPredation, 
                        c("The amount of times a tag has shown up in the selected potential avian predation DFs to the right. 
-                         Shading: Green are tags previously checked and deemed not predated, yellows are maybes, red are predated tags that just haven't been 
+                         Shading: Purple are Mergansers, green are tags previously checked and deemed not predated, yellows are maybes, red are predated tags that just haven't been 
                          added to the master list yet. No color are tags that haven't been checked. After checking a tag, record findings in 'Potential Avian predated Tags.csv'"))
+      
       
       renderDTFunction(output, "downstreamSequences", avianPredationList$movingDownstream, 
                        c("Tags that first hit either CF, GD1, or RR1, then hit either HP, RB, WG1, or WG2 without any antennas in between.
            Sorting by the time between detections can potentially reveal predated tags."))
-
       
       renderDTFunction(output, "upstreamSequences", avianPredationList$movingUpstream, 
                        c("Tags that first hit either HP, RB, WG1, or WG2, then hit either CF, GD1, or RR1 without any antennas in between.
           Sorting by the time between detections can potentially reveal predated tags."))
-
+      
       
       renderDTFunction(output, "largeMovementsWithoutChannel", avianPredationList$largeMovementsWithoutChannel, 
                        c("Fish that have traveled >1000m. Sorting by channel usage can show tags that may have a unrealistic encounter history."))
+      
+      renderDTFunction(output, "sculpinMovements", avianPredationList$flaggedSculpin, 
+                       c("Sculpin that have traveled >500m."))
       
       
       renderDTFunction(output, "statesWeeklyActiveFish", avianPredationList$statesWeeklyActiveFish, 

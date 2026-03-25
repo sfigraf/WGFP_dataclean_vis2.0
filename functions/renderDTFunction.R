@@ -26,7 +26,7 @@ renderDTFunction <- function(output, outputID, outputData, dataCaption){
       formatStyle(
         'rowColor',
         target = 'row',
-        backgroundColor = styleEqual(c("red", "green", "yellow"), c("#f4433680", "#A5D6A7", "#ffeb3b"))
+        backgroundColor = styleEqual(c("red", "green", "yellow", "purple"), c("#f4433680", "#A5D6A7", "#ffeb3b", "#E6E6FA"))
       )
   })
   

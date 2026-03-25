@@ -136,6 +136,7 @@ saveStateButton <- actionButton(
   icon = icon("save"),
   style = "margin-left: 20px; vertical-align: middle;"
 )
+
 ui <- function(request) {
   fluidPage(
     
@@ -225,24 +226,24 @@ ui <- function(request) {
 }
 
 # Wrap with authentication
-ui <- secure_app(ui, choose_language = FALSE, keep_token = TRUE)
+#ui <- secure_app(ui, choose_language = FALSE, keep_token = TRUE)
 
 # Define server logic
 # Warning: Error in validate_session_object: object 'session' not found solved by adding session to the part up here
 server <- function(input, output, session) {
   
   # Authentication - load credentials dynamically
-  res_auth <- secure_server(
-    check_credentials = check_credentials(load_credentials())
-  )
-  # 
-  # # Get current user
-  current_user <- reactive({
-    if (!is.null(res_auth$user)) {
-      return(res_auth$user)
-    }
-    return(NULL)
-  })
+  # res_auth <- secure_server(
+  #   check_credentials = check_credentials(load_credentials())
+  # )
+  # # 
+  # # # Get current user
+  # current_user <- reactive({
+  #   if (!is.null(res_auth$user)) {
+  #     return(res_auth$user)
+  #   }
+  #   return(NULL)
+  # })
 
   observeEvent(input$saveState, {
     session$doBookmark()
@@ -262,8 +263,8 @@ server <- function(input, output, session) {
   
   observe({
     #need user to continue with rest of the app
-    user <- current_user()
-    req(user)
+    # user <- current_user()
+    # req(user)
     
       movements_Server("MovementsTab1", movements_list$Movements_df, allColors)
     
@@ -283,7 +284,7 @@ server <- function(input, output, session) {
                   unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate, avianPredationList,
                   combinedData_df_list, wgfpMetadata, metaDataVariableNames, SiteVisitData$SiteVisitAndPTData, allColors)
       
-      accountManagement_Server("accountManagementTab", user = user, db_path = db_path)
+      #accountManagement_Server("accountManagementTab", user = user, db_path = db_path)
     
   })
   

@@ -169,7 +169,7 @@ TAG,Reason,Opinion,Proposed predation date,Last Date Detected,Date Checked,maybe
 230000294297,"Some exploration from this tag, but nothing that is implausible",No,,,Jan 2026,
 230000087531,From CF to CD and back again a couple times. Nothing out of the ordinary,No,,,Jan 2026,
 230000087923,Skipped antennas and inconsistent timing everywhere,Yes,5/7/2025,5/9/2025,Jan 2026,
-230000087972,"Fish moves way too fast, it's gotta be predation. Pred event in december is debatable though. But it all perfectly lines up, even dropping the tag around CU and picking it up on mobile runs.",Yes,12/3/2024,12/15/2025,Jan 2026,"All phases, tagged fish, movement, swallowed, evacuated in the river by CU"
+230000087972,"Fish moves way too fast, it's gotta be predation. Pred event in december is debatable though. But it all perfectly lines up, even dropping the tag around CU and picking it up on mobile runs. Probably ghost tag  now, not added to ghost df yet. SG Note 3/18/26: I think 7 minutes downstream from CF 5 to CU then 1 horu from cu to cd is not unreasonable, and upstream movement times aren;t unreasonable either. Sequnces make sense for a very active fish. Evaucation rate makes sense though and is probably a ghost tag but for now I'm removing it from predated tags df ",Maybe,12/3/2024,12/15/2025,March 2026,"All phases, tagged fish, movement, swallowed, evacuated in the river by CU"
 230000143610,Lives around CU or CF with one case of exploration,No,,,Jan 2026,
 230000144228,In between HP and RB for its whole history. ,No,,,Jan 2026,
 230000144402,Second to last detection is a recapture,No,,,Jan 2026,
@@ -294,7 +294,7 @@ TAG,Reason,Opinion,Proposed predation date,Last Date Detected,Date Checked,maybe
 230000087978,"Hung around HP and RB for its whole history. No anomalies, all sequencing checks out",No,,,Jan 2026,
 230000087991,"Fish found a home at CU and never really left. No anomalies, all sequencing checks out",No,,,Jan 2026,
 230000142592,Fish sat on HP for weeks. No obvious anomalous movement,No,,,Jan 2026,
-230000143099,"Only 4 detetctions. CF to Hp and HP to RB. Lost tag after this, all n one day in a short amount of time . Predated",Yes,5/30/2025,5/30/2025,Jan 2026,
+230000143099,"Only 4 detetctions. CF to Hp and HP to RB. Lost tag after this, all n one day in a short amount of time . Predated",Yes,5/30/2023,5/30/2023,Jan 2026,
 230000143239,Only 4 detections. CF to HP in one day. Extremely limited evidence but it’s a maybe with what I have,No,,,Jan 2026,
 230000143262,"Back and forth between Rb and HP a couple times but no anomalies, and all sequencing checks out",No,,,Jan 2026,
 230000143559,"Starts at CF and goes downstream to HP hitting every antenna on the way. No anomalies, all sequencing checks out",No,,,Jan 2026,
@@ -332,7 +332,7 @@ TAG,Reason,Opinion,Proposed predation date,Last Date Detected,Date Checked,maybe
 230000228695,Skips from WG Biomark to CF over the course of 9 days before dissappearing. But no channel antennas installed,No,,,Jan 2026,
 230000228704,Skips from WG Biomark to CF but has plenty of history after. No other anomalies or incorrect sequences,No,,,Jan 2026,
 230000228783,"Stuck around HP for a long time but eventually moved upstream to CF. No anomalies, all sequencing checks out",No,,,Jan 2026,
-230000228923,RB to HP in an hour and a half for last detection. ,Yes,4/12/2025,4/12/2021,Jan 2026,
+230000228923,RB to HP in an hour and a half for last detection. ,Yes,4/12/2021,4/12/2021,Jan 2026,
 230000228927,"Hung around HP and RB for its whole history. No anomalies, all sequencing checks out",No,,,Jan 2026,
 230000229027,"Recapture three detections before last detection. No anomalies, all sequencing checks out",No,,,Jan 2026,
 230000272346,"Moved upstream from Rb to CF. No anomalies, all sequencing checks out",No,,,Jan 2026,
@@ -510,3 +510,6 @@ TAG,Reason,Opinion,Proposed predation date,Last Date Detected,Date Checked,maybe
 230000228314,tag checked early before we even had a full process to define predated tags,Yes,,,pre-2024,
 230000228346,tag checked early before we even had a full process to define predated tags,Yes,,,pre-2024,
 230000272048,tag checked early before we even had a full process to define predated tags,Yes,,,pre-2024,
+226001581661,"sculpin tag in Fraser that could have moved Upstream or was predated, but not enough evidence to definitelvy say except the fact it moved 1500m upstream over 8 months",No,,,March 2026,
+226001581414,"sculpin tag went from Fraser to Confluence in 2 years, about 100 m downstream",No,,,March 2026,
+226001581253,sculpin that went upstream 250 then back down 250 m and has kind of hung around the same area across 4 years,No,,,March 2026,
