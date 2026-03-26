@@ -133,19 +133,31 @@ windyGapDaily <- windyGapDaily %>%
 #sometimes this can fail if USGS is having issues on their end
 #maybe this function readNWISuv should be replaced with read_waterdata_latest_continuous but no error on that yet. monitor
 windyGap <- readNWISuv(siteNumbers = "09034250", #code for windy gap
-                       parameterCd = c("00060", "00010"), #this is parameter code for discharge; more can be added if needed
+                       parameterCd = c("00060", "00010", "00065"), #this is parameter code for discharge; more can be added if needed
                        startDate = "2020-08-06", #if you want to do times it is this format: "2014-10-10T00:00Z",
                        endDate = Sys.Date(),
                        tz = "America/Denver")
 
-windyGap <- renameNWISColumns(windyGap) %>%
+windyGapRenamed <- renameNWISColumns(windyGap) %>%
   mutate(Wtemp_Inst = (Wtemp_Inst * 9/5) + 32) %>%
   rename(USGSDischarge = Flow_Inst, 
-         USGSWatertemp = Wtemp_Inst)
-#this is to make attaching these readings to detections later
-windyGap$dateTime <- lubridate::force_tz(windyGap$dateTime, tzone = "UTC") 
+         USGSWatertemp = Wtemp_Inst, 
+         USGSGageHeightFt = GH_Inst)
 
-allPressureTransducerDataWithDischarge <- windyGap[,c("dateTime", "USGSDischarge", "USGSWatertemp")] %>%
+
+#this is to make attaching these readings to detections later
+windyGapRenamed$dateTime <- lubridate::force_tz(windyGapRenamed$dateTime, tzone = "UTC") 
+#for joining with WindyGapDaily since windy gap daily doesn't get daily average staff gage readings (code 00065)
+avgGageHeightDaily <- windyGapRenamed %>%
+  group_by(Date = date(dateTime)) %>%
+  summarize(avgDailyGageHeight = round(mean(USGSGageHeightFt, na.rm = T), 2)) %>%
+  #gets rid of NaNs; not really sure it's an issue but ensures unfiromity on data. mostly worreid about how it might get plotted
+  mutate(across(where(is.numeric), ~ifelse(is.nan(.), NA, .)))
+
+windyGapDaily <- windyGapDaily %>%
+  left_join(avgGageHeightDaily, by = "Date")
+
+allPressureTransducerDataWithDischarge <- windyGapRenamed[,c("dateTime", "USGSDischarge", "USGSWatertemp", "USGSGageHeightFt")] %>%
   #we're going to get a "many" relationship here because the discharge is joined to each site reading so it causes each disharge timestamp that has a matching PT logger reading to get multiplied by at least 3 (1 for RB, HP, and CF)
   #another weird thing here: sometimes there is instances where USGSdischarge is recorded twice at the same time ie (2022-11-06 01:00:00)
   #but the values are within like 2 cfs of each other so it seems fine
@@ -156,7 +168,7 @@ allPressureTransducerDataWithDischarge <- windyGap[,c("dateTime", "USGSDischarge
                                           TRUE ~ Water_Level_NoIce_ft)))
 
 allPressureTransducerDataWithDischarge_Long <- allPressureTransducerDataWithDischarge %>%
-  pivot_longer(cols = c(contains("_"), "USGSDischarge", "USGSWatertemp"), names_to = "EnvVariable", values_to = "Reading")
+  pivot_longer(cols = c(contains("_"), "USGSDischarge", "USGSWatertemp", "USGSGageHeightFt"), names_to = "EnvVariable", values_to = "Reading")
 
 usgsTime2 <- Sys.time()
 ```
@@ -323,10 +335,12 @@ GhostTags <- GhostTags %>%
 ```
 
 ```{r wrangling, include = FALSE, echo = FALSE}
-######################## DATA WRANGLING
+######################## DATA WRANGLING/COMBINING
 
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
-AllCombinedEvents <- All_combined_events_function(Stationary = utmsStationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures)
+AllCombinedEvents <- All_combined_events_function(Stationary = utmsStationary, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures, 
+                                                  allPressureTransducerDataWithDischarge = allPressureTransducerDataWithDischarge, windyGapContinuous = windyGapRenamed)
+#x <- AllCombinedEvents$df_list$All_Events
 
 Cleaned_Stationary_FishdetectionsOnly <- utmsStationary %>%
   filter(grepl("^230|^226", TAG))
@@ -353,6 +367,7 @@ enc_hist_wide_df <- enc_hist_wide_list$enc_wide_list$encountersAndRelease_wide_s
 
 # applies get_movements_function
 Movements_list <- get_movements_function(combined_events_stations, dailyUSGSData = windyGapDaily, eventsWithPeriodsSelect = encounterMARKStates$eventsWithPeriodsSelectForMovementJoining, wgfpMetadata$TimePeriods)
+#x <- Movements_list$dailyMovementsTable1
 
 
 
@@ -401,7 +416,7 @@ indiv_datasets_list_og <- list(
   "ghostdata" = GhostTags,
   "avian_preddata" = AvianPredation, 
   "PTDataRawCombined" = allPressureTransducerData,
-  "USGSData15Min" = windyGap,
+  "USGSData15Min" = windyGapRenamed,
   "SiteVisitDataCombined" = WGFP_SiteVisits_FieldData
 )
 
@@ -427,7 +442,7 @@ PTData <- list(
 )
 
 USGSData <- list(
-  "USGS15Min" = windyGap, 
+  "USGS15Min" = windyGapRenamed, 
   "USGSDaily" = windyGapDaily
 )
 

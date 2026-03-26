@@ -2,7 +2,7 @@
 #then this function will just be combining everything
 # Create Function
 ## this function is up to date for new antennas 
-All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, Recaptures){
+All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, Recaptures, allPressureTransducerDataWithDischarge, windyGapContinuous){
   
   start_time <- Sys.time()
   startMessage <- "Running All_combined_events_function: Combining and cleaning Stationary, Mobile, Biomark, Release, and Recapture csv inputs."
@@ -142,7 +142,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   #these arguments come from the createFlatFilesRunscript
   condensedAllEventsWithReleaseandEnvironmentalInfo <- combineEnvironmentalandDetectionsData(Detections = condensedAllEventsWithReleaseInfo,
                                              allPressureTransducerDataWithDischarge = allPressureTransducerDataWithDischarge,
-                                             DischargeData = windyGap
+                                             DischargeData = windyGapContinuous
                                              )
   #this is the final df 
   
