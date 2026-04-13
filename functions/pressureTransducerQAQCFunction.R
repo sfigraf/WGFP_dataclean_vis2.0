@@ -1,5 +1,7 @@
 #meant for a df with the coliumns Water_Level_NoIce_ft and USGSGageHeightFt to compare against each other
+subsetData <- redBarn_list$`Red Barn_1`
 pressureTransducerQAQCFunction <- function(subsetData){
+  print(paste("Start: ", min(subsetData$dateTime), "and end: ", max(subsetData$dateTime)))
   # subsetData <- rbOnly %>%
   #   filter(year(dateTime) == 2021, 
   #          Water_Level_NoIce_ft > 0,
@@ -11,6 +13,9 @@ pressureTransducerQAQCFunction <- function(subsetData){
   #   ggtitle("Red Barn 2021 USGS vs gage height") +
   #   theme_classic()
   # ggplotly(plot)
+  #can only use data for the model where both columns have data, so gageDif is a good column to filter on to remove NAs
+  subsetData <- subsetData %>%
+    filter(!is.na(gageDif))
   
   baseModel <- lm(Water_Level_NoIce_ft ~ USGSGageHeightFt, data = subsetData)
   
@@ -33,7 +38,7 @@ pressureTransducerQAQCFunction <- function(subsetData){
   #clean data; no outliers
   #
   
-  ##flag outliers
+  ##flag outliers as more htan 3 standard deviations away from the data
   #add residuelas as a column
   subsetData$resids <- residuals(baseModel)
   subsetData$is_outlier <- abs(subsetData$resids) > 3 * sd(subsetData$resids)
@@ -94,7 +99,9 @@ pressureTransducerQAQCFunction <- function(subsetData){
     geom_abline(intercept = intercept_val, slope = slope_val, color = "blue", linewidth = 1) +
     geom_abline(intercept = intercept_valNoOutliers, slope = slope_valNoOutliers, linetype = "dashed", color = "cyan")
   
+  
   plot1 <- ggplotly(plot, tooltip = "text")
+  plot1
   
   return(list(
     "baseModelList" = baseModelList,

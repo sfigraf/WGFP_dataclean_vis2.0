@@ -3948,3 +3948,27 @@ load_credentials <- function() {
   dbDisconnect(con)
   return(creds)
 }
+####
+usgs15Min <- USGSData$USGS15Min
+ptdDataWide <- PTData$PTDataWide
+
+x <- ptdDataWide %>%
+  mutate(gageDif = USGSGageHeightFt - Water_Level_NoIce_ft)
+rbOnly <- x %>%
+  filter(Site == "Red Barn") %>%
+  select(dateTime, USGSDischarge, USGSGageHeightFt, Water_Level_NoIce_ft, gageDif)
+
+plot <- rbOnly %>%
+  ggplot(aes(x = gageDif, text = as.character(gageDif))) +
+  geom_histogram()  +
+  ggtitle("RB Only Difs") +
+  theme_classic()
+ggplotly(plot)
+
+write_xlsx(rbOnly, "RedBarnUSGSandPTData.xlsx")
+
+rbOnlyFeatured <- rbOnly %>%
+  filter()
+
+
+# (ptdDataWide, "combinedUSGSandPTData.csv")
