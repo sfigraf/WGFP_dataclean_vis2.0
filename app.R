@@ -98,11 +98,9 @@ for (i in list.files("./modules/")) {
     source(paste0("./modules/",i))
   }
 }
-# 
-for (i in list.files("./miscR/")) {
-  if (grepl(".R", i)) {
-    source(paste0("./miscR/",i))
-  }
+neededMiscR <- c("map_polygon_readins.R", "passwordDbConnection.R")
+for (i in neededMiscR) {
+  source(paste0("./miscR/",i))
 }
 
 end_time <- Sys.time()

@@ -4300,3 +4300,7 @@ rbOnlyFeatured <- rbOnly %>%
 
 
 # (ptdDataWide, "combinedUSGSandPTData.csv")
+
+### 
+allEvents <- combinedData_df_list$All_Events
+

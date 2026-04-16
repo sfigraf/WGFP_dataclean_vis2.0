@@ -1,5 +1,5 @@
 #meant for a df with the coliumns Water_Level_NoIce_ft and USGSGageHeightFt to compare against each other
-subsetData <- redBarn_list$`Red Barn_8`
+#subsetData <- redBarn_list$`Red Barn_8`
 pressureTransducerQAQCFunction <- function(subsetData){
   print(paste("Start: ", min(subsetData$dateTime), "and end: ", max(subsetData$dateTime)))
   # subsetData <- rbOnly %>%
