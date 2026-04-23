@@ -2,11 +2,12 @@
 ##note: usgs data and all events data in utc
 #  lubridate::tz(ptdDataWide$dateTime)
 #usgs15Min <- USGSData$USGS15Min
+source("functions/pressureTransducerQAQCFunction.R")
 ptdDataWide <- PTData$PTDataWide
 
-x <- ptdDataWide %>%
+ptdDataWide_1 <- ptdDataWide %>%
   mutate(gageDif = USGSGageHeightFt - Water_Level_NoIce_ft)
-rbOnly <- x %>%
+rbOnly <- ptdDataWide_1 %>%
   filter(Site == "Red Barn") %>%
   select(dateTime, USGSDischarge, USGSGageHeightFt, Water_Level_NoIce_ft, gageDif)
 
@@ -26,24 +27,36 @@ calibrationDates <- read_csv("calibrationDates.csv",
                                               DataCalEnd = col_datetime(format = "%m/%d/%Y %H:%M")))
 
 calibrationDates <- calibrationDates %>%
-  arrange(DataCalStart)
+  arrange(Site, DataCalStart)
 
-redBarn_list <- list()
-for(i in 1:nrow(calibrationDates)) {
+
+
+calibrationChunksDateFiltered <- function(calibrationDates = calibrationDates, siteOnlyData){
   
-  # Define the current window
-  current_start <- calibrationDates$DataCalStart[i]
-  current_end   <- calibrationDates$DataCalEnd[i]
-  Site <- calibrationDates$Site[i]
+  siteOnlyChunk_list <- list()
   
-  # Filter red barn based on this window
-  chunk <- rbOnly[rbOnly$dateTime >= current_start & rbOnly$dateTime <= current_end, ]
-  
-  # Store it in the list with a name (optional)
-  # Assuming df1 has a 'site_name' or 'year' column to identify the chunk
-  site_label <- paste0(Site, "_", i) 
-  redBarn_list[[site_label]] <- chunk
+  for(i in 1:nrow(calibrationDates)) {
+    
+    # Define the current window
+    current_start <- calibrationDates$DataCalStart[i]
+    current_end   <- calibrationDates$DataCalEnd[i]
+    Site <- calibrationDates$Site[i]
+    
+    # Filter red barn based on this window
+    chunk <- siteOnlyData[siteOnlyData$dateTime >= current_start & siteOnlyData$dateTime <= current_end, ]
+    
+    # Store it in the list with a name (optional)
+    # Assuming df1 has a 'site_name' or 'year' column to identify the chunk
+    site_label <- paste0(Site, "_", i) 
+    siteOnlyChunk_list[[site_label]] <- chunk
+  }
+  return(siteOnlyChunk_list)
 }
+
+rbCalibatraioDates <- calibrationDates %>%
+  filter(Site == "Red Barn")
+
+redBarn_list <- calibrationChunksDateFiltered(calibrationDates = rbCalibatraioDates, siteOnlyData = rbOnly)
 
 allRBTransducerQAQC <- lapply(redBarn_list, pressureTransducerQAQCFunction)
 
@@ -76,6 +89,103 @@ slope <- allRBTransducerQAQC$`Red Barn_4`$baseModelList$slope_val
 
 intercept <- allRBTransducerQAQC$`Red Barn_4`$noOutliersModelList$intercept_val
 slope <- coef(allRBTransducerQAQC$`Red Barn_4`$noOutliersModelList$noOutliersModel)[2]
+
+# november 2022
+allRBTransducerQAQC$`Red Barn_5`$plotIwthModels
+intercept <- allRBTransducerQAQC$`Red Barn_5`$baseModelList$intercept_val
+slope <- allRBTransducerQAQC$`Red Barn_5`$baseModelList$slope_val
+
+intercept <- allRBTransducerQAQC$`Red Barn_5`$noOutliersModelList$intercept_val
+slope <- coef(allRBTransducerQAQC$`Red Barn_5`$noOutliersModelList$noOutliersModel)[2]
+library(purrr)
+
+# final_table <- purrr::map_df(allRBTransducerQAQC, function(site_data) {
+#   
+#   # 2. Extract the two models and combine them into a small dataframe
+#   # We use bind_rows to stack 'base' and 'noOutliers'
+#   if(!is.character(site_data)){
+#     
+#     baseModelType <- 
+#     
+#     bind_rows(
+#       data.frame(
+#         model_type = "baseModelList",
+#         intercept_val = site_data$baseModelList$intercept_val,
+#         slope_val = site_data$baseModelList$slope_val
+#       ),
+#       data.frame(
+#         model_type = "noOutliersModelList",
+#         intercept_val = site_data$noOutliersModelList$intercept_val,
+#         slope_val = coef(site_data$noOutliersModelList$noOutliersModel)[2]
+#       )
+#     )
+#   } else{
+#     
+#   }
+#   
+# }, .id = "site_name")
+
+library(tidyverse)
+
+modelListData <- function(siteQAQCList){
+  final_table <- purrr::map_df(siteQAQCList, function(site_data) {
+    
+    # 1. Check if site_data is just a character string (the "empty" case)
+    if (is.character(site_data)) {
+      return(
+        data.frame(
+          model_type = c("baseModelList", "noOutliersModelList"),
+          intercept_val = c(NA_real_, NA_real_),
+          slope_val = c(NA_real_, NA_real_), 
+          DataCalStart = c(NA, NA), 
+          DataCalEnd = c(NA, NA)
+        )
+      )
+    }
+    
+    # 2. If it's not a character, proceed with data extraction
+    # We use tryCatch or basic NULL checks to ensure the coef() call doesn't break
+    cal_start <- min(site_data$subsetDataWithOutliersPredicted$dateTime, na.rm = TRUE)
+    cal_end   <- max(site_data$subsetDataWithOutliersPredicted$dateTime, na.rm = TRUE)
+    
+    # Base Model Row
+    base_row <- data.frame(
+      model_type = "baseModelList",
+      intercept_val = site_data$baseModelList$intercept_val %||% NA,
+      slope_val = site_data$baseModelList$slope_val %||% NA, 
+      DataCalStart = cal_start,
+      DataCalEnd = cal_end
+    )
+    
+    # No Outliers Model Row (using your specific coef logic)
+    # We check if the model object exists before trying to index [2]
+    no_outlier_slope <- NA
+    if (!is.null(site_data$noOutliersModelList$noOutliersModel)) {
+      no_outlier_slope <- coef(site_data$noOutliersModelList$noOutliersModel)[2]
+    }
+    
+    no_outliers_row <- data.frame(
+      model_type = "noOutliersModelList",
+      intercept_val = site_data$noOutliersModelList$intercept_val %||% NA,
+      slope_val = no_outlier_slope, 
+      DataCalStart = cal_start,
+      DataCalEnd = cal_end
+    )
+    
+    # Combine the two rows for this site
+    bind_rows(base_row, no_outliers_row)
+    
+  }, .id = "site_name")
+  
+  # Clean up the names (optional: removes the 'slope_val' name if coef() kept it)
+  final_table$slope_val <- as.numeric(final_table$slope_val)
+  return(final_table)
+}
+
+redBarnModelTableResults <- modelListData(allRBTransducerQAQC)
+
+# print(final_table)
+# write_csv(final_table, "firstModelResultsNoOutliersRedBarn.csv")
 # rbOnly2022 <- rbOnly %>%
 #   filter(year(dateTime) == 2022, 
 #          Water_Level_NoIce_ft > 0,
@@ -181,3 +291,81 @@ junCal <- rbOnly %>%
   inner_join(CR_RB_Water_20230725_Jun6Cal, by = c("dateTime")) %>%
   mutate(equal = Water_Level_NoIce_ft.x == round(Water_Level_NoIce_ft.y, 2)) %>%
   filter(Water_Level_NoIce_ft.x > 0)
+
+
+# Hitching Post -----------------------------------------------------------
+
+hpOnly <- ptdDataWide_1 %>%
+  filter(Site == "Hitching Post") %>%
+  select(dateTime, USGSDischarge, USGSGageHeightFt, Water_Level_NoIce_ft, gageDif)
+
+
+##finding calibration dates starting with 2025
+#doubel checking work in archive, to database file worksheet 2025 with clkibration dates
+
+#april
+start_date <- as.POSIXct("2025-04-01 10:00:00", tz = "UTC")
+end_date   <- as.POSIXct("2025-04-14 14:00:00", tz = "UTC")
+hp2025_april <- hpOnly %>%
+  filter(dateTime >= start_date & dateTime <= end_date)
+x <- pressureTransducerQAQCFunction(hp2025_april) #hpOnly 
+x$plotIwthModels
+
+#may 
+
+start_date <- as.POSIXct("2025-04-14 15:00:00", tz = "UTC")
+end_date   <- as.POSIXct("2025-08-19 11:00:00", tz = "UTC")
+hp2025_mayCal <- hpOnly %>%
+  filter(dateTime >= start_date & dateTime <= end_date)
+x <- pressureTransducerQAQCFunction(hp2025_mayCal) #hpOnly 
+x$plotIwthModels
+
+#sep cal
+
+start_date <- as.POSIXct("2025-08-19 12:00:00", tz = "UTC")
+end_date   <- as.POSIXct("2025-11-03 14:00:00", tz = "UTC")
+hp2025_SepCal <- hpOnly %>%
+  filter(dateTime >= start_date & dateTime <= end_date)
+x <- pressureTransducerQAQCFunction(hp2025_SepCal) #hpOnly 
+x$plotIwthModels
+
+##quick qaqc to see if the calibration dates line up with what's in the data
+start_date <- as.POSIXct("2023-07-27 12:00:00", tz = "UTC")
+end_date   <- as.POSIXct("2023-08-29 13:00:00", tz = "UTC")
+
+CR_HP_Water_20231018_Jul27Cal <- read_csv("hpwaterLevels/CR_HP_Water_20231018_Jul27Cal.csv", 
+                                          col_types = cols(`#` = col_skip(), `Date Time, GMT-06:00` = col_datetime(format = "%m/%d/%y %I:%M:%S %p")), 
+                                          skip = 1)
+x <- CR_HP_Water_20231018_Jul27Cal %>%
+  filter(`Date Time, GMT-06:00` >= start_date & `Date Time, GMT-06:00` <= end_date) %>%
+  rename(dateTime = `Date Time, GMT-06:00`)
+
+# CR_HP_Water_20230727_Apr4Cal <- read_csv("hpwaterLevels/CR_HP_Water_20230727_Apr4Cal.csv", 
+#                                          col_types = cols(`Date Time, GMT-06:00` = col_datetime(format = "%m/%d/%y %I:%M:%S %p")), 
+#                                          skip = 1)
+#checking 2023 dates etc if i need to break them up
+start_date <- as.POSIXct("2022-11-02 11:00:00", tz = "UTC")
+end_date   <- as.POSIXct("2023-07-27 11:00:00", tz = "UTC")
+hp2023 <- hpOnly %>%
+  filter(dateTime >= start_date & dateTime <= end_date)
+x <- pressureTransducerQAQCFunction(hp2023) #hpOnly 
+x$plotIwthModels
+
+#checking 2022 now
+start_date <- as.POSIXct("2022-04-21 12:00:00", tz = "UTC")
+end_date   <- as.POSIXct("2022-11-02 10:00:00", tz = "UTC")
+hp2022 <- hpOnly %>%
+  filter(dateTime >= start_date & dateTime <= end_date)
+x <- pressureTransducerQAQCFunction(hp2022) #hpOnly 
+x$plotIwthModels
+
+###analyzing and getting models
+
+hpCalibrationDates <- calibrationDates %>%
+  filter(Site == "Hitching Post")
+
+HP_list <- calibrationChunksDateFiltered(calibrationDates = hpCalibrationDates, siteOnlyData = hpOnly)
+
+allHPTransducerQAQC <- lapply(HP_list, pressureTransducerQAQCFunction)
+
+hitchingPostModelTableResults <- modelListData(allHPTransducerQAQC)
