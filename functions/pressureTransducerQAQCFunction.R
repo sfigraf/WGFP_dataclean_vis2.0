@@ -92,11 +92,19 @@ pressureTransducerQAQCFunction <- function(subsetData, controlVariable = "USGSGa
     plot1 <- ggplotly(plot, tooltip = "text")
     plot1
     
+    USGSGageHeightList <- list(
+      "baseModelList" = baseModelList,
+      "noOutliersModelList" = noOutliersModelList,
+      "plotIwthModels" = plot1,
+      "subsetDataWithOutliersPredicted" = subsetDataUSGSGagePredicted
+    )
+    
+    
     if(flowModel){
       ## first model against the daily average flow for selected variable
       #get averageDaily
       dailyData <- subsetData %>%
-        group_by(date1 = date(dateTime), CFFlow) %>%
+        group_by(date1 = date(dateTime), !!sym(flowVariable)) %>%
         summarise(dailyGageHeight = mean(Water_Level_NoIce_ft, na.rm = T)) %>%
         ungroup()
       form <- as.formula(paste("dailyGageHeight ~", flowVariable))
@@ -211,7 +219,6 @@ pressureTransducerQAQCFunction <- function(subsetData, controlVariable = "USGSGa
       
      
       ###return it all
-      print("got here")
       flowModelList <- list(
         "dailyFlowModelList" = dailyFlowModelList,
         "allDataFlowModelList" = allDataFlowModelList
@@ -220,13 +227,11 @@ pressureTransducerQAQCFunction <- function(subsetData, controlVariable = "USGSGa
     
       } else{
       flowModelList <- "Not modeled against discharge"
-    }
+      }
+    
     
     return(list(
-      "baseModelList" = baseModelList,
-      "noOutliersModelList" = noOutliersModelList,
-      "plotIwthModels" = plot1,
-      "subsetDataWithOutliersPredicted" = subsetDataUSGSGagePredicted, 
+      "USGSGageHeightList" = USGSGageHeightList,
       "flowModelList" = flowModelList
     ))
   } else{

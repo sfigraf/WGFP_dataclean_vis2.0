@@ -58,45 +58,52 @@ rbCalibatraioDates <- calibrationDates %>%
 
 redBarn_list <- calibrationChunksDateFiltered(calibrationDates = rbCalibatraioDates, siteOnlyData = rbOnly)
 
-allRBTransducerQAQC <- lapply(redBarn_list, pressureTransducerQAQCFunction)
+#allRBTransducerQAQC <- lapply(redBarn_list, pressureTransducerQAQCFunction)
+allRBTransducerQAQC <- lapply(redBarn_list, function(x) {
+  pressureTransducerQAQCFunction(
+    subsetData = x, 
+    controlVariable = "USGSGageHeightFt", 
+    SiteName = "Red Barn"
+  )
+})
 
 # RED BARN 2020 -----------------------------------------------------------
 
-allRBTransducerQAQC$`Red Barn_1`$plotIwthModels
-intercept <- allRBTransducerQAQC$`Red Barn_1`$baseModelList$intercept_val
-slope <- allRBTransducerQAQC$`Red Barn_1`$baseModelList$slope_val
+allRBTransducerQAQC$`Red Barn_1`$USGSGageHeightList$plotIwthModels
+intercept <- allRBTransducerQAQC$`Red Barn_1`$USGSGageHeightList$baseModelList$intercept_val
+slope <- allRBTransducerQAQC$`Red Barn_1`$USGSGageHeightList$baseModelList$slope_val
 
-summary <- allRBTransducerQAQC$`Red Barn_1`$baseModelList$summary
+summary <- allRBTransducerQAQC$`Red Barn_1`$USGSGageHeightList$baseModelList$summary
 ### Red bArn 2021 -----------------------------------------------------------
-allRBTransducerQAQC$`Red Barn_2`$plotIwthModels
-intercept <- allRBTransducerQAQC$`Red Barn_2`$baseModelList$intercept_val
-slope <- allRBTransducerQAQC$`Red Barn_2`$baseModelList$slope_val
+allRBTransducerQAQC$`Red Barn_2`$USGSGageHeightList$plotIwthModels
+intercept <- allRBTransducerQAQC$`Red Barn_2`$USGSGageHeightList$baseModelList$intercept_val
+slope <- allRBTransducerQAQC$`Red Barn_2`$USGSGageHeightList$baseModelList$slope_val
 
 # red barn 2022 -----------------------------------------------------------
-allRBTransducerQAQC$`Red Barn_3`$plotIwthModels
-intercept <- allRBTransducerQAQC$`Red Barn_3`$noOutliersModelList$intercept_val
+allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$plotIwthModels
+intercept <- allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$noOutliersModelList$intercept_val
 
-allRBTransducerQAQC$`Red Barn_3`$noOutliersModelList$summary
-allRBTransducerQAQC$`Red Barn_3`$baseModelList$summary
+allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$noOutliersModelList$summary
+allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$baseModelList$summary
 
-slopeNoOutliers <- coef(allRBTransducerQAQC$`Red Barn_3`$noOutliersModelList$noOutliersModel)[2]
-slopeWithOutliers <- coef(allRBTransducerQAQC$`Red Barn_3`$baseModelList$baseModel)[2]
+slopeNoOutliers <- coef(allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$noOutliersModelList$noOutliersModel)[2]
+slopeWithOutliers <- coef(allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$baseModelList$baseModel)[2]
 
 ### oart 2
-allRBTransducerQAQC$`Red Barn_4`$plotIwthModels
-intercept <- allRBTransducerQAQC$`Red Barn_4`$baseModelList$intercept_val
-slope <- allRBTransducerQAQC$`Red Barn_4`$baseModelList$slope_val
+allRBTransducerQAQC$`Red Barn_4`$USGSGageHeightList$plotIwthModels
+intercept <- allRBTransducerQAQC$`Red Barn_4`$USGSGageHeightList$baseModelList$intercept_val
+slope <- allRBTransducerQAQC$`Red Barn_4`$USGSGageHeightList$baseModelList$slope_val
 
-intercept <- allRBTransducerQAQC$`Red Barn_4`$noOutliersModelList$intercept_val
-slope <- coef(allRBTransducerQAQC$`Red Barn_4`$noOutliersModelList$noOutliersModel)[2]
+intercept <- allRBTransducerQAQC$`Red Barn_4`$USGSGageHeightList$noOutliersModelList$intercept_val
+slope <- coef(allRBTransducerQAQC$`Red Barn_4`$USGSGageHeightList$noOutliersModelList$noOutliersModel)[2]
 
 # november 2022
-allRBTransducerQAQC$`Red Barn_5`$plotIwthModels
-intercept <- allRBTransducerQAQC$`Red Barn_5`$baseModelList$intercept_val
-slope <- allRBTransducerQAQC$`Red Barn_5`$baseModelList$slope_val
+allRBTransducerQAQC$`Red Barn_5`$USGSGageHeightList$plotIwthModels
+intercept <- allRBTransducerQAQC$`Red Barn_5`$USGSGageHeightList$baseModelList$intercept_val
+slope <- allRBTransducerQAQC$`Red Barn_5`$USGSGageHeightList$baseModelList$slope_val
 
-intercept <- allRBTransducerQAQC$`Red Barn_5`$noOutliersModelList$intercept_val
-slope <- coef(allRBTransducerQAQC$`Red Barn_5`$noOutliersModelList$noOutliersModel)[2]
+intercept <- allRBTransducerQAQC$`Red Barn_5`$USGSGageHeightList$noOutliersModelList$intercept_val
+slope <- coef(allRBTransducerQAQC$`Red Barn_5`$USGSGageHeightList$noOutliersModelList$noOutliersModel)[2]
 library(purrr)
 
 # final_table <- purrr::map_df(allRBTransducerQAQC, function(site_data) {
@@ -145,14 +152,14 @@ modelListData <- function(siteQAQCList){
     
     # 2. If it's not a character, proceed with data extraction
     # We use tryCatch or basic NULL checks to ensure the coef() call doesn't break
-    cal_start <- min(site_data$subsetDataWithOutliersPredicted$dateTime, na.rm = TRUE)
-    cal_end   <- max(site_data$subsetDataWithOutliersPredicted$dateTime, na.rm = TRUE)
+    cal_start <- min(site_data$USGSGageHeightList$subsetDataWithOutliersPredicted$dateTime, na.rm = TRUE)
+    cal_end   <- max(site_data$USGSGageHeightList$subsetDataWithOutliersPredicted$dateTime, na.rm = TRUE)
     
     # Base Model Row
     base_row <- data.frame(
       model_type = "baseModelList",
-      intercept_val = site_data$baseModelList$intercept_val %||% NA,
-      slope_val = site_data$baseModelList$slope_val %||% NA, 
+      intercept_val = site_data$USGSGageHeightList$baseModelList$intercept_val %||% NA,
+      slope_val = site_data$USGSGageHeightList$baseModelList$slope_val %||% NA, 
       DataCalStart = cal_start,
       DataCalEnd = cal_end
     )
@@ -160,13 +167,13 @@ modelListData <- function(siteQAQCList){
     # No Outliers Model Row (using your specific coef logic)
     # We check if the model object exists before trying to index [2]
     no_outlier_slope <- NA
-    if (!is.null(site_data$noOutliersModelList$noOutliersModel)) {
-      no_outlier_slope <- coef(site_data$noOutliersModelList$noOutliersModel)[2]
+    if (!is.null(site_data$USGSGageHeightList$noOutliersModelList$noOutliersModel)) {
+      no_outlier_slope <- coef(site_data$USGSGageHeightList$noOutliersModelList$noOutliersModel)[2]
     }
     
     no_outliers_row <- data.frame(
       model_type = "noOutliersModelList",
-      intercept_val = site_data$noOutliersModelList$intercept_val %||% NA,
+      intercept_val = site_data$USGSGageHeightList$noOutliersModelList$intercept_val %||% NA,
       slope_val = no_outlier_slope, 
       DataCalStart = cal_start,
       DataCalEnd = cal_end
@@ -366,15 +373,19 @@ hpCalibrationDates <- calibrationDates %>%
 
 HP_list <- calibrationChunksDateFiltered(calibrationDates = hpCalibrationDates, siteOnlyData = hpOnly)
 
-allHPTransducerQAQC <- lapply(HP_list, pressureTransducerQAQCFunction)
+#can pass named arguemnts after the function or use an anonymous function to be explicit like i did in red barn above
+allHPTransducerQAQC <- lapply(HP_list, pressureTransducerQAQCFunction, SiteName = "Hitching Post", flowModel = TRUE, flowVariable = "USGSDischarge")
 
 hitchingPostModelTableResults <- modelListData(allHPTransducerQAQC)
 
-
+allHPTransducerQAQC$`Hitching Post_4`$flowModelList$dailyFlowModelList$ggplotly
+allHPTransducerQAQC$`Hitching Post_4`$USGSGageHeightList$plotIwthModels
 # Confluence --------------------------------------------------------------
 cfOnly <- ptdDataWide_1 %>%
   filter(Site == "Confluence") %>%
-  select(dateTime, USGSDischarge, USGSGageHeightFt, Water_Level_NoIce_ft, gageDif)
+  select(dateTime, USGSDischarge, USGSGageHeightFt, Water_Level_NoIce_ft, gageDif) %>%
+  mutate(Date = date(dateTime)) %>%
+  left_join(reconFlow1, by = "Date")
 #correlate to hydrology?
 library(readxl)
 reconstructedWGFPDailyFlow <- read_excel("reconstructedWGFPDailyFlow.xlsx", 
@@ -408,9 +419,22 @@ together <- cf2025Filtered %>%
   ggplot(aes(x = CFFlow, y = Water_Level_NoIce_ft)) +
   geom_point()
 
+###testing function on comfulence data
+start_date <- as.POSIXct("2023-03-05 12:00:00", tz = "UTC")
+end_date   <- as.POSIXct("2023-11-05 10:00:00", tz = "UTC")
 
-x <- pressureTransducerQAQCFunction(cf2025) #hpOnly 
-x$plotIwthModels
+cfFiltered <- cfOnly %>%
+  filter(dateTime >= start_date & dateTime <= end_date, 
+         Water_Level_NoIce_ft > 0) #%>%
+  # ggplot(aes(x = USGSGageHeightFt, y = Water_Level_NoIce_ft)) +
+  # geom_point()
+cfFiltered
+x <- pressureTransducerQAQCFunction(cfFiltered, SiteName = "Confluence", flowModel = TRUE)
+
+#x$
+## have funciotn 
+# x <- pressureTransducerQAQCFunction(cf2025) #hpOnly 
+# x$plotIwthModels
 
 
 
