@@ -1,7 +1,8 @@
 #meant for a df with the coliumns Water_Level_NoIce_ft and USGSGageHeightFt 
 # optional to model gage height against flow as awell on a daily and not daily level
 subsetData <- cfFiltered#redBarn_list$`Red Barn_10`
-pressureTransducerQAQCFunction <- function(subsetData, controlVariable = "USGSGageHeightFt", SiteName, flowModel = FALSE, flowVariable = "CFFlow"){
+pressureTransducerQAQCFunction <- function(subsetData, controlVariable = "USGSGageHeightFt", SiteName, flowModel = FALSE, flowVariable = "CFFlow", 
+                                           showDiagnosticPlots = FALSE){
   print(paste("Start: ", min(subsetData$dateTime), "and end: ", max(subsetData$dateTime)))
 
   #can only use data for the model where both columns have data, so gageDif is a good column to filter on to remove NAs
@@ -19,7 +20,7 @@ pressureTransducerQAQCFunction <- function(subsetData, controlVariable = "USGSGa
     baseModelList <- list(
       "baseModel" = baseModel,
       "summary" = summary(baseModel),
-      "plot" = plot(baseModel),
+      "plot" = if(showDiagnosticPlots) plot(baseModel) else "Plot skipped", #plot(baseModel),
       "resids" = residuals(baseModel), 
       "intercept_val" = coef(baseModel)[1],
       "slope_val" = coef(baseModel)[2]
@@ -47,7 +48,7 @@ pressureTransducerQAQCFunction <- function(subsetData, controlVariable = "USGSGa
     noOutliersModelList <- list(
       "noOutliersModel" = modelNoOutliersFromModel1,
       "summary" = summary(modelNoOutliersFromModel1),
-      "plot" = plot(modelNoOutliersFromModel1),
+      "plot" = if(showDiagnosticPlots) plot(modelNoOutliersFromModel1) else "Plot skipped", #plot(modelNoOutliersFromModel1),
       "resids" = residuals(modelNoOutliersFromModel1), 
       "intercept_val" = coef(modelNoOutliersFromModel1)[1],
       "slope_val" <- coef(modelNoOutliersFromModel1)[2]
@@ -101,6 +102,7 @@ pressureTransducerQAQCFunction <- function(subsetData, controlVariable = "USGSGa
     
     
     if(flowModel){
+      print("Flow model Data")
       ## first model against the daily average flow for selected variable
       #get averageDaily
       dailyData <- subsetData %>%
@@ -154,7 +156,7 @@ pressureTransducerQAQCFunction <- function(subsetData, controlVariable = "USGSGa
       dailyFlowModelList <- list(
         "dailyFlowModel" = dailyDataflowModel,
         "summary" = summary(dailyDataflowModel),
-        "plot" = plot(dailyDataflowModel),
+        "plot" = if(showDiagnosticPlots) plot(dailyDataflowModel) else "Plot skipped", #plot(dailyDataflowModel),
         "resids" = residuals(dailyDataflowModel), 
         "intercept_val" = coef(dailyDataflowModel)[1],
         "slope_val" = coef(dailyDataflowModel)[2], 
@@ -209,7 +211,7 @@ pressureTransducerQAQCFunction <- function(subsetData, controlVariable = "USGSGa
       allDataFlowModelList <- list(
         "allDataFlowModel" = allDataFlowModel,
         "summary" = summary(allDataFlowModel),
-        "plot" = plot(allDataFlowModel),
+        "plot" = if(showDiagnosticPlots) plot(allDataFlowModel) else "Plot skipped", #plot(allDataFlowModel),
         "resids" = residuals(allDataFlowModel), 
         "intercept_val" = coef(allDataFlowModel)[1],
         "slope_val" = coef(allDataFlowModel)[2], 
