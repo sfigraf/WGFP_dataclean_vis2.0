@@ -1,18 +1,8 @@
-#meant for a df with the coliumns Water_Level_NoIce_ft and USGSGageHeightFt to compare against each other
-#subsetData <- redBarn_list$`Red Barn_8`
-pressureTransducerQAQCFunction <- function(subsetData){
+#meant for a df with the coliumns Water_Level_NoIce_ft and USGSGageHeightFt or reconstructed flow to compare against each other
+#subsetData <- redBarn_list$`Red Barn_10`
+pressureTransducerQAQCFunction <- function(subsetData, controlVariable = "USGSGageHeightFt", SiteName){
   print(paste("Start: ", min(subsetData$dateTime), "and end: ", max(subsetData$dateTime)))
-  # subsetData <- rbOnly %>%
-  #   filter(year(dateTime) == 2021, 
-  #          Water_Level_NoIce_ft > 0,
-  #          !is.na(gageDif))
-  #plotting against each other to decide to do a linear baseModel (y = mx+b)
-  # plot <- subsetData %>%
-  #   ggplot(aes(x = USGSGageHeightFt, y = Water_Level_NoIce_ft)) +
-  #   geom_point() +
-  #   ggtitle("Red Barn 2021 USGS vs gage height") +
-  #   theme_classic()
-  # ggplotly(plot)
+
   #can only use data for the model where both columns have data, so gageDif is a good column to filter on to remove NAs
   #don't model data with ice either
   subsetData <- subsetData %>%
@@ -20,7 +10,10 @@ pressureTransducerQAQCFunction <- function(subsetData){
            Water_Level_NoIce_ft > 0)
   
   if(nrow(subsetData) > 0){
-    baseModel <- lm(Water_Level_NoIce_ft ~ USGSGageHeightFt, data = subsetData)
+    #cant use !! opterator as bang bang symbol in base r funcitons becuase it's a tidyvese thing. need to create formula first
+    form <- as.formula(paste("Water_Level_NoIce_ft ~", controlVariable))
+    
+    baseModel <- lm(form, data = subsetData)
     
     baseModelList <- list(
       "baseModel" = baseModel,
@@ -47,7 +40,8 @@ pressureTransducerQAQCFunction <- function(subsetData){
     #recalulte baseModel with outliers removed
     subsetData_noOutliers <- subsetData %>%
       filter(!is_outlier)
-    modelNoOutliersFromModel1 <- lm(Water_Level_NoIce_ft ~ USGSGageHeightFt, data = subsetData_noOutliers)
+    
+    modelNoOutliersFromModel1 <- lm(form, data = subsetData_noOutliers)
     
     noOutliersModelList <- list(
       "noOutliersModel" = modelNoOutliersFromModel1,
@@ -75,8 +69,8 @@ pressureTransducerQAQCFunction <- function(subsetData){
              predictedValueDif = predictedValue - Water_Level_NoIce_ft) 
     
     plot <- subsetDataPredicted %>%
-      ggplot(aes(x = USGSGageHeightFt, y = Water_Level_NoIce_ft, color = is_outlier, alpha = .6, 
-                 text = paste0("USGS gage height: ", USGSGageHeightFt,
+      ggplot(aes(x = !!sym(controlVariable), y = Water_Level_NoIce_ft, color = is_outlier, alpha = .6, 
+                 text = paste0("USGS gage height: ", !!sym(controlVariable),
                                "<br>PT Gage Height: ", Water_Level_NoIce_ft,
                                "<br>Gage Difference: ", gageDif,
                                "<br>Predicted Value: ", predictedValue,
@@ -87,7 +81,7 @@ pressureTransducerQAQCFunction <- function(subsetData){
       )
       ) +
       geom_point() +
-      ggtitle(paste("Red Barn", min(subsetData$dateTime), "to", max(subsetData$dateTime), "USGS vs gage height")) +
+      ggtitle(paste(SiteName, min(subsetData$dateTime), "to", max(subsetData$dateTime), "USGS vs gage height")) +
       theme_classic() +
       scale_color_manual(values = c("FALSE" = "steelblue", "TRUE" = "red")) +
       geom_abline(intercept = intercept_val, slope = slope_val, color = "blue", linewidth = 1) +

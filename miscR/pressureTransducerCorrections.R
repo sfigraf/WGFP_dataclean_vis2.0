@@ -369,3 +369,48 @@ HP_list <- calibrationChunksDateFiltered(calibrationDates = hpCalibrationDates, 
 allHPTransducerQAQC <- lapply(HP_list, pressureTransducerQAQCFunction)
 
 hitchingPostModelTableResults <- modelListData(allHPTransducerQAQC)
+
+
+# Confluence --------------------------------------------------------------
+cfOnly <- ptdDataWide_1 %>%
+  filter(Site == "Confluence") %>%
+  select(dateTime, USGSDischarge, USGSGageHeightFt, Water_Level_NoIce_ft, gageDif)
+#correlate to hydrology?
+library(readxl)
+reconstructedWGFPDailyFlow <- read_excel("reconstructedWGFPDailyFlow.xlsx", 
+                                         sheet = "Assumed and Actual Flow Data")
+reconFlow1 <- reconstructedWGFPDailyFlow %>%
+  mutate(CFFlow = `Assumed/Actual UpperC Flow` + `Assumed/Actual Fraser Flow`)
+
+
+start_date <- as.POSIXct("2023-03-05 12:00:00", tz = "UTC")
+end_date   <- as.POSIXct("2023-11-05 10:00:00", tz = "UTC")
+###what's the correlation when water_level_no_ice is averaged on daily?
+cf2025Filtered <- cfOnly %>%
+  filter(dateTime >= start_date & dateTime <= end_date, 
+         Water_Level_NoIce_ft > 0) %>%
+  group_by(date1 = date(dateTime)) %>%
+  summarise(dailyGageHegith = mean(Water_Level_NoIce_ft))
+
+together <- cf2025Filtered %>%
+  left_join(reconFlow1, by = c("date1" = "Date")) %>%
+  ggplot(aes(x = CFFlow, y = dailyGageHegith)) +
+  geom_point()
+
+### correlation when not averaged at all?
+cf2025Filtered <- cfOnly %>%
+  filter(dateTime >= start_date & dateTime <= end_date, 
+         Water_Level_NoIce_ft > 0) %>%
+  mutate(Date = date(dateTime))
+
+together <- cf2025Filtered %>%
+  left_join(reconFlow1, by = "Date") %>%
+  ggplot(aes(x = CFFlow, y = Water_Level_NoIce_ft)) +
+  geom_point()
+
+
+x <- pressureTransducerQAQCFunction(cf2025) #hpOnly 
+x$plotIwthModels
+
+
+
