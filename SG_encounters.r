@@ -4304,3 +4304,16 @@ rbOnlyFeatured <- rbOnly %>%
 ### 
 allEvents <- combinedData_df_list$All_Events
 
+mergs <- allEvents %>%
+  filter(Species == "MERG")
+
+allEventsAvianOnly<- combinedData_df_list$All_Events %>%
+  dplyr::filter(TAG %in% unique(indiv_datasets_list$avian_preddata$TagID) | Species %in% c("MERG")) 
+
+allEventsAvianExcluded <- combinedData_df_list$All_Events %>%
+  dplyr::filter(!TAG %in% unique(indiv_datasets_list$avian_preddata$TagID), 
+                !Species %in% c("MERG")) 
+
+equals <- allEventsAvianExcluded %>%
+  filter(!Event %in% c("Release", "Recapture", "Recapture and Release", "M1", "M2") ) %>%
+  inner_join(allEventsAvianOnly, by = "Datetime")

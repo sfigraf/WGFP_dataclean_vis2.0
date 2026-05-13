@@ -1,6 +1,6 @@
 #meant for a df with the coliumns Water_Level_NoIce_ft and USGSGageHeightFt 
 # optional to model gage height against flow as awell on a daily and not daily level
-subsetData <- cfFiltered#redBarn_list$`Red Barn_10`
+#subsetData <- cfFiltered#redBarn_list$`Red Barn_10`
 pressureTransducerQAQCFunction <- function(subsetData, controlVariable = "USGSGageHeightFt", SiteName, flowModel = FALSE, flowVariable = "CFFlow", 
                                            showDiagnosticPlots = FALSE){
   print(paste("Start: ", min(subsetData$dateTime), "and end: ", max(subsetData$dateTime)))
