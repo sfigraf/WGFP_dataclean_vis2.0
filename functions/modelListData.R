@@ -11,7 +11,10 @@ modelListData <- function(siteQAQCList, flowModel = FALSE){
             intercept_val = c(NA_real_, NA_real_, NA_real_, NA_real_),
             slope_val = c(NA_real_, NA_real_, NA_real_, NA_real_), 
             DataCalStart = c(NA, NA, NA, NA), 
-            DataCalEnd = c(NA, NA, NA, NA)
+            DataCalEnd = c(NA, NA, NA, NA), 
+            numObs = c(NA_real_, NA_real_, NA_real_, NA_real_),
+            numOutliers = c(NA_real_, NA_real_, NA_real_, NA_real_),
+            outlierPercentage = c(NA_real_, NA_real_, NA_real_, NA_real_)
           )
         )
         
@@ -22,25 +25,35 @@ modelListData <- function(siteQAQCList, flowModel = FALSE){
             intercept_val = c(NA_real_, NA_real_),
             slope_val = c(NA_real_, NA_real_), 
             DataCalStart = c(NA, NA), 
-            DataCalEnd = c(NA, NA)
+            DataCalEnd = c(NA, NA), 
+            numObs = c(NA_real_, NA_real_),
+            numOutliers = c(NA_real_, NA_real_),
+            outlierPercentage = c(NA_real_, NA_real_)
           )
         )
       }
       
     }
-    
     # 2. If it's not a character, proceed with data extraction
     # We use tryCatch or basic NULL checks to ensure the coef() call doesn't break
     cal_start <- min(site_data$USGSGageHeightList$subsetDataWithOutliersPredicted$dateTime, na.rm = TRUE)
     cal_end   <- max(site_data$USGSGageHeightList$subsetDataWithOutliersPredicted$dateTime, na.rm = TRUE)
     
+    numObsRows <- nrow(site_data$USGSGageHeightList$subsetDataWithOutliersPredicted)
+    numOutliersRows <- nrow(subset(site_data$USGSGageHeightList$subsetDataWithOutliersPredicted, is_outlier == TRUE))
+    numOutliersRows <- nrow(subset(x, is_outlier == TRUE))
+    
+    outlierPercentageValue <- round((numOutliersRows/numObsRows)*100, 2)
     # Base Model Row
     base_row <- data.frame(
       model_type = "baseModelList",
       intercept_val = site_data$USGSGageHeightList$baseModelList$intercept_val %||% NA,
       slope_val = site_data$USGSGageHeightList$baseModelList$slope_val %||% NA, 
       DataCalStart = cal_start,
-      DataCalEnd = cal_end
+      DataCalEnd = cal_end, 
+      numObs = numObsRows,
+      numOutliers = numOutliersRows,
+      outlierPercentage = outlierPercentageValue
     )
     
     # No Outliers Model Row (using your specific coef logic)
@@ -50,12 +63,19 @@ modelListData <- function(siteQAQCList, flowModel = FALSE){
       no_outlier_slope <- coef(site_data$USGSGageHeightList$noOutliersModelList$noOutliersModel)[2]
     }
     
+    # numObsRows <- nrow(site_data$USGSGageHeightList$noOutliersModelList)
+    # numOutliersRows <- nrow(subset(site_data$USGSGageHeightList$noOutliersModelList, is_outlier == TRUE))
+    # outlierPercentageValue <- round((numOutliersRows/numObsRows)*100, 2)
+    
     no_outliers_row <- data.frame(
       model_type = "noOutliersModelList",
       intercept_val = site_data$USGSGageHeightList$noOutliersModelList$intercept_val %||% NA,
       slope_val = no_outlier_slope, 
       DataCalStart = cal_start,
-      DataCalEnd = cal_end
+      DataCalEnd = cal_end, 
+      numObs = NA_real_,
+      numOutliers = NA_real_,
+      outlierPercentage = NA_real_
     )
     
     # Combine the two rows for this site
@@ -63,24 +83,39 @@ modelListData <- function(siteQAQCList, flowModel = FALSE){
     
     if(flowModel){
       # dailyFlowModel Row
+      
+      numObsRows <- nrow(site_data$flowModelList$dailyFlowModelList$dataWithDailyPredictionsBasedonFlow)
+      numOutliersRows <- nrow(subset(site_data$flowModelList$dailyFlowModelList$dataWithDailyPredictionsBasedonFlow, is_outlier == TRUE))
+      outlierPercentageValue <- round((numOutliersRows/numObsRows)*100, 2)
+      
       dailyFlowModelList_row <- data.frame(
         model_type = "dailyFlowModelList",
         intercept_val = site_data$flowModelList$dailyFlowModelList$intercept_val %||% NA,
         slope_val = site_data$flowModelList$dailyFlowModelList$slope_val %||% NA, 
         DataCalStart = cal_start,
-        DataCalEnd = cal_end
+        DataCalEnd = cal_end, 
+        numObs = numObsRows,
+        numOutliers = numOutliersRows,
+        outlierPercentage = outlierPercentageValue
       )
+      
+      ### all data 
+      numObsRows <- nrow(site_data$flowModelList$allDataFlowModelList$dataWithPredictionsBasedonFlow)
+      numOutliersRows <- nrow(subset(site_data$flowModelList$allDataFlowModelList$dataWithPredictionsBasedonFlow, is_outlier == TRUE))
+      outlierPercentageValue <- round((numOutliersRows/numObsRows)*100, 2)
       
       allDataFlowModelList_row <- data.frame(
         model_type = "allDataFlowModelList",
         intercept_val = site_data$flowModelList$allDataFlowModelList$intercept_val %||% NA,
         slope_val = site_data$flowModelList$allDataFlowModelList$slope_val %||% NA, 
         DataCalStart = cal_start,
-        DataCalEnd = cal_end
+        DataCalEnd = cal_end, 
+        numObs = numObsRows,
+        numOutliers = numOutliersRows,
+        outlierPercentage = outlierPercentageValue
       )
       
       rows <- bind_rows(rows, dailyFlowModelList_row, allDataFlowModelList_row)
-      
       
     }
     rows
