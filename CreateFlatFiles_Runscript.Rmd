@@ -50,7 +50,7 @@ Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20260430.csv", na.strin
 
 ###Avian predation
 AvianPredation <- read_csv("./data/WGFP_AvianPredation.csv", 
-                           col_types = cols(TagID = col_character(),Comments = col_character()))
+                           col_types = cols(TagID = col_character(), Comments = col_character()))
 #Potential Avian Predated tags
 checkedTags <- read_csv("data/Potential Avian Predated tags.csv") 
 
