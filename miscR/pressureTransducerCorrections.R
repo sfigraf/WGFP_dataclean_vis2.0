@@ -3,6 +3,8 @@
 #  lubridate::tz(ptdDataWide$dateTime)
 #usgs15Min <- USGSData$USGS15Min
 source("functions/pressureTransducerQAQCFunction.R")
+source("functions/calibrationChunksDateFiltered.R")
+source("functions/modelListData.R")
 ptdDataWide <- PTData$PTDataWide
 
 ptdDataWide_1 <- ptdDataWide %>%
@@ -31,27 +33,7 @@ calibrationDates <- calibrationDates %>%
 
 
 
-calibrationChunksDateFiltered <- function(calibrationDates = calibrationDates, siteOnlyData){
-  
-  siteOnlyChunk_list <- list()
-  
-  for(i in 1:nrow(calibrationDates)) {
-    
-    # Define the current window
-    current_start <- calibrationDates$DataCalStart[i]
-    current_end   <- calibrationDates$DataCalEnd[i]
-    Site <- calibrationDates$Site[i]
-    
-    # Filter red barn based on this window
-    chunk <- siteOnlyData[siteOnlyData$dateTime >= current_start & siteOnlyData$dateTime <= current_end, ]
-    
-    # Store it in the list with a name (optional)
-    # Assuming df1 has a 'site_name' or 'year' column to identify the chunk
-    site_label <- paste0(Site, "_", i) 
-    siteOnlyChunk_list[[site_label]] <- chunk
-  }
-  return(siteOnlyChunk_list)
-}
+
 
 rbCalibatraioDates <- calibrationDates %>%
   filter(Site == "Red Barn")
@@ -134,60 +116,7 @@ library(purrr)
 
 library(tidyverse)
 
-modelListData <- function(siteQAQCList){
-  final_table <- purrr::map_df(siteQAQCList, function(site_data) {
-    
-    # 1. Check if site_data is just a character string (the "empty" case)
-    if (is.character(site_data)) {
-      return(
-        data.frame(
-          model_type = c("baseModelList", "noOutliersModelList"),
-          intercept_val = c(NA_real_, NA_real_),
-          slope_val = c(NA_real_, NA_real_), 
-          DataCalStart = c(NA, NA), 
-          DataCalEnd = c(NA, NA)
-        )
-      )
-    }
-    
-    # 2. If it's not a character, proceed with data extraction
-    # We use tryCatch or basic NULL checks to ensure the coef() call doesn't break
-    cal_start <- min(site_data$USGSGageHeightList$subsetDataWithOutliersPredicted$dateTime, na.rm = TRUE)
-    cal_end   <- max(site_data$USGSGageHeightList$subsetDataWithOutliersPredicted$dateTime, na.rm = TRUE)
-    
-    # Base Model Row
-    base_row <- data.frame(
-      model_type = "baseModelList",
-      intercept_val = site_data$USGSGageHeightList$baseModelList$intercept_val %||% NA,
-      slope_val = site_data$USGSGageHeightList$baseModelList$slope_val %||% NA, 
-      DataCalStart = cal_start,
-      DataCalEnd = cal_end
-    )
-    
-    # No Outliers Model Row (using your specific coef logic)
-    # We check if the model object exists before trying to index [2]
-    no_outlier_slope <- NA
-    if (!is.null(site_data$USGSGageHeightList$noOutliersModelList$noOutliersModel)) {
-      no_outlier_slope <- coef(site_data$USGSGageHeightList$noOutliersModelList$noOutliersModel)[2]
-    }
-    
-    no_outliers_row <- data.frame(
-      model_type = "noOutliersModelList",
-      intercept_val = site_data$USGSGageHeightList$noOutliersModelList$intercept_val %||% NA,
-      slope_val = no_outlier_slope, 
-      DataCalStart = cal_start,
-      DataCalEnd = cal_end
-    )
-    
-    # Combine the two rows for this site
-    bind_rows(base_row, no_outliers_row)
-    
-  }, .id = "site_name")
-  
-  # Clean up the names (optional: removes the 'slope_val' name if coef() kept it)
-  final_table$slope_val <- as.numeric(final_table$slope_val)
-  return(final_table)
-}
+
 
 redBarnModelTableResults <- modelListData(allRBTransducerQAQC)
 
@@ -381,17 +310,19 @@ hitchingPostModelTableResults <- modelListData(allHPTransducerQAQC)
 allHPTransducerQAQC$`Hitching Post_4`$flowModelList$dailyFlowModelList$ggplotly
 allHPTransducerQAQC$`Hitching Post_4`$USGSGageHeightList$plotIwthModels
 # Confluence --------------------------------------------------------------
-cfOnly <- ptdDataWide_1 %>%
-  filter(Site == "Confluence") %>%
-  select(dateTime, USGSDischarge, USGSGageHeightFt, Water_Level_NoIce_ft, gageDif) %>%
-  mutate(Date = date(dateTime)) %>%
-  left_join(reconFlow1, by = "Date")
+
 #correlate to hydrology?
 library(readxl)
 reconstructedWGFPDailyFlow <- read_excel("reconstructedWGFPDailyFlow.xlsx", 
                                          sheet = "Assumed and Actual Flow Data")
 reconFlow1 <- reconstructedWGFPDailyFlow %>%
   mutate(CFFlow = `Assumed/Actual UpperC Flow` + `Assumed/Actual Fraser Flow`)
+
+cfOnly <- ptdDataWide_1 %>%
+  filter(Site == "Confluence") %>%
+  select(dateTime, USGSDischarge, USGSGageHeightFt, Water_Level_NoIce_ft, gageDif) %>%
+  mutate(Date = date(dateTime)) %>%
+  left_join(reconFlow1, by = "Date")
 
 
 start_date <- as.POSIXct("2023-03-05 12:00:00", tz = "UTC")
@@ -434,7 +365,66 @@ x <- pressureTransducerQAQCFunction(cfFiltered, SiteName = "Confluence", flowMod
 #x$
 ## have funciotn 
 # x <- pressureTransducerQAQCFunction(cf2025) #hpOnly 
-# x$plotIwthModels
+x$flowModelList$dailyFlowModelList$ggplotly
 
+#4/21/2022  1:00:00 PM
+#2022 data
+start_date <- as.POSIXct("2022-04-21 13:00:00", tz = "UTC")
+end_date   <- as.POSIXct("2022-11-02 12:00:00", tz = "UTC")
 
+cfFiltered <- cfOnly %>%
+  filter(dateTime >= start_date & dateTime <= end_date, 
+         Water_Level_NoIce_ft > 0)
+x <- pressureTransducerQAQCFunction(cfFiltered, SiteName = "Confluence", flowModel = TRUE)
+x$flowModelList$dailyFlowModelList$intercept_val
+x$flowModelList$allDataFlowModelList$ggplotly
+CR_CF_Water_20221102 <- read_csv("CR_CF_Water_20221102.csv", 
+                                 col_types = cols(`Date Time, GMT-06:00` = col_character())) %>%
+  mutate(dateTime = lubridate::mdy_hm(`Date Time, GMT-06:00`))
+together <- cfFiltered %>%
+  left_join(CR_CF_Water_20221102, by = c("dateTime")) %>%
+  mutate(euqlas = round(Water_Level_NoIce_ft, 2) == round(waterLevel, 2))
+## winter 2022 data
+CR_CF_WaterLevel_20220421 <- read_csv("CR_CF_WaterLevel_20220421.csv") %>%
+  mutate(dateTime = lubridate::mdy_hm(dateTime))
 
+start_date <- as.POSIXct(min(CR_CF_WaterLevel_20220421$dateTime), tz = "UTC")
+end_date   <- as.POSIXct(max(CR_CF_WaterLevel_20220421$dateTime), tz = "UTC")
+
+cfFiltered <- cfOnly %>%
+  filter(dateTime >= start_date & dateTime <= end_date, 
+         Water_Level_NoIce_ft > 0)
+x <- pressureTransducerQAQCFunction(cfFiltered, SiteName = "Confluence", flowModel = TRUE, showDiagnosticPlots = TRUE)
+x$flowModelList$dailyFlowModelList$intercept_val
+x$flowModelList$allDataFlowModelList$ggplotly
+x$USGSGageHeightList$plotIwthModels
+together <- cfFiltered %>%
+  left_join(CR_CF_WaterLevel_20220421, by = c("dateTime")) %>%
+  mutate(euqlas = round(Water_Level_NoIce_ft, 2) == round(waterLevel, 2))
+####2021 data
+start_date <- as.POSIXct("2021-04-06 15:00:00", tz = "UTC")
+end_date   <- as.POSIXct("2021-11-09 14:00:00", tz = "UTC")
+
+cfFiltered <- cfOnly %>%
+  filter(dateTime >= start_date & dateTime <= end_date, 
+         Water_Level_NoIce_ft > 0)
+x <- pressureTransducerQAQCFunction(cfFiltered, SiteName = "Confluence", flowModel = TRUE, showDiagnosticPlots = TRUE)
+x$flowModelList$allDataFlowModelList$ggplotly
+x$flowModelList$dailyFlowModelList$ggplotly
+x$USGSGageHeightList$plotIwthModels
+x1 <- x$flowModelList$dailyFlowModelList$dataWithDailyPredictionsBasedonFlow
+
+##running off all calibration dates
+CFCalibrationDates <- calibrationDates %>%
+  filter(Site == "Confluence")
+
+CF_list <- calibrationChunksDateFiltered(calibrationDates = CFCalibrationDates, siteOnlyData = cfOnly)
+
+#can pass named arguemnts after the function or use an anonymous function to be explicit like i did in red barn above
+allCFTransducerQAQC <- lapply(CF_list, pressureTransducerQAQCFunction, SiteName = "Confluence", flowModel = TRUE)
+#allCFTransducerQAQC$Confluence_18$flowModelList$dailyFlowModelList$ggplotly
+conlfuenceModelTableResults <- modelListData(allCFTransducerQAQC, flowModel = TRUE)
+
+x <- conlfuenceModelTableResults %>%
+  filter(model_type %in% c("dailyFlowModelList", "allDataFlowModelList")) %>%
+  pivot_wider(id_cols = site_name, names_from = model_type, values_from = c("slope_val", "intercept_val"))

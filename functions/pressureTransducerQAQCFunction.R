@@ -125,7 +125,7 @@ pressureTransducerQAQCFunction <- function(subsetData, controlVariable = "USGSGa
         filter(is_outlier) %>%
         nrow()
       
-      print(paste("Number of outliers present:", numberOfOutliers))
+      print(paste("Number of outliers present (Avg'd by Daily Flow):", numberOfOutliers))
       
       #predict vals
       dailyDataPredicted <- dailyData %>%
@@ -168,7 +168,7 @@ pressureTransducerQAQCFunction <- function(subsetData, controlVariable = "USGSGa
       form <- as.formula(paste("Water_Level_NoIce_ft ~", flowVariable))
       allDataFlowModel <- lm(form, data = subsetData, na.action = na.exclude)
       
-      ##plot Daily
+      ##plot all
       
       intercept_val <- coef(allDataFlowModel)[1]
       slope_val <- coef(allDataFlowModel)[2]
@@ -180,7 +180,7 @@ pressureTransducerQAQCFunction <- function(subsetData, controlVariable = "USGSGa
         filter(is_outlier) %>%
         nrow()
       
-      print(paste("Number of outliers present:", numberOfOutliers))
+      print(paste("Number of outliers present (all data against daily flow):", numberOfOutliers))
       
       #predict vals
       subsetDataPredicted <- subsetData %>%
