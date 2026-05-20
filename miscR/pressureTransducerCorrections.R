@@ -5,6 +5,13 @@
 source("functions/pressureTransducerQAQCFunction.R")
 source("functions/calibrationChunksDateFiltered.R")
 source("functions/modelListData.R")
+
+library(readxl)
+reconstructedWGFPDailyFlow <- read_excel("reconstructedWGFPDailyFlow.xlsx", 
+                                         sheet = "Assumed and Actual Flow Data")
+reconFlow1 <- reconstructedWGFPDailyFlow %>%
+  mutate(CFFlow = `Assumed/Actual UpperC Flow` + `Assumed/Actual Fraser Flow`)
+
 ptdDataWide <- PTData$PTDataWide
 
 ptdDataWide_1 <- ptdDataWide %>%
@@ -312,11 +319,7 @@ allHPTransducerQAQC$`Hitching Post_4`$USGSGageHeightList$plotIwthModels
 # Confluence --------------------------------------------------------------
 
 #correlate to hydrology?
-library(readxl)
-reconstructedWGFPDailyFlow <- read_excel("reconstructedWGFPDailyFlow.xlsx", 
-                                         sheet = "Assumed and Actual Flow Data")
-reconFlow1 <- reconstructedWGFPDailyFlow %>%
-  mutate(CFFlow = `Assumed/Actual UpperC Flow` + `Assumed/Actual Fraser Flow`)
+
 
 cfOnly <- ptdDataWide_1 %>%
   filter(Site == "Confluence") %>%
@@ -426,5 +429,77 @@ allCFTransducerQAQC <- lapply(CF_list, pressureTransducerQAQCFunction, SiteName 
 conlfuenceModelTableResults <- modelListData(allCFTransducerQAQC, flowModel = TRUE)
 
 x <- conlfuenceModelTableResults %>%
+  filter(model_type %in% c("dailyFlowModelList", "allDataFlowModelList")) %>%
+  pivot_wider(id_cols = site_name, names_from = model_type, values_from = c("slope_val", "intercept_val"))
+
+# CS ----------------------------------------------------------------------
+
+CSOnly <- ptdDataWide_1 %>%
+  filter(Site == "Connectivity Side Channel") %>%
+  select(dateTime, USGSDischarge, USGSGageHeightFt, Water_Level_NoIce_ft, gageDif) %>%
+  mutate(Date = date(dateTime)) %>%
+  left_join(reconFlow1, by = "Date")
+##running off all calibration dates
+CSCalibrationDates <- calibrationDates %>%
+  filter(Site == "Connectivity Side Channel")
+
+CS_list <- calibrationChunksDateFiltered(calibrationDates = CSCalibrationDates, siteOnlyData = CSOnly)
+
+#can pass named arguemnts after the function or use an anonymous function to be explicit like i did in red barn above
+allCSTransducerQAQC <- lapply(CS_list, pressureTransducerQAQCFunction, SiteName = "Connectivity Side Channel", flowModel = TRUE)
+#allCSTransducerQAQC$Confluence_18$flowModelList$dailyFlowModelList$ggplotly
+#siteQAQCList <- allCSTransducerQAQC
+CSModelTableResults <- modelListData(allCSTransducerQAQC, flowModel = TRUE)
+
+CSModelTableResults2 <- CSModelTableResults %>%
+  filter(model_type %in% c("dailyFlowModelList", "allDataFlowModelList")) %>%
+  pivot_wider(id_cols = site_name, names_from = model_type, values_from = c("slope_val", "intercept_val"))
+#allCSTransducerQAQC$`Connectivity Side Channel_13`$flowModelList$dailyFlowModelList$ggplotly
+
+# CD ----------------------------------------------------------------------
+
+
+CDOnly <- ptdDataWide_1 %>%
+  filter(Site == "Connectivity Downstream") %>%
+  select(dateTime, USGSDischarge, USGSGageHeightFt, Water_Level_NoIce_ft, gageDif) %>%
+  mutate(Date = date(dateTime)) %>%
+  left_join(reconFlow1, by = "Date")
+##running off all calibration dates
+CDCalibrationDates <- calibrationDates %>%
+  filter(Site == "Connectivity Downstream")
+
+CD_list <- calibrationChunksDateFiltered(calibrationDates = CDCalibrationDates, siteOnlyData = CDOnly)
+
+#can pass named arguemnts after the function or use an anonymous function to be explicit like i did in red barn above
+allCDTransducerQAQC <- lapply(CD_list, pressureTransducerQAQCFunction, SiteName = "Connectivity Downstream", flowModel = TRUE)
+#allCDTransducerQAQC$Confluence_18$flowModelList$dailyFlowModelList$ggplotly
+#siteQAQCList <- allCDTransducerQAQC
+CDModelTableResults <- modelListData(allCDTransducerQAQC, flowModel = TRUE)
+
+CDModelTableResults2 <- CDModelTableResults %>%
+  filter(model_type %in% c("dailyFlowModelList", "allDataFlowModelList")) %>%
+  pivot_wider(id_cols = site_name, names_from = model_type, values_from = c("slope_val", "intercept_val"))
+
+# CU ----------------------------------------------------------------------
+
+
+CUOnly <- ptdDataWide_1 %>%
+  filter(Site == "Connectivity Upstream") %>%
+  select(dateTime, USGSDischarge, USGSGageHeightFt, Water_Level_NoIce_ft, gageDif) %>%
+  mutate(Date = date(dateTime)) %>%
+  left_join(reconFlow1, by = "Date")
+##running off all calibration dates
+CUCalibrationDates <- calibrationDates %>%
+  filter(Site == "Connectivity Upstream")
+
+CU_list <- calibrationChunksDateFiltered(calibrationDates = CUCalibrationDates, siteOnlyData = CUOnly)
+
+#can pass named arguemnts after the function or use an anonymous function to be explicit like i did in red barn above
+allCUTransducerQAQC <- lapply(CU_list, pressureTransducerQAQCFunction, SiteName = "Connectivity Upstream", flowModel = TRUE)
+#allCUTransducerQAQC$Confluence_18$flowModelList$dailyFlowModelList$ggplotly
+#siteQAQCList <- allCUTransducerQAQC
+CUModelTableResults <- modelListData(allCUTransducerQAQC, flowModel = TRUE)
+
+CUModelTableResults2 <- CUModelTableResults %>%
   filter(model_type %in% c("dailyFlowModelList", "allDataFlowModelList")) %>%
   pivot_wider(id_cols = site_name, names_from = model_type, values_from = c("slope_val", "intercept_val"))

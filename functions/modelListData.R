@@ -41,7 +41,7 @@ modelListData <- function(siteQAQCList, flowModel = FALSE){
     
     numObsRows <- nrow(site_data$USGSGageHeightList$subsetDataWithOutliersPredicted)
     numOutliersRows <- nrow(subset(site_data$USGSGageHeightList$subsetDataWithOutliersPredicted, is_outlier == TRUE))
-    numOutliersRows <- nrow(subset(x, is_outlier == TRUE))
+    #numOutliersRows <- nrow(subset(x, is_outlier == TRUE))
     
     outlierPercentageValue <- round((numOutliersRows/numObsRows)*100, 2)
     # Base Model Row
