@@ -384,3 +384,33 @@ plot <- seasonal_movts %>%
 ggplotly(plot) 
 ```
 
+### Tags Matching Timestamps and Antennas of Predated Tags
+```{r}
+allEventsAvianOnly<- combinedData_df_list$All_Events %>%
+  dplyr::filter(TAG %in% unique(indiv_datasets_list$avian_preddata$TagID) | Species %in% c("MERG")) 
+
+allEventsAvianExcluded <- combinedData_df_list$All_Events %>%
+  dplyr::filter(!TAG %in% unique(indiv_datasets_list$avian_preddata$TagID), 
+                !Species %in% c("MERG")) 
+
+fishNotInpredatedDF <- allEventsAvianExcluded %>%
+  filter(!Event %in% c("Release", "Recapture", "Recapture and Release", "M1", "M2") ) %>%
+  inner_join(allEventsAvianOnly, by = c("Datetime", "Event"))
+
+##### tags classifed as predated
+allEventsMergsOnly <- combinedData_df_list$All_Events %>%
+  dplyr::filter(Species %in% c("MERG")) 
+
+allEventsPredatedOnly <- combinedData_df_list$All_Events %>%
+  dplyr::filter(TAG %in% unique(indiv_datasets_list$avian_preddata$TagID))
+
+fishInPredatedDF <- allEventsMergsOnly %>%
+  filter(!Event %in% c("Release", "Recapture", "Recapture and Release", "M1", "M2") ) %>%
+  inner_join(allEventsPredatedOnly, by = c("Datetime", "Event"))
+
+#x <- indiv_datasets_list$avian_preddata
+#smoking guns
+230000226566
+230000294060
+```
+

@@ -52,7 +52,7 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
                                   ),
                                   selectInput(ns("variableSelect2"),
                                               label = "Variable to Plot",
-                                              choices = c(colnames(PTData$PTDataWide)[grepl("_", colnames(PTData$PTDataWide))], "USGSDischarge", "USGSWatertemp"),
+                                              choices = c(colnames(PTData$PTDataWide)[grepl("_", colnames(PTData$PTDataWide))], "USGSDischarge", "USGSWatertemp", "USGSGageHeightFt"),
                                               selected = colnames(PTData$PTDataWide)[grepl("_", colnames(PTData$PTDataWide))][1],
                                   ), 
                                   sliderInput(ns("dateSlider2"), "Date",
@@ -72,7 +72,8 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
                         radioButtons(ns("YaxisSelect2"), 
                                      "Primary Y Axis Data",
                                      choices = c("Movement Data", 
-                                                 "Environmental Data"),
+                                                 "Environmental Data", 
+                                                 "Both"),
                                      selected = "Movement Data")
                     )
           )
@@ -93,14 +94,14 @@ PT_UI <- function(id, PTData, Movements_df, WGFPSiteVisitsFieldData) {
                               ), 
                               selectInput(ns("variableSelectX"),
                                           label = "X Axis Variable",
-                                          choices = c(colnames(PTData$PTDataWide)[grepl("_", colnames(PTData$PTDataWide))], "USGSDischarge", "USGSWatertemp"),
+                                          choices = c(colnames(PTData$PTDataWide)[grepl("_", colnames(PTData$PTDataWide))], "USGSDischarge", "USGSWatertemp", "USGSGageHeightFt"),
                                           selected = colnames(PTData$PTDataWide)[grepl("_", colnames(PTData$PTDataWide))][1],
                               ), 
                               
                               
                               selectInput(ns("variableSelectY"),
                                           label = "Y Axis Variable",
-                                          choices = c(colnames(PTData$PTDataWide)[grepl("_", colnames(PTData$PTDataWide))], "USGSDischarge", "USGSWatertemp"),
+                                          choices = c(colnames(PTData$PTDataWide)[grepl("_", colnames(PTData$PTDataWide))], "USGSDischarge", "USGSWatertemp", "USGSGageHeightFt"),
                                           selected = colnames(PTData$PTDataWide)[grepl("_", colnames(PTData$PTDataWide))][2],
                               ),
                               sliderInput(ns("dateSlider3"), "Date",
@@ -234,14 +235,11 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
             radioButtons(ns("primaryYAxis"),
                          "Primary Y Axis Data",
                          choices = c("Pressure Transducer Data", 
-                                     "USGS Data"),
+                                     "USGS Data", 
+                                     "Both"),
                          selected = selectedYaxisChoice)
           )
         })
-        
-      
-      
-      
       
       filteredDischargeData <- reactive({
         filteredDischargeData <- USGSData$USGS15Min %>%
@@ -268,52 +266,59 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
         } else {
           
           req(input$primaryYAxis)
+          
           if (input$primaryYAxis == "Pressure Transducer Data") {
+            PTdataAxis = "y1"
+            usgsYaxis = "y2"
+            primaryYaxisName = filteredPTData$Variable
+            SecondaryYaxisName = input$USGSOverlaySelect
             
-            plot_ly() %>%
-              add_trace(data = filteredPTData$filteredPTData(), x = ~dateTime, y = ~Reading, 
-                        color = ~Site,
-                        colors = allColors,
-                        mode = "lines", 
-                        type = "scatter", 
-                        connectgaps = TRUE,
-                        #marker = list(size = 5, opacity = 0.6),
-                        yaxis = "y1") %>%
-              add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~.data[[input$USGSOverlaySelect]],
-                        #these gaps don't need to be connected becuase there is more consistent gaps in the data: ie no reading between december and march
-                        connectgaps = FALSE,
-                        color = I("#87CEEB"),
-                        name = case_when(input$USGSOverlaySelect == "USGSDischarge" ~ "USGS Discharge", 
-                                         input$USGSOverlaySelect == "USGSWatertemp" ~ "USGS Water Temp (F)"),
-                        yaxis = "y2") %>%
-              layout(legend = list(x = 1.05, y = 1),
-                     xaxis = list(title = "Date"),
-                     yaxis = list(title = filteredPTData$Variable, side = "left", showgrid = FALSE),
-                     yaxis2 = list(title = input$USGSOverlaySelect, side = "right", overlaying = "y",
-                                   showgrid = FALSE))
+              
           } else if(input$primaryYAxis == "USGS Data") {
-            plot_ly() %>%
-              add_trace(data = filteredPTData$filteredPTData(), x = ~dateTime, y = ~Reading, 
-                        color = ~Site,
-                        colors = allColors,
-                        mode = "lines", 
-                        type = "scatter", 
-                        connectgaps = TRUE,
-                        yaxis = "y2") %>%
-              add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~.data[[input$USGSOverlaySelect]],
-                        connectgaps = FALSE,
-                        color = I("#87CEEB"),
-                        name = case_when(input$USGSOverlaySelect == "USGSDischarge" ~ "USGS Discharge", 
-                                         input$USGSOverlaySelect == "USGSWatertemp" ~ "USGS Water Temp (F)"),
-                        yaxis = "y1") %>%
+            PTdataAxis = "y2"
+            usgsYaxis = "y1"
+            primaryYaxisName = input$USGSOverlaySelect
+            SecondaryYaxisName = filteredPTData$Variable
+              
+          } else {
+            PTdataAxis = "y1"
+            usgsYaxis = "y1"
+            primaryYaxisName =  paste0(filteredPTData$Variable, "and ", input$USGSOverlaySelect)
+          }
+          
+          timeSeriesPlot <- plot_ly() %>%
+            add_trace(data = filteredPTData$filteredPTData(), x = ~dateTime, y = ~Reading, 
+                      color = ~Site,
+                      colors = allColors,
+                      mode = "lines", 
+                      type = "scatter", 
+                      connectgaps = TRUE,
+                      #marker = list(size = 5, opacity = 0.6),
+                      yaxis = PTdataAxis) %>%
+            add_lines(data = filteredDischargeData(), x = ~dateTime, y = ~.data[[input$USGSOverlaySelect]],
+                      #these gaps don't need to be connected becuase there is more consistent gaps in the data: ie no reading between december and march
+                      connectgaps = FALSE,
+                      color = I("#87CEEB"),
+                      name = case_when(input$USGSOverlaySelect == "USGSDischarge" ~ "USGS Discharge", 
+                                       input$USGSOverlaySelect == "USGSWatertemp" ~ "USGS Water Temp (F)", 
+                                       input$USGSOverlaySelect == "USGSGageHeightFt" ~ "USGS Gage Height (ft)"),
+                      yaxis = usgsYaxis)
+          
+          if(input$primaryYAxis != "Both") {
+            timeSeriesPlot <- timeSeriesPlot %>%
               layout(legend = list(x = 1.05, y = 1),
                      xaxis = list(title = "Date"),
-                     yaxis = list(title = case_when(input$USGSOverlaySelect == "USGSDischarge" ~ "USGS Discharge", 
-                                                    input$USGSOverlaySelect == "USGSWatertemp" ~ "USGS Water Temp (F)"),
-                                  side = "left", showgrid = FALSE),
-                     yaxis2 = list(title = filteredPTData$Variable, side = "right", overlaying = "y",
+                     yaxis = list(title = primaryYaxisName, side = "left", showgrid = FALSE),
+                     yaxis2 = list(title = SecondaryYaxisName, side = "right", overlaying = "y",
                                    showgrid = FALSE))
+          } else{
+            timeSeriesPlot <- timeSeriesPlot %>%
+              layout(legend = list(x = 1.05, y = 1),
+                     xaxis = list(title = "Date"),
+                     yaxis = list(title = primaryYaxisName, side = "left", showgrid = FALSE))
           }
+          timeSeriesPlot
+
         }
       })
       
@@ -324,7 +329,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       
       observeEvent(input$variableSelect2, {
         
-        if(input$variableSelect2 %in% c("USGSDischarge", "USGSWatertemp")){
+        if(input$variableSelect2 %in% c("USGSDischarge", "USGSWatertemp", "USGSGageHeightFt")){
           updatePickerInput(session, "sitePicker2", choices = character(0))
         } else{
           updatePickerInput(session, "sitePicker2", 
@@ -337,7 +342,7 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       
       filteredPTData2 <- reactive({
         
-        if(!input$variableSelect2 %in% c("USGSDischarge", "USGSWatertemp")){
+        if(!input$variableSelect2 %in% c("USGSDischarge", "USGSWatertemp", "USGSGageHeightFt")){
           validate(
             need(input$sitePicker2, "Please select a site to display")
           )
@@ -363,7 +368,9 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
         } else{
           filteredData <- USGSData$USGSDaily %>%
             rename(dailyAverage = case_when(input$variableSelect2 == "USGSDischarge" ~ "Flow", 
-                                            input$variableSelect2 == "USGSWatertemp" ~ "WtempF")) %>%
+                                            input$variableSelect2 == "USGSWatertemp" ~ "WtempF", 
+                                            input$variableSelect2 == "USGSGageHeightFt" ~ "avgDailyGageHeight"
+                                            )) %>%
             dplyr::filter(lubridate::date(Date) >= input$dateSlider2[1] & lubridate::date(Date) <= input$dateSlider2[2])
         }
         
@@ -389,13 +396,14 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
       
       output$OverlayPlot <- renderPlotly({
         
-        if(!input$variableSelect2 %in% c("USGSDischarge", "USGSWatertemp")){
+        if(!input$variableSelect2 %in% c("USGSDischarge", "USGSWatertemp", "USGSGageHeightFt")){
           line_color = ~Site
           nameOfLine = ~Site
         } else{
           line_color = I("#87CEEB")
           nameOfLine = case_when(input$variableSelect2 == "USGSDischarge" ~ "USGS Discharge", 
-                                 input$variableSelect2 == "USGSWatertemp" ~ "USGS Water Temp (F)")
+                                 input$variableSelect2 == "USGSWatertemp" ~ "USGS Water Temp (F)", 
+                                 input$variableSelect2 == "USGSGageHeightFt" ~ "USGS Gage Height (ft)")
         }
         
         if(input$YaxisSelect2 == "Movement Data"){
@@ -404,14 +412,20 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
           primaryYaxisName = "Movement Data (Daily Counts)"
           SecondaryYaxisName = input$variableSelect2
           
-        } else{
+        } else if(input$YaxisSelect2 == "Environmental Data"){
           movYaxis = "y2"
           envYaxis = "y1"
           primaryYaxisName = input$variableSelect2
           SecondaryYaxisName = "Movement Data (Daily Counts)"
+        } else{
+          
+            movYaxis = "y1"
+            envYaxis = "y1"
+            primaryYaxisName =  paste0("Movement Data (Daily Counts) and ", input$variableSelect2)
+
         }
         
-        plot_ly() %>%
+        envMovementsOverlayPlot <- plot_ly() %>%
           add_trace(data = filteredPTData2(), x = ~Date,
                     y = ~dailyAverage,
                     name = nameOfLine,
@@ -428,13 +442,29 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
                     colors = allColors,
                     hoverinfo = "text",
                     text = ~paste('Date: ', as.character(Date), '<br>Number of Activities: ', numberOfActivities),
-                    type = 'bar') %>%
-          layout(legend = list(x = 1.05, y = 1),
-                 barmode = "overlay",
-                 xaxis = list(title = "Date"),
-                 yaxis = list(title = primaryYaxisName, side = "left", showgrid = FALSE),
-                 yaxis2 = list(title = SecondaryYaxisName, side = "right", overlaying = "y",
-                               showgrid = FALSE))
+                    type = 'bar') 
+        
+        if(input$YaxisSelect3 != "Both") {
+          envMovementsOverlayPlot <- envMovementsOverlayPlot %>%
+            layout(legend = list(x = 1.05, y = 1),
+                   barmode = "overlay",
+                   title = paste("Detection Distances and", input$variableSelect2), 
+                   xaxis = list(title = "Date"),
+                   yaxis = list(title = primaryYaxisName, side = "left", showgrid = FALSE), 
+                   yaxis2 = list(title = SecondaryYaxisName, side = "right", overlaying = "y", 
+                                 showgrid = FALSE)
+            )
+        } else {
+          envMovementsOverlayPlot <- envMovementsOverlayPlot %>%
+            layout(legend = list(x = 1.05, y = 1),
+                   barmode = "overlay",
+                   title = paste("Detection Distances and", input$variableSelect2), 
+                   xaxis = list(title = "Date"),
+                   yaxis = list(title = primaryYaxisName, side = "left", showgrid = FALSE)
+            )
+        }
+        envMovementsOverlayPlot
+
       })
       
 
@@ -555,14 +585,15 @@ PT_Server <- function(id, PTData, Movements_df, USGSData, WGFPSiteVisitsFieldDat
           primaryYaxisName =  paste(AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable, "and", input$variableSelect3)
         }
           
-        
-        if(!AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable %in% c("USGSDischarge", "USGSWatertemp")){
+        if(!AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable %in% c("USGSDischarge", "USGSWatertemp", "USGSGageHeightFt")){
           line_color = ~Site
           nameOfLine = ~paste0(AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable, ": ", Site)
         } else{
           line_color = I("#87CEEB")
           nameOfLine = case_when(AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable == "USGSDischarge" ~ "USGS Discharge", 
-                                 AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable == "USGSWatertemp" ~ "USGS Water Temp (F)")
+                                 AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable == "USGSWatertemp" ~ "USGS Water Temp (F)", 
+                                 AllfilteredDetectionDistanceData()$filteredPTForDetectionDistance$Variable == "USGSGageHeightFt" ~ "USGS Gage Height (ft)" 
+                                 )
         }
         
         ddEnvOverlayGraph <- plot_ly() %>%

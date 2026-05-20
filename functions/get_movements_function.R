@@ -67,7 +67,7 @@ get_movements_function <- function(combined_events_stations, dailyUSGSData, even
   
   ##add on environmental Data
   dailyMovementsTable <- dailyMovementsTable %>%
-    left_join(dailyUSGSData[,c("Date", "WtempF", "Flow")], by = "Date") %>%
+    left_join(dailyUSGSData[,c("Date", "WtempF", "Flow", "avgDailyGageHeight")], by = "Date") %>%
     rename(USGSDischargeDaily = Flow)
 
   #avian Predation
@@ -120,7 +120,7 @@ get_movements_function <- function(combined_events_stations, dailyUSGSData, even
     left_join(tagsEventsLongwithTpDates, by = c("TAG", "Datetime", "Event")) %>%
     select(Date, Datetime, TAG, movement_only, det_type, dist_moved, MPerSecondBetweenDetections, sum_dist, 
            ET_STATION, Species, Release_Length, Release_Weight, ReleaseSite, Release_Date, RecaptureSite, River, 
-           USGSDischargeDaily, WtempF, UTM_X, UTM_Y, X, Y, marker_color, icon_color, TimePeriod, TimePeriodDates, State)
+           USGSDischargeDaily, WtempF, avgDailyGageHeight, UTM_X, UTM_Y, X, Y, marker_color, icon_color, TimePeriod, TimePeriodDates, State)
   
   end_time <- Sys.time()
   endMessage <- paste("Movements Function took", round(difftime(end_time, start_time, units = "mins"),2), "minutes")

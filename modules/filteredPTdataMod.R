@@ -3,7 +3,7 @@ filteredPTData_UI <- function(id, PTDataLong, includeUSGS = TRUE) {
   
   if(!includeUSGS){
     PTDataLong <- PTDataLong %>%
-      filter(!EnvVariable %in% c("USGSDischarge", "USGSWatertemp"))
+      filter(!EnvVariable %in% c("USGSDischarge", "USGSWatertemp", "USGSGageHeightFt"))
   }
   
   tagList(
@@ -42,9 +42,9 @@ filteredPTData_Server <- function(id, PTDataLong, needValidation = TRUE) {
         # Capture current selected sites without triggering reactive dependencies
         currentSelectedSites <- isolate(input$sitePicker)
         
-        # If the selected variable is either "USGSDischarge" or "USGSWatertemp",
+        # If the selected variable is either "USGSDischarge" or "USGSWatertemp" or USGSGageHeightFt,
         # clear the site picker because these variables do not require site selection
-        if (input$variableSelect %in% c("USGSDischarge", "USGSWatertemp")) {
+        if (input$variableSelect %in% c("USGSDischarge", "USGSWatertemp", "USGSGageHeightFt")) {
           updatePickerInput(session, "sitePicker", choices = character(0), selected = character(0))
         } else {
           # For other variables, update the picker input with available sites
@@ -79,7 +79,7 @@ filteredPTData_Server <- function(id, PTDataLong, needValidation = TRUE) {
                         EnvVariable %in% input$variableSelect,
                         lubridate::date(dateTime) >= input$dateSlider[1] & lubridate::date(dateTime) <= input$dateSlider[2]
           )
-        if(!input$variableSelect %in% c("USGSDischarge", "USGSWatertemp")){
+        if(!input$variableSelect %in% c("USGSDischarge", "USGSWatertemp", "USGSGageHeightFt")){
           req(input$sitePicker)
           
           #complete sequence so lines don't connect in plotly
