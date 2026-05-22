@@ -338,13 +338,13 @@ GhostTags <- GhostTags %>%
 ######################## DATA WRANGLING/COMBINING
 
 #putting detection data into a function that cleans and readies data for wrangling, display, filtering, mapping, plotting
-AllCombinedEvents <- All_combined_events_function(Stationary = Stationary_withUTMSDSTCorrected, Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures, 
-                                                  allPressureTransducerDataWithDischarge = allPressureTransducerDataWithDischarge, windyGapContinuous = windyGapRenamed)
-# x <- AllCombinedEvents$df_list$All_Events
-# nrow(x) == nrow(DSTCorrectedData)
-#DSTCorrectedData <- x
+AllCombinedEvents <- All_combined_events_function(Stationary = Stationary_withUTMSDSTCorrected, 
+                                                  Mobile = Mobile, Release = Release, Biomark = Biomark, Recaptures = Recaptures, 
+                                                  allPressureTransducerDataWithDischarge = allPressureTransducerDataWithDischarge, 
+                                                  windyGapContinuous = windyGapRenamed)
+
 Cleaned_Stationary_FishdetectionsOnly <- Stationary_withUTMSDSTCorrected %>%
-  select(DTY_corrected, ARR_corrected, TAG, SCD, UTM_X, UTM_Y) %>%
+  select(DTY_DSTcorrected, ARR_DSTcorrected, TAG, SCD, UTM_X, UTM_Y) %>%
   filter(grepl("^230|^226", TAG))
 
 
@@ -369,9 +369,6 @@ enc_hist_wide_df <- enc_hist_wide_list$enc_wide_list$encountersAndRelease_wide_s
 
 # applies get_movements_function
 Movements_list <- get_movements_function(combined_events_stations, dailyUSGSData = windyGapDaily, eventsWithPeriodsSelect = encounterMARKStates$eventsWithPeriodsSelectForMovementJoining, wgfpMetadata$TimePeriods)
-#x <- Movements_list$dailyMovementsTable1
-
-
 
 # ### Avian Predation: grouping together different methods of finding avian predated fish
 avianPredationList <- avianPredationListFunction(All_Events = AllCombinedEvents$df_list$All_Events, 
