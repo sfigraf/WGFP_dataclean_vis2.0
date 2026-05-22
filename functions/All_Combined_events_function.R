@@ -35,8 +35,8 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   
   ###Create one big clean dataset
   condensedWGFP <- Stationary %>%
-    select(DTY, ARR, TAG, SCD, UTM_X, UTM_Y) %>%
-    rename(Scan_Date = DTY, Scan_Time = ARR, Site_Code = SCD, UTM_X = UTM_X, UTM_Y = UTM_Y)
+    select(DTY_corrected, ARR_corrected, TAG, SCD, UTM_X, UTM_Y) %>%
+    rename(Scan_Date = DTY_corrected, Scan_Time = ARR_corrected, Site_Code = SCD, UTM_X = UTM_X, UTM_Y = UTM_Y)
   
   
   condensedBiomark <- biomarkCleaned %>%
