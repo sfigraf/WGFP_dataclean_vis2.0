@@ -4317,3 +4317,9 @@ allEventsAvianExcluded <- combinedData_df_list$All_Events %>%
 equals <- allEventsAvianExcluded %>%
   filter(!Event %in% c("Release", "Recapture", "Recapture and Release", "M1", "M2") ) %>%
   inner_join(allEventsAvianOnly, by = "Datetime")
+
+
+###########3
+# ONE TIME DALYLIGHT SAVIGNGS STATIONARY CORRECTION
+Stationary <- readRDS("./data/WGFP_Stationary_Raw_20260507.rds")
+utmsStationary <- addUTMsAndReformatStationary(Stationary = Stationary)
