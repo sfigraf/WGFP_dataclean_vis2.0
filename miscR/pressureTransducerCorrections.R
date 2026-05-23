@@ -127,6 +127,69 @@ library(tidyverse)
 
 redBarnModelTableResults <- modelListData(allRBTransducerQAQC)
 
+redBarnModelTableResultsBaseModelOnly <- redBarnModelTableResults %>%
+  filter(model_type == "baseModelList")
+#baseline to calibrate the rest of th edata to
+baseline_slope <- redBarnModelTableResultsBaseModelOnly$slope_val[redBarnModelTableResultsBaseModelOnly$site_name == "Red Barn_1"]
+baseline_intercept <- redBarnModelTableResultsBaseModelOnly$intercept_val[redBarnModelTableResultsBaseModelOnly$site_name == "Red Barn_1"]
+
+
+rbOnlyWithChunksInfo <- rbOnly %>%
+  # Join based on matching site AND the datetime falling within the date range
+  left_join(
+    redBarnModelTableResultsBaseModelOnly, 
+    by = join_by(
+      #site_name == site_name,
+      dateTime >= DataCalStart,
+      dateTime <= DataCalEnd
+    )
+  ) 
+
+rbOnlyCorrected <- rbOnlyWithChunksInfo %>%
+  mutate(
+    normalizedWaterLevelBySlopeNormalized = baseline_slope * ((Water_Level_NoIce_ft - intercept_val) / slope_val) + baseline_intercept, 
+    normalizedWaterLevelByOffset = Water_Level_NoIce_ft - intercept_val + baseline_intercept
+  )
+plotReady <- rbOnlyCorrected %>%
+  select(dateTime, 
+         USGSGageHeightFt,
+         Water_Level_NoIce_ft, 
+         normalizedWaterLevelBySlopeNormalized, 
+         normalizedWaterLevelByOffset) %>%
+  pivot_longer(
+    cols = -dateTime, # Pivot everything EXCEPT the datetime column
+    names_to = "Normalization_Method",
+    values_to = "Water_Level"
+  )
+
+# 2. Build the Scatterplot
+plot <- plotReady %>%
+  ggplot(aes(x = dateTime, y = Water_Level, color = Normalization_Method)) +
+  geom_point(alpha = 0.5, size = 1) + # alpha = 0.5 makes points slightly transparent so you can see overlap
+  theme_minimal() +
+  scale_color_manual(
+    values = c(
+      "Water_Level_NoIce_ft" = "gray60",                     # Raw data in gray
+      "USGSGageHeightFt" = "cyan",
+      "normalizedWaterLevelBySlopeNormalized" = "blue",      # Option B in blue
+      "normalizedWaterLevelByOffset" = "red"                 # Option A in red
+    ),
+    labels = c(
+      "Raw Data (NoIce)", 
+      "USGS Hitching Post Gage",
+      "Slope & Offset Correction",
+      "Offset Correction Only"
+    )
+  ) +
+  labs(
+    title = "Comparison of Normalization Methods Over Time",
+    x = "Date",
+    y = "Water Level (ft)",
+    color = "Legend"
+  ) +
+  theme(legend.position = "bottom", legend.direction = "vertical")
+
+ggplotly(plot)
 # print(final_table)
 # write_csv(final_table, "firstModelResultsNoOutliersRedBarn.csv")
 # rbOnly2022 <- rbOnly %>%
