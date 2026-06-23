@@ -62,6 +62,7 @@ if(!exists("avianPredationList")){
   avianPredationList <- readRDS("data/flatFilesforApp/possibleAvianPredationDFs.rds")
 }
 
+
 if(!exists("wgfpMetadata")){
   wgfpMetadata <- readRDS("data/flatFilesforApp/wgfpMetadata.rds")
 }

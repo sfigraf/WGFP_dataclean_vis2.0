@@ -190,6 +190,195 @@ plot <- plotReady %>%
   theme(legend.position = "bottom", legend.direction = "vertical")
 
 ggplotly(plot)
+
+plotReady2020 <- plotReady %>%
+  filter(year(dateTime) == 2020)
+
+plot <- plotReady2020 %>%
+  ggplot(aes(x = dateTime, y = Water_Level, color = Normalization_Method)) +
+  geom_point(alpha = 0.5, size = 1) + # alpha = 0.5 makes points slightly transparent so you can see overlap
+  theme_minimal() +
+  scale_color_manual(
+    values = c(
+      "Water_Level_NoIce_ft" = "gray60",                     # Raw data in gray
+      "USGSGageHeightFt" = "cyan",
+      "normalizedWaterLevelBySlopeNormalized" = "blue",      # Option B in blue
+      "normalizedWaterLevelByOffset" = "red"                 # Option A in red
+    ),
+    labels = c(
+      "Raw Data (NoIce)", 
+      "USGS Hitching Post Gage",
+      "Slope & Offset Correction",
+      "Offset Correction Only"
+    )
+  ) +
+  labs(
+    title = "Comparison of Normalization Methods Over Time",
+    x = "Date",
+    y = "Water Level (ft)",
+    color = "Legend"
+  ) +
+  theme(legend.position = "bottom", legend.direction = "vertical")
+
+ggplotly(plot)
+
+plotReady2021 <- plotReady %>%
+  filter(year(dateTime) == 2021)
+
+plot <- plotReady2021 %>%
+  ggplot(aes(x = dateTime, y = Water_Level, color = Normalization_Method)) +
+  geom_point(alpha = 0.5, size = 1) + # alpha = 0.5 makes points slightly transparent so you can see overlap
+  theme_minimal() +
+  scale_color_manual(
+    values = c(
+      "Water_Level_NoIce_ft" = "gray60",                     # Raw data in gray
+      "USGSGageHeightFt" = "cyan",
+      "normalizedWaterLevelBySlopeNormalized" = "blue",      # Option B in blue
+      "normalizedWaterLevelByOffset" = "red"                 # Option A in red
+    ),
+    labels = c(
+      "Raw Data (NoIce)", 
+      "USGS Hitching Post Gage",
+      "Slope & Offset Correction",
+      "Offset Correction Only"
+    )
+  ) +
+  labs(
+    title = "Comparison of Normalization Methods: 2021",
+    x = "Date",
+    y = "Water Level (ft)",
+    color = "Legend"
+  ) +
+  theme(legend.position = "bottom", legend.direction = "vertical")
+
+ggplotly(plot)
+#######2022
+
+plotReady2022 <- plotReady %>%
+  filter(year(dateTime) == 2022)
+plot <- plotReady2022 %>%
+  ggplot(aes(x = dateTime, y = Water_Level, color = Normalization_Method)) +
+  geom_point(alpha = 0.5, size = 1) + # alpha = 0.5 makes points slightly transparent so you can see overlap
+  theme_minimal() +
+  scale_color_manual(
+    values = c(
+      "Water_Level_NoIce_ft" = "gray60",                     # Raw data in gray
+      "USGSGageHeightFt" = "cyan",
+      "normalizedWaterLevelBySlopeNormalized" = "blue",      # Option B in blue
+      "normalizedWaterLevelByOffset" = "red"                 # Option A in red
+    ),
+    labels = c(
+      "Raw Data (NoIce)", 
+      "USGS Hitching Post Gage",
+      "Slope & Offset Correction",
+      "Offset Correction Only"
+    )
+  ) +
+  labs(
+    title = "Comparison of Normalization Methods Over Time",
+    x = "Date",
+    y = "Water Level (ft)",
+    color = "Legend"
+  ) +
+  theme(legend.position = "bottom", legend.direction = "vertical")
+
+ggplotly(plot)
+#######2023
+plotReady2023 <- plotReady %>%
+  filter(year(dateTime) == 2023)
+
+plot <- plotReady2023 %>%
+  ggplot(aes(x = dateTime, y = Water_Level, color = Normalization_Method)) +
+  geom_point(alpha = 0.5, size = 1) + # alpha = 0.5 makes points slightly transparent so you can see overlap
+  theme_minimal() +
+  scale_color_manual(
+    values = c(
+      "Water_Level_NoIce_ft" = "gray60",                     # Raw data in gray
+      "USGSGageHeightFt" = "cyan",
+      "normalizedWaterLevelBySlopeNormalized" = "blue",      # Option B in blue
+      "normalizedWaterLevelByOffset" = "red"                 # Option A in red
+    ),
+    labels = c(
+      "Raw Data (NoIce)", 
+      "USGS Hitching Post Gage",
+      "Slope & Offset Correction",
+      "Offset Correction Only"
+    )
+  ) +
+  labs(
+    title = "Comparison of Normalization Methods Over Time",
+    x = "Date",
+    y = "Water Level (ft)",
+    color = "Legend"
+  ) +
+  theme(legend.position = "bottom", legend.direction = "vertical")
+
+ggplotly(plot)
+####### 2024
+plotReady2024 <- plotReady %>%
+  filter(year(dateTime) == 2024)
+
+plot <- plotReady2024 %>%
+  ggplot(aes(x = dateTime, y = Water_Level, color = Normalization_Method)) +
+  geom_point(alpha = 0.5, size = 1) + # alpha = 0.5 makes points slightly transparent so you can see overlap
+  theme_minimal() +
+  scale_color_manual(
+    values = c(
+      "Water_Level_NoIce_ft" = "gray60",                     # Raw data in gray
+      "USGSGageHeightFt" = "cyan",
+      "normalizedWaterLevelBySlopeNormalized" = "blue",      # Option B in blue
+      "normalizedWaterLevelByOffset" = "red"                 # Option A in red
+    ),
+    labels = c(
+      "Raw Data (NoIce)", 
+      "USGS Hitching Post Gage",
+      "Slope & Offset Correction",
+      "Offset Correction Only"
+    )
+  ) +
+  labs(
+    title = "Comparison of Normalization Methods Over Time",
+    x = "Date",
+    y = "Water Level (ft)",
+    color = "Legend"
+  ) +
+  theme(legend.position = "bottom", legend.direction = "vertical")
+
+ggplotly(plot)
+
+plotReady2025 <- plotReady %>%
+  filter(year(dateTime) == 2025)
+
+plot <- plotReady2025 %>%
+  ggplot(aes(x = dateTime, y = Water_Level, color = Normalization_Method)) +
+  geom_point(alpha = 0.5, size = 1) + # alpha = 0.5 makes points slightly transparent so you can see overlap
+  theme_minimal() +
+  scale_color_manual(
+    values = c(
+      "Water_Level_NoIce_ft" = "gray60",                     # Raw data in gray
+      "USGSGageHeightFt" = "cyan",
+      "normalizedWaterLevelBySlopeNormalized" = "blue",      # Option B in blue
+      "normalizedWaterLevelByOffset" = "red"                 # Option A in red
+    ),
+    labels = c(
+      "Raw Data (NoIce)", 
+      "USGS Hitching Post Gage",
+      "Slope & Offset Correction",
+      "Offset Correction Only"
+    )
+  ) +
+  labs(
+    title = "Comparison of Normalization Methods Over Time",
+    x = "Date",
+    y = "Water Level (ft)",
+    color = "Legend"
+  ) +
+  theme(legend.position = "bottom", legend.direction = "vertical")
+
+ggplotly(plot)
+
+plotReady2020 <- plotReady %>%
+  filter(year(dateTime) == 2020)
 # print(final_table)
 # write_csv(final_table, "firstModelResultsNoOutliersRedBarn.csv")
 # rbOnly2022 <- rbOnly %>%

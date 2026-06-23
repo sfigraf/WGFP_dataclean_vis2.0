@@ -18832,7 +18832,7 @@ Colorado River Connectivity Channel,CRCC Above CU Antenna,4/27/2026,12:15:00,416
 Colorado River Connectivity Channel,CRCC Above CU Antenna,4/27/2026,12:15:00,416756,4439475,LOC,208,99,HA,230000226421,,32,Handheld,Release,adp,0,
 Colorado River Connectivity Channel,CRCC Above CU Antenna,4/27/2026,12:15:00,416756,4439475,LOC,299,246,HA,230000226449,,32,Handheld,Release,adp,0,
 Colorado River Connectivity Channel,CRCC Above CU Antenna,4/27/2026,12:15:00,416756,4439475,RBT,307,289,HA,230000226422,pass,32,Handheld,Release,adp,0,
-Colorado River Connectivity Channel,CRCC Above CU Antenna,4/27/2026,12:15:00,416756,4439475,LOC,341,386,HA,2.3E+11,,32,Handheld,Release,adp,0,
+Colorado River Connectivity Channel,CRCC Above CU Antenna,4/27/2026,12:15:00,416756,4439475,LOC,341,386,HA,230000226450,,32,Handheld,Release,adp,0,
 Colorado River Connectivity Channel,CRCC Above CU Antenna,4/27/2026,12:15:00,416756,4439475,LOC,213,110,HA,230000226423,,32,Handheld,Release,adp,0,
 Colorado River Connectivity Channel,CRCC Above CU Antenna,4/27/2026,12:15:00,416756,4439475,LOC,309,313,HA,230000226451,,32,Handheld,Release,adp,0,
 Colorado River Connectivity Channel,CRCC Above CU Antenna,4/27/2026,12:15:00,416756,4439475,LOC,505,1262,HA,230000226424,,32,Handheld,Release,adp,0,
@@ -19271,7 +19271,7 @@ Colorado River Connectivity Channel,CRCC Lower CRCC Below Dam,4/29/2026,13:15:00
 Colorado River Connectivity Channel,CRCC Lower CRCC Below Dam,4/29/2026,13:15:00,416212,4439774,LOC,293,235,HA,230000294590,,32,Handheld,Release,adp,0,
 Colorado River Connectivity Channel,CRCC Lower CRCC Below Dam,4/29/2026,13:15:00,416212,4439774,LOC,210,73,HA,230000294602,pass,32,Handheld,Release,adp,0,
 Colorado River Connectivity Channel,CRCC Lower CRCC Below Dam,4/29/2026,13:15:00,416212,4439774,RBT,349,408,HA,230000294601,,32,Handheld,Release,adp,0,
-Colorado River Connectivity Channel,CRCC Lower CRCC Below Dam,4/29/2026,13:15:00,416212,4439774,LOC,283,490,HA,230000294589,,32,Handheld,Release,adp,0,
+Colorado River Connectivity Channel,CRCC Lower CRCC Below Dam,4/29/2026,13:15:00,416212,4439774,LOC,283,190,HA,230000294589,,32,Handheld,Release,adp,0,"corrected on QAQC by Fetherman, emailed 5/27/26"
 Colorado River Connectivity Channel,CRCC Lower CRCC Below Dam,4/29/2026,13:15:00,416212,4439774,RBT,136,27,HA,230000294600,,32,Handheld,Release,adp,0,
 Colorado River Connectivity Channel,CRCC Above CD Antenna,4/29/2026,13:30:00,415803,4439872,RBT,336,364,HA,230000294588,,32,Handheld,Release,adp,0,
 Colorado River Connectivity Channel,CRCC Above CD Antenna,4/29/2026,13:30:00,415803,4439872,RBT,422,744,HA,230000294587,,32,Handheld,Recapture and Release,adp,0,TLNT
