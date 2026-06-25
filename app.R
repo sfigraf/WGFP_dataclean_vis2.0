@@ -286,7 +286,7 @@ server <- function(input, output, session) {
       
       PT_Server("PTtab1", PTData, movements_list$Movements_df, USGSData, SiteVisitData$WGFP_SiteVisits_FieldData, allColors)
       
-      growthRates_Server("growthRatestab", combinedData_df_list, allColors)
+      growthRates_Server("growthRatestab", indiv_datasets_list = indiv_datasets_list, allColors)
    
       QAQC_Server("QAQCTab1", indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
                   unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate, avianPredationList,

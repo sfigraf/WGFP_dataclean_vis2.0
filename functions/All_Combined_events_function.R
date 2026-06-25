@@ -172,8 +172,6 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
     arrange(Datetime) 
   
   ####QAQC Stuff
-  ###get growth rates for QAQC tab
-  growthRates <- getGrowthRates(Release = Release, Recaptures = Recaptures)
   
   ###tags released after detections
   
@@ -194,8 +192,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   
   QAQCtables <- list("tagsWithMoreThan1Release" = tagsWithMoreThan1Release,
                      "detectionsBeforeReleaseEvent" = dataBeforeRelease,
-                     "tagsWithMoreThan1Species" = tagsWithMoreThan1Species,
-                     "growthRates" = growthRates)
+                     "tagsWithMoreThan1Species" = tagsWithMoreThan1Species)
 
   df_list <- list("All_Detections" = cleanedAllDetections, 
                   "All_Events_most_relevant" = allEventsRelevantToStations,

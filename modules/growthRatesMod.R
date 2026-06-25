@@ -12,13 +12,24 @@ growthRates_UI <- function(id) {
   )
 }
 
-growthRates_Server <- function(id, combinedData_df_list, allColors) {
+growthRates_Server <- function(id, indiv_datasets_list = indiv_datasets_list, allColors = allColors) {
   moduleServer(
     id,
     function(input, output, session) {
       
+      ###get growth rates for QAQC tab
+      growthRates <- reactive({
+        # print("gets here")
+        # req(indiv_datasets_list$releasedata)
+        # req(indiv_datasets_list$recapdata)
+        return(getGrowthRates(Release = indiv_datasets_list$releasedata, Recaptures = indiv_datasets_list$recapdata))
+        #print("gorth rates calculated")
+      })
+      
+      
       output$growthRatesPlot <- renderPlotly({
-        combinedData_df_list$QAQCtables$growthRates %>%
+        
+        growthRates() %>%
           ggplot(aes(x = `Length Growth Rate mm per Year`, y = `Weight Growth Rate g per Year`, color = Species, text = TagID)) +
           geom_point() + 
           theme_classic() +
@@ -27,7 +38,7 @@ growthRates_Server <- function(id, combinedData_df_list, allColors) {
       })
       
       output$growthRatesSummarizedTable <- renderDT({
-        dataSummarized <- combinedData_df_list$QAQCtables$growthRates %>%
+        dataSummarized <- growthRates() %>%
           mutate(Species = str_trim(Species)) %>%
           dplyr::group_by(Species) %>%
           dplyr::summarise(`Median Length Growth Rate (g per year)` = round(median(`Length Growth Rate mm per Year`, na.rm = TRUE), 2), 

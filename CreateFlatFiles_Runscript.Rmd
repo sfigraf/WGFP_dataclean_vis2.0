@@ -130,13 +130,8 @@ windyGapDaily <- windyGapDaily %>%
 
 windyGapDaily <- windyGapDaily %>%
   mutate(WtempF = (tempC * 9/5) + 32)
+
 #sometimes this can fail if USGS is having issues on their end
-#maybe this function readNWISuv should be replaced with read_waterdata_latest_continuous but no error on that yet. monitor
-# windyGap <- readNWISuv(siteNumbers = "09034250", #code for windy gap
-#                        parameterCd = c("00060", "00010", "00065"), #this is parameter code for discharge; more can be added if needed
-#                        startDate = "2020-08-06", #if you want to do times it is this format: "2014-10-10T00:00Z",
-#                        endDate = Sys.Date(),
-#                        tz = "America/Denver")
 ###since the new water data continupous only retunrs 3 year datasets, use this from purrr to combine it together
 #Set up total date range, make sure it's in denver timezone or else we'll lose data when getting start/end dates for date chunks
 start_date <- as.POSIXct("2020-08-06 00:00:00", tz = "America/Denver")
@@ -165,18 +160,14 @@ windyGap2 <- map2_dfr(
 )
 
 windyGap2_wide <- windyGap2 %>%
-  #mutate(time = lubridate::with_tz(time, tzone = "America/Denver")) %>%
-  # 1. Drop the columns we no longer want
-  #select(-statistic_id, -unit_of_measure) %>%
   
-  # 2. Translate the numeric codes into human-readable names
+  # Translate the numeric codes into human-readable names
   mutate(
     parameter_code = replace_values(
       parameter_code,
       "00060" ~ "USGSDischarge",
       "00010" ~ "USGSWatertemp",
       "00065" ~ "USGSGageHeightFt"
-      #.default = parameter_code # Keeps any unexpected codes as their original numbers
     )
   ) %>%
   
@@ -191,46 +182,8 @@ windyGapRenamed <- windyGap2_wide %>%
   mutate(USGSWatertemp = (`USGSWatertemp` * 9/5) + 32) %>%
   rename(dateTime = time)
 
-
-# windyGap2 <- read_waterdata_continuous(
-#   monitoring_location_id = "USGS-09034250",               # Agency code prefix is now required
-#   parameter_code = c("00060", "00010", "00065"),          # Argument name changed
-#   time = c("2025-08-06", as.character(Sys.Date()))        # Start and end date combined into a 'time' vector
-# )
-
-# windyGapRenamed <- renameNWISColumns(windyGap) %>%
-#   mutate(Wtemp_Inst = (Wtemp_Inst * 9/5) + 32) %>%
-#   rename(USGSDischarge = Flow_Inst, 
-#          USGSWatertemp = Wtemp_Inst, 
-#          USGSGageHeightFt = GH_Inst)
-#tz
-# windyGap2RenamedQAQC <- windyGap2Renamed %>%
-#   select(dateTime, USGSDischarge, USGSGageHeightFt, USGSWatertemp)
-# 
-# windyGapRenamedQAQC <- windyGapRenamed %>%
-#     select(dateTime, USGSDischarge, USGSGageHeightFt, USGSWatertemp)
-
-  #alignColumns(windyGap2Renamed, names(windyGapRenamed), windyGapRenamed)
-
-# x <- anti_join(windyGapRenamedQAQC, windyGap2RenamedQAQC)
-# 
-# joined <- windyGapRenamedQAQC %>%
-#   left_join(windyGap2RenamedQAQC, by = "dateTime") %>%
-#   mutate(dischrgeEqual = USGSDischarge.x == USGSDischarge.y, 
-#          tempEqual = USGSWatertemp.x == USGSWatertemp.y, 
-#         gageEqual = USGSGageHeightFt.x == USGSGageHeightFt.y, 
-# 
-#          
-#          )
-# tz(windyGapRenamedQAQC$dateTime)
-# 
-# tz(windyGap2RenamedQAQC$dateTime)
-
-
-
 #this is to make attaching these readings to detections later; doesn't change any data
 windyGapRenamed$dateTime <- lubridate::force_tz(windyGapRenamed$dateTime, tzone = "UTC") 
-
 
 #for joining with WindyGapDaily since windy gap daily doesn't get daily average staff gage readings (code 00065)
 avgGageHeightDaily <- windyGapRenamed %>%
