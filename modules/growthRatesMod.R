@@ -39,7 +39,16 @@ growthRates_UI <- function(id) {
           ), 
           fluidRow(
             withSpinner(DT::DTOutput(ns("growthRatesSummarizedTable")))
-          )
+          ), 
+          fluidRow(
+            column(2, 
+                   downloadData_UI(ns("downloadRawData"), labelText = "Save Raw Data")
+                   ),
+            column(2, 
+                   downloadData_UI(ns("downloadSummarizedData"), labelText = "Save Summarized Data")
+                   )
+          ), 
+          
         )
       )
   )
@@ -83,51 +92,123 @@ growthRates_Server <- function(id, indiv_datasets_list = indiv_datasets_list, al
         
         # NEW: Dynamic Grouping and Summarization
         # Check if the user selected any grouping variables
-        if (!is.null(input$group_vars) && length(input$group_vars) > 0) {
+        # if (!is.null(input$group_vars) && length(input$group_vars) > 0) {
+        #   
+        #   dataSummarized <- GrowthRatesDF %>%
+        #     mutate(Species = str_trim(Species)) %>%
+        #     dplyr::group_by(across(all_of(input$group_vars))) %>%
+        #     dplyr::summarise(`Median Length Growth Rate (g per year)` = round(median(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
+        #                      `Median Weight Growth Rate (mm per year)` = round(median(`Weight Growth Rate g per Year`, na.rm = TRUE), 2),
+        #                      `Mean Length Growth Rate (g per year)` = round(mean(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
+        #                      `Mean Weight Growth Rate (mm per year)` = round(mean(`Weight Growth Rate g per Year`, na.rm = TRUE), 2),
+        #                      `Sample Size (n)` = n(), 
+        #                      .groups = "drop"
+        #     )
           
           # Summarize data by the chosen columns
-          SummaryDF <- GrowthRatesDF %>%
-            group_by(across(all_of(input$group_vars))) %>%
-            summarize(
-              `Mean Length Growth (mm/yr)` = round(mean(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
-              `Mean Weight Growth (g/yr)` = round(mean(`Weight Growth Rate g per Year`, na.rm = TRUE), 2),
-              `Sample Size (n)` = n(),
-              .groups = "drop" # Drops grouping structure after summarizing
-            )
+          # SummaryDF <- GrowthRatesDF %>%
+          #   group_by(across(all_of(input$group_vars))) %>%
+          #   summarize(
+          #     `Mean Length Growth (mm/yr)` = round(mean(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
+          #     `Mean Weight Growth (g/yr)` = round(mean(`Weight Growth Rate g per Year`, na.rm = TRUE), 2),
+          #     `Sample Size (n)` = n(),
+          #     .groups = "drop" # Drops grouping structure after summarizing
+          #   )
           
-          return(SummaryDF)
+          #return(dataSummarized)
           
-        } else {
+        # else {
           # If no grouping is selected, return the raw calculated dataset
           return(GrowthRatesDF)
-        }
+        #}
 
         #return(GrowthRatesDF)
+      })
+      
+      display_data <- reactive({
+        # Start with the raw calculated data
+        df <- growthRates() 
+        
+        # Check if grouping is requested
+        if (!is.null(input$group_vars) && length(input$group_vars) > 0) {
+          
+          dataSummarized <- GrowthRatesDF %>%
+            mutate(Species = str_trim(Species)) %>%
+            dplyr::group_by(across(all_of(input$group_vars))) %>%
+            dplyr::summarise(`Median Length Growth Rate (g per year)` = round(median(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
+                             `Median Weight Growth Rate (mm per year)` = round(median(`Weight Growth Rate g per Year`, na.rm = TRUE), 2),
+                             `Mean Length Growth Rate (g per year)` = round(mean(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
+                             `Mean Weight Growth Rate (mm per year)` = round(mean(`Weight Growth Rate g per Year`, na.rm = TRUE), 2),
+                             `Sample Size (n)` = n(), 
+                             .groups = "drop"
+            )
+          
+          return(dataSummarized)
+        } else {
+          return(df)
+        }
       })
       
       
       output$growthRatesPlot <- renderPlotly({
         
-        growthRates() %>%
-          ggplot(aes(x = `Length Growth Rate mm per Year`, y = `Weight Growth Rate g per Year`, color = Species, text = TagID)) +
-          geom_point() + 
+        # growthRates() %>%
+        #   ggplot(aes(x = `Length Growth Rate mm per Year`, y = `Weight Growth Rate g per Year`, color = Species, text = TagID)) +
+        #   geom_point() +
+        #   theme_classic() +
+        #   labs(title = "Growth Rates") +
+        #   scale_color_manual(values = allColors)
+        
+        df <- growthRates()
+        req(df)
+        
+        # 1. Handle dynamic coloring based on the checkbox input
+        if (!is.null(input$group_vars) && length(input$group_vars) > 0) {
+          # Combine selected columns into a single 'ColorGroup' column
+          df <- df %>% 
+            unite("ColorGroup", all_of(input$group_vars), sep = " - ", remove = FALSE)
+        } else {
+          # Fallback if no checkboxes are selected (defaults to Species)
+          df$ColorGroup <- df$Species 
+        }
+        
+        # 2. Build the ggplot using the new ColorGroup column
+        p <- df %>%
+          ggplot(aes(x = `Length Growth Rate mm per Year`, 
+                     y = `Weight Growth Rate g per Year`, 
+                     color = ColorGroup, # Dynamically points to our new column
+                     text = TagID)) +
+          geom_point() +
           theme_classic() +
-          labs(title = "Growth Rates") +
-          scale_color_manual(values = allColors) 
+          labs(
+            title = "Growth Rates",
+            color = "Group" # Renames the legend title nicely
+          )
+        
+        # 3. Handle custom colors (See warning below)
+        # If you only group by Species, your allColors vector will work.
+        # If you group by multiple variables, we need to let ggplot pick the colors.
+        if (is.null(input$group_vars) || identical(input$group_vars, "Species")) {
+          p <- p + scale_color_manual(values = allColors)
+        }
+        
+        # Convert to Plotly
+        ggplotly(p, tooltip = c("text", "color", "x", "y"))
+        
       })
       
       output$growthRatesSummarizedTable <- renderDT({
-        dataSummarized <- growthRates() %>%
-          mutate(Species = str_trim(Species)) %>%
-          dplyr::group_by(Species) %>%
-          dplyr::summarise(`Median Length Growth Rate (g per year)` = round(median(`Length Growth Rate mm per Year`, na.rm = TRUE), 2), 
-                           `Median Weight Growth Rate (mm per year)` = round(median(`Weight Growth Rate g per Year`, na.rm = TRUE), 2), 
-                           `Mean Length Growth Rate (g per year)` = round(mean(`Length Growth Rate mm per Year`, na.rm = TRUE), 2), 
-                           `Mean Weight Growth Rate (mm per year)` = round(mean(`Weight Growth Rate g per Year`, na.rm = TRUE), 2), 
-                           `Number of Observations` = n()
-          )
-        
-        datatable(dataSummarized,
+        # dataSummarized <- growthRates() %>%
+        #   mutate(Species = str_trim(Species)) %>%
+        #   dplyr::group_by(Species) %>%
+        #   dplyr::summarise(`Median Length Growth Rate (g per year)` = round(median(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
+        #                    `Median Weight Growth Rate (mm per year)` = round(median(`Weight Growth Rate g per Year`, na.rm = TRUE), 2),
+        #                    `Mean Length Growth Rate (g per year)` = round(mean(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
+        #                    `Mean Weight Growth Rate (mm per year)` = round(mean(`Weight Growth Rate g per Year`, na.rm = TRUE), 2),
+        #                    `Number of Observations` = n()
+        #   )
+
+        datatable(display_data(),
                   rownames = FALSE,
                   selection = "single",
                   filter = 'top',
@@ -137,11 +218,16 @@ growthRates_Server <- function(id, indiv_datasets_list = indiv_datasets_list, al
                     stateSave =TRUE,
                     pageLength = 10, info = TRUE, lengthMenu = list(c(10,25, 50, 100, 200), c("10", "25", "50","100","200")),
                     dom = 'Blfrtip' #had to add 'lowercase L' letter to display the page length again
-                    
+
                   )
         )
-        
+
       })
+      
+      downloadData_Server("downloadRawData", growthRates(), "growthRatesAll")
+      
+      downloadData_Server("downloadSummarizedData", display_data(), "growthRatesSummarized")
+      
       
     }
   )

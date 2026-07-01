@@ -1,7 +1,7 @@
-downloadData_UI <- function(id) {
+downloadData_UI <- function(id, labelText = "Save Data") {
   ns <- NS(id)
   tagList(
-    actionButton(ns("downloadActionButton"), label = "Save Data"), 
+    actionButton(ns("downloadActionButton"), label = labelText), 
     hr(),
   )
 }
