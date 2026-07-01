@@ -132,7 +132,7 @@ growthRates_Server <- function(id, indiv_datasets_list = indiv_datasets_list, al
         # Check if grouping is requested
         if (!is.null(input$group_vars) && length(input$group_vars) > 0) {
           
-          dataSummarized <- GrowthRatesDF %>%
+          dataSummarized <- df %>%
             mutate(Species = str_trim(Species)) %>%
             dplyr::group_by(across(all_of(input$group_vars))) %>%
             dplyr::summarise(`Median Length Growth Rate (g per year)` = round(median(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
