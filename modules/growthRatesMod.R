@@ -16,8 +16,8 @@ growthRates_UI <- function(id) {
           h4("Summarize Output"),
           checkboxGroupInput(ns("group_vars"), 
                              label = "Group Summary By (leave blank for raw data):",
-                             choices = c("Species" = "Species"#,       # Update "Species" to match your actual col name
-                                         #"Age Class" = "AgeClass"
+                             choices = c("Species" = "Species",       # Update "Species" to match your actual col name
+                                         "Age Class" = "AgeClass"
                                          )
                              ),
           
@@ -73,7 +73,16 @@ growthRates_Server <- function(id, indiv_datasets_list = indiv_datasets_list, al
         ReleaseRecaps <- bind_rows(ReleaseforBind, RecapturesforBind)
         
         DFforGrowthRates <- ReleaseRecaps %>%
-          mutate(Date = lubridate::ymd(Date)) %>%
+          mutate(Date = lubridate::ymd(Date), 
+                 AgeClass = case_when(
+                   !Species %in% c("RBT", "BRK", "LOC") ~ "Unknown",
+                   Length <= 150 ~ "0-1 Years",
+                   Length > 150 & Length <= 250 ~ "1-2 Years",
+                   Length > 250 & Length <= 350 ~ "2-3 Years",
+                   Length > 350 ~ "3+ Years",
+                   TRUE ~ "Unknown" # Catch-all for NA or missing lengths
+                 )
+          ) %>%
           group_by(TagID) %>%
           arrange(Date, .by_group = TRUE) %>%
           #use 52.25 weeks to account for leap years
