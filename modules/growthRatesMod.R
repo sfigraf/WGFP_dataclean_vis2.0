@@ -16,8 +16,9 @@ growthRates_UI <- function(id) {
           h4("Summarize Output"),
           checkboxGroupInput(ns("group_vars"), 
                              label = "Group Summary By (leave blank for raw data):",
-                             choices = c("Species" = "Species",       # Update "Species" to match your actual col name
-                                         "Age Class" = "AgeClass"
+                             choices = c("Species" = "Species",       
+                                         #previousAgeClass is used because if a LOC is released at 193 mm and recapped at 330, its growth rate should go in the 2 year age class rate instead of 3 year
+                                         "Age Class" = "previousAgeClass"
                                          )
                              ),
           
@@ -75,21 +76,24 @@ growthRates_Server <- function(id, indiv_datasets_list = indiv_datasets_list, al
         DFforGrowthRates <- ReleaseRecaps %>%
           mutate(Date = lubridate::ymd(Date), 
                  AgeClass = case_when(
+                   #age classes based on examination of age frequency graph and looking at eaks and vallyes and talking with eric fetherman
                    !Species %in% c("RBT", "BRK", "LOC") ~ "Unknown",
                    Length <= 150 ~ "0-1 Years",
-                   Length > 150 & Length <= 250 ~ "1-2 Years",
-                   Length > 250 & Length <= 350 ~ "2-3 Years",
-                   Length > 350 ~ "3+ Years",
+                   Length > 150 & Length <= 230 ~ "2 Years",
+                   Length > 230 & Length <= 360 ~ "3 Years",
+                   Length > 360 ~ "3+ Years",
                    TRUE ~ "Unknown" # Catch-all for NA or missing lengths
                  )
           ) %>%
           group_by(TagID) %>%
           arrange(Date, .by_group = TRUE) %>%
           #use 52.25 weeks to account for leap years
-          mutate(yearsSince = as.numeric(difftime(Date, lag(Date), units = "weeks"))/52.25, 
-                 daysSince = as.numeric(difftime(Date, lag(Date), units = "days")), 
+          mutate(daysSince = as.numeric(difftime(Date, lag(Date), units = "days")), 
+                 yearsSince = daysSince/365.25,
                  previousLength = lag(Length), 
-                 previousWeight = lag(Weight)
+                 previousWeight = lag(Weight),
+                 previousYear = lag(year(Date)),
+                 previousAgeClass = lag(AgeClass)
           )
         #getGrowthRates(Release = indiv_datasets_list$releasedata, Recaptures = indiv_datasets_list$recapdata)
         GrowthRatesDF <- DFforGrowthRates %>%
@@ -186,7 +190,12 @@ growthRates_Server <- function(id, indiv_datasets_list = indiv_datasets_list, al
           ggplot(aes(x = `Length Growth Rate mm per Year`, 
                      y = `Weight Growth Rate g per Year`, 
                      color = ColorGroup, # Dynamically points to our new column
-                     text = TagID)) +
+                     text = paste0("Tag: ", TagID,
+                                   "<br>Previous Length: ", previousLength, " (", previousYear, ")", 
+                                   "<br>Current Length: ", Length, " (", year(Date), ")"
+                     )
+          )
+          ) +
           geom_point() +
           theme_classic() +
           labs(

@@ -33,6 +33,11 @@ IndividualDatasets_UI <- function(id, df_list, Release_05) {
                              min = 1, 
                              max = max(Release_05$Length, na.rm = TRUE),
                              value = 20),
+                 radioButtons(ns("bar_position"), 
+                              label = "Bar Display Option:",
+                              choices = c("Stacked" = "stack", 
+                                          "Staggered" = "dodge"),
+                              selected = "stack"),
                  withSpinner(plotlyOutput(ns("plot10"))),
                  hr(),
                  sliderInput(ns("slider12"), "Weight Binwidth",
@@ -176,9 +181,11 @@ IndividualDatasets_Server <- function(id, indiv_datasets_list, allColors) {
       output$plot10 <- renderPlotly({
         indiv_datasets_list$releasedata %>%
           ggplot(aes(x = Length, fill = Species) ) +
-          geom_histogram(binwidth = input$slider11)+
+          geom_histogram(binwidth = input$slider11, 
+                         position = input$bar_position
+                         )+
           theme_classic() +
-          labs(title = "Released Fish by Length", caption = "Binwidth = 20mm") +
+          labs(title = "Released Fish by Length", caption = paste0("Binwidth = ", input$slider11, "mm")) +
           scale_fill_manual(values = allColors)
       })
       
