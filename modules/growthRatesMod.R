@@ -17,8 +17,9 @@ growthRates_UI <- function(id) {
           checkboxGroupInput(ns("group_vars"), 
                              label = "Group Summary By (leave blank for raw data):",
                              choices = c("Species" = "Species",       
-                                         #previousAgeClass is used because if a LOC is released at 193 mm and recapped at 330, its growth rate should go in the 2 year age class rate instead of 3 year
-                                         "Age Class" = "previousAgeClass"
+                                         #previousAgeClass and previousRiver is used because if a LOC is released at 193 mm and recapped at 330, its growth rate should go in the 2 year age class rate instead of 3 year
+                                         "Age Class" = "previousAgeClass", 
+                                         "River" = "previousRiver"
                                          )
                              ),
           
@@ -77,11 +78,19 @@ growthRates_Server <- function(id, indiv_datasets_list = indiv_datasets_list, al
           mutate(Date = lubridate::ymd(Date), 
                  AgeClass = case_when(
                    #age classes based on examination of age frequency graph and looking at eaks and vallyes and talking with eric fetherman
-                   !Species %in% c("RBT", "BRK", "LOC") ~ "Unknown",
-                   Length <= 150 ~ "0-1 Years",
-                   Length > 150 & Length <= 230 ~ "2 Years",
-                   Length > 230 & Length <= 360 ~ "3 Years",
-                   Length > 360 ~ "3+ Years",
+                   !Species %in% c("RBT", "LOC") ~ "Unknown",
+                   
+                   #LOC
+                   Species == "LOC" & Length <= 150 ~ "0-1 Years",
+                   Species == "LOC" & Length > 150 & Length <= 230 ~ "2 Years",
+                   Species == "LOC" & Length > 230 & Length <= 360 ~ "3 Years",
+                   Species == "LOC" & Length > 360 ~ "3+ Years",
+                   
+                   ##RBT
+                   Species == "RBT" & Length <= 140 ~ "0-1 Years",
+                   Species == "RBT" & Length > 140 & Length <= 330 ~ "2 Years",
+                   Species == "RBT" & Length > 330 & Length <= 430 ~ "3 Years",
+                   Species == "RBT" & Length > 430 ~ "3+ Years",
                    TRUE ~ "Unknown" # Catch-all for NA or missing lengths
                  )
           ) %>%
@@ -93,7 +102,8 @@ growthRates_Server <- function(id, indiv_datasets_list = indiv_datasets_list, al
                  previousLength = lag(Length), 
                  previousWeight = lag(Weight),
                  previousYear = lag(year(Date)),
-                 previousAgeClass = lag(AgeClass)
+                 previousAgeClass = lag(AgeClass), 
+                 previousRiver = lag(River)
           )
         #getGrowthRates(Release = indiv_datasets_list$releasedata, Recaptures = indiv_datasets_list$recapdata)
         GrowthRatesDF <- DFforGrowthRates %>%
