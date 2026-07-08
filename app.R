@@ -206,7 +206,14 @@ ui <- function(request) {
                         value = "PTtab",
                         PT_UI("PTtab1", PTData, movements_list$Movements_df, SiteVisitData$WGFP_SiteVisits_FieldData)
                ),
-               
+      
+              # Growth Rate Data -----------------------------------------------------------------
+              
+              tabPanel("Growth Rates",
+                       value = "growthRates",
+                       growthRates_UI("growthRatestab")
+              ),
+                       
                
                # QAQC UI tab -------------------------------------------------------------
                
@@ -278,6 +285,8 @@ server <- function(input, output, session) {
       States_Server("StatesTab1", encounterMARKStates$MARKEncounterHistories)
       
       PT_Server("PTtab1", PTData, movements_list$Movements_df, USGSData, SiteVisitData$WGFP_SiteVisits_FieldData, allColors)
+      
+      growthRates_Server("growthRatestab", DFforGrowthRates = combinedData_df_list$QAQCtables$growthRates, allColors)
    
       QAQC_Server("QAQCTab1", indiv_datasets_list$releasedata, indiv_datasets_list$recapdata, 
                   unknown_tags, movements_list$ghostTagsWithMovementAfterGhostDate, avianPredationList,

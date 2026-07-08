@@ -56,3 +56,5 @@ hpwaterLevels/CR_HP_WaterLevel_20211109.csv
 
 hpwaterLevels/CR_HP_WaterLevel_20220421.csv
 .positai
+
+data/flatFilesforApp/CombinedData_df_list.rds

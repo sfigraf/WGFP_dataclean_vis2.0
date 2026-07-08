@@ -4321,5 +4321,9 @@ equals <- allEventsAvianExcluded %>%
 
 ###########3
 # ONE TIME DALYLIGHT SAVIGNGS STATIONARY CORRECTION
+#actually ended up keeping data as is and applying correction in runscript
 Stationary <- readRDS("./data/WGFP_Stationary_Raw_20260507.rds")
 utmsStationary <- addUTMsAndReformatStationary(Stationary = Stationary)
+
+#Growth rates
+growthRates <- combinedData_df_list$QAQCtables$growthRates
