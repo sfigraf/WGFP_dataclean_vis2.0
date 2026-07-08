@@ -9,7 +9,7 @@ growthRates_UI <- function(id) {
           sliderInput(ns("min_time_at_large"),
                       label = "Minimum time before recapture (Days):",
                       min = 0, 
-                      max = 730, # Arbitrary max (e.g., 2 years) - adjust as needed
+                      max = 730, # Arbitrary max 
                       value = 90, # Default to ~3 months
                       step = 1), 
           
@@ -21,19 +21,9 @@ growthRates_UI <- function(id) {
                                          "Age Class" = "previousAgeClass", 
                                          "River" = "previousRiver"
                                          )
-                             ),
+                             )
           
-          actionButton(ns("renderData"), label = "Calculate Growth Rates")
-       # )
-          # pickerInput(ns("picker8"),
-          #             label = "Select Site Code",
-          #             choices = sort(unique(Marker_Tag_data$Site_Code)),
-          #             selected = unique(Marker_Tag_data$Site_Code),
-          #             multiple = TRUE,
-          #             options = list(
-          #               `actions-box` = TRUE #this makes the "select/deselect all" option
-          #             )
-          # ), #end of picker 8
+          #actionButton(ns("renderData"), label = "Calculate Growth Rates")
         ), 
         mainPanel(
           fluidRow(
@@ -56,62 +46,62 @@ growthRates_UI <- function(id) {
   )
 }
 
-growthRates_Server <- function(id, indiv_datasets_list = indiv_datasets_list, allColors = allColors) {
+growthRates_Server <- function(id, DFforGrowthRates, allColors = allColors) {
   moduleServer(
     id,
     function(input, output, session) {
       
       ###get growth rates for QAQC tab
-      growthRates <- eventReactive(input$renderData, {
+      growthRates <- reactive({ #input$renderData, 
         
-        Release = indiv_datasets_list$releasedata
-        Recaptures = indiv_datasets_list$recapdata
-        
-        RecapturesforBind <- alignColumns(Recaptures, names(Release), Release) %>%
-          left_join(Recaptures[,c("TagID", "Length", "Weight", "RecaptureSite")], by = c("TagID", "Length", "Weight"))
-        
-        ReleaseforBind <- alignColumns(Release, names(RecapturesforBind), RecapturesforBind)
-        
-        ReleaseRecaps <- bind_rows(ReleaseforBind, RecapturesforBind)
-        
-        DFforGrowthRates <- ReleaseRecaps %>%
-          mutate(Date = lubridate::ymd(Date), 
-                 AgeClass = case_when(
-                   #age classes based on examination of age frequency graph and looking at eaks and vallyes and talking with eric fetherman
-                   !Species %in% c("RBT", "LOC") ~ "Unknown",
-                   
-                   #LOC
-                   Species == "LOC" & Length <= 150 ~ "0-1 Years",
-                   Species == "LOC" & Length > 150 & Length <= 230 ~ "2 Years",
-                   Species == "LOC" & Length > 230 & Length <= 360 ~ "3 Years",
-                   Species == "LOC" & Length > 360 ~ "3+ Years",
-                   
-                   ##RBT
-                   Species == "RBT" & Length <= 140 ~ "0-1 Years",
-                   Species == "RBT" & Length > 140 & Length <= 330 ~ "2 Years",
-                   Species == "RBT" & Length > 330 & Length <= 430 ~ "3 Years",
-                   Species == "RBT" & Length > 430 ~ "3+ Years",
-                   TRUE ~ "Unknown" # Catch-all for NA or missing lengths
-                 )
-          ) %>%
-          group_by(TagID) %>%
-          arrange(Date, .by_group = TRUE) %>%
-          #use 52.25 weeks to account for leap years
-          mutate(daysSince = as.numeric(difftime(Date, lag(Date), units = "days")), 
-                 yearsSince = daysSince/365.25,
-                 previousLength = lag(Length), 
-                 previousWeight = lag(Weight),
-                 previousYear = lag(year(Date)),
-                 previousAgeClass = lag(AgeClass), 
-                 previousRiver = lag(River)
-          )
+        # ReleasepostScript = indiv_datasets_list$releasedata
+        # RecapturespostScreipt = indiv_datasets_list$recapdata
+        # 
+        # RecapturesforBind <- alignColumns(Recaptures, names(Release), Release) %>%
+        #   left_join(Recaptures[,c("TagID", "Length", "Weight", "RecaptureSite")], by = c("TagID", "Length", "Weight"))
+        # 
+        # ReleaseforBind <- alignColumns(Release, names(RecapturesforBind), RecapturesforBind)
+        # 
+        # ReleaseRecaps <- bind_rows(ReleaseforBind, RecapturesforBind)
+        # 
+        # DFforGrowthRates <- ReleaseRecaps %>%
+        #   mutate(Date = lubridate::ymd(Date), 
+        #          AgeClass = case_when(
+        #            #age classes based on examination of age frequency graph and looking at eaks and vallyes and talking with eric fetherman
+        #            !Species %in% c("RBT", "LOC") ~ "Unknown",
+        #            
+        #            #LOC
+        #            Species == "LOC" & Length <= 150 ~ "0-1 Years",
+        #            Species == "LOC" & Length > 150 & Length <= 230 ~ "2 Years",
+        #            Species == "LOC" & Length > 230 & Length <= 360 ~ "3 Years",
+        #            Species == "LOC" & Length > 360 ~ "3+ Years",
+        #            
+        #            ##RBT
+        #            Species == "RBT" & Length <= 140 ~ "0-1 Years",
+        #            Species == "RBT" & Length > 140 & Length <= 330 ~ "2 Years",
+        #            Species == "RBT" & Length > 330 & Length <= 430 ~ "3 Years",
+        #            Species == "RBT" & Length > 430 ~ "3+ Years",
+        #            TRUE ~ "Unknown" # Catch-all for NA or missing lengths
+        #          )
+        #   ) %>%
+        #   group_by(TagID) %>%
+        #   arrange(Date, .by_group = TRUE) %>%
+        #   #use 52.25 weeks to account for leap years
+        #   mutate(daysSince = as.numeric(difftime(Date, lag(Date), units = "days")), 
+        #          yearsSince = daysSince/365.25,
+        #          previousLength = lag(Length), 
+        #          previousWeight = lag(Weight),
+        #          previousYear = lag(year(Date)),
+        #          previousAgeClass = lag(AgeClass), 
+        #          previousRiver = lag(River)
+        #   )
         #getGrowthRates(Release = indiv_datasets_list$releasedata, Recaptures = indiv_datasets_list$recapdata)
         GrowthRatesDF <- DFforGrowthRates %>%
-          filter(daysSince > input$min_time_at_large) %>%
-          mutate(
-            `Length Growth Rate mm per Year`= round((Length - previousLength)/yearsSince, 2), 
-            `Weight Growth Rate g per Year`= round((Weight - previousWeight)/yearsSince, 2)
-          )
+          filter(daysSince > input$min_time_at_large) #%>%
+          # mutate(
+          #   `Length Growth Rate mm per Year`= round((Length - previousLength)/yearsSince, 2), 
+          #   `Weight Growth Rate g per Year`= round((Weight - previousWeight)/yearsSince, 2)
+          # )
         
         # NEW: Dynamic Grouping and Summarization
         # Check if the user selected any grouping variables
@@ -189,17 +179,17 @@ growthRates_Server <- function(id, indiv_datasets_list = indiv_datasets_list, al
         if (!is.null(input$group_vars) && length(input$group_vars) > 0) {
           # Combine selected columns into a single 'ColorGroup' column
           df <- df %>% 
-            unite("ColorGroup", all_of(input$group_vars), sep = " - ", remove = FALSE)
+            unite("Group", all_of(input$group_vars), sep = " - ", remove = FALSE)
         } else {
           # Fallback if no checkboxes are selected (defaults to Species)
-          df$ColorGroup <- df$Species 
+          df$Group <- df$Species 
         }
         
         # 2. Build the ggplot using the new ColorGroup column
         p <- df %>%
           ggplot(aes(x = `Length Growth Rate mm per Year`, 
                      y = `Weight Growth Rate g per Year`, 
-                     color = ColorGroup, # Dynamically points to our new column
+                     color = Group, # Dynamically points to our new column
                      text = paste0("Tag: ", TagID,
                                    "<br>Previous Length: ", previousLength, " (", previousYear, ")", 
                                    "<br>Current Length: ", Length, " (", year(Date), ")"

@@ -16,30 +16,57 @@
 
 getGrowthRates <- function(Recaptures, Release){
   
-  # Recaptures = Recaptures %>%
-  #   select(-`X.2`)
-  #align columns in preparation for binding
-  # print("startt of function")
-  # print(names(Release))
+  #this is 
+  Release <- Release %>%
+    mutate(Date = as.character(lubridate::mdy(Date)), 
+           Species = str_trim(Species))
+  
+  Recaptures <- Recaptures %>%
+    mutate(Date = as.character(lubridate::mdy(Date)), 
+           Species = str_trim(Species)
+    )
+  
   RecapturesforBind <- alignColumns(Recaptures, names(Release), Release) %>%
     left_join(Recaptures[,c("TagID", "Length", "Weight", "RecaptureSite")], by = c("TagID", "Length", "Weight"))
   
   ReleaseforBind <- alignColumns(Release, names(RecapturesforBind), RecapturesforBind)
   
   ReleaseRecaps <- bind_rows(ReleaseforBind, RecapturesforBind)
-
-  GrowthRatesDF <- ReleaseRecaps %>%
-    mutate(Date = lubridate::ymd(Date)) %>%
+  
+  DFforGrowthRates <- ReleaseRecaps %>%
+    mutate(Date = lubridate::ymd(Date), 
+           AgeClass = case_when(
+             #age classes based on examination of age frequency graph and looking at eaks and vallyes and talking with eric fetherman
+             !Species %in% c("RBT", "LOC") ~ "Unknown",
+             
+             #LOC
+             Species == "LOC" & Length <= 150 ~ "0-1 Years",
+             Species == "LOC" & Length > 150 & Length <= 230 ~ "2 Years",
+             Species == "LOC" & Length > 230 & Length <= 360 ~ "3 Years",
+             Species == "LOC" & Length > 360 ~ "3+ Years",
+             
+             ##RBT
+             Species == "RBT" & Length <= 140 ~ "0-1 Years",
+             Species == "RBT" & Length > 140 & Length <= 330 ~ "2 Years",
+             Species == "RBT" & Length > 330 & Length <= 430 ~ "3 Years",
+             Species == "RBT" & Length > 430 ~ "3+ Years",
+             TRUE ~ "Unknown" # Catch-all for NA or missing lengths
+           )
+    ) %>%
     group_by(TagID) %>%
     arrange(Date, .by_group = TRUE) %>%
     #use 52.25 weeks to account for leap years
-    mutate(yearsSince = as.numeric(difftime(Date, lag(Date), units = "weeks"))/52.25, 
-           daysSince = as.numeric(difftime(Date, lag(Date), units = "days")), 
+    mutate(daysSince = as.numeric(difftime(Date, lag(Date), units = "days")), 
+           yearsSince = daysSince/365.25,
            previousLength = lag(Length), 
            previousWeight = lag(Weight),
-           #), 
-           `Length Growth Rate mm per Year`= round((Length - previousLength)/yearsSince, 2), 
-           `Weight Growth Rate g per Year`= round((Weight - previousWeight)/yearsSince, 2)
+           previousYear = lag(year(Date)),
+           previousAgeClass = lag(AgeClass), 
+           previousRiver = lag(River)
+    ) %>%
+    mutate(
+      `Length Growth Rate mm per Year`= round((Length - previousLength)/yearsSince, 2), 
+      `Weight Growth Rate g per Year`= round((Weight - previousWeight)/yearsSince, 2)
     )
-  return(GrowthRatesDF)
+  return(DFforGrowthRates)
 }
