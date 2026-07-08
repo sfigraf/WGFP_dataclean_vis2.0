@@ -1,19 +1,3 @@
-# Recaptures = indiv_datasets_list$recapdata# %>%
-#   #select(-`X.2`)
-# Release <- indiv_datasets_list$releasedata
-# 
-# combined_data <- Recaptures %>%
-#   inner_join(Release, by = "TagID") 
-# 
-# # 2. Calculate time at large and filter
-# filtered_data <- combined_data %>%
-#   mutate(
-#     # Calculate difference in days. Ensure dates are Date or POSIXct objects!
-#     time_at_large = as.numeric(difftime(recapture_date, release_date, units = "days"))
-#   )
-
-
-
 getGrowthRates <- function(Recaptures, Release){
   
   #this is 

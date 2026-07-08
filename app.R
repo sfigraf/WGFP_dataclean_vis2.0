@@ -87,8 +87,8 @@ if(!exists("SiteVisitData")){
 # # Functions Read-in -------------------------------------------------------
  
 # #functions
-neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R", "getSequences.R", "renderDTFunction.R", "getGrowthRates.R",
-                     "Wrangleminicharts_function.R", "updatePassword.R", "alignColumns.R")
+neededFunctions <- c("Animation_function.R", "calculateCrosstalkProportion.R", "getSequences.R", "renderDTFunction.R", 
+                     "Wrangleminicharts_function.R", "updatePassword.R")
 
 for (i in neededFunctions) {
   source(paste0("./functions/",i))
