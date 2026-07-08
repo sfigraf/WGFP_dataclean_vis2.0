@@ -22,8 +22,6 @@ growthRates_UI <- function(id) {
                                          "River" = "previousRiver"
                                          )
                              )
-          
-          #actionButton(ns("renderData"), label = "Calculate Growth Rates")
         ), 
         mainPanel(
           fluidRow(
@@ -39,8 +37,7 @@ growthRates_UI <- function(id) {
             column(2, 
                    downloadData_UI(ns("downloadSummarizedData"), labelText = "Save Summarized Data")
                    )
-          ), 
-          
+          )
         )
       )
   )
@@ -53,89 +50,9 @@ growthRates_Server <- function(id, DFforGrowthRates, allColors = allColors) {
       
       ###get growth rates for QAQC tab
       growthRates <- reactive({ #input$renderData, 
-        
-        # ReleasepostScript = indiv_datasets_list$releasedata
-        # RecapturespostScreipt = indiv_datasets_list$recapdata
-        # 
-        # RecapturesforBind <- alignColumns(Recaptures, names(Release), Release) %>%
-        #   left_join(Recaptures[,c("TagID", "Length", "Weight", "RecaptureSite")], by = c("TagID", "Length", "Weight"))
-        # 
-        # ReleaseforBind <- alignColumns(Release, names(RecapturesforBind), RecapturesforBind)
-        # 
-        # ReleaseRecaps <- bind_rows(ReleaseforBind, RecapturesforBind)
-        # 
-        # DFforGrowthRates <- ReleaseRecaps %>%
-        #   mutate(Date = lubridate::ymd(Date), 
-        #          AgeClass = case_when(
-        #            #age classes based on examination of age frequency graph and looking at eaks and vallyes and talking with eric fetherman
-        #            !Species %in% c("RBT", "LOC") ~ "Unknown",
-        #            
-        #            #LOC
-        #            Species == "LOC" & Length <= 150 ~ "0-1 Years",
-        #            Species == "LOC" & Length > 150 & Length <= 230 ~ "2 Years",
-        #            Species == "LOC" & Length > 230 & Length <= 360 ~ "3 Years",
-        #            Species == "LOC" & Length > 360 ~ "3+ Years",
-        #            
-        #            ##RBT
-        #            Species == "RBT" & Length <= 140 ~ "0-1 Years",
-        #            Species == "RBT" & Length > 140 & Length <= 330 ~ "2 Years",
-        #            Species == "RBT" & Length > 330 & Length <= 430 ~ "3 Years",
-        #            Species == "RBT" & Length > 430 ~ "3+ Years",
-        #            TRUE ~ "Unknown" # Catch-all for NA or missing lengths
-        #          )
-        #   ) %>%
-        #   group_by(TagID) %>%
-        #   arrange(Date, .by_group = TRUE) %>%
-        #   #use 52.25 weeks to account for leap years
-        #   mutate(daysSince = as.numeric(difftime(Date, lag(Date), units = "days")), 
-        #          yearsSince = daysSince/365.25,
-        #          previousLength = lag(Length), 
-        #          previousWeight = lag(Weight),
-        #          previousYear = lag(year(Date)),
-        #          previousAgeClass = lag(AgeClass), 
-        #          previousRiver = lag(River)
-        #   )
-        #getGrowthRates(Release = indiv_datasets_list$releasedata, Recaptures = indiv_datasets_list$recapdata)
         GrowthRatesDF <- DFforGrowthRates %>%
-          filter(daysSince > input$min_time_at_large) #%>%
-          # mutate(
-          #   `Length Growth Rate mm per Year`= round((Length - previousLength)/yearsSince, 2), 
-          #   `Weight Growth Rate g per Year`= round((Weight - previousWeight)/yearsSince, 2)
-          # )
-        
-        # NEW: Dynamic Grouping and Summarization
-        # Check if the user selected any grouping variables
-        # if (!is.null(input$group_vars) && length(input$group_vars) > 0) {
-        #   
-        #   dataSummarized <- GrowthRatesDF %>%
-        #     mutate(Species = str_trim(Species)) %>%
-        #     dplyr::group_by(across(all_of(input$group_vars))) %>%
-        #     dplyr::summarise(`Median Length Growth Rate (g per year)` = round(median(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
-        #                      `Median Weight Growth Rate (mm per year)` = round(median(`Weight Growth Rate g per Year`, na.rm = TRUE), 2),
-        #                      `Mean Length Growth Rate (g per year)` = round(mean(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
-        #                      `Mean Weight Growth Rate (mm per year)` = round(mean(`Weight Growth Rate g per Year`, na.rm = TRUE), 2),
-        #                      `Sample Size (n)` = n(), 
-        #                      .groups = "drop"
-        #     )
-          
-          # Summarize data by the chosen columns
-          # SummaryDF <- GrowthRatesDF %>%
-          #   group_by(across(all_of(input$group_vars))) %>%
-          #   summarize(
-          #     `Mean Length Growth (mm/yr)` = round(mean(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
-          #     `Mean Weight Growth (g/yr)` = round(mean(`Weight Growth Rate g per Year`, na.rm = TRUE), 2),
-          #     `Sample Size (n)` = n(),
-          #     .groups = "drop" # Drops grouping structure after summarizing
-          #   )
-          
-          #return(dataSummarized)
-          
-        # else {
-          # If no grouping is selected, return the raw calculated dataset
+          filter(daysSince > input$min_time_at_large) 
           return(GrowthRatesDF)
-        #}
-
-        #return(GrowthRatesDF)
       })
       
       display_data <- reactive({
@@ -164,14 +81,7 @@ growthRates_Server <- function(id, DFforGrowthRates, allColors = allColors) {
       
       
       output$growthRatesPlot <- renderPlotly({
-        
-        # growthRates() %>%
-        #   ggplot(aes(x = `Length Growth Rate mm per Year`, y = `Weight Growth Rate g per Year`, color = Species, text = TagID)) +
-        #   geom_point() +
-        #   theme_classic() +
-        #   labs(title = "Growth Rates") +
-        #   scale_color_manual(values = allColors)
-        
+
         df <- growthRates()
         req(df)
         
@@ -181,7 +91,7 @@ growthRates_Server <- function(id, DFforGrowthRates, allColors = allColors) {
           df <- df %>% 
             unite("Group", all_of(input$group_vars), sep = " - ", remove = FALSE)
         } else {
-          # Fallback if no checkboxes are selected (defaults to Species)
+          # if no checkboxes are selected defaults to Species
           df$Group <- df$Species 
         }
         
@@ -203,9 +113,9 @@ growthRates_Server <- function(id, DFforGrowthRates, allColors = allColors) {
             color = "Group" # Renames the legend title nicely
           )
         
-        # 3. Handle custom colors (See warning below)
-        # If you only group by Species, your allColors vector will work.
-        # If you group by multiple variables, we need to let ggplot pick the colors.
+        # colors
+        # If only group by Species, allColors vector will work.
+        # If group by multiple variables, we need to let ggplot pick the colors.
         if (is.null(input$group_vars) || identical(input$group_vars, "Species")) {
           p <- p + scale_color_manual(values = allColors)
         }
@@ -216,15 +126,6 @@ growthRates_Server <- function(id, DFforGrowthRates, allColors = allColors) {
       })
       
       output$growthRatesSummarizedTable <- renderDT({
-        # dataSummarized <- growthRates() %>%
-        #   mutate(Species = str_trim(Species)) %>%
-        #   dplyr::group_by(Species) %>%
-        #   dplyr::summarise(`Median Length Growth Rate (g per year)` = round(median(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
-        #                    `Median Weight Growth Rate (mm per year)` = round(median(`Weight Growth Rate g per Year`, na.rm = TRUE), 2),
-        #                    `Mean Length Growth Rate (g per year)` = round(mean(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
-        #                    `Mean Weight Growth Rate (mm per year)` = round(mean(`Weight Growth Rate g per Year`, na.rm = TRUE), 2),
-        #                    `Number of Observations` = n()
-        #   )
 
         datatable(display_data(),
                   rownames = FALSE,
