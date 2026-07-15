@@ -6,20 +6,26 @@ source("functions/pressureTransducerQAQCFunction.R")
 source("functions/calibrationChunksDateFiltered.R")
 source("functions/modelListData.R")
 
+library(tidyverse)
+library(plotly)
 library(readxl)
-reconstructedWGFPDailyFlow <- read_excel("reconstructedWGFPDailyFlow.xlsx", 
+
+## read in reconstructed upper c, lower c, and fraser flow
+reconstructedWGFPDailyFlow <- read_excel("data/PressureTransducer/PressureTransducerCorrections/reconstructedWGFPDailyFlow_2026-07-14.xlsx", 
                                          sheet = "Assumed and Actual Flow Data")
 reconFlow1 <- reconstructedWGFPDailyFlow %>%
   mutate(CFFlow = `Assumed/Actual UpperC Flow` + `Assumed/Actual Fraser Flow`)
-
+#bring in PT data already sourced from app page
+PTData <- readRDS("data/flatFilesforApp/PTData.rds")
 ptdDataWide <- PTData$PTDataWide
-
+#check gage difference
 ptdDataWide_1 <- ptdDataWide %>%
   mutate(gageDif = USGSGageHeightFt - Water_Level_NoIce_ft)
+#get red barn only data
 rbOnly <- ptdDataWide_1 %>%
   filter(Site == "Red Barn") %>%
   select(dateTime, USGSDischarge, USGSGageHeightFt, Water_Level_NoIce_ft, gageDif)
-
+#plot to see what difs look like
 plot <- rbOnly %>%
   ggplot(aes(x = gageDif, text = as.character(gageDif))) +
   geom_histogram()  +
@@ -30,8 +36,8 @@ ggplotly(plot)
 #rite_xlsx(rbOnly, "RedBarnUSGSandPTData.xlsx")
 #make reverse rating curves for each year
 ##divide data into chunks based on calibration dates
-
-calibrationDates <- read_csv("calibrationDates.csv", 
+#from "U:\Projects\Colorado_River\Windy_Gap_FishMovementStudy\Data\Pressure_Transducer\WGFP_PressureTransducer_AllData.xlsx", sheet calibration dates but saved as csv
+calibrationDates <- read_csv("data/PressureTransducer/PressureTransducerCorrections/calibrationDates.csv", 
                              col_types = cols(DataCalStart = col_datetime(format = "%m/%d/%Y %H:%M"), 
                                               DataCalEnd = col_datetime(format = "%m/%d/%Y %H:%M")))
 
@@ -41,13 +47,14 @@ calibrationDates <- calibrationDates %>%
 
 
 
-
+#get just for red barn 
 rbCalibatraioDates <- calibrationDates %>%
   filter(Site == "Red Barn")
-
+#get list of red barn DFs that align with each calbration chunk
 redBarn_list <- calibrationChunksDateFiltered(calibrationDates = rbCalibatraioDates, siteOnlyData = rbOnly)
 
 #allRBTransducerQAQC <- lapply(redBarn_list, pressureTransducerQAQCFunction)
+#apply pressureTransducerQAQCFunction() to all Dfs in the red barn list
 allRBTransducerQAQC <- lapply(redBarn_list, function(x) {
   pressureTransducerQAQCFunction(
     subsetData = x, 
@@ -56,77 +63,53 @@ allRBTransducerQAQC <- lapply(redBarn_list, function(x) {
   )
 })
 
+# RED BARN just Looking at resulting data ---------------------------------
+
+
 # RED BARN 2020 -----------------------------------------------------------
-
-allRBTransducerQAQC$`Red Barn_1`$USGSGageHeightList$plotIwthModels
-intercept <- allRBTransducerQAQC$`Red Barn_1`$USGSGageHeightList$baseModelList$intercept_val
-slope <- allRBTransducerQAQC$`Red Barn_1`$USGSGageHeightList$baseModelList$slope_val
-
-summary <- allRBTransducerQAQC$`Red Barn_1`$USGSGageHeightList$baseModelList$summary
-### Red bArn 2021 -----------------------------------------------------------
-allRBTransducerQAQC$`Red Barn_2`$USGSGageHeightList$plotIwthModels
-intercept <- allRBTransducerQAQC$`Red Barn_2`$USGSGageHeightList$baseModelList$intercept_val
-slope <- allRBTransducerQAQC$`Red Barn_2`$USGSGageHeightList$baseModelList$slope_val
+# 
+# allRBTransducerQAQC$`Red Barn_1`$USGSGageHeightList$plotIwthModels
+# intercept <- allRBTransducerQAQC$`Red Barn_1`$USGSGageHeightList$baseModelList$intercept_val
+# slope <- allRBTransducerQAQC$`Red Barn_1`$USGSGageHeightList$baseModelList$slope_val
+# 
+# summary <- allRBTransducerQAQC$`Red Barn_1`$USGSGageHeightList$baseModelList$summary
+# ### Red bArn 2021 -----------------------------------------------------------
+# allRBTransducerQAQC$`Red Barn_2`$USGSGageHeightList$plotIwthModels
+# intercept <- allRBTransducerQAQC$`Red Barn_2`$USGSGageHeightList$baseModelList$intercept_val
+# slope <- allRBTransducerQAQC$`Red Barn_2`$USGSGageHeightList$baseModelList$slope_val
 
 # red barn 2022 -----------------------------------------------------------
-allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$plotIwthModels
-intercept <- allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$noOutliersModelList$intercept_val
-
-allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$noOutliersModelList$summary
-allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$baseModelList$summary
-
-slopeNoOutliers <- coef(allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$noOutliersModelList$noOutliersModel)[2]
-slopeWithOutliers <- coef(allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$baseModelList$baseModel)[2]
-
-### oart 2
-allRBTransducerQAQC$`Red Barn_4`$USGSGageHeightList$plotIwthModels
-intercept <- allRBTransducerQAQC$`Red Barn_4`$USGSGageHeightList$baseModelList$intercept_val
-slope <- allRBTransducerQAQC$`Red Barn_4`$USGSGageHeightList$baseModelList$slope_val
-
-intercept <- allRBTransducerQAQC$`Red Barn_4`$USGSGageHeightList$noOutliersModelList$intercept_val
-slope <- coef(allRBTransducerQAQC$`Red Barn_4`$USGSGageHeightList$noOutliersModelList$noOutliersModel)[2]
-
-# november 2022
-allRBTransducerQAQC$`Red Barn_5`$USGSGageHeightList$plotIwthModels
-intercept <- allRBTransducerQAQC$`Red Barn_5`$USGSGageHeightList$baseModelList$intercept_val
-slope <- allRBTransducerQAQC$`Red Barn_5`$USGSGageHeightList$baseModelList$slope_val
-
-intercept <- allRBTransducerQAQC$`Red Barn_5`$USGSGageHeightList$noOutliersModelList$intercept_val
-slope <- coef(allRBTransducerQAQC$`Red Barn_5`$USGSGageHeightList$noOutliersModelList$noOutliersModel)[2]
-library(purrr)
-
-# final_table <- purrr::map_df(allRBTransducerQAQC, function(site_data) {
-#   
-#   # 2. Extract the two models and combine them into a small dataframe
-#   # We use bind_rows to stack 'base' and 'noOutliers'
-#   if(!is.character(site_data)){
-#     
-#     baseModelType <- 
-#     
-#     bind_rows(
-#       data.frame(
-#         model_type = "baseModelList",
-#         intercept_val = site_data$baseModelList$intercept_val,
-#         slope_val = site_data$baseModelList$slope_val
-#       ),
-#       data.frame(
-#         model_type = "noOutliersModelList",
-#         intercept_val = site_data$noOutliersModelList$intercept_val,
-#         slope_val = coef(site_data$noOutliersModelList$noOutliersModel)[2]
-#       )
-#     )
-#   } else{
-#     
-#   }
-#   
-# }, .id = "site_name")
-
-library(tidyverse)
+# allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$plotIwthModels
+# intercept <- allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$noOutliersModelList$intercept_val
+# 
+# allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$noOutliersModelList$summary
+# allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$baseModelList$summary
+# 
+# slopeNoOutliers <- coef(allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$noOutliersModelList$noOutliersModel)[2]
+# slopeWithOutliers <- coef(allRBTransducerQAQC$`Red Barn_3`$USGSGageHeightList$baseModelList$baseModel)[2]
+# 
+# ### oart 2
+# allRBTransducerQAQC$`Red Barn_4`$USGSGageHeightList$plotIwthModels
+# intercept <- allRBTransducerQAQC$`Red Barn_4`$USGSGageHeightList$baseModelList$intercept_val
+# slope <- allRBTransducerQAQC$`Red Barn_4`$USGSGageHeightList$baseModelList$slope_val
+# 
+# intercept <- allRBTransducerQAQC$`Red Barn_4`$USGSGageHeightList$noOutliersModelList$intercept_val
+# slope <- coef(allRBTransducerQAQC$`Red Barn_4`$USGSGageHeightList$noOutliersModelList$noOutliersModel)[2]
+# 
+# # november 2022
+# allRBTransducerQAQC$`Red Barn_5`$USGSGageHeightList$plotIwthModels
+# intercept <- allRBTransducerQAQC$`Red Barn_5`$USGSGageHeightList$baseModelList$intercept_val
+# slope <- allRBTransducerQAQC$`Red Barn_5`$USGSGageHeightList$baseModelList$slope_val
+# 
+# intercept <- allRBTransducerQAQC$`Red Barn_5`$USGSGageHeightList$noOutliersModelList$intercept_val
+# slope <- coef(allRBTransducerQAQC$`Red Barn_5`$USGSGageHeightList$noOutliersModelList$noOutliersModel)[2]
+# library(purrr)
 
 
-
+#gets results of the modeled data into a neat table for easy viewing
 redBarnModelTableResults <- modelListData(allRBTransducerQAQC)
 
+#### correcting the RB  data so that each gage reading can be compared to itself 1:1
 redBarnModelTableResultsBaseModelOnly <- redBarnModelTableResults %>%
   filter(model_type == "baseModelList")
 #baseline to calibrate the rest of th edata to
@@ -144,13 +127,18 @@ rbOnlyWithChunksInfo <- rbOnly %>%
       dateTime <= DataCalEnd
     )
   ) 
-
+#make new columns with 2 dif normalization methods based on "Guidelines and Standard Procedures for Continuous Water-Quality Monitors: Station Operation, Record Computation, and Data Reporting" from USGS pg 24 
 rbOnlyCorrected <- rbOnlyWithChunksInfo %>%
   mutate(
+    #slope and offset correction (aka '2 point' correction).
+    #applied when a sensor's error is proportional to the measured value, meaning the sensitivity (slope) has drifted alongside the baseline (intercept). It corrects both the "zero" (the intercept) and the "span" (the slope) to bring the data back into alignment with reference gage
     normalizedWaterLevelBySlopeNormalized = baseline_slope * ((Water_Level_NoIce_ft - intercept_val) / slope_val) + baseline_intercept, 
+    #"constant shift" or "zero-point correction": the entire dataset is moved up or down by a static value (baseline_intercept)
     normalizedWaterLevelByOffset = Water_Level_NoIce_ft - intercept_val + baseline_intercept
   )
+#plot
 plotReady <- rbOnlyCorrected %>%
+  #mutate(normalizedWaterLevelBySlopeNormalized = ifelse(Water_Level_NoIce_ft == 0, 0, normalizedWaterLevelBySlopeNormalized)) %>%
   select(dateTime, 
          USGSGageHeightFt,
          Water_Level_NoIce_ft, 
@@ -175,10 +163,10 @@ plot <- plotReady %>%
       "normalizedWaterLevelByOffset" = "red"                 # Option A in red
     ),
     labels = c(
-      "Raw Data (NoIce)", 
-      "USGS Hitching Post Gage",
-      "Slope & Offset Correction",
-      "Offset Correction Only"
+      "Water_Level_NoIce_ft" = "Raw Data (NoIce)",                     # Raw data in gray
+      "USGSGageHeightFt" = "USGS Hitching Post Gage",
+      "normalizedWaterLevelBySlopeNormalized" = "Slope & Offset Correction",      # Option B in blue
+      "normalizedWaterLevelByOffset" = "Offset Correction Only" 
     )
   ) +
   labs(
@@ -189,8 +177,9 @@ plot <- plotReady %>%
   ) +
   theme(legend.position = "bottom", legend.direction = "vertical")
 
+plot
 ggplotly(plot)
-
+#subset because that one plot is huge
 plotReady2020 <- plotReady %>%
   filter(year(dateTime) == 2020)
 
@@ -570,7 +559,7 @@ allHPTransducerQAQC$`Hitching Post_4`$flowModelList$dailyFlowModelList$ggplotly
 allHPTransducerQAQC$`Hitching Post_4`$USGSGageHeightList$plotIwthModels
 # Confluence --------------------------------------------------------------
 
-#correlate to hydrology?
+#correlated to hydrology
 
 
 cfOnly <- ptdDataWide_1 %>%
