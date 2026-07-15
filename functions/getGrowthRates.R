@@ -32,8 +32,8 @@ getGrowthRates <- function(Recaptures, Release){
              ##RBT
              Species == "RBT" & Length <= 140 ~ "0-1 Years",
              Species == "RBT" & Length > 140 & Length <= 330 ~ "2 Years",
-             Species == "RBT" & Length > 330 & Length <= 430 ~ "3 Years",
-             Species == "RBT" & Length > 430 ~ "3+ Years",
+             Species == "RBT" & Length > 330 & Length <= 410 ~ "3 Years",
+             Species == "RBT" & Length > 410 ~ "3+ Years",
              TRUE ~ "Unknown" # Catch-all for NA or missing lengths
            )
     ) %>%
