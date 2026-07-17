@@ -1,3 +1,4 @@
+#gets results of the modeled data into a neat table for easy viewing
 modelListData <- function(siteQAQCList, flowModel = FALSE){
   final_table <- purrr::map_df(siteQAQCList, function(site_data) {
     

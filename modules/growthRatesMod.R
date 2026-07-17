@@ -85,9 +85,9 @@ growthRates_Server <- function(id, DFforGrowthRates, allColors = allColors) {
         df <- growthRates()
         req(df)
         
-        # 1. Handle dynamic coloring based on the checkbox input
+        # Handle dynamic coloring based on the checkbox input
         if (!is.null(input$group_vars) && length(input$group_vars) > 0) {
-          # Combine selected columns into a single 'ColorGroup' column
+          # Combine selected columns into a single 'Group' column
           df <- df %>% 
             unite("Group", all_of(input$group_vars), sep = " - ", remove = FALSE)
         } else {
@@ -95,7 +95,7 @@ growthRates_Server <- function(id, DFforGrowthRates, allColors = allColors) {
           df$Group <- df$Species 
         }
         
-        # 2. Build the ggplot using the new ColorGroup column
+        #Build the ggplot using the new ColorGroup column
         p <- df %>%
           ggplot(aes(x = `Length Growth Rate mm per Year`, 
                      y = `Weight Growth Rate g per Year`, 
