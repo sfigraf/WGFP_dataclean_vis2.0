@@ -43,7 +43,7 @@ Biomark <- readRDS("./data/WGFP_Biomark_Raw_20260527.rds")
 
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
 
-Release <- read.csv("./data/WGFP_ReleaseData_Master_20260430.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",7), "numeric", "numeric",rep("character",9))) %>%
+Release <- read.csv("./data/WGFP_ReleaseData_Master_20260715.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",7), "numeric", "numeric",rep("character",9))) %>%
   janitor::remove_empty()
 Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20260430.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 7), rep("numeric", 2), rep("character", 8))) %>%
   janitor::remove_empty()
@@ -77,9 +77,11 @@ names(wgfpMetadata) <- excel_sheets("./data/WGFP Metadata.xlsx")
 pTList <- list()
 
 for (file in list.files("data/PressureTransducer")) {
-  filereadin <- read_csv(file.path("data/PressureTransducer/", file))
-  filename <- na.omit(unique(filereadin$Site))
-  pTList[[filename]] <- filereadin
+  if(endsWith(file, ".csv")){
+    filereadin <- read_csv(file.path("data/PressureTransducer/", file))
+    filename <- na.omit(unique(filereadin$Site))
+    pTList[[filename]] <- filereadin
+  }
 }
 
 #binding all rows and getting names to be the same as the Site Visit Names; 
