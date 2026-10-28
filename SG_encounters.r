@@ -4327,3 +4327,13 @@ utmsStationary <- addUTMsAndReformatStationary(Stationary = Stationary)
 
 #Growth rates
 growthRates <- combinedData_df_list$QAQCtables$growthRates
+
+# 10/28/2026 removing biomark data from matt study
+x1 <- Biomark %>%
+  filter(`Reader ID` != "01")
+write_rds(x1, "WGFP_Biomark_Raw_20261006_01dataremoved.rds")
+tagsUnique <- Biomark %>%
+  distinct(`DEC Tag ID`)
+
+fitlered <- Biomark %>%
+  filter(`DEC Tag ID` == "999.000000007425")
