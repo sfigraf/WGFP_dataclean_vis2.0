@@ -4337,3 +4337,6 @@ tagsUnique <- Biomark %>%
 
 fitlered <- Biomark %>%
   filter(`DEC Tag ID` == "999.000000007425")
+
+###
+my_data <- read_csv("your_file.dat")
