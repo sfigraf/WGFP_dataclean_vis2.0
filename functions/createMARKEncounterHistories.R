@@ -1,7 +1,7 @@
 #TimePeriods <- wgfpMetadata$TimePeriods 
 # # 
 # # # ### this comes from runscript after spatial join detections stations function
-#DailyDetectionsStationsStates1 <- DailyDetectionsStationsStates$spatialList$stationStateData
+# DailyDetectionsStationsStates1 <- DailyDetectionsStationsStates$spatialList$stationStateData
 #encounterDF <- createMARKEncounterHistories(DailyDetectionsStationsStates1, GhostTags, AvianPredation, TimePeriods)
 
 library(janitor)
@@ -37,9 +37,11 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
   dataWithoutPeriods <- DailyDetectionsPeriods %>%
     filter(is.na(TimePeriod))
   
-  #don't need TGM in analysis
+  #keep only target fish species in analysis, exclude fish without species or length data
   detectionsWithStatesPeriods <- as.data.frame(DailyDetectionsPeriods) %>%
-    filter(Species != "TGM")
+    filter(Species %in% c("RBT", "LOC", "MTS"),
+           Release_Length > 0
+           )
   #getting most pertinent info
   GhostTagsForJoining <- GhostTags %>%
     rename(TAG = TagID) %>%
