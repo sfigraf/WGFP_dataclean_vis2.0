@@ -4340,3 +4340,6 @@ fitlered <- Biomark %>%
 
 ###
 my_data <- read_csv("your_file.dat")
+
+x <- release %>%
+  filter(TagID  %in% "23000022641")
