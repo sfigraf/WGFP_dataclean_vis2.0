@@ -1647,6 +1647,7 @@ Colorado River,Chimney Rock Above Island,5/4/2021,10:30:00,413880,4440093,LOC,29
 Colorado River,Chimney Rock Above Island,5/4/2021,10:30:00,413880,4440093,LOC,286,250,HA,230000142652,,32,Handheld,Release,adp,0,
 Colorado River,Chimney Rock Above Island,5/4/2021,10:30:00,413880,4440093,LOC,368,500,HA,230000142653,,32,Handheld,Release,adp,0,
 Colorado River,Chimney Rock Above Island,5/4/2021,10:30:00,413880,4440093,LOC,362,445,HA,230000142654,,32,Handheld,Release,adp,0,
+Colorado River,Chimney Rock Above Island,5/4/2021,10:30:00,413880,4440093,,,,HA,230000142656,,32,Handheld,Release,adp,0,"No release info/not listed on data sheets, has detections, will be exluded from analysis per Fetherman."
 Colorado River,Chimney Rock Above Island,5/4/2021,10:30:00,413880,4440093,LOC,338,335,HA,230000142657,,32,Handheld,Release,adp,0,
 Colorado River,Chimney Rock Above Island,5/4/2021,10:30:00,413880,4440093,LOC,307,330,HA,230000142660,,32,Handheld,Release,adp,0,
 Colorado River,Chimney Rock Above Island,5/4/2021,10:30:00,413880,4440093,LOC,313,330,HA,230000142661,pass,32,Handheld,Release,adp,0,
@@ -1947,6 +1948,7 @@ Colorado River,Pool Above Red Barn Antenna,5/4/2021,12:00:00,412550,4439453,LOC,
 Colorado River,Pool Above Red Barn Antenna,5/4/2021,12:00:00,412550,4439453,LOC,361,535,HA,230000272394,pass,32,Handheld,Release,adp,0,
 Colorado River,Pool Above Red Barn Antenna,5/4/2021,12:00:00,412550,4439453,LOC,184,56,HA,230000272395,,32,Handheld,Release,adp,0,
 Colorado River,Pool Above Red Barn Antenna,5/4/2021,12:00:00,412550,4439453,LOC,207,79,HA,230000272396,,32,Handheld,Release,adp,0,
+Colorado River,Pool Above Red Barn Antenna,5/4/2021,12:00:00,412550,4439453,,,,HA,230000272397,,32,Handheld,Release,adp,0,"No release info/not listed on datasheets, has detections, will be excluded from MARK analysis per Fetherman"
 Colorado River,Pool Above Red Barn Antenna,5/4/2021,12:00:00,412550,4439453,LOC,201,71,HA,230000272398,,32,Handheld,Release,adp,0,
 Colorado River,Below Red Barn Diversion #2,5/4/2021,13:00:00,411887,4438898,LOC,318,340,HA,230000272200,,32,Handheld,Release,adp,0,
 Colorado River,Below Red Barn Diversion #2,5/4/2021,13:00:00,411887,4438898,LOC,325,375,HA,230000272201,pass,32,Handheld,Release,adp,0,
@@ -19291,6 +19293,7 @@ Colorado River Connectivity Channel,CRCC Above CD Antenna,4/29/2026,13:30:00,415
 Colorado River Connectivity Channel,CRCC Above CD Antenna,4/29/2026,13:30:00,415803,4439872,LOC,432,661,HA,230000294580,,32,Handheld,Release,adp,0,
 Colorado River Connectivity Channel,CRCC Above CD Antenna,4/29/2026,13:30:00,415803,4439872,RBT,322,368,HA,230000294596,,32,Handheld,Release,adp,0,
 Colorado River Connectivity Channel,CRCC Above CD Antenna,4/29/2026,13:30:00,415803,4439872,LOC,402,608,HA,230000294595,,32,Handheld,Release,adp,0,
+Colorado River Connectivity Channel,CRCC Above CD Antenna,4/29/2026,13:30:00,415803,4439872,,,,,230000294579,,32,Handheld,Release,adp,0,"Probably with LOC, 187, 78 from data sheets but unassigned tag number. Will remain unassigned per Fetherman to exclude from MARK analysis. Has detections."
 Colorado River Connectivity Channel,CRCC Above CD Antenna,4/29/2026,13:30:00,415803,4439872,RBT,382,589,HA,230000294578,,32,Handheld,Release,adp,0,
 Colorado River Connectivity Channel,CRCC Above CD Antenna,4/29/2026,13:30:00,415803,4439872,RBT,361,517,HA,230000294577,,32,Handheld,Release,adp,0,
 Colorado River Connectivity Channel,CRCC Above CD Antenna,4/29/2026,13:30:00,415803,4439872,RBT,358,509,HA,230000294614,pass,32,Handheld,Release,adp,0,
