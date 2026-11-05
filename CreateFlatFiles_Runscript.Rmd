@@ -39,13 +39,13 @@ Stationary <- readRDS("./data/WGFP_Stationary_Raw_20261103.rds")
 
 Mobile <- read.csv("./data/WGFP_Mobile_Detect_AllData.csv" , colClasses= c(rep("character", 14), rep("numeric", 4), rep("character", 3)))
 
-Biomark <- readRDS("./data/WGFP_Biomark_Raw_20261104.rds")
+Biomark <- readRDS("./data/WGFP_Biomark_Raw_20261103.rds")
 
 # need to have tagID as a numeric field in the .csv file in order to be read in correctly as opposed to 2.3E+11 
 
 Release <- read.csv("./data/WGFP_ReleaseData_Master_20260715.csv", na.strings = c(""," ","NA"), colClasses=c(rep("character",7), "numeric", "numeric",rep("character",9))) %>%
   janitor::remove_empty()
-Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20260430.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 7), rep("numeric", 2), rep("character", 8))) %>%
+Recaptures <- read.csv("./data/WGFP_RecaptureData_Master_20261104.csv", na.strings = c(""," ","NA"), colClasses = c(rep("character", 7), rep("numeric", 2), rep("character", 8))) %>%
   janitor::remove_empty()
 
 ###Avian predation
@@ -551,6 +551,7 @@ allFlatFiles <- list(
 )
 
 for(filename in names(allFlatFiles)){
+  print(filename)
   saveRDS(allFlatFiles[[filename]], paste0("data/flatFilesforApp/", filename, ".rds"))
 }
 saveFilesEndTime <- Sys.time()
