@@ -61,7 +61,7 @@ All_combined_events_function <- function(Stationary, Mobile, Biomark, Release, R
   allDetections <- bind_rows(condensedMobileAndBiomark, condensedWGFP)
   
   cleanedAllDetections <- allDetections %>%
-    filter(Scan_Date >= as.Date("2020-08-06")) %>% #right before the first date of marker tag detections on stationary antennas
+    filter(Scan_Date >= as_date("2020-08-06")) %>% #right before the first date of marker tag detections on stationary antennas
     mutate(
       Scan_DateTime = ymd_hms(paste(Scan_Date, Scan_Time)), 
       Scan_Date = ymd(Scan_Date)) %>%

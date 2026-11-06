@@ -30,13 +30,17 @@ addUTMsAndCorrectDSTStationary <- function(Stationary, test_tags){
     ) %>%
     #getting these columns back to desired format for later combining with mobile, biomark etc
     mutate(
-      DTY_DSTcorrected = as.character(as.Date(datetime_denver)),
-      ARR_DSTcorrected = format(datetime_denver, "%H:%M:%S")
+      #as.date() converts to UTC before dtermining date, as_date from lubirdate repsects established time zone
+      DTY_DSTcorrected = as.character(as_date(datetime_denver)),
+      ARR_DSTcorrected = format(datetime_denver, "%H:%M:%S", tz = "America/Denver")
     ) %>%
-    select(-datetime_mst, -datetime_denver) %>%
+    #select(-datetime_mst, -datetime_denver) %>%
     relocate(DTY_DSTcorrected, .after = DTY) %>%
     relocate(ARR_DSTcorrected, .after = ARR)
 
+  # Stationary_withUTMSDSTCorrected1 <- Stationary_withUTMSDSTCorrected %>%
+  #   filter(datetime_mst > as.POSIXct("2026-10-29 00:00:00"),
+  #          SCD == "RB2")
     
   end_time = Sys.time()
   print(paste("Adding UTMs and correcting daylight savings for Stationary Detection file took", round(difftime(end_time, start_time, units = "mins"),2), "minutes"))

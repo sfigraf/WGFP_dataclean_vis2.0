@@ -4343,3 +4343,9 @@ my_data <- read_csv("your_file.dat")
 
 x <- release %>%
   filter(TagID  %in% "23000022641")
+biomark <- indiv_datasets_list$biomarkdata
+x <- biomark %>%
+  mutate(dateTime = ymd_hms(paste(`Scan Date`, `Scan Time`)), 
+         `Download Date` = mdy(`Download Date`)) %>%
+  arrange(`Download Date`) %>%
+  filter(year(`Download Date`) == as.POSIXlt(2026))

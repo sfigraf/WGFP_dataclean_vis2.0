@@ -14,7 +14,7 @@ fraserColoradoRiverConfluence <- as.numeric(wgfpMetadata$ImportantStationingVari
 
 AllEvents <- combinedData_df_list$All_Events %>%
   filter(TAG == "230000294213", 
-         Date >= as.Date("2025-10-05") & Date <= as.Date("2025-10-08")
+         Date >= as_date("2025-10-05") & Date <= as.Date("2025-10-08")
     ) %>%
   mutate(hours_since = as.numeric(floor(difftime(Datetime, min(Datetime), units = "hours"))), 
          hourSequence = as_datetime(as.character(round(Datetime, units = "hours"))), 
@@ -23,7 +23,7 @@ AllEvents <- combinedData_df_list$All_Events %>%
          # if you want to start at week 1 instead of week 0, add +1 to the end of expression
          # when you change this too, it changes the number of entries in the states dataframe
          weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks"))), 
-         daySequence = as.Date(as.character(round(Datetime, units = "days")))
+         daySequence = as_date(as.character(round(Datetime, units = "days")))
          )
 
 if(TimeFrame == "Hours") {
