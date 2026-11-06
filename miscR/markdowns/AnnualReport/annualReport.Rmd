@@ -131,10 +131,10 @@ Throughout the study, there have been a total of `r nrow(indiv_datasets_list$rel
 
 ```{r, echo = FALSE, include=TRUE, warning=FALSE,message=FALSE,error=FALSE}
 ReleaseData <- indiv_datasets_list$releasedata %>%
-  mutate(Date = as.Date(Date)) %>%
+  mutate(Date = as_date(Date)) %>%
   filter(!Species %in% c("TGM"))
 Recaptures <- indiv_datasets_list$recapdata %>%
-  mutate(Date = as.Date(Date))
+  mutate(Date = as_date(Date))
 
 releaseRecaps <- Recaptures %>%
   rename(ReleaseSite = RecaptureSite) %>%
@@ -845,7 +845,7 @@ latLongCRS <- st_crs("+proj=longlat +datum=WGS84 +no_defs") #should be same as +
 fraserColoradoRiverConfluence <- as.numeric(wgfpMetadata$ImportantStationingVariables[wgfpMetadata$ImportantStationingVariables$Variable == "Fraser/Colorado River Confluence", "StationingLocation"])
 
 AllEvents <- mergOnly %>%
-  filter(Date >= as.Date("2024-09-17") & Date <= as.Date("2024-09-21")
+  filter(Date >= as_date("2024-09-17") & Date <= as_date("2024-09-21")
     ) %>%
   mutate(hours_since = as.numeric(floor(difftime(Datetime, min(Datetime), units = "hours"))), 
          hourSequence = as_datetime(as.character(round(Datetime, units = "hours"))), 
@@ -854,7 +854,7 @@ AllEvents <- mergOnly %>%
          # if you want to start at week 1 instead of week 0, add +1 to the end of expression
          # when you change this too, it changes the number of entries in the states dataframe
          weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks"))), 
-         daySequence = as.Date(as.character(round(Datetime, units = "days")))
+         daySequence = as_date(as.character(round(Datetime, units = "days")))
          )
 
 if(TimeFrame == "Hours") {
@@ -995,7 +995,7 @@ fraserColoradoRiverConfluence <- as.numeric(wgfpMetadata$ImportantStationingVari
 
 
 AllEvents <- fishOnly %>%
-  filter(Date >= as.Date("2025-10-05") & Date <= as.Date("2025-10-08")
+  filter(Date >= as_date("2025-10-05") & Date <= as_date("2025-10-08")
     ) %>%
   mutate(hours_since = as.numeric(floor(difftime(Datetime, min(Datetime), units = "hours"))), 
          hourSequence = as_datetime(as.character(round(Datetime, units = "hours"))), 
@@ -1004,7 +1004,7 @@ AllEvents <- fishOnly %>%
          # if you want to start at week 1 instead of week 0, add +1 to the end of expression
          # when you change this too, it changes the number of entries in the states dataframe
          weeks_since = as.numeric(floor(difftime(Date, min(Date), units = "weeks"))), 
-         daySequence = as.Date(as.character(round(Datetime, units = "days")))
+         daySequence = as_date(as.character(round(Datetime, units = "days")))
          )
 
 if(TimeFrame == "Hours") {

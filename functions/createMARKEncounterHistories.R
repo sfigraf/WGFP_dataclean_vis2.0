@@ -309,7 +309,7 @@ createMARKEncounterHistories <- function(DailyDetectionsStationsStates1, GhostTa
               "States_summarized" = summarizedStates,
               "possibleAvianPredation" = possibleAvianPredation,
               "endMessage" = paste(c(startMessage, endMessage), collapse = "<br>"), 
-              "timePeriodsMessage" = ifelse(nrow(dataWithoutPeriods) > 0, paste0("When assigning states for program MARK, some data don't have a time period assigned to them, date ranges ", as.Date(min(dataWithoutPeriods$Datetime)), " to ", as.Date(max(dataWithoutPeriods$Datetime)),". 
+              "timePeriodsMessage" = ifelse(nrow(dataWithoutPeriods) > 0, paste0("When assigning states for program MARK, some data don't have a time period assigned to them, date ranges ", as_date(min(dataWithoutPeriods$Datetime)), " to ", as.Date(max(dataWithoutPeriods$Datetime)),". 
                                                                                  Add or adjust time periods in the csv. Could also be from incorrect Time assignment in Release, Recap or other files. Needed format "), "")
               )
          )

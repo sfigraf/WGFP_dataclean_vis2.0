@@ -74,7 +74,7 @@ mod_animationServer <- function(id, filtered_movements_data, allColors = allColo
             #hours not being used at all currently but could potentially be used in future. 
             #Doesn't make sense to use with movement data since it's subsetted by day but hours are used in bigAnimation on all data
             hours_since = as.numeric(floor(difftime(Datetime, min(Datetime), units = "hours"))),
-            daySequence = as.Date(as.character(round(Datetime, units = "days"))),
+            daySequence = as_date(as.character(round(Datetime, units = "days"))),
           ) %>%
           # need to ungroup to get this code to work
           ungroup()
