@@ -65,10 +65,10 @@ growthRates_Server <- function(id, DFforGrowthRates, allColors = allColors) {
           dataSummarized <- df %>%
             mutate(Species = str_trim(Species)) %>%
             dplyr::group_by(across(all_of(input$group_vars))) %>%
-            dplyr::summarise(`Median Length Growth Rate (g per year)` = round(median(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
-                             `Median Weight Growth Rate (mm per year)` = round(median(`Weight Growth Rate g per Year`, na.rm = TRUE), 2),
-                             `Mean Length Growth Rate (g per year)` = round(mean(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
-                             `Mean Weight Growth Rate (mm per year)` = round(mean(`Weight Growth Rate g per Year`, na.rm = TRUE), 2),
+            dplyr::summarise(`Median Length Growth Rate (mm per year)` = round(median(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
+                             `Median Weight Growth Rate (g per year)` = round(median(`Weight Growth Rate g per Year`, na.rm = TRUE), 2),
+                             `Mean Length Growth Rate (mm per year)` = round(mean(`Length Growth Rate mm per Year`, na.rm = TRUE), 2),
+                             `Mean Weight Growth Rate (g per year)` = round(mean(`Weight Growth Rate g per Year`, na.rm = TRUE), 2),
                              `Sample Size (n)` = n(), 
                              .groups = "drop"
             )

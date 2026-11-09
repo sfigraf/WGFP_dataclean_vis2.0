@@ -119,6 +119,7 @@ end_time = Sys.time()
 ```{r USGSData, include = TRUE, echo = FALSE}
 usgsTime <- Sys.time()
 #reading in USGS data with upt to date data
+
 windyGapDaily <- read_waterdata_daily(monitoring_location_id = "USGS-09034250", #code for windy gap
                        parameter_code = c("00060", "00010"), #this is parameter codes for discharge and celsius water temp; more can be added if needed. https://help.waterdata.usgs.gov/codes-and-parameters/parameters
                        time = c("2020-08-06", Sys.Date())
@@ -136,21 +137,40 @@ windyGapDaily <- windyGapDaily %>%
 #sometimes this can fail if USGS is having issues on their end
 ###since the new water data continupous only retunrs 3 year datasets, use this from purrr to combine it together
 #Set up total date range, make sure it's in denver timezone or else we'll lose data when getting start/end dates for date chunks
-start_date <- as.POSIXct("2020-08-06 00:00:00", tz = "America/Denver")
-end_date <- Sys.time()
+
+archiveUSGS <- "data/flatFilesforApp/USGSData.rds"
+#sometimes old values are QAQC'd and edited so this gives a good buffer (120 days) to capture those values
+lookbackDays <- 120
+
+# Determine start date for the current pull
+if (file.exists(archiveUSGS)) {
+  existingUSGSdata <- readRDS(archiveUSGS)
+  archiveUSGScontinuous <- existingUSGSdata$USGS15Min
+
+  fetch_start <- as.character(Sys.Date() - lookbackDays)
+} else {
+  # First time setup: pull everything back to 2020 using chunking with map2_dfr
+  existingUSGSdata <- NULL
+  fetch_start <- "2020-08-06"
+}
+
+fetch_end <- as.character(Sys.Date())
+
+# Fetch data (Chunk only if pulling > 2 years on an initial run)
+fetch_start_time <- as.POSIXct(paste(fetch_start, "00:00:00"), tz = "America/Denver")
+fetch_end_time   <- Sys.time()
 
 # Create the sequence of start dates (every 2 years)
-starts <- seq(from = start_date, to = end_date, by = "2 years")
-
+starts <- seq(from = fetch_start_time, to = fetch_end_time, by = "2 years")
 # Create the sequence of end dates
 # take all the start dates (skipping the first one), subtract 1 day, 
 # and then tack final end_date onto the very end.
-ends <- c(starts[-1] - 1, end_date)
+ends   <- c(starts[-1] - 1, fetch_end_time)
 
 #  Loop through the intervals, pull the data, and bind the rows together
 #map2 = map over 2 vectors or lists in parrallel: starts and ends
 #_dfr = return resultting in df by rows, not lists
-windyGap2 <- map2_dfr(
+rawPullData <- map2_dfr(
   starts, # Start dates for each chunk
   ends, # End dates for each chunk
   #~ means make a anonmymous function
@@ -161,7 +181,7 @@ windyGap2 <- map2_dfr(
   )
 )
 
-windyGap2_wide <- windyGap2 %>%
+newUSGSData <- rawPullData %>%
   
   # Translate the numeric codes into human-readable names
   mutate(
@@ -172,20 +192,30 @@ windyGap2_wide <- windyGap2 %>%
       "00065" ~ "USGSGageHeightFt"
     )
   ) %>%
-  
-  
-  # 3. Pivot to wide format
+  # Pivot to wide format
   pivot_wider(
     id_cols = c(monitoring_location_id, time),
     names_from = parameter_code,
     values_from = value
   )
-windyGapRenamed <- windyGap2_wide %>%
+newUSGSDataRenamed <- newUSGSData %>%
   mutate(USGSWatertemp = (`USGSWatertemp` * 9/5) + 32) %>%
   rename(dateTime = time)
 
 #this is to make attaching these readings to detections later; doesn't change any data
-windyGapRenamed$dateTime <- lubridate::force_tz(windyGapRenamed$dateTime, tzone = "UTC") 
+newUSGSDataRenamed$dateTime <- lubridate::force_tz(newUSGSDataRenamed$dateTime, tzone = "UTC") 
+if (!is.null(existingUSGSdata)) {
+  # Remove the overlapping window from the existing archive, then append the fresh pull
+  cutoff_time <- as.POSIXct(paste(fetch_start, "00:00:00"), tz = "UTC")
+  
+  windyGapRenamed <- archiveUSGScontinuous %>%
+    filter(dateTime < cutoff_time) %>%
+    bind_rows(newUSGSDataRenamed) %>%
+    arrange(dateTime)
+} else {
+  windyGapRenamed <- newUSGSDataRenamed %>% 
+    arrange(dateTime)
+}
 
 #for joining with WindyGapDaily since windy gap daily doesn't get daily average staff gage readings (code 00065)
 avgGageHeightDaily <- windyGapRenamed %>%
@@ -212,9 +242,8 @@ allPressureTransducerDataWithDischarge_Long <- allPressureTransducerDataWithDisc
 
 usgsTime2 <- Sys.time()
 ```
+
 #### `r paste("Reading in USGS Data took", round(difftime(usgsTime2, usgsTime, units = "mins"), 2), "minutes.")`
-
-
 
 ```{r QAQCduplicateTags, include = FALSE, echo = FALSE}
 #checking if ghost tags have 1 tag entry for each
@@ -252,9 +281,8 @@ if(nrow(problemReleaseTags) > 0){
   problemReleaseTagsMessage <- ""
 }
 ```
-<span style="color:red; font-size: 30px;" >`r problemGhostTagsMessage`</span>
-<span style="color:red; font-size: 30px;" >`r problemAvianPredationTagsMessage`</span>
-<span style="color:red; font-size: 30px;" >`r problemReleaseTagsMessage`</span>
+
+[`r problemGhostTagsMessage`]{style="color:red; font-size: 30px;"} [`r problemAvianPredationTagsMessage`]{style="color:red; font-size: 30px;"} [`r problemReleaseTagsMessage`]{style="color:red; font-size: 30px;"}
 
 ```{r metadatavariables, include=FALSE, echo = FALSE}
 ###Variables that are used throughout the funcitons
@@ -495,9 +523,13 @@ SiteVisitData <- list(
 ```
 
 #### `r AllCombinedEvents$endMessage`
+
 #### `r DailyDetectionsStationsStates$endMessage`
+
 #### `r encounterMARKStates$endMessage`
+
 #### `r enc_hist_wide_list$endMessage`
+
 #### `r Movements_list$message`
 
 ```{r qaqcTables, echo = FALSE, results='asis'}
@@ -529,9 +561,7 @@ if (nrow(DailyDetectionsStationsStates$spatialList$noState) > 0) {
 
 ```
 
-
-<span style="color:red; font-size: 30px;" >`r encounterMARKStates$timePeriodsMessage`</span>
-
+[`r encounterMARKStates$timePeriodsMessage`]{style="color:red; font-size: 30px;"}
 
 ```{r saveFiles, include = FALSE, echo=FALSE}
 saveFilestartTime <- Sys.time()
@@ -562,4 +592,5 @@ whole_doc_endTime <- Sys.time()
 ```
 
 #### `r savingFilesEndMessage`
+
 ## `r paste("The whole document took", round(whole_doc_endTime-whole_doc_startTime,2), "minutes to run.  Flat Files are saved to the flat files directory and the data vis app is ready to run with the most updated data.")`
