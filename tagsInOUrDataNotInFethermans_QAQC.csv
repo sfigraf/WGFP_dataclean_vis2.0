@@ -1,0 +1,148 @@
+TagID,Date,Date...2,Species.x,Species.y,Length,Length...4,Weight,Weight...5,ReleaseSite,Release Location,Mortality,QAQC,Notes
+230000294688,4/30/2026,NA,LOC,NA,210,NA,88,NA,Upper Red Barn Fry Site,NA,0,checked,Not entered in Fetherman's data but present in data sheets
+230000294724,4/30/2026,NA,LOC,NA,425,NA,712,NA,Upper Red Barn Fry Site,NA,1,checked,Not entered in Fetherman's data but present in data sheets
+230000294765,4/30/2026,NA,RBT,NA,316,NA,355,NA,Upper Red Barn Fry Site,NA,0,checked,"in data sheets, sequence of data starting with tag numbers 297 instead of 294. I assumed this sequence was 294 based on the subsequent tag numbers in the datasheet"
+230000294764,4/30/2026,NA,RBT,NA,371,NA,495,NA,Upper Red Barn Fry Site,NA,0,checked,"in data sheets, sequence of data starting with tag numbers 297 instead of 294. I assumed this sequence was 294 based on the subsequent tag numbers in the datasheet"
+230000294763,4/30/2026,NA,RBT,NA,372,NA,601,NA,Upper Red Barn Fry Site,NA,0,checked,"in data sheets, sequence of data starting with tag numbers 297 instead of 294. I assumed this sequence was 294 based on the subsequent tag numbers in the datasheet"
+230000294762,4/30/2026,NA,RBT,NA,376,NA,571,NA,Upper Red Barn Fry Site,NA,0,checked,"in data sheets, sequence of data starting with tag numbers 297 instead of 294. I assumed this sequence was 294 based on the subsequent tag numbers in the datasheet"
+230000294761,4/30/2026,NA,RBT,NA,363,NA,520,NA,Upper Red Barn Fry Site,NA,0,checked,"in data sheets, sequence of data starting with tag numbers 297 instead of 294. I assumed this sequence was 294 based on the subsequent tag numbers in the datasheet"
+230000294755,4/30/2026,NA,RBT,NA,376,NA,602,NA,Upper Red Barn Fry Site,NA,1,checked,Not entered in Fetherman's data but present in data sheets
+230000294563,4/29/2026,NA,LOC,NA,228,NA,113,NA,CRCC Above US Split Flow,NA,0,checked,Entered in Fetherman's data as 264563 
+230000294620,4/29/2026,NA,RBT,NA,230,NA,144,NA,CRCC Downstream Confluence,NA,0,checked,Not entered in Fetherman's data but present in data sheets
+230000294651,4/29/2026,NA,LOC,NA,405,NA,458,NA,CRCC Downstream Confluence,NA,0,checked,"Fish was tagged twice with 294650 as well, Fetherman's data makes note of this"
+230000226479,4/29/2026,NA,LOC,NA,189,NA,58,NA,CRCC Downstream Confluence,NA,0,checked,Entered in datasheets as 294479 but all the tags around it are 226xxx. Fetherman's data has 2 tags 294479 asa result
+230000294383,4/28/2026,NA,LOC,NA,275,NA,196,NA,Hitching Post,NA,1,,
+230000294442,4/28/2026,NA,LOC,NA,331,NA,340,NA,Hitching Post,NA,1,,
+230000294375,4/28/2026,NA,RBT,NA,296,NA,278,NA,Hitching Post,NA,0,checked,Entered In Fetherman's data as 394xxx
+230000294374,4/28/2026,NA,RBT,NA,434,NA,841,NA,Hitching Post,NA,0,checked,Entered In Fetherman's data as 394xxx
+230000294373,4/28/2026,NA,RBT,NA,287,NA,228,NA,Hitching Post,NA,0,checked,Entered In Fetherman's data as 394xxx
+230000294351,4/28/2026,NA,RBT,NA,342,NA,442,NA,Hitching Post,NA,0,checked,Entered In Fetherman's data as 394xxx
+230000294334,4/28/2026,NA,RBT,NA,262,NA,196,NA,Hitching Post,NA,0,checked,"present in our data, missing from Fetherman's"
+230000294550,4/28/2026,NA,RBT,NA,372,NA,534,NA,Kinney Creek,NA,0,checked,Not entered in Fetherman's data but present in data sheets
+230000294545,4/28/2026,NA,RBT,NA,378,NA,595,NA,Kinney Creek,NA,0,checked,"entered as 294595 in Fetherman's data, he has 2 entires for this tag number in his data"
+230000294507,4/28/2026,NA,RBT,NA,365,NA,616,NA,Kinney Creek,NA,1,checked,Mort
+230000294510,4/28/2026,NA,RBT,NA,412,NA,818,NA,Kinney Creek,NA,1,checked,Mort
+230000294474,4/28/2026,NA,LOC,NA,388,NA,252,NA,Kinney Creek,NA,1,checked,Mort
+266000369793,10/1/2025,NA,MTS,NA,81,NA,7,NA,Lower River Run,NA,0,checked,Our data was wrong
+230000226539,10/1/2025,NA,LOC,NA,170,NA,42,NA,Lower River Run,NA,1,,
+230000226709,9/30/2025,NA,LOC,NA,170,NA,44,NA,CRCC Downstream Confluence,NA,1,,
+230000226680,9/30/2025,NA,LOC,NA,160,NA,38,NA,CRCC Side Channel Below CS,NA,1,,
+226000380028,9/16/2025,NA,MTS,NA,108,NA,NA,NA,Below Confluence Antenna,NA,0,checked,"our bad, should have been 0228"
+226000380244,9/16/2025,NA,MTS,NA,102,NA,NA,NA,Below Confluence Antenna,NA,0,checked,input as 380224 in fetherman's data
+220000382917,9/3/2025,NA,MTS,NA,91,NA,11,NA,Kaibab Park,NA,0,checked,bad prefix on our end
+230000226809,9/3/2025,NA,LOC,NA,182,NA,62,NA,Kaibab Park,NA,1,,
+230000226803,9/3/2025,NA,LOC,NA,183,NA,68,NA,Kaibab Park,NA,1,,
+230000226799,9/3/2025,NA,LOC,NA,175,NA,54,NA,Kaibab Park,NA,0,checked,"present in our data, missing from Fetherman's"
+230000226738,9/3/2025,NA,LOC,NA,216,NA,104,NA,Kaibab Park,NA,1,,
+230000226745,9/3/2025,NA,LOC,NA,175,NA,54,NA,Kaibab Park,NA,1,,
+230000226750,9/3/2025,NA,LOC,NA,168,NA,48,NA,Kaibab Park,NA,1,,
+230000382802,9/3/2025,NA,MTS,NA,89,NA,10,NA,Kaibab Park,NA,0,checked,prefix should be 226 not 230
+230000226763,9/3/2025,NA,LOC,NA,175,NA,58,NA,Kaibab Park,NA,1,,
+230000226769,9/3/2025,NA,LOC,NA,176,NA,64,NA,Kaibab Park,NA,1,,
+230000226776,9/3/2025,NA,LOC,NA,175,NA,56,NA,Kaibab Park,NA,1,,
+230000226778,9/3/2025,NA,LOC,NA,168,NA,46,NA,Kaibab Park,NA,1,,
+230000226780,9/3/2025,NA,LOC,NA,167,NA,48,NA,Kaibab Park,NA,1,,
+230000226074,9/2/2025,NA,LOC,NA,195,NA,78,NA,Fraser River Ranch,NA,1,,
+230000226079,9/2/2025,NA,LOC,NA,194,NA,68,NA,Fraser River Ranch,NA,1,,
+230000226848,9/2/2025,NA,LOC,NA,210,NA,109,NA,Fraser River Ranch,NA,1,,
+230000226879,9/2/2025,NA,LOC,NA,202,NA,76,NA,Fraser River Ranch,NA,1,,
+230000226872,9/2/2025,NA,LOC,NA,202,NA,86,NA,Fraser River Ranch,NA,1,,
+230000226871,9/2/2025,NA,LOC,NA,202,NA,90,NA,Fraser River Ranch,NA,1,,
+230000226869,9/2/2025,NA,LOC,NA,195,NA,74,NA,Fraser River Ranch,NA,1,,
+230000294192,5/6/2025,NA,RBT,NA,361,NA,476,NA,Hitching Post,NA,0,checked,"present in our data, missing from Fetherman's"
+230000294112,5/6/2025,NA,RBT,NA,391,NA,508,NA,Pool Above Red Barn Antenna,NA,0,checked,"present in our data, missing from Fetherman's"
+230000294108,5/6/2025,NA,LOC,NA,333,NA,312,NA,Pool Above Red Barn Antenna,NA,0,checked,"present in our data, missing from Fetherman's"
+230000087857,10/1/2024,NA,LOC,NA,147,NA,30,NA,Upper River Run,NA,1,,
+226000382868,9/4/2024,NA,MTS,NA,72,NA,4,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382921,9/4/2024,NA,MTS,NA,110,NA,20,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data. Also: I believe this tag was entered as 382921 in our data and 226001382421 in Fetherman’s data. Given the sequence around it I’m inclined to think that 382921 is the correct tag ID 
+226000382769,9/4/2024,NA,MTS,NA,82,NA,8,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382827,9/4/2024,NA,MTS,NA,81,NA,7,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382842,9/4/2024,NA,MTS,NA,105,NA,14,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382792,9/4/2024,NA,MTS,NA,78,NA,6,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382773,9/4/2024,NA,MTS,NA,80,NA,6,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382865,9/4/2024,NA,MTS,NA,77,NA,6,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382771,9/4/2024,NA,MTS,NA,79,NA,5,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382916,9/4/2024,NA,MTS,NA,112,NA,16,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382857,9/4/2024,NA,MTS,NA,105,NA,118,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382823,9/4/2024,NA,MTS,NA,104,NA,14,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382979,9/4/2024,NA,MTS,NA,85,NA,9,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382809,9/4/2024,NA,MTS,NA,121,NA,24,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382977,9/4/2024,NA,MTS,NA,112,NA,19,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382888,9/4/2024,NA,MTS,NA,111,NA,21,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382821,9/4/2024,NA,MTS,NA,105,NA,16,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382815,9/4/2024,NA,MTS,NA,95,NA,12,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382758,9/4/2024,NA,MTS,NA,85,NA,8,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382901,9/4/2024,NA,MTS,NA,86,NA,8,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382785,9/4/2024,NA,MTS,NA,102,NA,13,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382925,9/4/2024,NA,MTS,NA,76,NA,5,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382997,9/4/2024,NA,MTS,NA,86,NA,11,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382938,9/4/2024,NA,MTS,NA,82,NA,7,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382982,9/4/2024,NA,MTS,NA,77,NA,5,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382861,9/4/2024,NA,MTS,NA,76,NA,5,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382933,9/4/2024,NA,MTS,NA,77,NA,4,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382810,9/4/2024,NA,MTS,NA,81,NA,5,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+226000382894,9/4/2024,NA,MTS,NA,79,NA,5,NA,Kaibab Park,NA,0,checked,part of 226001 erroneous sequence in fetherman's data
+230000087447,9/3/2024,NA,LOC,NA,285,NA,226,NA,Fraser River Ranch,NA,1,,
+230000087443,9/3/2024,NA,RBT,NA,224,NA,127,NA,Fraser River Ranch,NA,0,checked,"present in our data, missing from Fetherman's"
+230000087492,9/3/2024,NA,LOC,NA,155,NA,42,NA,Fraser River Ranch,NA,1,,
+230000087479,9/3/2024,NA,LOC,NA,208,NA,100,NA,Fraser River Ranch,NA,1,,
+230000087463,9/3/2024,NA,LOC,NA,156,NA,38,NA,Fraser River Ranch,NA,1,,
+230000087543,9/3/2024,NA,LOC,NA,156,NA,38,NA,Fraser River Ranch,NA,1,,
+230000144274,10/3/2023,NA,LOC,NA,165,NA,43,NA,Upper River Run,NA,1,,
+226001544911,9/6/2023,NA,MTS,NA,114,NA,23,NA,Kaibab Park,NA,0,checked,"bad on our end, should be 1544811"
+230000143854,9/6/2023,NA,LOC,NA,170,NA,51,NA,Kaibab Park,NA,0,checked,"present in our data, missing from Fetherman's"
+230000143872,9/6/2023,NA,LOC,NA,167,NA,43,NA,Kaibab Park,NA,1,,
+230000143879,9/6/2023,NA,LOC,NA,232,NA,122,NA,Kaibab Park,NA,0,checked,"same as tag 143126, released in 2022. These are condensed to 1 release entry in Feterman's data, should do the same in ours"
+230000143780,9/5/2023,NA,RBT,NA,227,NA,116,NA,Fraser River Ranch,NA,0,checked,"cranial; sign of whirling disesase. Not in fetherman's data, intentional"
+230000143826,9/5/2023,NA,RBT,NA,220,NA,116,NA,Fraser River Ranch,NA,0,checked,"cranial; sign of whirling disesase. Not in fetherman's data, intentional"
+230000143834,9/5/2023,NA,LOC,NA,344,NA,488,NA,Fraser River Ranch,NA,1,,
+230000144391,6/7/2023,NA,RBT,NA,399,NA,527,NA,Kinney Creek,NA,0,checked,"present in our data, entered in Fetherman’s as 230002144391"
+230000144393,6/7/2023,NA,RBT,NA,362,NA,454,NA,Kinney Creek,NA,0,checked,"present in our data, entered in Fetherman’s as 230001144393"
+230000144381,6/7/2023,NA,LOC,NA,358,NA,430,NA,Sheriff Ranch Fry Site,NA,0,checked,"present in our data, entered in Fetherman’s as 230001144381"
+230000143596,10/5/2022,NA,LOC,NA,260,NA,158,NA,Windy Gap Dam,NA,1,,
+230000143607,10/5/2022,NA,LOC,NA,182,NA,64,NA,Windy Gap Dam,NA,1,,
+230000143685,10/5/2022,NA,RBT,NA,298,NA,285,NA,Windy Gap Dam,NA,0,checked,"present in our data, entered in Fetherman's as 230000243685"
+230000143019,10/4/2022,NA,LOC,NA,257,NA,164,NA,Lower River Run,NA,1,,
+230000143077,10/4/2022,NA,LOC,NA,173,NA,32,NA,Lower River Run,NA,1,,
+230000143078,10/4/2022,NA,LOC,NA,159,NA,31,NA,Lower River Run,NA,1,,
+230000143504,10/4/2022,NA,LOC,NA,182,NA,68,NA,Upper River Run,NA,1,,
+230000143515,10/4/2022,NA,LOC,NA,215,NA,116,NA,Upper River Run,NA,1,,
+226001581200,8/31/2022,NA,MTS,NA,112,NA,20,NA,Kaibab Park,NA,0,checked,endign in 205 on fetherman's data. Neither tag number as recaps or detections so we'll go with his
+230000143188,8/31/2022,NA,LOC,NA,157,NA,42,NA,Kaibab Park,NA,1,,
+230000143276,8/31/2022,NA,LOC,NA,228,NA,119,NA,Kaibab Park,NA,0,checked,"double tagged fish, also tagged as 224528 and that's what the recap has been entered as. Noted in release file and fetherman's data"
+230000143145,8/30/2022,NA,RBT,NA,200,NA,86,NA,Fraser River Ranch,NA,1,,
+230000143150,8/30/2022,NA,LOC,NA,198,NA,81,NA,Fraser River Ranch,NA,1,,
+230000143155,8/30/2022,NA,LOC,NA,189,NA,63,NA,Fraser River Ranch,NA,1,,
+230000143220,8/30/2022,NA,LOC,NA,230,NA,134,NA,Fraser River Ranch,NA,1,,
+230000143230,8/30/2022,NA,LOC,NA,257,NA,162,NA,Fraser River Ranch,NA,1,,
+230000143240,8/30/2022,NA,LOC,NA,272,NA,175,NA,Fraser River Ranch,NA,1,,
+230000143243,8/30/2022,NA,LOC,NA,327,NA,359,NA,Fraser River Ranch,NA,1,,
+230000143244,8/30/2022,NA,LOC,NA,241,NA,146,NA,Fraser River Ranch,NA,1,,
+230000143245,8/30/2022,NA,RBT,NA,322,NA,333,NA,Fraser River Ranch,NA,1,,
+230000143246,8/30/2022,NA,LOC,NA,368,NA,552,NA,Fraser River Ranch,NA,1,,
+230000143353,5/5/2022,NA,RBT,NA,252,NA,188,NA,Upper Red Barn Fry Site,NA,0,checked,"double tagged fish, also tagged as 1581358 and that's what the recap has been entered as. Noted in release file and fetherman's data"
+230000142462,5/2/2022,NA,LOC,NA,341,NA,370,NA,Kinney Creek,NA,0,checked,"in the data sheets, listed nextr to 143462. No other tag sequence with 14246x. Not sure how to handle this"
+230000143442,5/2/2022,NA,RBT,NA,291,NA,233,NA,Kinney Creek,NA,0,checked,"present in our data, missing from Fetherman's"
+230000224238,10/5/2021,NA,LOC,NA,299,NA,290,NA,Upper River Run,NA,1,,
+230000224247,10/5/2021,NA,LOC,NA,165,NA,49,NA,Upper River Run,NA,1,,
+230000224215,10/5/2021,NA,LOC,NA,150,NA,38,NA,Lower River Run,NA,1,,
+226001581305,9/2/2021,NA,MTS,NA,86,NA,7,NA,Kaibab Park,NA,1,,
+226001581351,9/2/2021,NA,MTS,NA,79,NA,5,NA,Kaibab Park,NA,1,,
+230000224273,9/2/2021,NA,LOC,NA,172,NA,50,NA,Kaibab Park,NA,1,,
+230000224277,9/2/2021,NA,LOC,NA,128,NA,18,NA,Kaibab Park,NA,1,,
+230000224278,9/2/2021,NA,LOC,NA,160,NA,40,NA,Kaibab Park,NA,1,,
+230000224280,9/2/2021,NA,LOC,NA,142,NA,32,NA,Kaibab Park,NA,1,,
+230000224284,9/2/2021,NA,LOC,NA,177,NA,64,NA,Kaibab Park,NA,1,,
+230000224295,9/2/2021,NA,LOC,NA,151,NA,36,NA,Kaibab Park,NA,1,,
+230000224297,9/2/2021,NA,LOC,NA,167,NA,50,NA,Kaibab Park,NA,1,,
+230000224535,9/2/2021,NA,LOC,NA,155,NA,38,NA,Kaibab Park,NA,1,,
+230000272403,5/4/2021,2021-05-04T00:00:00Z,LOC,LOC,NA,NA,NA,NA,Dark Timber Above Railroad,CR - Below Dark Timber above RR,0,checked,both datas in agreement just no length recorded
+230000228821,10/6/2020,NA,LOC,NA,176,NA,48,NA,Upper Red Barn Fry Site,NA,1,,
+226001581304,10/5/2020,NA,MTS,NA,112,NA,18,NA,Lower River Run,NA,1,,
+230000228298,9/2/2020,NA,RBT,NA,164,NA,45,NA,Kaibab Park,NA,1,,
+230000228312,9/2/2020,NA,LOC,NA,127,NA,15,NA,Kaibab Park,NA,1,,
+230000228323,9/2/2020,NA,LOC,NA,142,NA,28,NA,Kaibab Park,NA,1,,
+230000228324,9/2/2020,NA,LOC,NA,128,NA,23,NA,Kaibab Park,NA,1,,
+226001581627,9/1/2020,NA,RBT,NA,88,NA,6,NA,Fraser River Ranch,NA,1,,
+230000228055,9/1/2020,NA,LOC,NA,173,NA,43,NA,Fraser River Ranch,NA,1,,
+230000228059,9/1/2020,NA,LOC,NA,389,NA,640,NA,Fraser River Ranch,NA,1,,
