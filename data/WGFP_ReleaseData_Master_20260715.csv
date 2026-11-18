@@ -3973,7 +3973,7 @@ Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,MTS,94,12,HA,22600158
 Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,MTS,82,8,HA,226001581194,,12,Handheld,Release,right pelvic,0,
 Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,MTS,93,11,HA,226001581196,,12,Handheld,Release,right pelvic,0,
 Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,MTS,102,16,HA,226001581197,,12,Handheld,Release,right pelvic,0,
-Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,MTS,112,20,HA,226001581200,,12,Handheld,Release,right pelvic,0,
+Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,MTS,112,20,HA,226001581205,,12,Handheld,Release,right pelvic,0,
 Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,MTS,99,13,HA,226001581207,,12,Handheld,Release,right pelvic,0,
 Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,MTS,87,9,HA,226001581209,,12,Handheld,Release,right pelvic,0,
 Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,MTS,97,12,HA,226001581218,,12,Handheld,Release,right pelvic,0,
@@ -4039,7 +4039,7 @@ Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,LOC,166,45,HA,2300001
 Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,LOC,178,62,HA,230000143202,,32,Handheld,Release,adp,0,
 Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,LOC,294,223,HA,230000143253,,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
 Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,LOC,242,140,HA,230000143275,,32,Handheld,Release,adp,0,
-Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,LOC,228,119,HA,230000143276,fail,32,Handheld,Release,adp,0,"Two tags in fish, 230000224528"
+Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,LOC,228,119,HA,230000143276,fail,32,Handheld,Release,adp,0,"double tagged fish, also tagged as 224528 and that's what the recap has been entered as. "
 Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,LOC,158,43,HA,230000143277,pass,32,Handheld,Release,adp,0,
 Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,LOC,177,59,HA,230000143278,,32,Handheld,Release,adp,0,
 Fraser River,Kaibab Park,8/31/2022,12:00:00,420626,4437179,LOC,174,59,HA,230000143279,,32,Handheld,Release,adp,0,
@@ -4539,7 +4539,7 @@ Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,LOC,137,36,HA,2
 Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,LOC,288,245,HA,230000143777,,32,Handheld,Release,adp,0,
 Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,LOC,203,86,HA,230000143778,,32,Handheld,Release,adp,0,
 Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,LOC,175,51,HA,230000143779,,32,Handheld,Release,adp,0,
-Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,RBT,227,116,HA,230000143780,pass,32,Handheld,Release,adp,0,
+Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,RBT,227,116,HA,230000143780,pass,32,Handheld,Release,adp,0,"cranial; sign of whirling disesase. Not in fetherman's data, intentional"
 Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,LOC,415,733,HA,230000143781,,32,Handheld,Release,adp,0,
 Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,LOC,321,304,HA,230000143782,,32,Handheld,Release,adp,0,
 Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,LOC,282,223,HA,230000143783,,32,Handheld,Release,adp,0,
@@ -4581,7 +4581,7 @@ Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,LOC,185,70,HA,2
 Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,LOC,223,112,HA,230000143823,,32,Handheld,Release,adp,0,
 Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,LOC,290,237,HA,230000143824,pass,32,Handheld,Release,adp,0,
 Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,LOC,275,198,HA,230000143825,,32,Handheld,Release,adp,0,
-Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,RBT,220,116,HA,230000143826,,32,Handheld,Release,adp,0,
+Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,RBT,220,116,HA,230000143826,,32,Handheld,Release,adp,0,"cranial; sign of whirling disesase. Not in fetherman's data, intentional"
 Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,LOC,273,201,HA,230000143827,,32,Handheld,Release,adp,0,
 Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,LOC,182,67,HA,230000143828,,32,Handheld,Release,adp,0,
 Fraser River,Fraser River Ranch,9/5/2023,13:00:00,417229,4438617,LOC,270,198,HA,230000143829,,32,Handheld,Release,adp,0,
@@ -4634,7 +4634,7 @@ Fraser River,Kaibab Park,9/6/2023,13:00:00,420626,4437179,MTS,81,8,HA,2260015448
 Fraser River,Kaibab Park,9/6/2023,13:00:00,420626,4437179,MTS,101,23,HA,226001544895,pass,12,Handheld,Release,right pelvic  ,0,
 Fraser River,Kaibab Park,9/6/2023,13:00:00,420626,4437179,MTS,120,20,HA,226001544898,,12,Handheld,Release,right pelvic  ,0,
 Fraser River,Kaibab Park,9/6/2023,13:00:00,420626,4437179,MTS,79,7,HA,226001544910,,12,Handheld,Release,right pelvic  ,0,
-Fraser River,Kaibab Park,9/6/2023,13:00:00,420626,4437179,MTS,114,23,HA,226001544911,,12,Handheld,Release,right pelvic  ,0,
+Fraser River,Kaibab Park,9/6/2023,13:00:00,420626,4437179,MTS,114,23,HA,226001544811,,12,Handheld,Release,right pelvic  ,0,
 Fraser River,Kaibab Park,9/6/2023,13:00:00,420626,4437179,MTS,106,17,HA,226001544913,,12,Handheld,Release,right pelvic  ,0,
 Fraser River,Kaibab Park,9/6/2023,13:00:00,420626,4437179,MTS,81,6,HA,226001544918,,12,Handheld,Release,right pelvic  ,0,
 Fraser River,Kaibab Park,9/6/2023,13:00:00,420626,4437179,MTS,75,6,HA,226001544919,pass,12,Handheld,Release,right pelvic  ,0,
@@ -10667,7 +10667,7 @@ Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,MTS,77,6,HA,22600038286
 Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,MTS,79,5,HA,226000382771,,12,Handheld,Release,right pelvic,0,
 Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,MTS,112,16,HA,226000382916,,12,Handheld,Release,right pelvic,0,
 Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,LOC,270,198,HA,230000087657,pass,32,Handheld,Recapture and Release,adp,0,"OT loss, NT"
-Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,MTS,105,118,HA,226000382857,,12,Handheld,Release,right pelvic,0,
+Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,MTS,105,18,HA,226000382857,,12,Handheld,Release,right pelvic,0,
 Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,RBT,163,44,HA,230000087656,,32,Handheld,Release,adp,0,
 Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,LOC,212,82,HA,230000087655,,32,Handheld,Release,adp,0,
 Fraser River,Kaibab Park,9/4/2024,9:30:00,420626,4437179,MTS,104,14,HA,226000382823,,12,Handheld,Release,right pelvic,0,
@@ -18310,7 +18310,7 @@ Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,MTS,97,14,HA,226000382
 Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,MTS,81,8,HA,226000382991,,12,Handheld,Release,,0,
 Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,MTS,81,8,HA,226000382876,,12,Handheld,Release,,0,
 Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,MTS,93,12,HA,226000382825,,12,Handheld,Release,,0,
-Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,MTS,91,11,HA,220000382917,,12,Handheld,Release,,0,
+Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,MTS,91,11,HA,226000382917,,12,Handheld,Release,,0,
 Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,LOC,181,64,HA,230000226830,pass,32,Handheld,Release,,0,
 Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,LOC,198,77,HA,230000226829,,32,Handheld,Release,,0,
 Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,LOC,197,73,HA,230000226828,,32,Handheld,Release,,0,
@@ -18426,7 +18426,7 @@ Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,LOC,182,62,HA,23000022
 Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,LOC,232,134,HA,230000226748,,32,Handheld,Release,,0,
 Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,LOC,173,58,HA,230000226749,,32,Handheld,Release,,0,
 Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,LOC,168,48,HA,230000226750,pass,32,Handheld,Release,,1,
-Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,MTS,89,10,HA,230000382802,,12,Handheld,Release,,0,
+Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,MTS,89,10,HA,226000382802,,12,Handheld,Release,,0,
 Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,LOC,223,106,HA,230000226751,,32,Handheld,Release,,0,
 Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,LOC,177,58,HA,230000226752,,32,Handheld,Release,,0,
 Fraser River,Kaibab Park,9/3/2025,16:30:00,420626,4437179,MTS,82,7,HA,226000382940,,12,Handheld,Release,,0,
@@ -18523,7 +18523,7 @@ Colorado River,Below Confluence Antenna,9/16/2025,10:30:00,416908,4439467,MTS,12
 Colorado River,Below Confluence Antenna,9/16/2025,10:30:00,416908,4439467,MTS,120,NA,HA,226000380127,,12,Handheld,Release,,0,
 Colorado River,Below Confluence Antenna,9/16/2025,10:30:00,416908,4439467,MTS,115,NA,HA,226000380240,,12,Handheld,Release,,0,
 Colorado River,Below Confluence Antenna,9/16/2025,10:30:00,416908,4439467,MTS,111,NA,HA,226000380227,,12,Handheld,Release,,0,
-Colorado River,Below Confluence Antenna,9/16/2025,10:30:00,416908,4439467,MTS,108,NA,HA,226000380028,,12,Handheld,Release,,0,
+Colorado River,Below Confluence Antenna,9/16/2025,10:30:00,416908,4439467,MTS,108,NA,HA,226000380228,,12,Handheld,Release,,0,
 Colorado River,Below Confluence Antenna,9/16/2025,10:30:00,416908,4439467,MTS,84,NA,HA,226000380114,,12,Handheld,Release,,0,
 Colorado River,Below Confluence Antenna,9/16/2025,10:30:00,416908,4439467,MTS,103,NA,HA,226000380246,,12,Handheld,Release,,0,
 Colorado River,Below Confluence Antenna,9/16/2025,10:30:00,416908,4439467,MTS,110,NA,HA,226000380167,,12,Handheld,Release,,0,
@@ -18731,7 +18731,7 @@ Colorado River,Lower River Run,10/1/2025,15:30:00,418207,4439939,LOC,322,294,HA,
 Colorado River,Lower River Run,10/1/2025,15:30:00,418207,4439939,MTS,106,19,HA,226000369917,pass,12,Handheld,Release,,0,
 Colorado River,Lower River Run,10/1/2025,15:30:00,418207,4439939,LOC,357,401,HA,230000226548,,32,Handheld,Release,,0,
 Colorado River,Lower River Run,10/1/2025,15:30:00,418207,4439939,LOC,184,63,HA,230000226547,,32,Handheld,Release,,0,
-Colorado River,Lower River Run,10/1/2025,15:30:00,418207,4439939,MTS,81,7,HA,266000369793,,12,Handheld,Release,,0,
+Colorado River,Lower River Run,10/1/2025,15:30:00,418207,4439939,MTS,81,7,HA,226000369793,,12,Handheld,Release,,0,
 Colorado River,Lower River Run,10/1/2025,15:30:00,418207,4439939,LOC,153,33,HA,230000226546,,32,Handheld,Release,,0,
 Colorado River,Lower River Run,10/1/2025,15:30:00,418207,4439939,LOC,250,140,HA,230000226545,pass,32,Handheld,Release,,0,
 Colorado River,Lower River Run,10/1/2025,15:30:00,418207,4439939,MTS,84,9,HA,226000369838,,12,Handheld,Release,,0,
@@ -19376,7 +19376,7 @@ Colorado River Connectivity Channel,CRCC Downstream Confluence,4/29/2026,16:30:0
 Colorado River Connectivity Channel,CRCC Downstream Confluence,4/29/2026,16:30:00,415856,4440178,LOC,214,98,HA,230000294683,pass,32,Handheld,Release,adp,0,
 Colorado River Connectivity Channel,CRCC Downstream Confluence,4/29/2026,16:30:00,415856,4440178,LOC,177,56,HA,230000294684,,32,Handheld,Release,adp,0,
 Colorado River Connectivity Channel,CRCC Downstream Confluence,4/29/2026,16:30:00,415856,4440178,LOC,152,33,HA,230000294673,,32,Handheld,Release,adp,0,
-Colorado River Connectivity Channel,CRCC Downstream Confluence,4/29/2026,16:30:00,415856,4440178,,,,HA,230000294672,,32,Handheld,Release,adp,0,Not listed on data sheets but has detections
+Colorado River Connectivity Channel,CRCC Downstream Confluence,4/29/2026,16:30:00,415856,4440178,,,,HA,230000294672,,32,Handheld,Release,adp,0,Not listed on data sheets
 Colorado River,Upper Red Barn Fry Site,4/30/2026,13:15:00,412728,4439665,LOC,362,452,HA,230000294685,,32,Handheld,Release,adp,0,
 Colorado River,Upper Red Barn Fry Site,4/30/2026,13:15:00,412728,4439665,LOC,408,596,HA,230000294686,pass,32,Handheld,Release,adp,0,
 Colorado River,Upper Red Barn Fry Site,4/30/2026,13:15:00,412728,4439665,LOC,384,596,HA,230000294687,pass,32,Handheld,Release,adp,0,
@@ -19455,10 +19455,10 @@ Colorado River,Upper Red Barn Fry Site,4/30/2026,13:15:00,412728,4439665,RBT,152
 Colorado River,Upper Red Barn Fry Site,4/30/2026,13:15:00,412728,4439665,RBT,324,405,HA,230000294733,pass,32,Handheld,Release,adp,0,RB 30
 Colorado River,Upper Red Barn Fry Site,4/30/2026,13:15:00,412728,4439665,RBT,402,574,HA,230000294739,,32,Handheld,Release,adp,0,Last fish tagged!
 Colorado River,Hitching Post,7/14/2026,13:30:00,414476,4440260,MERG,59,657,HA,230000143728,,32,Handheld,Release,,0,"Merganser, male, 59 mm Tarsus, Fledgling, Banded"
-Colorado River,Hitching Post,7/14/2026,13:30:00,414476,4440260,MERG,58,577,HA,230000087406,,33,Handheld,Release,,0,"Merganser, female, 58 mm Tarsus, Fledgling, Banded"
-Colorado River,Hitching Post,7/14/2026,13:30:00,414476,4440260,MERG,55,572,HA,230000143729,,34,Handheld,Release,,0,"Merganser, female, 55 mm Tarsus, Fledgling, Banded"
-Colorado River,Hitching Post,7/14/2026,13:30:00,414476,4440260,MERG,56,937,HA,230000087415,,35,Handheld,Release,,0,"Merganser, female, 56 mm Tarsus, Fledgling, Banded"
-Colorado River,Hitching Post,7/14/2026,13:30:00,414476,4440260,MERG,52,557,HA,230000087422,,36,Handheld,Release,,0,"Merganser, female, 52 mm Tarsus, Fledgling, Banded"
-Colorado River,Hitching Post,7/14/2026,13:30:00,414476,4440260,MERG,59,622,HA,230000143730,,37,Handheld,Release,,0,"Merganser, male, 59 mm Tarsus, Fledgling, Banded"
-Colorado River,Hitching Post,7/14/2026,13:30:00,414476,4440260,MERG,53,638,HA,230000143726,,38,Handheld,Release,,0,"Merganser, female, 53 mm Tarsus, Fledgling, Banded"
-Colorado River,Hitching Post,7/14/2026,13:30:00,414476,4440260,MERG,59,688,HA,230000087417,,39,Handheld,Release,,0,"Merganser, male, 59 mm Tarsus, Fledgling, Banded"
+Colorado River,Hitching Post,7/14/2026,13:30:00,414476,4440260,MERG,58,577,HA,230000087406,,32,Handheld,Release,,0,"Merganser, female, 58 mm Tarsus, Fledgling, Banded"
+Colorado River,Hitching Post,7/14/2026,13:30:00,414476,4440260,MERG,55,572,HA,230000143729,,32,Handheld,Release,,0,"Merganser, female, 55 mm Tarsus, Fledgling, Banded"
+Colorado River,Hitching Post,7/14/2026,13:30:00,414476,4440260,MERG,56,937,HA,230000087415,,32,Handheld,Release,,0,"Merganser, female, 56 mm Tarsus, Fledgling, Banded"
+Colorado River,Hitching Post,7/14/2026,13:30:00,414476,4440260,MERG,52,557,HA,230000087422,,32,Handheld,Release,,0,"Merganser, female, 52 mm Tarsus, Fledgling, Banded"
+Colorado River,Hitching Post,7/14/2026,13:30:00,414476,4440260,MERG,59,622,HA,230000143730,,32,Handheld,Release,,0,"Merganser, male, 59 mm Tarsus, Fledgling, Banded"
+Colorado River,Hitching Post,7/14/2026,13:30:00,414476,4440260,MERG,53,638,HA,230000143726,,32,Handheld,Release,,0,"Merganser, female, 53 mm Tarsus, Fledgling, Banded"
+Colorado River,Hitching Post,7/14/2026,13:30:00,414476,4440260,MERG,59,688,HA,230000087417,,32,Handheld,Release,,0,"Merganser, male, 59 mm Tarsus, Fledgling, Banded"
