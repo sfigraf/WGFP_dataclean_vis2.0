@@ -4349,3 +4349,121 @@ x <- biomark %>%
          `Download Date` = mdy(`Download Date`)) %>%
   arrange(`Download Date`) %>%
   filter(year(`Download Date`) == as.POSIXlt(2026))
+##### seeing if fethermans reelase data is the same as ours
+library(readxl)
+Fetherman_Tag_Releases_MASTER <- read_excel("Tag Releases MASTER.xlsx", 
+                                  sheet = "MASTER 6-26")
+sgRelewase <- indiv_datasets_list$releasedata %>%
+  filter(!Species %in% c("TGM")) %>%
+  select(-Comments)
+# x <- sgRelewase %>%
+#   filter(!str_starts(TagID, "226|230"))
+names(Fetherman_Tag_Releases_MASTER)
+disrepancies1 <- sgRelewase %>%
+  left_join(Fetherman_Tag_Releases_MASTER, by = c("TagID" = "Full Tag #")) %>%
+  select(TagID, Date, Date...2, Species.x, Species.y, Length, Length...4, Weight, Weight...5, ReleaseSite, `Release Location`, Mortality) %>%
+  filter(is.na(Length...4), Species.x != "MERG")
+
+disrepancies2 <- sgRelewase %>%
+  right_join(Fetherman_Tag_Releases_MASTER, by = c("TagID" = "Full Tag #")) %>%
+  select(TagID, Date, Date...2, Species.x, Species.y, Length, Length...4, Weight, Weight...5, ReleaseSite, `Release Location`, Mortality) %>%
+  filter(is.na(Length))
+
+write_csv(disrepancies1, "tagsInOUrDataNotInFethermans.csv")
+write_csv(disrepancies2, "tagsInFethermanDataNotInOurs.csv")
+
+x <- Fetherman_Tag_Releases_MASTER %>%
+  count(`Full Tag #`) %>%
+  filter(n >1)
+
+sgRelease2024 <- sgRelewase %>%
+  mutate(Date = ymd(Date)) %>%
+  filter(year(Date) == 2024)
+cat(x$`Full Tag #`, sep = ", ")
+x <- Fetherman_Tag_Releases_MASTER %>%
+  filter(str_detect(`Full Tag #`, "1382"), `Release Location` == "Kaibab Park")
+
+x1 <- x %>%
+  left_join(sgRelease2024, by = c("Release Location" = "ReleaseSite", "Species", "Length...4" = "Length", "Weight...5" = "Weight")) %>%
+  select(TagID, `Full Tag #`, Date, Date...2, Species, Length...4, Weight...5, `Release Location`, Mortality) 
+write_csv(x1, "Kaibab2024.csv")
+weirdTagSequence <- unique(x$`Full Tag #`)
+cat(weirdTagSequence, sep = ", ")
+
+x2 <- x %>%
+  mutate(CorrectCode = str_replace(`Full Tag #`, "^2260013", "2260003")) %>%
+  filter(!CorrectCode %in% CorrectSGcodes)
+###seeing if there is anything different
+CorrectSGcodes <- c(
+  "226000382868",
+  "226000382921",
+  "226000382769",
+  "226000382827",
+  "226000382842",
+  "226000382792",
+  "226000382773",
+  "226000382865",
+  "226000382771",
+  "226000382916",
+  "226000382857",
+  "226000382823",
+  "226000382979",
+  "226000382809",
+  "226000382977",
+  "226000382888",
+  "226000382821",
+  "226000382815",
+  "226000382758",
+  "226000382901",
+  "226000382785",
+  "226000382925",
+  "226000382997",
+  "226000382938",
+  "226000382982",
+  "226000382861",
+  "226000382933",
+  "226000382810",
+  "226000382894"
+)
+
+## 
+alldata <- combinedData_df_list$All_Detections
+x <- alldata %>%
+  filter(TAG == "230000292262") %>%
+  mutate(Scan_Date2 = ymd(as.character(Scan_Date)))
+utmCRS <- st_crs(32613)
+dataInutms <- sf::st_as_sf(x, coords = c("UTM_X", "UTM_Y"), crs = utmCRS, remove = FALSE)
+#reproject
+
+latLongCRS <- st_crs("+proj=longlat +datum=WGS84 +no_defs") #should be same as +init=epsg:4326
+reproject <- sf::st_transform(dataInutms, latLongCRS) %>%
+  mutate(
+    long = st_coordinates(.)[, "X"],
+    lat = st_coordinates(.)[, "Y"]
+  )
+
+map <- leaflet() %>%
+  addProviderTiles(providers$Esri.WorldImagery,
+                   options = providerTileOptions(maxZoom = 19.5)
+  ) %>% addCircleMarkers(
+    data = reproject,
+    clusterOptions = markerClusterOptions(
+      spiderfyOnMaxZoom = TRUE,
+      spiderfyDistanceMultiplier = 1.8
+    ),
+    lng = ~long, 
+    lat = ~lat,
+    # group = as.character(cat),       # Sets the group name for layer control
+    color = "red",
+    # radius = 5,
+    # stroke = FALSE,
+    # fillOpacity = 0.8,
+    popup = ~paste(
+      reproject$Scan_Date, "<br>"
+      # df_subset$Time, "<br>",
+      # df_subset$Lat_DD, "<br>",
+      # df_subset$Long_DD, "<br>",
+      #df_subset$TagID
+    ) # Optional popup
+  )
+map
