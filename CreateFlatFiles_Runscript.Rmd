@@ -558,6 +558,18 @@ if (nrow(DailyDetectionsStationsStates$spatialList$noState) > 0) {
   DT::datatable(DailyDetectionsStationsStates$spatialList$noState)
 }
 
+if (nrow(DailyDetectionsStationsStates$spatialList$noState) > 0) {
+  cat('<span style="color:red; font-size: 30px;"><strong>The following tags could not be assigned a state (aside from TGM) because their boundary was outside the states polygon: </strong></span><br><br>')
+  DT::datatable(DailyDetectionsStationsStates$spatialList$noState)
+}
+ReleaseQAQC <- cleanedRelease %>%
+  filter(Species != "TGM", 
+  !str_starts(TagID, "226|230"))
+if (nrow(ReleaseQAQC) > 0) {
+  cat('<span style="color:red; font-size: 30px;"><strong>The following tags in the release file do not start with 230 or 226: </strong></span><br><br>')
+  cat(unique(ReleaseQAQC$TagID), sep = ", ")
+}
+
 
 ```
 
