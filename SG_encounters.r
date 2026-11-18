@@ -4467,3 +4467,6 @@ map <- leaflet() %>%
     ) # Optional popup
   )
 map
+
+x <- combinedData_df_list$All_Detections %>%
+  filter(TAG == "450115000071409")
