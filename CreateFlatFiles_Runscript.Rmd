@@ -373,6 +373,13 @@ Release <- dummy_rows_list$Release
 
 Stationary_withUTMSDSTCorrected <- addUTMsAndCorrectDSTStationary(Stationary = Stationary, test_tags = test_tags)
 
+##### for 'double tagged" fish, change detections of the "secondary" tag to "main tag ID"
+# as of 11/19/2026 this only affects 228898, gainign more detections because of 272263, but they're the same fish and 228898 is the main tag
+# it has just a few RB detections, so for now we keep it simple: just change entires of 230000272263 to 230000228898
+#if 230000272263 had more than RB detections or there were more tags with issues, this would be a bit more complicated, but it's not
+Stationary_withUTMSDSTCorrected$TAG[Stationary_withUTMSDSTCorrected$TAG == "230000272263"] <- "230000228898"
+
+
 # this readies raw files to be put into functions as well as displayed on Indivudal Datasets Page
 Mobile <- Mobile %>%
     mutate(Date = as.character(lubridate::mdy(Date)))
