@@ -1,7 +1,7 @@
 ---
 title: "Movement Exploration"
 author: "Sam Graf"
-date: "2025-04-29"
+date: "`r Sys.Date()`"
 output: html_document
 ---
 #### All data excludes "No Movement", "Changed Rivers", and "Initial Release". Inclues Ghost tags and Avian Predated Tags
@@ -13,6 +13,43 @@ library(plotly)
 ####want to do all movements, species graph, etc
 #exlcude no movements?
 movements <- readRDS("movements.rds")
+
+# define antenna order: upstream to downstream
+UStoDSorder <- c("Granby Diversion Biomark Antenna", "River Run Biomark Antenna", 
+                  "Confluence Stationary Antenna",
+                  "Connectivity Channel Upstream Stationary Antenna",
+                  "Connectivity Channel Downstream Stationary Antenna",
+                  "Connectivity Channel Side Channel Stationary Antenna",
+                  "Windy Gap Auxiliary Biomark Antenna",
+                  "Windy Gap Bypass Channel Biomark Antenna", 
+                  "Hitching Post Stationary Antenna", 
+                  "Red Barn Stationary Antenna",
+                  
+                  "Release", 
+                  "Recapture and Release", 
+                  "Recapture", "Mobile Run", "G1")
+#define upstream to downstream with release sites
+UStoDSorderReleaseSites <- c("Kaibab Park", "Fraser River Ranch", 
+                             "Upper River Run", "Lower River Run", 
+                             "Below Confluence Antenna", "CRCC Above CU Antenna", 
+                             "CRCC Above US Split Flow", "CRCC Lower CRCC Below Dam",
+                             "CRCC Above CD Antenna", "CRCC Downstream Confluence",
+                             "CRCC Side Channel Below CS", "Windy Gap Dam",
+                              "Between CRCC and Hitching Post", "Hitching Post", 
+                             "Chimney Rock Above Island", "Chimney Rock Below Island",
+                             "Upper Red Barn Fry Site", "Pool Above Red Barn Antenna", 
+                             "Lower Red Barn Fry Site", "Below Red Barn Diversion #1", 
+                             "Below Red Barn Diversion #2", "Kinney Creek",
+                             "Dark Timber Above Railroad", "Sheriff Ranch Upper Field",
+                             "Sheriff Ranch Middle Field", "Sheriff Ranch Fry Site",
+                             "Shadow Mountain Reservoir")
+#species order
+speciesOrder <- c("LOC", "RBT", "MTS", "RXN", "MWF", "BRK", "MERG", "TGM", "No Info")
+
+# Convert det_type to a factor with those exact levels
+movements$det_type <- factor(movements$det_type, levels = UStoDSorder)
+movements$ReleaseSite <- factor(movements$ReleaseSite, levels = UStoDSorderReleaseSites)
+movements$Species <- factor(movements$Species, levels = speciesOrder)
 
 movementsData <- movements %>%
   filter(!movement_only %in% c("Initial Release", "No Movement", "Changed Rivers"), 
@@ -213,6 +250,8 @@ ggplotly(plot)
 movementsAntenna <- movementsData %>%
   count(movement_only, det_type) 
 
+
+
 movementsAntennaWide <- movementsAntenna %>%
   pivot_wider(values_from = n, names_from = movement_only) %>%
   mutate(`DS Percentage` = `Downstream Movement`/(`Upstream Movement` + `Downstream Movement`))
@@ -393,12 +432,24 @@ plot <- ggplot(movementsReleaseSiteAntenna, aes(x = det_type, y = n, fill = move
       "Upstream Movement"     = "#22bd74"
     )
   ) +
-  facet_wrap(~ReleaseSite, scales = "free_y") +
+  #
+  facet_wrap(~ReleaseSite, scales = "free_y", 
+             #wraps labels so dones't run onto next graph
+             labeller = label_wrap_gen(width = 20), 
+             #less columns make readbility easier
+             ncol = 3) +
   theme(
-    axis.text.x = element_text(angle = 80, hjust = 1)
+    axis.text.x = element_text(angle = 80, hjust = 1), 
+    #changes the lines of the graph titles, can prevent overlap onto graph for long release site names
+    panel.spacing.y = unit(3, "lines"), 
+    axis.title.x = element_text(margin = margin(t = 205))
   )
 
-ggplotly(plot)
+ggplotly(plot) #%>%
+  # layout(
+  #   xaxis = list(title = list(standoff = 100)), # Pushes x-axis title away from tick labels
+  #   margin = list(b = 100)                     # Adds bottom canvas space so the title isn't cut off
+  # )
 ```
 
 

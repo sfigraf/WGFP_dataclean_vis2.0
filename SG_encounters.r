@@ -4470,3 +4470,9 @@ map
 
 x <- combinedData_df_list$All_Detections %>%
   filter(TAG == "450115000071409")
+
+#
+setdiff(unique(movements$det_type), unique(movements_old$det_type))
+names(movements)
+x1 <- movements %>%
+  right_join(movements_old)
